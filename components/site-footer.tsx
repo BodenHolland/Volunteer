@@ -16,6 +16,7 @@ export function SiteFooter() {
             <Link href="/how-it-works" className="text-body hover:text-forest">How it works</Link>
             <Link href="/about" className="text-body hover:text-forest">About</Link>
             <Link href="/for-organizations" className="text-body hover:text-forest">For organizations</Link>
+            <Link href="/deliverables" className="text-body hover:text-forest">Public deliverables</Link>
             <Link href="/how-it-works#calfresh" className="text-body hover:text-forest">CalFresh &amp; CF 888</Link>
             <Link href="/how-it-works#identity" className="text-body hover:text-forest">Privacy</Link>
             <Link href="/contact" className="text-body hover:text-forest">Contact</Link>

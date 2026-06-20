@@ -38,9 +38,11 @@ export async function approveSubmission(formData: FormData) {
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const month = currentMonth();
 
+  // Approved work is published as a free public deliverable (Change 1-3).
+  const nowTs = Date.now();
   await db
-    .prepare("UPDATE submissions SET status = 'approved', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ?, hours_credited = ? WHERE id = ?")
-    .bind(Date.now(), user.id, notes, hours, id)
+    .prepare("UPDATE submissions SET status = 'approved', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ?, hours_credited = ?, published_at = ? WHERE id = ?")
+    .bind(nowTs, user.id, notes, hours, nowTs, id)
     .run();
 
   await db

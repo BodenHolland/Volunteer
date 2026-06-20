@@ -200,9 +200,14 @@ review required", ...}` → `pending_review`. Demo works with no API key.
 
 | Real | Mocked / stubbed |
 |---|---|
-| D1 schema + queries | SMS/email delivery (flows real, sends stubbed) |
-| **Real email+password auth, sessions, RBAC** | Phone OTP (simulated until SMS wired) |
-| R2 file storage | BenefitsCal OCR (skipped) |
+| **Real email+password auth, sessions, RBAC, lockout** | SMS/email delivery (flows real, sends stubbed) |
+| **Hours = measured active time, capped; immutable audit** | Phone OTP (simulated until SMS wired) |
+| **4-part task gate + admin approval** | BenefitsCal OCR (skipped) |
+| **PII field encryption (AES-GCM, key-gated)** | Device fingerprinting (Tier-4 partial) |
+| **Per-county cert pre-clearance gating** | Durable queues (AI runs via waitUntil + poll) |
+| **Free public deliverable gallery (CC0)** | Real Twilio / managed email |
+| **Security headers, rate limiting, audit log, 40 unit tests + CI** | i18n (EN only so far) |
+| R2 file storage · OpenRouter AI · pdf-lib CF 888 | |
 | OpenRouter AI validation | BenefitsCal OCR (skipped; marked verified) |
 | pdf-lib CF 888 fill | State submission (user uploads form themselves) |
 | EXIF extraction (exifr) | Email/SMS/push notifications |

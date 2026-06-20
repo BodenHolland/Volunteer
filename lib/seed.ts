@@ -508,6 +508,14 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   );
   stmts.push(ledgerIns.bind("ledger_m_sfcdc", USER_MARISOL, month, 8, ORG_SFCDC));
 
+  // ---- counties (per-county pre-clearance): SF cleared for the pilot ----
+  const countyIns = db.prepare(
+    `INSERT INTO counties (id, name, state, cert_enabled, cleared_at, clearance_note) VALUES (?,?,?,?,?,?)`
+  );
+  stmts.push(countyIns.bind("county_sf", "San Francisco", "CA", 1, now - 30 * DAY, "Pilot county — written CDSS/county confirmation on file (demo)."));
+  stmts.push(countyIns.bind("county_alameda", "Alameda", "CA", 0, null, null));
+  stmts.push(countyIns.bind("county_santaclara", "Santa Clara", "CA", 0, null, null));
+
   // ---- flags: the tree-census pending submissions are clean ("No flags raised") ----
   // (No flag rows inserted for seed; the review screen shows "No flags raised".)
 
@@ -530,6 +538,8 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       await db.prepare("UPDATE submissions SET measured_active_seconds = ? WHERE id = ?").bind(secs, s.id).run();
     }
   }
+  // Approved seed work is published as a free public deliverable.
+  await db.prepare("UPDATE submissions SET published_at = reviewed_at WHERE status = 'approved' AND published_at IS NULL").run();
 }
 
 /** Seed only if the database is empty (first-run bootstrap). */

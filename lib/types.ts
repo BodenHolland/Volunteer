@@ -143,6 +143,8 @@ export interface Submission {
   // hours integrity (migration 0003)
   measured_active_seconds: number;
   idle_seconds: number;
+  // deliverable distribution (migration 0004)
+  published_at: number | null;
 }
 
 export interface SubmissionFile {

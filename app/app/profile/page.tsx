@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, Info, Settings } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
+import { decryptField } from "@/lib/crypto";
 import { parseJson, type Address } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,14 @@ export default async function ProfilePage({
     );
   }
 
-  const addr = parseJson<Address>(user.address_json, { line1: "", city: "", state: "", zip: "" });
+  const [legalName, caseNumber, dob, phone, addressJson] = await Promise.all([
+    decryptField(user.legal_name),
+    decryptField(user.case_number),
+    decryptField(user.dob),
+    decryptField(user.phone),
+    decryptField(user.address_json),
+  ]);
+  const addr = parseJson<Address>(addressJson, { line1: "", city: "", state: "", zip: "" });
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -66,21 +74,21 @@ export default async function ProfilePage({
           <h2 className="text-base font-semibold text-ink">Identity</h2>
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>
-            <Input id="legal_name" name="legal_name" defaultValue={user.legal_name ?? ""} autoComplete="name" />
+            <Input id="legal_name" name="legal_name" defaultValue={legalName ?? ""} autoComplete="name" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="case_number">CalFresh case number</Label>
-              <Input id="case_number" name="case_number" defaultValue={user.case_number ?? ""} inputMode="numeric" />
+              <Input id="case_number" name="case_number" defaultValue={caseNumber ?? ""} inputMode="numeric" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dob">Date of birth</Label>
-              <Input id="dob" name="dob" type="date" defaultValue={user.dob ?? ""} />
+              <Input id="dob" name="dob" type="date" defaultValue={dob ?? ""} />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" name="phone" type="tel" defaultValue={user.phone ?? ""} autoComplete="tel" />
+            <Input id="phone" name="phone" type="tel" defaultValue={phone ?? ""} autoComplete="tel" />
           </div>
         </section>
 

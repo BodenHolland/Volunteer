@@ -8,6 +8,7 @@ interface CloudflareEnv {
 	OPENROUTER_MODEL: string;
 	OPENROUTER_SITE_URL: string;
 	OPENROUTER_APP_NAME: string;
+	PII_ENCRYPTION_KEY?: string;
 	FILES: R2Bucket;
 	DB: D1Database;
 	WORKER_SELF_REFERENCE: Fetcher;

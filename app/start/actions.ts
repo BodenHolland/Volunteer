@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/cf";
+import { encryptField, encryptJson } from "@/lib/crypto";
 import { newId } from "@/lib/ids";
 import { putFile } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
@@ -29,7 +30,7 @@ export async function submitPhone(formData: FormData) {
   if (!/^\d{6}$/.test(code)) redirect("/start?step=phone&error=code");
   await getDb()
     .prepare("UPDATE users SET phone = ?, phone_verified_at = ? WHERE id = ?")
-    .bind(phone, Date.now(), user.id)
+    .bind(await encryptField(phone), Date.now(), user.id)
     .run();
   redirect("/start?step=pii");
 }
@@ -49,7 +50,13 @@ export async function submitPii(formData: FormData) {
   };
   await getDb()
     .prepare("UPDATE users SET legal_name = ?, case_number = ?, address_json = ?, dob = ? WHERE id = ?")
-    .bind(legalName, caseNumber, JSON.stringify(address), dob, user.id)
+    .bind(
+      await encryptField(legalName),
+      await encryptField(caseNumber),
+      await encryptJson(address),
+      await encryptField(dob),
+      user.id
+    )
     .run();
   redirect("/start?step=benefitscal");
 }
