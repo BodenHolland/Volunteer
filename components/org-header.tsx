@@ -64,7 +64,6 @@ export function OrgHeader({ user }: { user: OrgHeaderUser }) {
                   <DropdownMenuItem asChild><Link href="/org/team"><Users2 /> Team</Link></DropdownMenuItem>
                 </>
               )}
-              <DropdownMenuItem asChild><Link href="/start"><Users /> Switch identity</Link></DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem destructive asChild><Link href="/signout"><LogOut /> Sign out</Link></DropdownMenuItem>
             </DropdownMenuContent>
@@ -91,7 +90,6 @@ export function OrgHeader({ user }: { user: OrgHeaderUser }) {
                 <Link href="/org/team" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section [&_svg]:size-[18px]"><Users2 /> Team</Link>
               </>
             )}
-            <Link href="/start" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section [&_svg]:size-[18px]"><Users /> Switch identity</Link>
             <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-brick hover:bg-brick-subtle [&_svg]:size-[18px]"><LogOut /> Sign out</Link>
           </nav>
         </div>

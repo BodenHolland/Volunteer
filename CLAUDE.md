@@ -79,22 +79,32 @@ Production verification tiers (the demo bypasses all of them):
 
 ---
 
-## Two auth gates (see `middleware.ts`)
+## Authentication (production — `lib/auth.ts`, migration `0002_auth.sql`)
 
-1. **Site password.** Middleware checks cookie `cf_demo_auth`. Missing → `/enter`.
-   On match, cookie set `HttpOnly Secure SameSite=Lax`, 30 days.
-2. **Soft session.** Missing `cf_session` → `/start`. Header has a
-   **"Switch identity"** link that clears `cf_session`.
+Real **email + password** accounts. No demo gate, no identity-swap.
 
-`cf_session` holds a **seeded `user_id`** (no real auth). "Switch identity" routes
-to `/start` where a persona picker lets you become any seeded user in one click —
-this powers the demo's recipient ⇄ reviewer hops.
+- Passwords hashed with **PBKDF2-SHA256** (100k iters, per-user salt).
+- **Revocable server-side sessions** (`sessions` table). The cookie
+  (`tended_session`, HttpOnly/SameSite=Lax/Secure-in-prod) holds an opaque token;
+  the DB stores only its SHA-256 hash. Password change revokes all sessions.
+- **Email verification** + **password reset** via one-time `auth_tokens` (hashed).
+  The flows are real; **delivery is stubbed** (`lib/notify.ts`) until a provider is
+  wired — links/codes are logged. Phone OTP at onboarding is likewise simulated
+  until SMS is wired.
+- Account **lockout** after 8 failed logins (15 min).
+- `middleware.ts` redirects unauthenticated `/app|/org|/admin` to `/login`; role is
+  enforced in layouts/pages via `require*` (`lib/session.ts`).
+
+**Demo accounts** (seeded, all share password `tended-demo-2026`):
+`marisol.reyes@example.com` (recipient, snap_cert), `trevor.nakamura@example.com`
+(recipient, casual), `priya.venkatesan@example.com` (SFCDC org_admin),
+`daniel.okafor@example.com` (FUF reviewer), `alex.mercado@example.com` (admin).
 
 ---
 
 ## D1 schema
 
-Source of truth: `migrations/0001_init.sql`. Tables:
+Source of truth: `migrations/0001_init.sql` + `migrations/0002_auth.sql`. Tables:
 `orgs, users, task_templates, submissions, submission_files, submission_flags,
 hours_ledger, cf888_forms, feedback`. Read it before touching data code.
 
@@ -190,8 +200,9 @@ review required", ...}` → `pending_review`. Demo works with no API key.
 
 | Real | Mocked / stubbed |
 |---|---|
-| D1 schema + queries | Auth (cookie only, no passwords/OAuth) |
-| R2 file storage | Phone OTP (`123456`, no Twilio) |
+| D1 schema + queries | SMS/email delivery (flows real, sends stubbed) |
+| **Real email+password auth, sessions, RBAC** | Phone OTP (simulated until SMS wired) |
+| R2 file storage | BenefitsCal OCR (skipped) |
 | OpenRouter AI validation | BenefitsCal OCR (skipped; marked verified) |
 | pdf-lib CF 888 fill | State submission (user uploads form themselves) |
 | EXIF extraction (exifr) | Email/SMS/push notifications |

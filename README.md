@@ -107,9 +107,12 @@ Screenshots (desktop 1440×900 + mobile 390×844 of every major page, plus
 Nothing here blocks the demo script. These are intentional scope cuts (see
 [CLAUDE.md](CLAUDE.md) "What's mocked vs real"):
 
-- **No real auth.** Cookie-only password gate + a soft "identity" cookie. The
-  `/start` persona picker swaps identities for the demo.
-- **Phone OTP is simulated** — any 6-digit code is accepted (hint: `123456`). No Twilio.
+- **Auth is real** (email + password, PBKDF2, revocable sessions, lockout, RBAC).
+  Demo accounts share password `tended-demo-2026` (e.g. `marisol.reyes@example.com`,
+  `daniel.okafor@example.com` reviewer, `alex.mercado@example.com` admin).
+- **SMS/email delivery is stubbed** — verification/reset/OTP flows are built but
+  links/codes are logged, not sent, until a provider is wired (`lib/notify.ts`).
+- **Phone OTP at onboarding is simulated** (any 6-digit code) until SMS is wired.
 - **BenefitsCal screenshot OCR is skipped** — the upload is stored and marked verified.
 - **AI verdicts require an OpenRouter key.** Without one, every submission routes to
   "needs a human look" (manual review). Documented and graceful.

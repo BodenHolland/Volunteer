@@ -49,7 +49,7 @@ export function SiteHeader() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="secondary"><Link href="/start">Sign in</Link></Button>
+          <Button asChild variant="secondary"><Link href="/login">Sign in</Link></Button>
           <Button asChild><Link href="/app/tasks">See tasks</Link></Button>
         </div>
 
@@ -65,7 +65,7 @@ export function SiteHeader() {
             <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">About</Link>
             <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">For organizations</Link>
             <div className="my-1 h-px bg-line" />
-            <Button asChild variant="secondary" className="w-full"><Link href="/start">Sign in</Link></Button>
+            <Button asChild variant="secondary" className="w-full"><Link href="/login">Sign in</Link></Button>
             <Button asChild className="mt-2 w-full"><Link href="/app/tasks">See tasks</Link></Button>
           </nav>
         </div>

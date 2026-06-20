@@ -8,7 +8,7 @@ import { AiVerdictBox } from "@/components/ai-verdict";
 import { FlagChips } from "@/components/flag-chips";
 import { SubmissionContent } from "@/components/submission-content";
 import { ReviewActions } from "@/components/org/review-actions";
-import { parseJson, totalLoggedHours, type TimeLogSession } from "@/lib/types";
+import { parseJson } from "@/lib/types";
 import type { AiVerdict } from "@/lib/ai";
 import type { FlagKind } from "@/lib/fraud";
 import { formatHours, relativeTime } from "@/lib/time";
@@ -29,7 +29,9 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
     getDisplayNames([sub.user_id]),
   ]);
   const verdict = sub.ai_verdict_json ? (parseJson<AiVerdict>(sub.ai_verdict_json, null as never) as AiVerdict) : null;
-  const logged = totalLoggedHours(parseJson<TimeLogSession[]>(sub.time_log_json, []));
+  // Credit basis is measured *active* engagement (idle-aware), not wall-clock.
+  const measuredSeconds = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
+  const logged = measuredSeconds / 3600;
   const decided = ["approved", "rejected", "needs_changes"].includes(sub.status);
 
   return (
@@ -70,7 +72,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="mb-4 rounded-lg border border-line bg-white p-4 text-sm">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> Time logged</span>
+              <span className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> Active time measured</span>
               <span className="font-medium text-ink">{formatHours(logged)}h</span>
             </div>
             <div className="mt-2 flex items-center justify-between">

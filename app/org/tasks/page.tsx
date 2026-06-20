@@ -87,6 +87,11 @@ export default async function OrgTasksPage() {
         <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-white">
           {tasks.map((t) => {
             const count = counts.get(t.id) ?? 0;
+            const gatePassed =
+              !!t.gate_external_beneficiary &&
+              !!t.gate_genuine_need &&
+              !!t.gate_free_deliverable &&
+              !!t.gate_would_do_anyway;
             const inner = (
               <div className="flex items-start gap-4 p-4">
                 <div className="min-w-0 flex-1">
@@ -94,6 +99,14 @@ export default async function OrgTasksPage() {
                     <p className="truncate font-medium text-ink">{t.title}</p>
                     <span className={cn("inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium capitalize", STATUS_STYLES[t.status])}>
                       {t.status}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium",
+                        gatePassed ? "bg-forest-subtle text-forest" : "bg-amber-subtle text-amber"
+                      )}
+                    >
+                      {gatePassed ? "Gate: passed" : "Gate: incomplete"}
                     </span>
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-meta">

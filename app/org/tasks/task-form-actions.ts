@@ -28,6 +28,10 @@ interface ParsedForm {
   max_hours: number;
   location_kind: LocationKind;
   status: "draft" | "active";
+  gate_external_beneficiary: number;
+  gate_genuine_need: number;
+  gate_free_deliverable: number;
+  gate_would_do_anyway: number;
 }
 
 /** Validates + normalizes the task form payload. Throws on missing required text. */
@@ -45,7 +49,22 @@ function parseForm(fd: FormData): ParsedForm {
   const location_kind = (LOCATIONS.includes(fd.get("location_kind") as LocationKind)
     ? (fd.get("location_kind") as LocationKind)
     : "online");
-  const status = fd.get("status") === "active" ? "active" : "draft";
+  const requestedActive = fd.get("status") === "active";
+
+  // 4-part beneficiary gate.
+  const gate_external_beneficiary = fd.get("gate_external_beneficiary") === "1" ? 1 : 0;
+  const gate_genuine_need = fd.get("gate_genuine_need") === "1" ? 1 : 0;
+  const gate_free_deliverable = fd.get("gate_free_deliverable") === "1" ? 1 : 0;
+  const gate_would_do_anyway = fd.get("gate_would_do_anyway") === "1" ? 1 : 0;
+  const gatePassed =
+    gate_external_beneficiary === 1 &&
+    gate_genuine_need === 1 &&
+    gate_free_deliverable === 1 &&
+    gate_would_do_anyway === 1;
+
+  // ENFORCE: a task may only be active if all four gate criteria pass.
+  // If not, force it back to draft (admin approval lifts this elsewhere).
+  const status: "draft" | "active" = requestedActive && gatePassed ? "active" : "draft";
 
   // Checklist: default to [] if empty/invalid.
   const checklist = parseJson<ChecklistItem[]>(String(fd.get("checklist_json") ?? "[]"), []).filter(
@@ -75,6 +94,10 @@ function parseForm(fd: FormData): ParsedForm {
     max_hours,
     location_kind,
     status,
+    gate_external_beneficiary,
+    gate_genuine_need,
+    gate_free_deliverable,
+    gate_would_do_anyway,
   };
 }
 
@@ -88,8 +111,9 @@ export async function createTask(formData: FormData) {
       `INSERT INTO task_templates
         (id, org_id, created_by_user_id, title, category, short_description, instructions_md,
          checklist_json, deliverable_spec_json, validation_rubric_md,
-         est_hours, max_hours, location_kind, status, created_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+         est_hours, max_hours, location_kind, status, created_at,
+         gate_external_beneficiary, gate_genuine_need, gate_free_deliverable, gate_would_do_anyway)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     )
     .bind(
       newId("task"),
@@ -105,8 +129,14 @@ export async function createTask(formData: FormData) {
       data.est_hours,
       data.max_hours,
       data.location_kind,
-      data.status,
-      Date.now()
+      // New tasks always start as draft — only an admin gate-review (see
+      // /admin/tasks) may set them active. Org self-attestation isn't enough.
+      "draft",
+      Date.now(),
+      data.gate_external_beneficiary,
+      data.gate_genuine_need,
+      data.gate_free_deliverable,
+      data.gate_would_do_anyway
     )
     .run();
 
@@ -123,13 +153,18 @@ export async function updateTask(formData: FormData) {
   if (!existing || existing.org_id !== user.org_id) redirect("/unauthorized");
 
   const data = parseForm(formData);
+  // A task may remain/become active only if it was already admin gate-reviewed
+  // AND still passes the gate (parseForm gives 'active' only when all four pass).
+  const status: "draft" | "active" = existing.gate_reviewed_at && data.status === "active" ? "active" : "draft";
 
   await db
     .prepare(
       `UPDATE task_templates SET
         title = ?, category = ?, short_description = ?, instructions_md = ?,
         checklist_json = ?, deliverable_spec_json = ?, validation_rubric_md = ?,
-        est_hours = ?, max_hours = ?, location_kind = ?, status = ?
+        est_hours = ?, max_hours = ?, location_kind = ?, status = ?,
+        gate_external_beneficiary = ?, gate_genuine_need = ?,
+        gate_free_deliverable = ?, gate_would_do_anyway = ?
        WHERE id = ?`
     )
     .bind(
@@ -143,7 +178,11 @@ export async function updateTask(formData: FormData) {
       data.est_hours,
       data.max_hours,
       data.location_kind,
-      data.status,
+      status,
+      data.gate_external_beneficiary,
+      data.gate_genuine_need,
+      data.gate_free_deliverable,
+      data.gate_would_do_anyway,
       id
     )
     .run();

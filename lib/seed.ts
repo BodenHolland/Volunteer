@@ -11,7 +11,11 @@
  *   recipient submits. (The spec narration says "SFCDC reviewer"; an org can
  *   only review its own tasks, so the demo uses the task's org — see README.)
  */
-import type { ChecklistItem, DeliverableSpec } from "./types";
+import { parseJson, totalLoggedHours, type ChecklistItem, type DeliverableSpec, type TimeLogSession } from "./types";
+import { hashPassword } from "./auth";
+
+/** All seeded demo accounts share this password so the demo is loginnable. */
+export const DEMO_PASSWORD = "tended-demo-2026";
 
 export interface Persona {
   user_id: string;
@@ -232,17 +236,23 @@ type Stmt = D1PreparedStatement;
 export async function seedDatabase(db: D1Database, now: number = Date.now()): Promise<void> {
   const month = ym(now);
 
-  // ---- wipe (children first) ----
+  // ---- wipe (children before parents; remote D1 enforces foreign keys) ----
   const wipeTables = [
     "submission_flags",
     "submission_files",
     "cf888_forms",
     "hours_ledger",
-    "feedback",
     "submissions",
+    "notifications",
+    "sessions",
+    "auth_tokens",
+    "org_invites",
+    "feedback",
     "task_templates",
+    "audit_log",
     "users",
     "orgs",
+    "counties",
   ];
   for (const t of wipeTables) {
     await db.prepare(`DELETE FROM ${t}`).run();
@@ -502,6 +512,24 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   // (No flag rows inserted for seed; the review screen shows "No flags raised".)
 
   await db.batch(stmts);
+
+  // Give every seeded account a real (hashed) password + verified email so the
+  // demo is loginnable with DEMO_PASSWORD. Production accounts set their own.
+  const demoHash = await hashPassword(DEMO_PASSWORD);
+  await db
+    .prepare("UPDATE users SET password_hash = ?, email_verified_at = ? WHERE password_hash IS NULL")
+    .bind(demoHash, now)
+    .run();
+
+  // Backfill measured active engagement from seeded wall-clock sessions (treat
+  // seeded sessions as fully active) so credit/pending math is consistent.
+  const backfill = (await db.prepare("SELECT id, time_log_json FROM submissions").all<{ id: string; time_log_json: string }>()).results ?? [];
+  for (const s of backfill) {
+    const secs = Math.round(totalLoggedHours(parseJson<TimeLogSession[]>(s.time_log_json, [])) * 3600);
+    if (secs > 0) {
+      await db.prepare("UPDATE submissions SET measured_active_seconds = ? WHERE id = ?").bind(secs, s.id).run();
+    }
+  }
 }
 
 /** Seed only if the database is empty (first-run bootstrap). */

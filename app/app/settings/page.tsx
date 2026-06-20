@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { CheckCircle2, LogOut, Bell } from "lucide-react";
+import { CheckCircle2, LogOut, Bell, Download } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
+import { getDb } from "@/lib/cf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updateAccount, updateIntent } from "./actions";
+import { updateAccount, updateIntent, updateNotifyPrefs, deleteAccount } from "./actions";
+import { parseNotifyPrefs } from "./notify-prefs";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Settings — Tended" };
@@ -14,6 +16,19 @@ const INTENTS = [
   { value: "casual_volunteer", label: "Volunteer only" },
   { value: "other", label: "Other" },
 ];
+
+const NOTIFY_OPTIONS = [
+  {
+    name: "submission_updates",
+    label: "When a submission is reviewed",
+    description: "Get an email when work is approved, rejected, or needs changes.",
+  },
+  {
+    name: "cf888_ready",
+    label: "When a CF 888 is ready",
+    description: "Get an email when this month's certified hours can be downloaded.",
+  },
+] as const;
 
 function Saved({ children }: { children: React.ReactNode }) {
   return (
@@ -26,10 +41,17 @@ function Saved({ children }: { children: React.ReactNode }) {
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const user = await requireRecipient();
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
+
+  // notify_prefs_json isn't on the User type yet (migration 0003); read directly.
+  const prefsRow = await getDb()
+    .prepare("SELECT notify_prefs_json FROM users WHERE id = ?")
+    .bind(user.id)
+    .first<{ notify_prefs_json: string | null }>();
+  const prefs = parseNotifyPrefs(prefsRow?.notify_prefs_json);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -84,20 +106,45 @@ export default async function SettingsPage({
 
       {/* Notifications */}
       <section className="space-y-4 rounded-lg border border-line bg-white p-5">
-        <div className="flex items-center gap-2">
-          <Bell className="size-5 text-meta" />
-          <h2 className="text-base font-semibold text-ink">Email notifications — coming soon</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bell className="size-5 text-meta" />
+            <h2 className="text-base font-semibold text-ink">Email notifications</h2>
+          </div>
+          {saved === "notifications" && <Saved>Saved</Saved>}
         </div>
-        <div className="space-y-3 opacity-60">
-          {["When a submission is reviewed", "Monthly hours summary"].map((label) => (
-            <label key={label} className="flex cursor-not-allowed items-center justify-between gap-3">
-              <span className="text-sm text-body">{label}</span>
-              <span className="inline-flex h-6 w-10 items-center rounded-full bg-line p-0.5">
-                <span className="size-5 rounded-full bg-white shadow-sm" />
-              </span>
-            </label>
-          ))}
-        </div>
+        <form action={updateNotifyPrefs} className="space-y-4">
+          <div className="space-y-3">
+            {NOTIFY_OPTIONS.map((opt) => (
+              <label key={opt.name} className="flex cursor-pointer items-start justify-between gap-3">
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-ink">{opt.label}</span>
+                  <span className="block text-xs text-meta">{opt.description}</span>
+                </span>
+                <input
+                  type="checkbox"
+                  name={opt.name}
+                  defaultChecked={prefs[opt.name]}
+                  className="mt-0.5 size-4 shrink-0 accent-forest"
+                />
+              </label>
+            ))}
+          </div>
+          <Button type="submit" size="sm">Save preferences</Button>
+        </form>
+      </section>
+
+      {/* Data export */}
+      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+        <h2 className="text-base font-semibold text-ink">Your data</h2>
+        <p className="text-sm text-body">
+          Download a copy of your account, submissions, and certified hours as a JSON file.
+        </p>
+        <Button asChild variant="secondary" size="sm">
+          <a href="/app/settings/export" download>
+            <Download /> Export my data
+          </a>
+        </Button>
       </section>
 
       {/* Danger zone */}
@@ -107,8 +154,33 @@ export default async function SettingsPage({
           <Button asChild variant="destructive">
             <Link href="/signout"><LogOut /> Sign out</Link>
           </Button>
-          <Button variant="destructive" disabled>Delete account</Button>
-          <p className="text-xs text-meta">Account deletion is not available in the demo.</p>
+        </div>
+
+        <div className="space-y-3 rounded-md border border-brick/30 bg-brick-subtle/40 p-4">
+          <p className="text-sm font-medium text-ink">Delete account</p>
+          <p className="text-xs text-body">
+            This permanently removes your personal information (legal name, case number,
+            address, date of birth, phone), signs you out everywhere, and disables sign-in.
+            Your submission history is retained in anonymized form. This cannot be undone.
+          </p>
+          {error === "confirm" && (
+            <p className="text-xs font-medium text-brick">
+              Type DELETE exactly to confirm account deletion.
+            </p>
+          )}
+          <form action={deleteAccount} className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="confirm" className="text-xs">Type DELETE to confirm</Label>
+              <Input
+                id="confirm"
+                name="confirm"
+                autoComplete="off"
+                placeholder="DELETE"
+                className="w-40"
+              />
+            </div>
+            <Button type="submit" variant="destructive">Delete account</Button>
+          </form>
         </div>
       </section>
     </div>

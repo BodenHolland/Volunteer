@@ -4,46 +4,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { putFile } from "@/lib/r2";
-import { setSession, getCurrentUser, homeForUser } from "@/lib/session";
-import { ensureSeeded } from "@/lib/seed";
-import type { Role } from "@/lib/types";
-
-export async function pickPersona(formData: FormData) {
-  const userId = String(formData.get("user_id") ?? "");
-  const db = getDb();
-  await ensureSeeded(db);
-  const user = await db.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first();
-  if (!user) redirect("/start");
-  await setSession(userId);
-  redirect(homeForUser(user as never));
-}
-
-export async function submitBasics(formData: FormData) {
-  const fullName = String(formData.get("full_name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const role = String(formData.get("role") ?? "recipient") as Role;
-  if (!fullName || !email) redirect("/start?error=missing");
-
-  const db = getDb();
-  await ensureSeeded(db);
-  const existing = await db.prepare("SELECT id FROM users WHERE email = ?").bind(email).first<{ id: string }>();
-  let id: string;
-  if (existing) {
-    id = existing.id;
-    await db.prepare("UPDATE users SET full_name = ?, role = ? WHERE id = ?").bind(fullName, role, id).run();
-  } else {
-    id = newId("user");
-    await db
-      .prepare("INSERT INTO users (id, email, role, full_name, intent, created_at) VALUES (?,?,?,?,?,?)")
-      .bind(id, email, role, fullName, role === "recipient" ? "n/a" : "n/a", Date.now())
-      .run();
-  }
-  await setSession(id);
-
-  if (role === "org_member") redirect("/start?step=orgpick");
-  if (role === "admin") redirect("/admin");
-  redirect("/start?step=location");
-}
+import { getCurrentUser } from "@/lib/session";
 
 export async function submitLocation(formData: FormData) {
   const user = await getCurrentUser();

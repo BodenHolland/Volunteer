@@ -6,7 +6,8 @@ import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
 import { currentMonth } from "@/lib/time";
-import { parseJson, totalLoggedHours, type Submission, type TaskTemplate, type TimeLogSession } from "@/lib/types";
+import { writeAudit } from "@/lib/audit";
+import type { Submission, TaskTemplate } from "@/lib/types";
 
 async function loadReviewable(submissionId: string) {
   const user = await getCurrentUser();
@@ -25,10 +26,12 @@ export async function approveSubmission(formData: FormData) {
   if (!ctx) redirect("/org/submissions");
   const { user, sub, task, db } = ctx;
 
-  // Change 4 — hard line #1: credited hours are the volunteer's MEASURED active
-  // time, capped at the calibrated cap. The reviewer may only reduce for quality,
-  // never credit above measured time. The task estimate is never the source.
-  const measured = totalLoggedHours(parseJson<TimeLogSession[]>(sub.time_log_json, []));
+  // Change 4 — hard line #1: credited hours are the volunteer's MEASURED ACTIVE
+  // engagement (idle-aware), capped at the calibrated cap. The reviewer may only
+  // reduce for quality, never credit above measured time. The estimate is never
+  // the source.
+  const measuredSeconds = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
+  const measured = measuredSeconds / 3600;
   const ceiling = Math.min(measured, task.max_hours);
   const requested = Number(formData.get("hours") ?? ceiling);
   const hours = Math.max(0, Math.min(requested, ceiling));
@@ -47,6 +50,22 @@ export async function approveSubmission(formData: FormData) {
     )
     .bind(newId("ledger"), sub.user_id, month, hours, task.org_id)
     .run();
+
+  // Immutable audit: prove credited never exceeds measured, with the basis.
+  await writeAudit({
+    actorUserId: user.id,
+    action: "submission_approved",
+    entityType: "submission",
+    entityId: id,
+    detail: {
+      recipient_id: sub.user_id,
+      org_id: task.org_id,
+      month,
+      measured_hours: Math.round(measured * 100) / 100,
+      cap_hours: task.max_hours,
+      hours_credited: hours,
+    },
+  });
 
   revalidatePath("/org/submissions");
   redirect("/org/submissions");

@@ -186,8 +186,8 @@ export async function getRecipientDashboard(userId: string, now: number = Date.n
   let pending = 0;
   for (const s of subs) {
     if (PENDING_STATUSES.has(s.status)) {
-      const logged = totalLoggedHours(parseJson<TimeLogSession[]>(s.time_log_json, []));
-      pending += Math.min(s.hours_credited ?? logged, s.task.max_hours);
+      const measured = ((s as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0) / 3600;
+      pending += Math.min(s.hours_credited ?? measured, s.task.max_hours);
     }
   }
   const active = subs.filter((s) => ACTIVE_STATUSES.has(s.status));

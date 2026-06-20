@@ -46,7 +46,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg"><Link href="/app/tasks">See available tasks <ArrowRight /></Link></Button>
-                <Button asChild size="lg" variant="secondary"><Link href="/start">Sign in</Link></Button>
+                <Button asChild size="lg" variant="secondary"><Link href="/login">Sign in</Link></Button>
               </div>
               <p className="mt-6 text-[15px]">
                 <Link href="/how-it-works#calfresh" className="font-medium text-forest hover:underline">

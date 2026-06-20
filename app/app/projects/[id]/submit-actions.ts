@@ -7,6 +7,7 @@ import { newId } from "@/lib/ids";
 import { putFile } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 import { processSubmissionAi } from "@/lib/process";
+import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { parseJson, type Submission } from "@/lib/types";
 
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
@@ -23,6 +24,12 @@ export async function submitWork(formData: FormData) {
   if (!sub || sub.user_id !== user.id) redirect("/app/projects");
   if (!["committed", "in_progress", "needs_changes"].includes(sub.status)) {
     redirect(`/app/submissions/${id}`);
+  }
+
+  // Hours integrity: minimum-engagement floor — can't submit before genuine work.
+  const measured = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
+  if (measured < MIN_ENGAGEMENT_SECONDS) {
+    redirect(`/app/projects/${id}?error=engagement`);
   }
 
   // ---- Written content (category-specific text) ----

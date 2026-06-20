@@ -89,6 +89,14 @@ export interface User {
   benefitscal_verified_at: number | null;
   org_id: string | null;
   created_at: number;
+  // auth (migration 0002)
+  password_hash: string | null;
+  email_verified_at: number | null;
+  failed_login_count: number;
+  locked_until: number | null;
+  // account lifecycle (migration 0003)
+  notify_prefs_json: string | null;
+  deleted_at: number | null;
 }
 
 export interface TaskTemplate {
@@ -107,6 +115,13 @@ export interface TaskTemplate {
   location_kind: LocationKind;
   status: "draft" | "active" | "paused" | "archived";
   created_at: number;
+  // 4-part beneficiary gate (migration 0003)
+  gate_external_beneficiary: number;
+  gate_genuine_need: number;
+  gate_free_deliverable: number;
+  gate_would_do_anyway: number;
+  gate_reviewed_by: string | null;
+  gate_reviewed_at: number | null;
 }
 
 export interface Submission {
@@ -125,6 +140,9 @@ export interface Submission {
   reviewer_id: string | null;
   reviewer_notes: string | null;
   hours_credited: number | null;
+  // hours integrity (migration 0003)
+  measured_active_seconds: number;
+  idle_seconds: number;
 }
 
 export interface SubmissionFile {

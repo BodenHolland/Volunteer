@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { SESSION_COOKIE } from "@/lib/session";
+import { destroyCurrentSession } from "@/lib/auth";
 
-/** Clears the soft session (identity) and returns to /start. */
+/** Revokes the current session and returns to sign-in. */
 export async function GET(req: Request) {
-  const res = NextResponse.redirect(new URL("/start", req.url));
-  res.cookies.delete(SESSION_COOKIE);
-  return res;
+  await destroyCurrentSession();
+  return NextResponse.redirect(new URL("/login", req.url));
 }

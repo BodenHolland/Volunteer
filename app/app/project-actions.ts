@@ -59,7 +59,30 @@ export async function stopSession(formData: FormData) {
   const log = parseJson<TimeLogSession[]>(s.time_log_json, []);
   const open = [...log].reverse().find((x) => x.end === null);
   if (open) open.end = Date.now();
-  await getDb().prepare("UPDATE submissions SET time_log_json = ? WHERE id = ?").bind(JSON.stringify(log), id).run();
+
+  // Hours integrity: accumulate the client-measured *active* and idle seconds for
+  // this session. Active time is the credit basis (never wall-clock or estimate).
+  const active = Math.max(0, Math.floor(Number(formData.get("active_seconds") ?? 0)));
+  const idle = Math.max(0, Math.floor(Number(formData.get("idle_seconds") ?? 0)));
+  const db = getDb();
+  const cur = await db
+    .prepare("SELECT measured_active_seconds, idle_seconds FROM submissions WHERE id = ?")
+    .bind(id)
+    .first<{ measured_active_seconds: number; idle_seconds: number }>();
+  // Defensively cap active time at wall-clock elapsed for this session.
+  const wallSec = open && open.end ? Math.round((open.end - open.start) / 1000) : active;
+  const activeCapped = Math.min(active, Math.max(wallSec, 0));
+  await db
+    .prepare(
+      "UPDATE submissions SET time_log_json = ?, measured_active_seconds = ?, idle_seconds = ? WHERE id = ?"
+    )
+    .bind(
+      JSON.stringify(log),
+      (cur?.measured_active_seconds ?? 0) + activeCapped,
+      (cur?.idle_seconds ?? 0) + idle,
+      id
+    )
+    .run();
   revalidatePath(`/app/projects/${id}`);
 }
 

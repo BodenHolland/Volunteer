@@ -139,10 +139,46 @@ export function TaskForm({
         </Field>
       </section>
 
+      {/* Beneficiary gate */}
+      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+        <div>
+          <h2 className="text-lg font-semibold text-ink">Beneficiary gate</h2>
+          <p className="text-sm text-body">
+            Every task must pass this 4-part legal gate before it can go active. An admin reviews and approves the gate.
+          </p>
+        </div>
+        <div className="space-y-3">
+          <GateCheckbox
+            name="gate_external_beneficiary"
+            label="External beneficiary"
+            hint="A third party or the community benefits — not just the volunteer."
+            defaultChecked={!!task?.gate_external_beneficiary}
+          />
+          <GateCheckbox
+            name="gate_genuine_need"
+            label="Genuine need"
+            hint="The sponsoring org actually needs this work done."
+            defaultChecked={!!task?.gate_genuine_need}
+          />
+          <GateCheckbox
+            name="gate_free_deliverable"
+            label="Free public deliverable"
+            hint="The output is given away free to the public, a library, or government."
+            defaultChecked={!!task?.gate_free_deliverable}
+          />
+          <GateCheckbox
+            name="gate_would_do_anyway"
+            label="Would-do-anyway"
+            hint="The kind of work a volunteer would do even without the SNAP overlay."
+            defaultChecked={!!task?.gate_would_do_anyway}
+          />
+        </div>
+      </section>
+
       {/* Publish */}
       <section className="space-y-4 rounded-lg border border-line bg-white p-5">
         <h2 className="text-lg font-semibold text-ink">Status</h2>
-        <Field label="Visibility" htmlFor="status" hint="Drafts stay private. Active tasks appear in the public catalog.">
+        <Field label="Visibility" htmlFor="status" hint="Drafts stay private. A task can only go active once all four gate criteria pass and an admin approves it — otherwise it stays a draft.">
           <select id="status" name="status" required defaultValue={task?.status === "active" ? "active" : "draft"} className={selectClass}>
             <option value="draft">Draft — not visible to volunteers</option>
             <option value="active">Active — open for volunteers</option>
@@ -157,6 +193,34 @@ export function TaskForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+function GateCheckbox({
+  name,
+  label,
+  hint,
+  defaultChecked,
+}: {
+  name: string;
+  label: string;
+  hint: string;
+  defaultChecked: boolean;
+}) {
+  return (
+    <label className="flex items-start gap-2.5">
+      <input
+        type="checkbox"
+        name={name}
+        value="1"
+        defaultChecked={defaultChecked}
+        className="mt-0.5 size-4 shrink-0 rounded border-line text-forest focus-visible:ring-2 focus-visible:ring-forest"
+      />
+      <span className="text-sm">
+        <span className="font-medium text-ink">{label}</span>
+        <span className="block text-xs text-meta">{hint}</span>
+      </span>
+    </label>
   );
 }
 

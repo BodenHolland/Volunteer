@@ -11,6 +11,7 @@ import { TimeLog } from "@/components/project/time-log";
 import { Checklist } from "@/components/project/checklist";
 import { Notes } from "@/components/project/notes";
 import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession } from "@/lib/types";
+import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +29,9 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
 
   const editable = ["committed", "in_progress", "needs_changes"].includes(sub.status);
   const allRequiredDone = checklist.filter((c) => c.required).every((c) => progress[c.id]);
-  const hasSession = sessions.length > 0;
-  const canSubmit = editable && allRequiredDone && hasSession;
+  const measuredSeconds = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
+  const meetsFloor = measuredSeconds >= MIN_ENGAGEMENT_SECONDS;
+  const canSubmit = editable && allRequiredDone && meetsFloor;
   const submittedView = ["submitted", "ai_reviewing", "pending_review", "approved", "rejected"].includes(sub.status);
 
   return (
@@ -96,7 +98,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
               <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-ink">
                 <Clock className="size-4 text-forest" /> Time log
               </h2>
-              <TimeLog submissionId={sub.id} sessions={sessions} locked={!editable} />
+              <TimeLog submissionId={sub.id} sessions={sessions} measuredActiveSeconds={measuredSeconds} locked={!editable} />
             </div>
 
             {editable && (
@@ -110,8 +112,8 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                     <Button disabled className="w-full">Submit when ready</Button>
                     <p className="mt-2 text-xs text-meta">
                       {!allRequiredDone && "Check off the required steps"}
-                      {!allRequiredDone && !hasSession && " and "}
-                      {!hasSession && "log at least one session"}
+                      {!allRequiredDone && !meetsFloor && " and "}
+                      {!meetsFloor && `log at least ${Math.round(MIN_ENGAGEMENT_SECONDS / 60) || 1} min of active time`}
                       {" to submit."}
                     </p>
                   </>

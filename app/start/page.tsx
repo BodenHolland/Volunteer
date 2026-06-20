@@ -1,27 +1,24 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Phone, Upload, CheckCircle2, Users } from "lucide-react";
+import { ArrowRight, Phone, Upload, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getDb } from "@/lib/cf";
-import { getCurrentUser } from "@/lib/session";
-import { ensureSeeded, PERSONAS, USER_MARISOL } from "@/lib/seed";
-import { parseJson, type Address, type Org, type User } from "@/lib/types";
+import { requireUser } from "@/lib/session";
+import { parseJson, type Address, type Org } from "@/lib/types";
 import {
-  submitBasics,
   submitLocation,
   submitPhone,
   submitPii,
   submitBenefitsCal,
   submitOrgPick,
-  pickPersona,
 } from "./actions";
 
-export const metadata = { title: "Get started — Tended" };
+export const metadata = { title: "Finish setting up — Tended" };
 
-const ROLE_STEPS = ["Basics", "Location", "Verify", "Details", "BenefitsCal", "Done"];
+const ROLE_STEPS = ["Location", "Verify", "Details", "BenefitsCal", "Done"];
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -50,94 +47,24 @@ export default async function StartPage({
   searchParams: Promise<{ step?: string; error?: string }>;
 }) {
   const sp = await searchParams;
-  const step = sp.step ?? "basics";
   const db = getDb();
-  await ensureSeeded(db);
-  const user = await getCurrentUser();
+  const user = await requireUser();
 
-  // Prefill defaults: when no user yet, default to Marisol for a smooth demo.
-  const marisol = await db.prepare("SELECT * FROM users WHERE id = ?").bind(USER_MARISOL).first<User>();
-  const prefill = user ?? marisol;
-  const addr = parseJson<Address>(prefill?.address_json, {
+  // Onboarding operates on the signed-in account. Route unspecified visits.
+  const step = sp.step ?? (user.role === "org_member" ? "orgpick" : "location");
+
+  const addr = parseJson<Address>(user.address_json, {
     line1: "",
     city: "San Francisco",
     state: "CA",
     zip: "",
   });
 
-  // ---- BASICS (+ persona picker) ----
-  if (step === "basics") {
-    return (
-      <Shell>
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Get started</h1>
-        <p className="mt-2 text-body">Tell us who you are. You can change any of this later.</p>
-
-        <form action={submitBasics} className="mt-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="full_name">Your name</Label>
-            <Input id="full_name" name="full_name" required defaultValue={marisol?.full_name ?? ""} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required defaultValue={marisol?.email ?? ""} />
-          </div>
-          <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-ink">I&apos;m here to…</legend>
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
-              <input type="radio" name="role" value="recipient" defaultChecked className="mt-1 accent-[var(--color-forest)]" />
-              <span>
-                <span className="block text-sm font-medium text-ink">Do civic work</span>
-                <span className="block text-sm text-body">Pick tasks and help your community.</span>
-              </span>
-            </label>
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
-              <input type="radio" name="role" value="org_member" className="mt-1 accent-[var(--color-forest)]" />
-              <span>
-                <span className="block text-sm font-medium text-ink">Host tasks for a nonprofit</span>
-                <span className="block text-sm text-body">Review submissions and sponsor work.</span>
-              </span>
-            </label>
-          </fieldset>
-          {sp.error === "missing" && <p className="text-sm text-brick">Please add your name and email.</p>}
-          <Button type="submit" className="w-full">
-            Continue <ArrowRight />
-          </Button>
-        </form>
-
-        <div className="mt-8 border-t border-line pt-6">
-          <p className="overline mb-3 flex items-center gap-2">
-            <Users className="size-4" /> Or jump to a demo identity
-          </p>
-          <div className="grid gap-2">
-            {PERSONAS.map((p) => (
-              <form key={p.user_id} action={pickPersona}>
-                <input type="hidden" name="user_id" value={p.user_id} />
-                <button
-                  type="submit"
-                  data-persona={p.user_id}
-                  className="flex w-full items-center justify-between rounded-md border border-line px-3 py-2 text-left hover:bg-section"
-                >
-                  <span>
-                    <span className="block text-sm font-medium text-ink">{p.label}</span>
-                    <span className="block text-xs text-meta">{p.sublabel}</span>
-                  </span>
-                  <ArrowRight className="size-4 text-meta" />
-                </button>
-              </form>
-            ))}
-          </div>
-        </div>
-      </Shell>
-    );
-  }
-
-  if (!user) redirect("/start");
-
   // ---- LOCATION + INTENT ----
   if (step === "location") {
     return (
       <Shell>
-        <StepHint index={1} />
+        <StepHint index={0} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Where and why</h1>
         <form action={submitLocation} className="mt-6 space-y-5">
           <div className="space-y-1.5">
@@ -188,7 +115,7 @@ export default async function StartPage({
   if (step === "phone") {
     return (
       <Shell>
-        <StepHint index={2} />
+        <StepHint index={1} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Verify your phone</h1>
         <p className="mt-2 text-body">
           We use this only to fill out your CF 888 when you certify hours. We don&apos;t share it with
@@ -197,7 +124,7 @@ export default async function StartPage({
         <form action={submitPhone} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="phone">Mobile number</Label>
-            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} defaultValue={marisol?.phone ?? ""} placeholder="(415) 555-0142" />
+            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} defaultValue={user.phone ?? ""} placeholder="(415) 555-0142" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="code">6-digit code</Label>
@@ -217,22 +144,22 @@ export default async function StartPage({
   if (step === "pii") {
     return (
       <Shell>
-        <StepHint index={3} />
+        <StepHint index={2} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Your CalFresh details</h1>
         <p className="mt-2 text-body">This appears on your CF 888 exactly as entered.</p>
         <form action={submitPii} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>
-            <Input id="legal_name" name="legal_name" required defaultValue={marisol?.legal_name ?? ""} />
+            <Input id="legal_name" name="legal_name" required defaultValue={user.legal_name ?? ""} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="case_number">Case number</Label>
-              <Input id="case_number" name="case_number" required defaultValue={marisol?.case_number ?? ""} />
+              <Input id="case_number" name="case_number" required defaultValue={user.case_number ?? ""} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dob">Date of birth</Label>
-              <Input id="dob" name="dob" type="date" required defaultValue={marisol?.dob ?? ""} />
+              <Input id="dob" name="dob" type="date" required defaultValue={user.dob ?? ""} />
             </div>
           </div>
           <div className="space-y-1.5">
@@ -266,7 +193,7 @@ export default async function StartPage({
   if (step === "benefitscal") {
     return (
       <Shell>
-        <StepHint index={4} />
+        <StepHint index={3} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload a BenefitsCal screenshot</h1>
         <p className="mt-2 text-body">
           A screenshot of your BenefitsCal account confirms your enrollment. We don&apos;t run OCR in

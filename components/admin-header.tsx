@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw } from "lucide-react";
+import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw, ListChecks } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import {
@@ -24,6 +24,7 @@ const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: UsersRound },
   { href: "/admin/orgs", label: "Orgs", icon: Building2 },
+  { href: "/admin/tasks", label: "Tasks", icon: ListChecks },
   { href: "/admin/submissions", label: "Submissions", icon: Inbox },
   { href: "/admin/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/admin/reset", label: "Reset", icon: RotateCcw },
@@ -59,7 +60,6 @@ export function AdminHeader({ user }: { user: AdminHeaderUser }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-              <DropdownMenuItem asChild><Link href="/start"><Users /> Switch identity</Link></DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem destructive asChild><Link href="/signout"><LogOut /> Sign out</Link></DropdownMenuItem>
             </DropdownMenuContent>
@@ -80,7 +80,6 @@ export function AdminHeader({ user }: { user: AdminHeaderUser }) {
               </Link>
             ))}
             <div className="my-1 h-px bg-line" />
-            <Link href="/start" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section [&_svg]:size-[18px]"><Users /> Switch identity</Link>
             <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-brick hover:bg-brick-subtle [&_svg]:size-[18px]"><LogOut /> Sign out</Link>
           </nav>
         </div>
