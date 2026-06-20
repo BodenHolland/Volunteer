@@ -13,14 +13,18 @@ const isDev = process.env.NODE_ENV !== "production";
  * intentionally permissive-but-sane so the app doesn't break. Tighten with a
  * nonce-based CSP if/when the app is refactored for it.
  */
+// Firebase Auth endpoints the client SDK talks to.
+const FIREBASE_CONNECT = "https://*.googleapis.com https://volunteer-online-bcfa9.firebaseapp.com";
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://apis.google.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://*.googleusercontent.com",
   "font-src 'self' data:",
-  // OpenRouter (AI validation) + self; ws: for dev HMR.
-  `connect-src 'self' https://openrouter.ai${isDev ? " ws: http://localhost:*" : ""}`,
+  // OpenRouter (AI validation) + Firebase Auth + self; ws: for dev HMR.
+  `connect-src 'self' https://openrouter.ai ${FIREBASE_CONNECT}${isDev ? " ws: http://localhost:*" : ""}`,
+  // Firebase Google sign-in popup/iframe.
+  "frame-src 'self' https://volunteer-online-bcfa9.firebaseapp.com https://accounts.google.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

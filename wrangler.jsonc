@@ -32,6 +32,7 @@
   "vars": {
     "OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free",
     "OPENROUTER_SITE_URL": "https://tended.pages.dev",
-    "OPENROUTER_APP_NAME": "Tended Demo"
+    "OPENROUTER_APP_NAME": "Tended Demo",
+    "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9"
   }
 }
