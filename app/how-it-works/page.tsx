@@ -33,8 +33,8 @@ const NEVER_USE = [
 
 const TIERS = [
   {
-    title: "Email + phone",
-    body: "At signup you confirm an email address and verify a phone number with a one-time code.",
+    title: "One verified account per person",
+    body: "At signup you confirm an email and verify a phone number with a one-time code. Each person gets a single account, so logged hours always tie to one identified beneficiary and no one can farm multiple case numbers.",
   },
   {
     title: "Section 1 details",
@@ -103,23 +103,24 @@ export default function HowItWorksPage() {
                 </div>
                 <h2 className="mt-4 text-[28px] font-semibold text-ink">Civic work</h2>
                 <p className="mt-3 leading-relaxed text-body">
-                  Every task on Tended is real work that a local organization actually needs done.
-                  You might count the street trees on your block, translate a public-health flyer
-                  into another language, map sidewalk hazards for Public Works, or write a short
-                  profile of a community space. None of it is busywork — your results feed back into
-                  the city through the nonprofit that posted the task.
+                  Every task on Tended is real work that a local organization actually needs done,
+                  and every task produces a <strong className="font-semibold text-ink">free public
+                  deliverable</strong> that helps someone other than you — translated notices for
+                  neighbors who need them, sidewalk-hazard data routed to Public Works, transcribed
+                  public records given to a library. None of it is busywork, and none of it is sold.
                 </p>
                 <p className="mt-3 leading-relaxed text-body">
                   Each task is timed and reviewed. You log your hours as you go, then submit your
-                  work — photos, notes, or a written deliverable, depending on the task. A
-                  sponsoring nonprofit reads your submission and decides how many hours to credit.
-                  The hours reflect work that genuinely happened, not just time on a clock.
+                  work. A sponsoring nonprofit reviews it for quality and credits the hours you{" "}
+                  <strong className="font-semibold text-ink">actually worked</strong> — measured by
+                  your active time on the task, capped per task. A reviewer can lower hours for
+                  quality, but never credit more time than you truly put in.
                 </p>
                 <ul className="mt-5 space-y-2">
                   {[
-                    "Tasks are posted by the organizations that use the results.",
-                    "Your time is logged while you work, and capped per task.",
-                    "A real person at the sponsoring nonprofit reviews and credits your hours.",
+                    "Every task has an outside beneficiary and gives its result away for free.",
+                    "Your active time is measured while you work, and credited up to a per-task cap.",
+                    "A real person reviews your work and credits your measured hours — never more.",
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-2.5 text-body">
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />
@@ -136,11 +137,13 @@ export default function HowItWorksPage() {
                 </div>
                 <h2 className="mt-4 text-[28px] font-semibold text-ink">CalFresh & the CF 888</h2>
                 <p className="mt-3 leading-relaxed text-body">
-                  The 2025 federal budget law (OBBBA) expanded the work rules that apply to many
-                  adults who receive SNAP — known in California as CalFresh. California begins
-                  enforcing the expanded requirement on <strong className="font-semibold text-ink">June 1, 2026</strong>.
-                  For people it affects, civic work done through a sponsoring nonprofit is one way
-                  to meet the hours.
+                  Recent changes expanded the work rules that apply to many adults who receive SNAP —
+                  known in California as CalFresh — and California begins enforcing them on{" "}
+                  <strong className="font-semibold text-ink">June 1, 2026</strong>. Unpaid volunteer
+                  hours count toward that requirement under federal rule{" "}
+                  <strong className="font-semibold text-ink">7 CFR §273.24(a)(2)(iii)</strong>, as
+                  implemented in California by CDSS (ACL 25-34). Volunteering through a sponsoring
+                  nonprofit — in person or, with Tended, remotely — is one way to meet the hours.
                 </p>
                 <p className="mt-3 leading-relaxed text-body">
                   California verifies those hours with a form called the{" "}
@@ -166,6 +169,15 @@ export default function HowItWorksPage() {
                     <strong className="font-semibold">Tended never submits anything to the state.</strong>{" "}
                     You stay in control: you upload your own CF 888 to BenefitsCal, the same way you
                     handle the rest of your case.
+                  </p>
+                </div>
+                <div className="mt-3 rounded-lg border border-line bg-forest-subtle p-4">
+                  <p className="text-sm leading-relaxed text-forest">
+                    <strong className="font-semibold">You&apos;re a volunteer.</strong> Tended pays you
+                    nothing — no wages, stipends, or anything of value — and your work never displaces
+                    paid staff. The only benefit is independent SNAP eligibility.{" "}
+                    <strong className="font-semibold">Tended records your hours; the County decides
+                    eligibility.</strong>
                   </p>
                 </div>
               </section>
@@ -225,9 +237,16 @@ export default function HowItWorksPage() {
                   serve.
                 </p>
                 <p className="mt-3 leading-relaxed text-body">
-                  Sponsors post tasks, review the submissions that come in, and confirm the hours
-                  they want to credit. When a recipient&apos;s hours are approved, the
-                  organization&apos;s Section 2 certification is what makes the CF 888 valid.
+                  Every task you post must clear a simple gate: a real beneficiary beyond the
+                  volunteer, a genuine need you have, a deliverable given away for free, and work a
+                  volunteer would do anyway. Volunteers supplement your mission — they don&apos;t
+                  displace paid staff.
+                </p>
+                <p className="mt-3 leading-relaxed text-body">
+                  Sponsors post tasks, review submissions for quality, and credit the hours the
+                  volunteer actually worked (you can lower them, never raise them above measured
+                  time). When hours are approved, your Section 2 certification is what makes the
+                  CF 888 valid.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <Button asChild>

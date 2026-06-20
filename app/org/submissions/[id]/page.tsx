@@ -91,7 +91,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
               {sub.reviewer_notes && <p className="mt-1 text-sm text-body">{sub.reviewer_notes}</p>}
             </div>
           ) : (
-            <ReviewActions submissionId={sub.id} estHours={sub.task.est_hours} maxHours={sub.task.max_hours} />
+            <ReviewActions submissionId={sub.id} measuredHours={logged} capHours={sub.task.max_hours} estHours={sub.task.est_hours} />
           )}
         </aside>
       </div>

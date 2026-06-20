@@ -10,8 +10,28 @@ uploaded by the user to BenefitsCal.
 certification is one supported path, not the framing. This broadens the
 audience, reduces stigma, and sets up expansion.
 
-This is an **unlisted, password-gated pilot demo** on Cloudflare. No real auth,
-no real recipients, no real state submissions.
+This is an **unlisted pilot demo** on Cloudflare. No real auth, no real
+recipients, no real state submissions.
+
+---
+
+## Legal framework (read [docs/legal-framework.md](docs/legal-framework.md))
+
+Tended is a **501(c)(3) virtual volunteer-coordinating nonprofit**, **100% grant-
+and donation-funded** — it **never sells** volunteer output; deliverables are
+given away free to the public, libraries, and government. Two hard lines bind the
+product:
+
+1. **Never credit hours above the volunteer's actual measured time.** The CF 888
+   attests to a *specific person's* real hours (false attestation = exposure under
+   7 U.S.C. §2024, 18 U.S.C. §1001, Cal. Welf. & Inst. Code §10980).
+2. **Never ship a task that is self-serving busywork.** Every task must pass a
+   4-part gate: external beneficiary · genuine need · free public deliverable ·
+   would-do-anyway.
+
+Authority: counting unpaid volunteer hours toward the ABAWD requirement rests on
+**7 CFR §273.24(a)(2)(iii) + CDSS ACL 25-34** (NOT §273.7), verified via CF 888.
+Do not cite 29 CFR §553.101 (public-agency volunteers only) for volunteer status.
 
 ---
 
@@ -82,9 +102,13 @@ Key state machine on `submissions.status`:
 `committed → in_progress → submitted → ai_reviewing →
 (pending_review | rejected | needs_changes) → approved`
 
-Hours flow: on **approve**, the reviewer-credited hours are written to
-`hours_ledger` (per user, per month, per certifying org). The CF 888 reads the
-ledger.
+Hours flow (Change 4): credited hours are the volunteer's **measured active time**
+capped at the calibrated cap — `credited = min(measured_logged, max_hours)`, gated
+on quality review. The reviewer may only **reduce** for quality, never credit above
+measured time; rejected/low-effort work earns **zero**. The task estimate
+(`est_hours`) is a ceiling/flag only, never the credited number. On **approve** the
+credited hours are written to `hours_ledger` (per user, per month, per certifying
+org); the CF 888 reads the ledger. Enforced in `app/org/org-actions.ts`.
 
 ---
 

@@ -202,21 +202,21 @@ const TASKS: SeedTask[] = [
   {
     id: TASK_SEMINAR,
     org_id: ORG_SFCDC,
-    title: "Financial literacy seminar + workbook",
+    title: "Make a money-help guide for neighbors",
     category: "seminar",
     short_description:
-      "Watch a recorded financial-literacy seminar and complete the accompanying workbook. A longer, multi-session task.",
+      "Take a short financial-literacy seminar, then turn it into a one-page, plain-language money-help guide that's donated to a partner library for other residents to use.",
     instructions_md:
-      "## What you'll do\nA self-paced learning task worth more hours.\n\n1. Complete the **pre-work** reflection.\n2. Watch the full recorded seminar.\n3. Complete the **workbook** and upload it.\n4. Write a short post-seminar reflection.\n\n## What the org gets\nSF Civic Data Coalition partners with a local credit union to offer this; completions feed their impact reporting.",
+      "## What you'll do\nLearn the material, then make something useful for other people with it. The guide — not the watching — is the point.\n\n1. Complete the **pre-work** reflection.\n2. Watch the full recorded seminar.\n3. Write a **one-page, plain-language money-help guide** for neighbors — the public deliverable.\n4. Note where it will be shared (a partner library or community center).\n\n## What the org gets\nSF Civic Data Coalition donates the finished guides to a partner library so **other residents** can use them. The seminar is the input; the free public guide is the output.",
     checklist: [
       { id: "prework", label: "Complete the pre-work reflection", required: true },
       { id: "watch", label: "Watch the full seminar video", required: true },
-      { id: "workbook", label: "Complete and upload the workbook", required: true },
-      { id: "reflect", label: "Write a post-seminar reflection", required: true },
+      { id: "workbook", label: "Write the one-page plain-language guide for neighbors", required: true },
+      { id: "reflect", label: "Note where the guide will be shared", required: true },
     ],
     spec: { kind: "seminar", require_prework: true, require_postwork: true, require_video: true },
     rubric:
-      "A complete submission includes a finished workbook upload, a pre-work reflection, and a post-work reflection that references seminar content. Flag if the workbook is blank or reflections are generic. Reject if the workbook is missing.",
+      "A complete submission includes a finished one-page, plain-language money-help guide a resident could actually hand to a neighbor, plus the pre-work reflection and a note on where it will be shared. Flag generic, copied, or AI-filler content. Reject if the public guide is missing — the free deliverable for other residents is the point of the task.",
     est: 10,
     max: 12,
     location: "hybrid",
@@ -409,8 +409,8 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   });
   const verdictNeeds = JSON.stringify({
     verdict: "reject", confidence: 0.66,
-    reasoning: "The write-up is under the 250-word minimum and no photo is attached, so the community-space profile is incomplete.",
-    issues: ["Under word count", "Missing photo"], estimated_actual_hours: 1, suspected_ai_content: false,
+    reasoning: "The seminar pre-work is done, but the one-page public guide for neighbors — the actual deliverable — isn't written yet, so the submission is incomplete.",
+    issues: ["Public guide not written", "No sharing location noted"], estimated_actual_hours: 1, suspected_ai_content: false,
   });
 
   // Marisol — 1 committed
@@ -453,8 +453,8 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
     now - 1 * DAY, now - 20 * HOUR,
     JSON.stringify([{ start: now - 2 * DAY, end: now - 2 * DAY + 1 * HOUR }]),
     JSON.stringify({ prework: true, watch: true, workbook: false, reflect: false }),
-    "Watched the seminar, still need to finish the workbook.", verdictNeeds, USER_PRIYA,
-    "Thanks for getting started! Please upload the completed workbook and add the post-seminar reflection, then resubmit.", null
+    "Watched the seminar, still need to write the one-page guide.", verdictNeeds, USER_PRIYA,
+    "Thanks for getting started! Please finish the one-page plain-language guide and note where it'll be shared, then resubmit.", null
   ));
 
   // Two other recipients — pending_review on the tree census (FUF queue)

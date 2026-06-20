@@ -6,7 +6,7 @@ import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
 import { currentMonth } from "@/lib/time";
-import type { Submission, TaskTemplate } from "@/lib/types";
+import { parseJson, totalLoggedHours, type Submission, type TaskTemplate, type TimeLogSession } from "@/lib/types";
 
 async function loadReviewable(submissionId: string) {
   const user = await getCurrentUser();
@@ -25,8 +25,13 @@ export async function approveSubmission(formData: FormData) {
   if (!ctx) redirect("/org/submissions");
   const { user, sub, task, db } = ctx;
 
-  const requested = Number(formData.get("hours") ?? task.est_hours);
-  const hours = Math.max(0, Math.min(requested, task.max_hours));
+  // Change 4 — hard line #1: credited hours are the volunteer's MEASURED active
+  // time, capped at the calibrated cap. The reviewer may only reduce for quality,
+  // never credit above measured time. The task estimate is never the source.
+  const measured = totalLoggedHours(parseJson<TimeLogSession[]>(sub.time_log_json, []));
+  const ceiling = Math.min(measured, task.max_hours);
+  const requested = Number(formData.get("hours") ?? ceiling);
+  const hours = Math.max(0, Math.min(requested, ceiling));
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const month = currentMonth();
 

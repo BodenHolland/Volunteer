@@ -10,14 +10,20 @@ import { approveSubmission, requestChanges, rejectSubmission } from "@/app/org/o
 
 export function ReviewActions({
   submissionId,
+  measuredHours,
+  capHours,
   estHours,
-  maxHours,
 }: {
   submissionId: string;
+  measuredHours: number;
+  capHours: number;
   estHours: number;
-  maxHours: number;
 }) {
   const [panel, setPanel] = useState<"none" | "changes" | "reject">("none");
+  // Credit defaults to measured engagement, capped. Reviewers may only reduce
+  // for quality — never credit above the volunteer's actual measured time.
+  const ceiling = Math.min(measuredHours, capHours);
+  const round = (n: number) => Math.round(n * 10) / 10;
 
   return (
     <div className="space-y-4">
@@ -26,9 +32,14 @@ export function ReviewActions({
         <input type="hidden" name="submission_id" value={submissionId} />
         <Label htmlFor="hours" className="mb-1.5">Hours to credit</Label>
         <div className="flex items-center gap-3">
-          <Input id="hours" name="hours" type="number" step="0.5" min="0" max={maxHours} defaultValue={estHours} className="w-28" />
-          <span className="text-sm text-meta">capped at {maxHours}h</span>
+          <Input id="hours" name="hours" type="number" step="0.5" min="0" max={round(ceiling)} defaultValue={round(ceiling)} className="w-28" />
+          <span className="text-sm text-meta">measured time · max {round(ceiling)}h</span>
         </div>
+        <p className="mt-2 text-xs text-meta">
+          Defaults to the volunteer&apos;s measured active time. You can reduce it for quality, but
+          never credit above measured time. The {round(estHours)}h task estimate is a ceiling and
+          flag only — it is not the credited number. Reject to credit zero.
+        </p>
         <Button type="submit" className="mt-3 w-full"><Check /> Approve and certify</Button>
       </form>
 
