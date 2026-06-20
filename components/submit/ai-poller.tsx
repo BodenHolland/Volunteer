@@ -41,7 +41,7 @@ export function AiPoller({ submissionId, initialStatus }: { submissionId: string
       role="status"
       aria-live="polite"
     >
-      <Sparkles className="size-5 animate-tended-pulse text-amber" />
+      <Sparkles className="size-5 animate-tended-pulse text-amber" aria-hidden="true" />
       <div>
         <p className="text-sm font-medium text-amber">Submission received. AI reviewing…</p>
         <p className="text-xs text-ink">This usually takes a few seconds. You can stay on this page.</p>

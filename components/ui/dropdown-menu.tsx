@@ -38,7 +38,9 @@ export function DropdownMenuItem({
     <DM.Item
       className={cn(
         "flex h-10 cursor-pointer select-none items-center gap-2.5 rounded-md px-2.5 text-[15px] font-medium outline-none [&_svg]:size-[18px] [&_svg]:text-meta",
-        destructive ? "text-brick hover:bg-brick-subtle [&_svg]:text-brick" : "text-ink hover:bg-section",
+        destructive
+          ? "text-brick hover:bg-brick-subtle data-[highlighted]:bg-brick-subtle [&_svg]:text-brick"
+          : "text-ink hover:bg-section data-[highlighted]:bg-section",
         className
       )}
       {...props}

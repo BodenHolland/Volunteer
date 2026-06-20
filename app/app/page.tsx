@@ -9,12 +9,14 @@ import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
 import { MONTHLY_HOURS_TARGET } from "@/lib/types";
 import { formatHours, monthLabel } from "@/lib/time";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard — Tended" };
 
 export default async function DashboardPage() {
   const user = await requireRecipient();
+  const { t } = await getDict();
   const data = await getRecipientDashboard(user.id);
   const isSnap = user.intent === "snap_cert";
   const total = data.certified + data.pending;
@@ -25,12 +27,12 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-semibold text-ink">
-            Hi, {user.full_name?.split(" ")[0] ?? "there"}
+            {t.app.dashboard.greeting}, {user.full_name?.split(" ")[0] ?? t.app.dashboard.greetingFallback}
           </h1>
-          <p className="mt-1 text-body">Here&apos;s where your civic work stands this month.</p>
+          <p className="mt-1 text-body">{t.app.dashboard.subhead}</p>
         </div>
         <Button asChild variant="secondary">
-          <Link href="/app/tasks">Browse tasks <ArrowRight /></Link>
+          <Link href="/app/tasks">{t.app.dashboard.browseTasks} <ArrowRight /></Link>
         </Button>
       </div>
 
@@ -78,13 +80,13 @@ export default async function DashboardPage() {
       {/* Active projects */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[22px] font-semibold text-ink">Active projects</h2>
+          <h2 className="text-[22px] font-semibold text-ink">{t.app.dashboard.activeProjects}</h2>
         </div>
         {data.active.length === 0 ? (
           <EmptyState
             icon={<FolderKanban />}
-            title="No tasks committed yet. Browse the catalog to find one near you."
-            ctaLabel="Browse tasks"
+            title={t.app.dashboard.emptyTitle}
+            ctaLabel={t.app.dashboard.browseTasks}
             ctaHref="/app/tasks"
           />
         ) : (

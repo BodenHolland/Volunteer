@@ -25,10 +25,14 @@ export function ProgressRing({
   const pendFrac = Math.min(1, (certified + pending) / target);
   const center = size / 2;
 
+  const summary = `${formatHours(certified + pending)} of ${target} hours: ${formatHours(
+    certified
+  )} certified, ${formatHours(pending)} pending review.`;
+
   return (
     <div className="flex items-center gap-5">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
+      <div className="relative" style={{ width: size, height: size }} role="img" aria-label={summary}>
+        <svg width={size} height={size} className="-rotate-90" aria-hidden="true" focusable="false">
           <circle cx={center} cy={center} r={r} fill="none" stroke="var(--color-line)" strokeWidth={stroke} />
           {/* pending arc (drawn first, underneath) */}
           <circle

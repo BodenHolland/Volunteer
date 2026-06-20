@@ -24,7 +24,7 @@ export function StatusPill({ status, className }: { status: SubmissionStatus; cl
         className
       )}
     >
-      {s.check && <Check className="size-3" />}
+      {s.check && <Check className="size-3" aria-hidden="true" />}
       {s.label}
     </span>
   );

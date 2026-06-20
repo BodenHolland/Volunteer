@@ -3,6 +3,7 @@ import { listActiveTasks } from "@/lib/queries";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { TaskFilters } from "@/components/task-filters";
 import { EmptyState } from "@/components/empty-state";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Tasks — Tended" };
@@ -13,6 +14,7 @@ export default async function TasksPage({
   searchParams: Promise<{ loc?: string; cat?: string; q?: string }>;
 }) {
   const sp = await searchParams;
+  const { t: tr } = await getDict();
   const all = await listActiveTasks();
 
   const counts = { location: {} as Record<string, number>, category: {} as Record<string, number> };
@@ -49,15 +51,15 @@ export default async function TasksPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-[28px] font-semibold text-ink">Available tasks</h1>
-        <p className="mt-1 text-body">Real civic work hosted by SF nonprofits and city partners.</p>
+        <h1 className="text-[28px] font-semibold text-ink">{tr.app.tasks.title}</h1>
+        <p className="mt-1 text-body">{tr.app.tasks.subhead}</p>
       </div>
 
       <TaskFilters counts={counts} />
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-body">
-          {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
+          {filtered.length} {filtered.length === 1 ? tr.app.tasks.opportunity : tr.app.tasks.opportunities}
         </p>
         <button className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm font-medium text-forest hover:bg-section [&_svg]:size-4">
           <Bookmark /> Save Search

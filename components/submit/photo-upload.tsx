@@ -45,8 +45,8 @@ export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?:
   return (
     <div>
       <input type="hidden" name="photo_meta" value={meta} />
-      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-8 text-center hover:bg-forest-subtle">
-        <ImagePlus className="size-6 text-meta" />
+      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-8 text-center hover:bg-forest-subtle focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+        <ImagePlus className="size-6 text-meta" aria-hidden="true" />
         <span className="text-sm font-medium text-ink">Add photos</span>
         <span className="text-xs text-meta">At least {min}. We read location from the photo when available.</span>
         <input type="file" name={name} accept="image/*" multiple className="sr-only" onChange={onChange} />
@@ -59,7 +59,7 @@ export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?:
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.url} alt={p.name} className="aspect-square w-full object-cover" />
               <div className="flex items-center gap-1 px-1.5 py-1 text-[11px] text-meta">
-                <MapPin className="size-3" />
+                <MapPin className="size-3" aria-hidden="true" />
                 {p.lat != null ? `${p.lat.toFixed(3)}, ${p.lng?.toFixed(3)}` : "no geotag"}
               </div>
             </li>
@@ -67,7 +67,7 @@ export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?:
         </ul>
       )}
       {pics.length > 0 && pics.length < min && (
-        <p className="mt-2 flex items-center gap-1 text-xs text-amber"><X className="size-3" /> Add at least {min} photos.</p>
+        <p className="mt-2 flex items-center gap-1 text-xs text-amber"><X className="size-3" aria-hidden="true" /> Add at least {min} photos.</p>
       )}
     </div>
   );

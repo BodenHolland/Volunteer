@@ -73,4 +73,28 @@ export const es: typeof en = {
       "Al crear una cuenta confirmas que Tended no te paga nada y que solo el Condado decide la elegibilidad.",
     haveAccount: "¿Ya tienes una cuenta?",
   },
+  app: {
+    nav: {
+      dashboard: "Panel",
+      tasks: "Tareas",
+      projects: "Proyectos",
+      calfreshProfile: "Perfil de CalFresh",
+      settings: "Configuración",
+      signOut: "Cerrar sesión",
+    },
+    dashboard: {
+      greeting: "Hola",
+      greetingFallback: "qué tal",
+      subhead: "Aquí está el estado de tu trabajo cívico este mes.",
+      browseTasks: "Explorar tareas",
+      activeProjects: "Proyectos activos",
+      emptyTitle: "Aún no te has comprometido con ninguna tarea. Explora el catálogo para encontrar una cerca de ti.",
+    },
+    tasks: {
+      title: "Tareas disponibles",
+      subhead: "Trabajo cívico real organizado por organizaciones sin fines de lucro y socios de la ciudad de SF.",
+      opportunity: "oportunidad",
+      opportunities: "oportunidades",
+    },
+  },
 };

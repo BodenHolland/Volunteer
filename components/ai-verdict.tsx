@@ -11,13 +11,13 @@ const STYLE = {
 export function AiVerdictBox({ verdict }: { verdict: AiVerdict }) {
   const s = STYLE[verdict.verdict];
   return (
-    <div className={cn("rounded-lg border p-4", s.cls)} aria-live="polite">
+    <div className={cn("rounded-lg border p-4", s.cls)} role="status" aria-live="polite">
       <div className="flex items-center gap-2">
-        <Sparkles className="size-4 text-meta" />
+        <Sparkles className="size-4 text-meta" aria-hidden="true" />
         <span className="overline">AI check</span>
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <s.Icon className={cn("size-5", s.text)} />
+        <s.Icon className={cn("size-5", s.text)} aria-hidden="true" />
         <p className={cn("text-base font-semibold", s.text)}>{verdictLabel(verdict.verdict)}</p>
         {verdict.confidence > 0 && (
           <span className="text-xs text-meta">· {Math.round(verdict.confidence * 100)}% confidence</span>

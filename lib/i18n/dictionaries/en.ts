@@ -71,4 +71,28 @@ export const en = {
       "By creating an account you confirm Tended pays you nothing and only the County decides eligibility.",
     haveAccount: "Already have an account?",
   },
+  app: {
+    nav: {
+      dashboard: "Dashboard",
+      tasks: "Tasks",
+      projects: "Projects",
+      calfreshProfile: "CalFresh profile",
+      settings: "Settings",
+      signOut: "Sign out",
+    },
+    dashboard: {
+      greeting: "Hi",
+      greetingFallback: "there",
+      subhead: "Here's where your civic work stands this month.",
+      browseTasks: "Browse tasks",
+      activeProjects: "Active projects",
+      emptyTitle: "No tasks committed yet. Browse the catalog to find one near you.",
+    },
+    tasks: {
+      title: "Available tasks",
+      subhead: "Real civic work hosted by SF nonprofits and city partners.",
+      opportunity: "opportunity",
+      opportunities: "opportunities",
+    },
+  },
 };
