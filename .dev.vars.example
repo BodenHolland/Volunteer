@@ -1,6 +1,6 @@
 # Copy to .dev.vars and fill in. These power local `next dev`.
 NEXTJS_ENV=development
-# Password for the site gate (the /enter screen).
+# Legacy demo gate (no longer used now that auth is real). Safe to leave.
 SITE_PASSWORD=tended-pilot
 # OpenRouter API key. Without it, AI validation falls back to "needs a human look".
 OPENROUTER_API_KEY=sk-or-...
@@ -8,3 +8,17 @@ OPENROUTER_API_KEY=sk-or-...
 OPENROUTER_MODEL=google/gemini-2.0-flash-exp:free
 OPENROUTER_SITE_URL=http://localhost:3000
 OPENROUTER_APP_NAME=Tended Demo
+# 32-byte base64 key to actually encrypt PII at rest (no-op passthrough if unset).
+PII_ENCRYPTION_KEY=
+
+# --- Firebase Auth (paste from Firebase console → Project settings → Your apps → Web app) ---
+# When NEXT_PUBLIC_FIREBASE_API_KEY + PROJECT_ID are set, the app uses Firebase
+# sign-in; otherwise it falls back to the built-in D1 email+password form.
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+# Server-side: same value as NEXT_PUBLIC_FIREBASE_PROJECT_ID (used to verify tokens).
+FIREBASE_PROJECT_ID=

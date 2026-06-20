@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup } from "@/app/auth-actions";
 import { getDict } from "@/lib/i18n";
+import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
 export const metadata = { title: "Create account — Tended" };
 
@@ -22,6 +23,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   const sp = await searchParams;
   const { t } = await getDict();
   const a = t.auth;
+  const useFirebase = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   return (
     <AuthShell
       title={a.signupTitle}
@@ -33,6 +35,9 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
         </span>
       }
     >
+      {useFirebase ? (
+        <FirebaseAuthForm mode="signup" />
+      ) : (
       <form action={signup} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="full_name">{a.yourName}</Label>
@@ -62,6 +67,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
         <Button type="submit" className="w-full">{a.createBtn}</Button>
         <p className="text-center text-xs text-meta">{a.legalNote}</p>
       </form>
+      )}
     </AuthShell>
   );
 }

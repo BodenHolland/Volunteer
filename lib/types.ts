@@ -97,6 +97,8 @@ export interface User {
   // account lifecycle (migration 0003)
   notify_prefs_json: string | null;
   deleted_at: number | null;
+  // firebase auth link (migration 0005)
+  firebase_uid: string | null;
 }
 
 export interface TaskTemplate {

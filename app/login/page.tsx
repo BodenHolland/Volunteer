@@ -8,6 +8,7 @@ import { login } from "@/app/auth-actions";
 import { getDb } from "@/lib/cf";
 import { ensureSeeded } from "@/lib/seed";
 import { getDict } from "@/lib/i18n";
+import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
 export const metadata = { title: "Sign in — Tended" };
 
@@ -22,6 +23,7 @@ export default async function LoginPage({
   await ensureSeeded(getDb());
   const { t } = await getDict();
   const a = t.auth;
+  const useFirebase = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   return (
     <AuthShell
       title={a.signInTitle}
@@ -35,6 +37,9 @@ export default async function LoginPage({
     >
       {sp.reset && <p className="mb-4 rounded-md bg-forest-subtle px-3 py-2 text-sm text-forest">Your password was reset. Sign in with your new password.</p>}
       {sp.verified && <p className="mb-4 rounded-md bg-forest-subtle px-3 py-2 text-sm text-forest">Your email is verified.</p>}
+      {useFirebase ? (
+        <FirebaseAuthForm mode="login" next={sp.next} />
+      ) : (
       <form action={login} className="space-y-4">
         <input type="hidden" name="next" value={sp.next ?? ""} />
         <div className="space-y-1.5">
@@ -55,6 +60,7 @@ export default async function LoginPage({
         ) : null}
         <Button type="submit" className="w-full">{a.signInBtn}</Button>
       </form>
+      )}
     </AuthShell>
   );
 }
