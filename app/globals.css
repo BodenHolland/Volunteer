@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+/*
+  TENDED design system — forest + terracotta, earthy + warm.
+  Palette and scale are the single source of truth referenced by every
+  component. No dark mode (warm off-white only). No gradients; shadow-sm max.
+*/
+
+@theme {
+  /* Brand */
+  --color-forest: #2d5f3f;
+  --color-forest-hover: #234d32;
+  --color-forest-subtle: #eaf0ec;
+  --color-terracotta: #c26b3c;
+  --color-terracotta-subtle: #faede4;
+
+  /* Slate / ink scale */
+  --color-ink: #3e4a45;
+  --color-body: #5c6a64;
+  --color-meta: #8a968f;
+  --color-line: #dce2de;
+  --color-section: #f7f5f0;
+
+  /* Status */
+  --color-amber: #b07d2b;
+  --color-amber-subtle: #f4ead6;
+  --color-brick: #b0463c;
+  --color-brick-subtle: #f6e4e2;
+
+  /* Surfaces */
+  --color-cream: #f3eee3;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii to match spec (cards rounded-lg, controls rounded-md) */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Single allowed shadow: 4% black 1px */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* Visible focus ring everywhere: 2px forest at 2px offset */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: 2px;
+}
+
+/* Overline helper */
+.overline {
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--color-meta);
+}
+
+/* Pulsing "AI reviewing" pill */
+@keyframes tended-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.animate-tended-pulse {
+  animation: tended-pulse 1.4s ease-in-out infinite;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-tended-pulse {
+    animation: none;
+  }
+}

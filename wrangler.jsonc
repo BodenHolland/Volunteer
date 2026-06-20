@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tended",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "account_id": "65fb048fa9b4fb99f6473038c393d6a0",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "tended"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tended-db",
+      "database_id": "3a4387f9-9220-40b4-998c-a682565b825c",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "tended-files"
+    }
+  ],
+  "vars": {
+    "OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free",
+    "OPENROUTER_SITE_URL": "https://tended.pages.dev",
+    "OPENROUTER_APP_NAME": "Tended Demo"
+  }
+}

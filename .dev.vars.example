@@ -1,0 +1,10 @@
+# Copy to .dev.vars and fill in. These power local `next dev`.
+NEXTJS_ENV=development
+# Password for the site gate (the /enter screen).
+SITE_PASSWORD=tended-pilot
+# OpenRouter API key. Without it, AI validation falls back to "needs a human look".
+OPENROUTER_API_KEY=sk-or-...
+# Default model. Free tier vision-capable model.
+OPENROUTER_MODEL=google/gemini-2.0-flash-exp:free
+OPENROUTER_SITE_URL=http://localhost:3000
+OPENROUTER_APP_NAME=Tended Demo
