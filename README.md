@@ -7,9 +7,12 @@ street trees, translating flyers, mapping sidewalk hazards, documenting
 neighborhoods) for sponsoring nonprofits. For users who receive CalFresh, approved
 hours can be certified via California's **Form CF 888** and uploaded to BenefitsCal.
 
-This repo is an **unlisted, password-gated pilot demo** on Cloudflare. No real auth,
-no real recipients, no real state submissions. See [CLAUDE.md](CLAUDE.md) for the
-architecture, schema, identity model, and demo script.
+This repo is an **unlisted pilot demo** on Cloudflare with **real email+password
+auth** (PBKDF2, sessions, RBAC), measured-hours integrity, field-level PII
+encryption, a 4-part task gate, per-county certification gating, security
+hardening, EN/ES i18n, and 40 unit tests + CI. No real recipients or state
+submissions. See [CLAUDE.md](CLAUDE.md) for architecture, schema, and the demo
+script.
 
 ---
 
@@ -37,9 +40,11 @@ pnpm db:migrate:local         # apply migrations to local D1
 pnpm dev                      # http://localhost:3000
 ```
 
-- **Site password (local):** `tended-pilot` (set in `.dev.vars`).
-- The database **auto-seeds** on first entry, or reseed anytime at **`/admin/reset`**
-  (admin persona) or `curl -X POST localhost:3000/api/admin/reset`.
+- **Demo login:** any seeded account with password `tended-demo-2026` —
+  `marisol.reyes@example.com` (recipient), `daniel.okafor@example.com` (reviewer),
+  `priya.venkatesan@example.com` (org admin), `alex.mercado@example.com` (admin).
+- The database **auto-seeds** on first visit to `/login`, or reseed at
+  **`/admin/reset`** (admin only; empty-DB bootstrap allowed).
 - **OpenRouter key is optional.** Without it, AI validation returns a graceful
   "needs a human look" fallback and the demo still works end-to-end. With a key,
   submissions get a real vision-model verdict. Default model
@@ -102,20 +107,50 @@ node scripts/smoke.mjs /app /app/tasks       # quick render check for given path
 Screenshots (desktop 1440×900 + mobile 390×844 of every major page, plus
 `cf888-comparison.png`) live in [`docs/screenshots/`](docs/screenshots).
 
+## Operations & backups
+
+Production runbook: **[docs/ops-runbook.md](docs/ops-runbook.md)** — backups,
+disaster recovery, secret/key rotation, deploy & rollback, incident response, and
+an on-call checklist.
+
+```bash
+pnpm run backup          # export remote D1 -> backups/tended-d1-<UTC>.sql
+pnpm run backup:verify   # sanity-check the latest dump (exits non-zero on failure)
+```
+
+- Run `pnpm run backup` **daily** and **before every deploy/migration**. Dumps land
+  in `backups/` (gitignored — they contain PII; never commit them). Keep ≥30 days.
+- `scripts/backup-d1.sh` wraps `wrangler d1 export tended-db --remote`;
+  `scripts/verify-backup.sh` checks the newest dump exists, is non-empty, and
+  contains the core table DDL.
+- Restore, R2 notes, and `PII_ENCRYPTION_KEY` rotation (losing it = unrecoverable
+  encrypted PII) are documented in the runbook.
+
 ## Known Gaps
 
 Nothing here blocks the demo script. These are intentional scope cuts (see
 [CLAUDE.md](CLAUDE.md) "What's mocked vs real"):
 
-- **Auth is real** (email + password, PBKDF2, revocable sessions, lockout, RBAC).
-  Demo accounts share password `tended-demo-2026` (e.g. `marisol.reyes@example.com`,
-  `daniel.okafor@example.com` reviewer, `alex.mercado@example.com` admin).
-- **SMS/email delivery is stubbed** — verification/reset/OTP flows are built but
-  links/codes are logged, not sent, until a provider is wired (`lib/notify.ts`).
-- **Phone OTP at onboarding is simulated** (any 6-digit code) until SMS is wired.
-- **BenefitsCal screenshot OCR is skipped** — the upload is stored and marked verified.
-- **AI verdicts require an OpenRouter key.** Without one, every submission routes to
-  "needs a human look" (manual review). Documented and graceful.
+**Production-built (was prototype):** real email+password auth + sessions + RBAC +
+lockout; hours = idle-aware measured active time, capped, with an immutable audit
+trail; 4-part task gate + admin approval; PII field encryption (AES-GCM); per-county
+certification pre-clearance; public CC0 deliverable gallery; BenefitsCal Tier-3
+vision verification; security headers + auth rate limiting + audit log; admin
+observability (audit viewer + legal-invariant monitors); backups/DR + ops runbook;
+EN/ES i18n on the public + auth surface; 40 unit tests + GitHub Actions CI.
+
+**Remaining gaps (gated on credentials/decisions or Phase 5+):**
+- **SMS/email + BenefitsCal vision are gated on credentials.** The flows are real;
+  with no `OPENROUTER_API_KEY` / SMS+email provider keys they degrade gracefully
+  (AI → "needs a human look"; verification → manual review; OTP accepts any 6-digit;
+  email links are logged not sent). Set the keys to activate.
+- **PII encryption is key-gated** — no-op passthrough without `PII_ENCRYPTION_KEY`
+  (so the demo runs); set a 32-byte base64 key to encrypt at rest.
+- **AI runs via `waitUntil` + lazy poll**, not a durable queue (Phase 5).
+- **i18n covers the public + auth surface** (EN/ES); the in-app recipient/org
+  screens are English so far.
+- Not code (need you/counsel): Form 1023, COI policy, CDSS/county written
+  pre-clearance, pen test.
 - **CF 888 is faithfully *recreated* with pdf-lib**, not filled into the official
   CDSS PDF — that file is an encrypted XFA form pdf-lib cannot parse. The recreation
   matches the real form's layout (see `docs/screenshots/cf888-comparison.png`). The

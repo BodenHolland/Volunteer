@@ -38,6 +38,9 @@ yarn-error.log*
 /.open-next/
 .wrangler/
 
+# database backups (D1 dumps contain PII — never commit)
+/backups/
+
 # vercel
 .vercel
 

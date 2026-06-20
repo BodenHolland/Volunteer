@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export function PilotBanner() {
+const DEFAULT_TEXT =
+  "Pilot demo. Hours shown here are not yet recognized by SF HSA — we're working on it.";
+
+export function PilotBanner({ text = DEFAULT_TEXT }: { text?: string }) {
   const [hidden, setHidden] = useState(true);
   useEffect(() => {
     setHidden(sessionStorage.getItem("tended_pilot_banner_dismissed") === "1");
@@ -11,9 +14,7 @@ export function PilotBanner() {
   if (hidden) return null;
   return (
     <div className="relative flex h-12 items-center justify-center bg-section px-10 text-center text-sm text-body">
-      <p>
-        Pilot demo. Hours shown here are not yet recognized by SF HSA — we&apos;re working on it.
-      </p>
+      <p>{text}</p>
       <button
         type="button"
         aria-label="Dismiss"

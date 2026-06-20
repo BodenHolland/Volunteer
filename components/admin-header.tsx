@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw, ListChecks } from "lucide-react";
+import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw, ListChecks, ScrollText, Activity } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +26,8 @@ const NAV = [
   { href: "/admin/orgs", label: "Orgs", icon: Building2 },
   { href: "/admin/tasks", label: "Tasks", icon: ListChecks },
   { href: "/admin/submissions", label: "Submissions", icon: Inbox },
+  { href: "/admin/audit", label: "Audit", icon: ScrollText },
+  { href: "/admin/system", label: "System", icon: Activity },
   { href: "/admin/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/admin/reset", label: "Reset", icon: RotateCcw },
 ];

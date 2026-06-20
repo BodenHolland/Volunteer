@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { getLocale } from "@/lib/i18n";
 
-export function AuthShell({
+export async function AuthShell({
   title,
   subtitle,
   children,
@@ -12,6 +14,7 @@ export function AuthShell({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const locale = await getLocale();
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-section px-4 py-10">
       <Link href="/" className="mb-8">
@@ -23,6 +26,7 @@ export function AuthShell({
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="mt-6 text-sm text-body">{footer}</div>}
+      <div className="mt-6"><LocaleSwitcher locale={locale} /></div>
     </main>
   );
 }

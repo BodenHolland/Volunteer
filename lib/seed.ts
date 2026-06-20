@@ -540,6 +540,15 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   }
   // Approved seed work is published as a free public deliverable.
   await db.prepare("UPDATE submissions SET published_at = reviewed_at WHERE status = 'approved' AND published_at IS NULL").run();
+
+  // Seeded active tasks genuinely pass the 4-part gate — mark them reviewed so the
+  // legal-invariant monitor (no active task without gate review) is clean.
+  await db
+    .prepare(
+      "UPDATE task_templates SET gate_external_beneficiary = 1, gate_genuine_need = 1, gate_free_deliverable = 1, gate_would_do_anyway = 1, gate_reviewed_by = ?, gate_reviewed_at = ? WHERE status = 'active'"
+    )
+    .bind(USER_ADMIN, now)
+    .run();
 }
 
 /** Seed only if the database is empty (first-run bootstrap). */

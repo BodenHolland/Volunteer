@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup } from "@/app/auth-actions";
+import { getDict } from "@/lib/i18n";
 
 export const metadata = { title: "Create account — Tended" };
 
@@ -15,49 +16,51 @@ const ERRORS: Record<string, string> = {
   taken: "An account with that email already exists.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const sp = await searchParams;
+  const { t } = await getDict();
+  const a = t.auth;
   return (
     <AuthShell
-      title="Create your account"
-      subtitle="Start doing civic work in your neighborhood."
+      title={a.signupTitle}
+      subtitle={a.signupSubtitle}
       footer={
         <span>
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-forest hover:underline">Sign in</Link>
+          {a.haveAccount}{" "}
+          <Link href="/login" className="font-medium text-forest hover:underline">{a.signInTitle}</Link>
         </span>
       }
     >
       <form action={signup} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="full_name">Your name</Label>
+          <Label htmlFor="full_name">{a.yourName}</Label>
           <Input id="full_name" name="full_name" required autoFocus leadingIcon={<UserIcon />} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{a.email}</Label>
           <Input id="email" name="email" type="email" autoComplete="email" required leadingIcon={<Mail />} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{a.password}</Label>
           <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} leadingIcon={<Lock />} />
-          <p className="text-xs text-meta">At least 10 characters.</p>
+          <p className="text-xs text-meta">{a.passwordHint}</p>
         </div>
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-ink">I&apos;m here to…</legend>
+          <legend className="text-sm font-medium text-ink">{a.here}</legend>
           <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
             <input type="radio" name="role" value="recipient" defaultChecked className="mt-1 accent-[var(--color-forest)]" />
-            <span className="text-sm text-ink">Do civic work <span className="text-meta">— pick tasks and help your community</span></span>
+            <span className="text-sm text-ink">{a.roleRecipient} <span className="text-meta">{a.roleRecipientHint}</span></span>
           </label>
           <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
             <input type="radio" name="role" value="org_member" className="mt-1 accent-[var(--color-forest)]" />
-            <span className="text-sm text-ink">Host tasks for a nonprofit <span className="text-meta">— review and certify work</span></span>
+            <span className="text-sm text-ink">{a.roleOrg} <span className="text-meta">{a.roleOrgHint}</span></span>
           </label>
         </fieldset>
         {sp.error && <p className="text-sm text-brick" role="alert">{ERRORS[sp.error] ?? "Something went wrong."}</p>}
-        <Button type="submit" className="w-full">Create account</Button>
-        <p className="text-center text-xs text-meta">
-          By creating an account you confirm Tended pays you nothing and only the County decides eligibility.
-        </p>
+        <Button type="submit" className="w-full">{a.createBtn}</Button>
+        <p className="text-center text-xs text-meta">{a.legalNote}</p>
       </form>
     </AuthShell>
   );

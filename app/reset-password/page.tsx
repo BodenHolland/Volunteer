@@ -8,6 +8,8 @@ import { resetPassword } from "@/app/auth-actions";
 
 export const metadata = { title: "Set a new password — Tended" };
 
+export const dynamic = "force-dynamic";
+
 export default async function ResetPasswordPage({
   searchParams,
 }: {

@@ -2,11 +2,27 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, ChevronDown, Sprout, BookOpen, ListChecks, Building2 } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Building2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
-export function SiteHeader() {
+interface NavStrings {
+  howItWorks: string;
+  about: string;
+  forOrgs: string;
+  signIn: string;
+  seeTasks: string;
+}
+const EN: NavStrings = {
+  howItWorks: "How it works",
+  about: "About",
+  forOrgs: "For organizations",
+  signIn: "Sign in",
+  seeTasks: "See tasks",
+};
+
+export function SiteHeader({ locale = "en", t = EN }: { locale?: "en" | "es"; t?: NavStrings }) {
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState(false);
 
@@ -18,7 +34,7 @@ export function SiteHeader() {
           <nav className="hidden items-center gap-1 md:flex">
             <div className="relative" onMouseEnter={() => setMega(true)} onMouseLeave={() => setMega(false)}>
               <button className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">
-                How it works <ChevronDown className="size-4 text-meta" />
+                {t.howItWorks} <ChevronDown className="size-4 text-meta" />
               </button>
               {mega && (
                 <div className="absolute left-0 top-full w-[520px] rounded-lg border border-line bg-white p-4 shadow-sm">
@@ -43,14 +59,15 @@ export function SiteHeader() {
                 </div>
               )}
             </div>
-            <Link href="/about" className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">About</Link>
-            <Link href="/for-organizations" className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">For organizations</Link>
+            <Link href="/about" className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">{t.about}</Link>
+            <Link href="/for-organizations" className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">{t.forOrgs}</Link>
           </nav>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="secondary"><Link href="/login">Sign in</Link></Button>
-          <Button asChild><Link href="/app/tasks">See tasks</Link></Button>
+          <LocaleSwitcher locale={locale} />
+          <Button asChild variant="secondary"><Link href="/login">{t.signIn}</Link></Button>
+          <Button asChild><Link href="/app/tasks">{t.seeTasks}</Link></Button>
         </div>
 
         <button className="rounded-md p-2 text-ink hover:bg-section md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
@@ -61,12 +78,13 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-line bg-white px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1">
-            <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">How it works</Link>
-            <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">About</Link>
-            <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">For organizations</Link>
+            <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">{t.howItWorks}</Link>
+            <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">{t.about}</Link>
+            <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section">{t.forOrgs}</Link>
             <div className="my-1 h-px bg-line" />
-            <Button asChild variant="secondary" className="w-full"><Link href="/login">Sign in</Link></Button>
-            <Button asChild className="mt-2 w-full"><Link href="/app/tasks">See tasks</Link></Button>
+            <div className="px-3 py-1"><LocaleSwitcher locale={locale} /></div>
+            <Button asChild variant="secondary" className="w-full"><Link href="/login">{t.signIn}</Link></Button>
+            <Button asChild className="mt-2 w-full"><Link href="/app/tasks">{t.seeTasks}</Link></Button>
           </nav>
         </div>
       )}

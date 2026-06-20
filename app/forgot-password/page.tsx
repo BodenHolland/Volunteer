@@ -8,6 +8,8 @@ import { forgotPassword } from "@/app/auth-actions";
 
 export const metadata = { title: "Reset password — Tended" };
 
+export const dynamic = "force-dynamic";
+
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const sp = await searchParams;
   if (sp.sent) {

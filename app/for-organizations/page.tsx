@@ -42,6 +42,8 @@ const ELIGIBLE = [
   { icon: Apple, label: "Food banks" },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default function ForOrganizationsPage() {
   return (
     <>

@@ -13,7 +13,9 @@
     "db:migrate:local": "wrangler d1 migrations apply tended-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply tended-db --remote",
     "shots": "node scripts/screenshots.mjs",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "backup": "bash scripts/backup-d1.sh",
+    "backup:verify": "bash scripts/verify-backup.sh"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.3.0",
