@@ -8,6 +8,7 @@ import { newId } from "@/lib/ids";
 import { requireUser } from "@/lib/session";
 import { putFile } from "@/lib/r2";
 import { processAudit, recomputeTrust } from "@/lib/audit-pipeline";
+import { logError } from "@/lib/audit";
 import {
   ANTI_DUP_WINDOW_DAYS,
   creditedHoursFromSeconds,
@@ -121,6 +122,19 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
 export async function captureItemAction(formData: FormData): Promise<{ ok: boolean; error?: string }> {
   const auditId = String(formData.get("audit_id") ?? "");
   const itemId = String(formData.get("basket_item_id") ?? "");
+  try {
+    return await captureItemInner(formData, auditId, itemId);
+  } catch (err) {
+    await logError("captureItemAction", err, { auditId, itemId });
+    return { ok: false, error: "Couldn't save that item. The error is logged — try again." };
+  }
+}
+
+async function captureItemInner(
+  formData: FormData,
+  auditId: string,
+  itemId: string
+): Promise<{ ok: boolean; error?: string }> {
   const stockStatus = String(formData.get("stock_status") ?? "") as StockStatus;
   const a = await loadOwnedAudit(auditId);
   if (!a) return { ok: false, error: "Not found." };
@@ -248,6 +262,19 @@ function validateAndStore(cap: CaptureInput, itemId: string): string | null {
 export async function submitAuditAction(formData: FormData) {
   const auditId = String(formData.get("audit_id") ?? "");
   const sessionSeconds = Math.max(0, Math.floor(Number(formData.get("session_seconds") ?? 0)));
+  try {
+    return await submitAuditInner(formData, auditId, sessionSeconds);
+  } catch (err) {
+    // Next's redirect() throws a NEXT_REDIRECT digest error that MUST propagate.
+    if (err && typeof err === "object" && "digest" in err && String((err as { digest: unknown }).digest).startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
+    await logError("submitAuditAction", err, { auditId, sessionSeconds });
+    return { ok: false, error: "Couldn't submit the audit. The error is logged — try again." };
+  }
+}
+
+async function submitAuditInner(formData: FormData, auditId: string, sessionSeconds: number) {
   const a = await loadOwnedAudit(auditId);
   if (!a) redirect("/app/tasks");
   if (!a.store_id || !a.store_type_observed || !a.ebt_observation) {
