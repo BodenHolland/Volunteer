@@ -29,6 +29,7 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
     const idToken = await auth.currentUser.getIdToken();
     const res = await fetch("/api/auth/session", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
     });

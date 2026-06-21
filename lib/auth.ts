@@ -7,10 +7,6 @@ export const SESSION_COOKIE = "tended_session";
 const SESSION_TTL = 60 * 60 * 24 * 30 * 1000; // 30 days
 const PBKDF2_ITERATIONS = 100_000;
 
-function isProd(): boolean {
-  return process.env.NODE_ENV === "production";
-}
-
 const enc = new TextEncoder();
 const toHex = (buf: ArrayBuffer | Uint8Array) =>
   [...new Uint8Array(buf as ArrayBuffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -60,7 +56,23 @@ export async function verifyPassword(password: string, stored: string | null): P
 
 // ---- sessions (revocable, server-side; cookie holds an opaque token) ----
 
-export async function createSession(userId: string, meta?: { userAgent?: string; ip?: string }): Promise<void> {
+export const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  // Set Secure unconditionally — both prod and the workers.dev preview are HTTPS-only.
+  // The non-HTTPS local dev case is handled by browsers that ignore Secure on http://localhost.
+  secure: true,
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: Math.floor(SESSION_TTL / 1000),
+};
+
+/**
+ * Mint a session row and return the token. Caller is responsible for setting
+ * the cookie on whatever response it's returning. Use this from Route Handlers
+ * that build their own NextResponse — relying on cookies().set() from
+ * next/headers to attach to a separately-constructed response is unreliable.
+ */
+export async function createSessionToken(userId: string, meta?: { userAgent?: string; ip?: string }): Promise<string> {
   const token = randomHex(32);
   const id = await sha256Hex(token);
   const now = Date.now();
@@ -68,14 +80,13 @@ export async function createSession(userId: string, meta?: { userAgent?: string;
     .prepare("INSERT INTO sessions (id, user_id, created_at, expires_at, user_agent, ip) VALUES (?,?,?,?,?,?)")
     .bind(id, userId, now, now + SESSION_TTL, meta?.userAgent ?? null, meta?.ip ?? null)
     .run();
+  return token;
+}
+
+export async function createSession(userId: string, meta?: { userAgent?: string; ip?: string }): Promise<void> {
+  const token = await createSessionToken(userId, meta);
   const c = await cookies();
-  c.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: isProd(),
-    sameSite: "lax",
-    path: "/",
-    maxAge: Math.floor(SESSION_TTL / 1000),
-  });
+  c.set(SESSION_COOKIE, token, SESSION_COOKIE_OPTIONS);
 }
 
 export async function getSessionUser(): Promise<User | null> {

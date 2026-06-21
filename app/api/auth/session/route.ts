@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/cf";
 import { verifyFirebaseToken } from "@/lib/firebase-verify";
-import { createSession, newUserId } from "@/lib/auth";
+import {
+  createSessionToken,
+  newUserId,
+  SESSION_COOKIE,
+  SESSION_COOKIE_OPTIONS,
+} from "@/lib/auth";
 import { homeForUser } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import type { User } from "@/lib/types";
@@ -50,10 +55,18 @@ export async function POST(req: Request) {
     await writeAudit({ actorUserId: id, action: "signup", entityType: "user", entityId: id, detail: { via: "firebase", email: identity.email } });
   }
 
-  await createSession(user.id);
+  const token = await createSessionToken(user.id);
   await writeAudit({ actorUserId: user.id, action: "login", entityType: "user", entityId: user.id, detail: { via: "firebase" } });
 
   // New recipients with no profile yet go to onboarding; others to their home.
   const needsOnboarding = user.role === "recipient" && !user.full_name;
-  return NextResponse.json({ ok: true, next: needsOnboarding ? "/start?step=location" : homeForUser(user) });
+  const response = NextResponse.json({
+    ok: true,
+    next: needsOnboarding ? "/start?step=location" : homeForUser(user),
+  });
+  // Set the cookie directly on this response — relying on cookies().set() from
+  // next/headers to attach to a fetch-style NextResponse has been unreliable
+  // (mobile Safari occasionally drops the Set-Cookie, producing an auth loop).
+  response.cookies.set(SESSION_COOKIE, token, SESSION_COOKIE_OPTIONS);
+  return response;
 }
