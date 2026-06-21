@@ -60,30 +60,30 @@ test("ai content: clean verdict does not flag", () => {
   assert.equal(detectAiContent(AI_FALLBACK).length, 0);
 });
 
-test("geotag haversine: SF centroid to Oakland is ~8 miles", () => {
-  const sf = CITY_CENTROIDS["San Francisco"];
-  const oakland = { lat: 37.8044, lng: -122.2712 };
-  const miles = haversineMiles(sf, oakland);
+test("geotag haversine: Sacramento centroid to a point ~8 miles away", () => {
+  const sac = CITY_CENTROIDS["Sacramento"];
+  const eightMiNorth = { lat: 38.6976, lng: -121.4944 };
+  const miles = haversineMiles(sac, eightMiNorth);
   assert.ok(miles > 7 && miles < 9, `expected ~8mi, got ${miles}`);
   // zero distance
-  assert.equal(haversineMiles(sf, sf), 0);
+  assert.equal(haversineMiles(sac, sac), 0);
 });
 
 test("geotag mismatch: nearby in_person geotag is ok", () => {
-  const sf = CITY_CENTROIDS["San Francisco"];
-  const near = detectGeotagMismatch("in_person", [{ lat: 37.7599, lng: -122.4148 }], sf);
+  const sf = CITY_CENTROIDS["Sacramento"];
+  const near = detectGeotagMismatch("in_person", [{ lat: 38.5900, lng: -121.4900 }], sf);
   assert.equal(near.length, 0);
 });
 
 test("geotag mismatch: far in_person geotag warns", () => {
-  const sf = CITY_CENTROIDS["San Francisco"];
+  const sf = CITY_CENTROIDS["Sacramento"];
   const far = detectGeotagMismatch("in_person", [{ lat: 37.8044, lng: -122.2712 }], sf);
   assert.equal(far.length, 1);
   assert.equal(far[0].severity, "warn");
 });
 
 test("geotag mismatch: online task skips the check", () => {
-  const sf = CITY_CENTROIDS["San Francisco"];
+  const sf = CITY_CENTROIDS["Sacramento"];
   assert.equal(detectGeotagMismatch("online", [{ lat: 40, lng: -100 }], sf).length, 0);
 });
 
@@ -119,7 +119,7 @@ test("routeStatus: a block-severity flag routes to needs_changes", () => {
 });
 
 test("routeStatus: approve with warn flags routes to pending_review", () => {
-  const sf = CITY_CENTROIDS["San Francisco"];
+  const sf = CITY_CENTROIDS["Sacramento"];
   const far = detectGeotagMismatch("in_person", [{ lat: 37.8044, lng: -122.2712 }], sf);
   assert.equal(routeStatus({ ...AI_FALLBACK, verdict: "approve" }, far), "pending_review");
 });
