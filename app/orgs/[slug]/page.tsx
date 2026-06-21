@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { MapPin, Info } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { OrgThumb } from "@/components/org-thumb";
 import { Markdown } from "@/components/markdown";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
@@ -48,7 +47,6 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
@@ -58,7 +56,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
             <div className="min-w-0">
               <h1 className="text-[32px] font-semibold leading-tight text-ink">{org.name}</h1>
               <p className="mt-1 flex items-center gap-1 text-xs text-meta">
-                <Info className="size-3.5" strokeWidth={1.5} /> Pilot demo — partnerships shown are illustrative
+                <Info className="size-3.5" strokeWidth={1.5} /> Demo — partnerships shown are illustrative
               </p>
               {address && (
                 <p className="mt-3 flex items-center gap-1.5 text-sm text-body">

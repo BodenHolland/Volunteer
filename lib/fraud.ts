@@ -33,7 +33,9 @@ export interface LatLng {
 
 /** Approximate city centroids for the demo's geotag check. */
 export const CITY_CENTROIDS: Record<string, LatLng> = {
-  "San Francisco": { lat: 37.7749, lng: -122.4194 },
+  Sacramento: { lat: 38.5816, lng: -121.4944 },
+  "Los Angeles": { lat: 34.0522, lng: -118.2437 },
+  Fresno: { lat: 36.7378, lng: -119.7871 },
 };
 
 export function haversineMiles(a: LatLng, b: LatLng): number {

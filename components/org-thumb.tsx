@@ -2,8 +2,8 @@ import { Trees, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
-  "friends-of-the-urban-forest": Trees,
-  "sf-civic-data-coalition": Building2,
+  "canopy-commons": Trees,
+  "civic-data-collective": Building2,
 };
 
 function initials(name: string): string {

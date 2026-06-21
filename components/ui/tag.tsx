@@ -29,4 +29,5 @@ export const CATEGORY_LABEL: Record<TaskCategory, string> = {
   "civic-input": "Civic input",
   "neighborhood-writing": "Writing",
   seminar: "Learning",
+  "food-audit": "Food prices",
 };

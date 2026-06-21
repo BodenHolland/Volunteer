@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Gift, FileText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { OrgThumb } from "@/components/org-thumb";
 import { getPublishedDeliverable } from "@/lib/deliverables";
 import { monthLabel } from "@/lib/time";
@@ -17,6 +16,7 @@ const CATEGORY_LABEL: Record<TaskCategory, string> = {
   "civic-input": "Civic input",
   "neighborhood-writing": "Writing",
   seminar: "Learning",
+  "food-audit": "Food prices",
 };
 
 function outputLabel(category: TaskCategory): string {
@@ -47,7 +47,6 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         <div className="mx-auto max-w-[820px] px-4 py-10 md:px-6 md:py-14">
@@ -129,7 +128,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
           </div>
 
           <p className="mt-10 text-xs text-meta">
-            Free to use — CC0 / public domain. Pilot demo — partnerships shown are illustrative.
+            Free to use — CC0 / public domain. Demo — partnerships shown are illustrative.
           </p>
         </div>
       </main>

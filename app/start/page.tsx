@@ -55,7 +55,7 @@ export default async function StartPage({
 
   const addr = parseJson<Address>(user.address_json, {
     line1: "",
-    city: "San Francisco",
+    city: "",
     state: "CA",
     zip: "",
   });
@@ -67,25 +67,21 @@ export default async function StartPage({
         <StepHint index={0} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Where and why</h1>
         <form action={submitLocation} className="mt-6 space-y-5">
-          <div className="space-y-1.5">
-            <Label htmlFor="city">City</Label>
-            <select
-              id="city"
-              name="city"
-              defaultValue="San Francisco"
-              className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink"
-            >
-              <option value="San Francisco">San Francisco, CA</option>
-              <option value="Oakland" disabled>Oakland, CA — coming soon</option>
-              <option value="San Jose" disabled>San Jose, CA — coming soon</option>
-            </select>
-            <input type="hidden" name="state" value="CA" />
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2 space-y-1.5">
+              <Label htmlFor="city">City</Label>
+              <Input id="city" name="city" required defaultValue={addr.city} placeholder="Your city" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="state">State</Label>
+              <Input id="state" name="state" required defaultValue={addr.state} maxLength={2} />
+            </div>
           </div>
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-ink">What brings you here?</legend>
             {[
-              { v: "snap_cert", t: "I want to do civic work AND certify hours for CalFresh" },
-              { v: "casual_volunteer", t: "I just want to volunteer in my community" },
+              { v: "snap_cert", t: "I want to volunteer AND certify hours for CalFresh" },
+              { v: "casual_volunteer", t: "I just want to volunteer" },
               { v: "other", t: "Something else" },
             ].map((o, i) => (
               <label
@@ -124,7 +120,7 @@ export default async function StartPage({
         <form action={submitPhone} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="phone">Mobile number</Label>
-            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} defaultValue={user.phone ?? ""} placeholder="(415) 555-0142" />
+            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} defaultValue={user.phone ?? ""} placeholder="(916) 555-0142" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="code">6-digit code</Label>

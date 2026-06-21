@@ -86,7 +86,7 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
   const geos: LatLng[] = files
     .map((f) => parseJson<{ geo?: LatLng }>(f.metadata_json, {}).geo)
     .filter((g): g is LatLng => !!g && typeof g.lat === "number");
-  flags.push(...detectGeotagMismatch(task.location_kind, geos, CITY_CENTROIDS[user.city ?? "San Francisco"]));
+  flags.push(...detectGeotagMismatch(task.location_kind, geos, CITY_CENTROIDS[user.city ?? "Sacramento"]));
 
   // d. velocity
   flags.push(...detectVelocityAnomaly(sub.submitted_at ?? Date.now(), sub.first_started_at, task.est_hours));

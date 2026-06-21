@@ -19,16 +19,33 @@ export async function commitToTask(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
   const taskId = String(formData.get("task_id") ?? "");
-  const task = await getDb().prepare("SELECT id FROM task_templates WHERE id = ?").bind(taskId).first();
+  const task = await getDb()
+    .prepare("SELECT id, category FROM task_templates WHERE id = ?")
+    .bind(taskId)
+    .first<{ id: string; category: string }>();
   if (!task) redirect("/app/tasks");
 
   const id = newId("sub");
+  const now = Date.now();
   await getDb()
     .prepare(
       "INSERT INTO submissions (id, user_id, task_template_id, status, committed_at, time_log_json, checklist_progress_json) VALUES (?,?,?,?,?,?,?)"
     )
-    .bind(id, user.id, taskId, "committed", Date.now(), "[]", "{}")
+    .bind(id, user.id, taskId, "committed", now, "[]", "{}")
     .run();
+
+  if (task.category === "food-audit") {
+    const { BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION } = await import("@/lib/food-audit");
+    const auditId = newId("aud");
+    await getDb()
+      .prepare(
+        `INSERT INTO audits (id, submission_id, user_id, basket_template_id, basket_template_version, started_at)
+         VALUES (?,?,?,?,?,?)`
+      )
+      .bind(auditId, id, user.id, BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION, now)
+      .run();
+    redirect(`/app/audits/${auditId}`);
+  }
   redirect(`/app/projects/${id}`);
 }
 

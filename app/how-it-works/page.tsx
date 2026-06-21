@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "How it works — Tended" };
@@ -56,7 +55,6 @@ export default function HowItWorksPage() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         {/* Header */}
@@ -259,7 +257,7 @@ export default function HowItWorksPage() {
                   </Button>
                 </div>
                 <p className="mt-4 flex items-center gap-1.5 text-xs text-meta">
-                  <Clock className="size-3.5" strokeWidth={1.5} /> Pilot demo — partnerships shown across Tended are illustrative.
+                  <Clock className="size-3.5" strokeWidth={1.5} /> Demo — partnerships shown across Tended are illustrative.
                 </p>
               </section>
             </div>

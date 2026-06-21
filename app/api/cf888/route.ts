@@ -12,8 +12,8 @@ import { parseJson, type Address } from "@/lib/types";
 import { currentMonth, monthLabel, formatDob } from "@/lib/time";
 
 const ORG_PHONE: Record<string, string> = {
-  "friends-of-the-urban-forest": "(415) 561-6890",
-  "sf-civic-data-coalition": "(415) 555-0190",
+  "canopy-commons": "(916) 561-6890",
+  "civic-data-collective": "(916) 555-0190",
 };
 
 function addrLines(a: Address): string[] {
@@ -58,7 +58,7 @@ export async function GET(req: Request) {
   const birthdate = formatDob(await decryptField(user.dob));
   const userAddr = parseJson<Address>(await decryptField(user.address_json), {
     line1: "",
-    city: "San Francisco",
+    city: "Sacramento",
     state: "CA",
     zip: "",
   });

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, MessageSquare, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +23,6 @@ export default async function ContactPage({
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1 bg-section">
         <div className="mx-auto max-w-[720px] px-4 py-16 md:px-6 md:py-20">
@@ -36,7 +34,7 @@ export default async function ContactPage({
               <h1 className="mt-5 text-[28px] font-semibold text-ink">Thanks for reaching out</h1>
               <p className="mx-auto mt-3 max-w-md leading-relaxed text-body">
                 We&apos;ve received your message. In the live program we&apos;d reply to the email
-                you provided. This is a pilot demo, so no one is actually monitoring the inbox — but
+                you provided. This is a demo, so no one is actually monitoring the inbox — but
                 your note was saved.
               </p>
               <div className="mt-7">
@@ -52,7 +50,7 @@ export default async function ContactPage({
               </div>
               <h1 className="mt-4 text-[34px] font-semibold leading-tight text-ink">Contact us</h1>
               <p className="mt-3 max-w-[560px] leading-relaxed text-body">
-                Questions about the pilot, hosting tasks, or certifying hours? Send us a note and
+                Questions about Tended, hosting tasks, or certifying hours? Send us a note and
                 we&apos;ll get back to you.
               </p>
 

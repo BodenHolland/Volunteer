@@ -65,7 +65,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           <div className="space-y-4">
             <div className="rounded-md border border-line bg-section p-4 text-sm text-body">
               <p className="mb-1 font-medium text-ink">Source (English)</p>
-              <p>Free flu shots are available at all SF public health clinics this fall. No appointment or insurance is required. Bring photo ID if you have one. Clinics are open weekdays 9am–5pm. For locations, call 311.</p>
+              <p>Free flu shots are available at all county public health clinics this fall. No appointment or insurance is required. Bring photo ID if you have one. Clinics are open weekdays 9am–5pm. For locations, call your county health line.</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="content">Your Spanish translation</Label>

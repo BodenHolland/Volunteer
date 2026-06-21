@@ -2,26 +2,25 @@ import Link from "next/link";
 import { ArrowRight, Heart, Users, Sprout, Info } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 
-export const metadata = { title: "About the pilot — Tended" };
+export const metadata = { title: "About — Tended" };
 
 const VALUES = [
   {
     icon: Sprout,
     title: "Work first, paperwork second",
-    body: "Tended is built around civic work that helps the neighborhood. CalFresh certification is one supported path through it — not the headline. That framing widens who feels welcome and takes the stigma out of showing up.",
+    body: "Tended is built around real volunteer work for nonprofits and public agencies. CalFresh certification is one supported path through it, not the headline. That framing widens who feels welcome and takes the stigma out of showing up.",
   },
   {
     icon: Users,
     title: "Built with, not for",
-    body: "We are designing this alongside San Francisco nonprofits and community partners who know their neighbors and the work that needs doing. Their tasks, their review, their certification.",
+    body: "We design this alongside the nonprofits and public agencies that use the results. Their tasks, their review, their certification.",
   },
   {
     icon: Heart,
     title: "Honest about what's real",
-    body: "This is a pilot. Some pieces are live and some are still mocked. We say which is which, and we don't pretend the program is something it isn't yet.",
+    body: "This is a demonstration. Some pieces are live and some are still mocked. We say which is which, and we don't pretend the program is something it isn't yet.",
   },
 ];
 
@@ -31,21 +30,19 @@ export default function AboutPage() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         <section className="bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
             <div className="max-w-[720px]">
-              <p className="overline mb-4">About the pilot</p>
+              <p className="overline mb-4">About Tended</p>
               <h1 className="text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">
                 A calmer way to meet a hard new requirement.
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-body">
                 Starting June 1, 2026, California enforces an expanded work requirement for many
-                adults who receive CalFresh. Tended is a pilot built to help people meet it through
-                real civic work — and to help the nonprofits already doing that work bring more
-                neighbors in.
+                adults who receive CalFresh. Tended helps people meet it through real volunteer
+                work — and helps the nonprofits already doing that work bring more people in.
               </p>
             </div>
           </div>
@@ -59,7 +56,7 @@ export default function AboutPage() {
               with the least margin to navigate another bureaucratic hurdle. The official path —
               find an approved activity, log the hours, get a CF 888 signed, upload it to
               BenefitsCal — is doable, but it is easy to get lost in. We wanted something that felt
-              less like a compliance task and more like contributing to your block.
+              less like a compliance task and more like doing something useful.
             </p>
             <p className="leading-relaxed text-body">
               So we started with the work. Counting trees, translating notices, mapping hazards,
@@ -72,8 +69,8 @@ export default function AboutPage() {
 
             <h2 className="mt-10 text-[26px] font-semibold text-ink">How it&apos;s being built</h2>
             <p className="leading-relaxed text-body">
-              Tended is being shaped alongside San Francisco nonprofits and community partners. The
-              tasks come from organizations that will actually use the results. The review and the
+              Tended is shaped alongside the nonprofits and public agencies that use the results. The
+              tasks come from organizations that will actually use them. The review and the
               hours certification are done by those same organizations. We are not standing between
               recipients and the state — we generate a pre-filled CF 888 and hand it back to the
               recipient to upload themselves.
@@ -94,12 +91,12 @@ export default function AboutPage() {
 
           <div className="mt-12 rounded-lg border border-line bg-amber-subtle p-5">
             <p className="flex items-start gap-2 text-sm font-semibold text-amber">
-              <Info className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} /> This is a pilot demo
+              <Info className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} /> This is a demo
             </p>
             <p className="mt-2 text-sm leading-relaxed text-amber">
-              Tended is an unlisted demonstration. It is not affiliated with the State of California
-              or the San Francisco Human Services Agency. Hours shown here are not yet recognized by
-              any agency, no real accounts exist, and nothing is submitted to the state. The
+              Tended is an unlisted demonstration. It is not affiliated with the State of California.
+              Hours shown here are not yet recognized by any agency, no real accounts exist, and
+              nothing is submitted to the state. The
               organizations and partnerships shown are illustrative — they help us tell the story
               while we build the real thing.
             </p>

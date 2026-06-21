@@ -37,7 +37,7 @@ const LINE_GREY = rgb(0.45, 0.45, 0.45);
 export async function buildCf888Pdf(data: Cf888Data): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("CF 888 — CalFresh Volunteer Work Hours Verification");
-  doc.setProducer("Tended (pilot demo)");
+  doc.setProducer("Tended (demo)");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);

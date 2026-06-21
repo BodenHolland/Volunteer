@@ -82,7 +82,7 @@ export default async function OrgProfilePage({ searchParams }: { searchParams: P
           <div className="grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
             <div className="space-y-1.5">
               <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" defaultValue={addr.city ?? ""} placeholder="San Francisco" />
+              <Input id="city" name="city" defaultValue={addr.city ?? ""} placeholder="Sacramento" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="state">State</Label>

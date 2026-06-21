@@ -9,7 +9,8 @@ export type TaskCategory =
   | "translation"
   | "civic-input"
   | "neighborhood-writing"
-  | "seminar";
+  | "seminar"
+  | "food-audit";
 
 export type SubmissionStatus =
   | "committed"
@@ -46,6 +47,7 @@ export interface DeliverableSpec {
   require_prework?: boolean;
   require_postwork?: boolean;
   require_video?: boolean;
+  basket_template_id?: string;
 }
 
 export interface TimeLogSession {

@@ -39,7 +39,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
               <h1 className="text-[28px] font-semibold leading-tight text-ink">{task.title}</h1>
               <p className="mt-1 text-[15px] font-medium text-ink">{task.org.name}</p>
               <p className="mt-0.5 flex items-center gap-1 text-xs text-meta">
-                <Info className="size-3" /> Pilot demo — partnerships shown are illustrative
+                <Info className="size-3" /> Demo — partnerships shown are illustrative
               </p>
             </div>
           </div>

@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tended — Real civic work for your neighborhood",
+  title: "Tended — Volunteer hours that count toward CalFresh",
   description:
-    "Pick a civic task, help your community, and — if you receive CalFresh — certify the hours toward your monthly work requirement.",
+    "Pick a task from a sponsoring nonprofit, do the work, and — if you receive CalFresh — certify the hours toward your monthly work requirement.",
 };
 
 export default function RootLayout({

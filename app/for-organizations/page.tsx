@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "For organizations — Tended" };
@@ -48,7 +47,6 @@ export default function ForOrganizationsPage() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         <section className="bg-section">

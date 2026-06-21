@@ -35,7 +35,7 @@ export default async function OrgDashboardPage() {
         <div>
           <p className="overline mb-1">{org.name}</p>
           <h1 className="text-[28px] font-semibold text-ink">Review dashboard</h1>
-          <p className="mt-1 text-xs text-meta">Pilot demo — partnerships shown are illustrative</p>
+          <p className="mt-1 text-xs text-meta">Demo — partnerships shown are illustrative</p>
         </div>
         {data.pendingCount > 0 && (
           <Button asChild>

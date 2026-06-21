@@ -6,7 +6,6 @@ import { Markdown } from "@/components/markdown";
 import { OrgThumb } from "@/components/org-thumb";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
@@ -30,7 +29,6 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
@@ -46,7 +44,7 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
                     </Link>
                   </p>
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-meta">
-                    <Info className="size-3" /> Pilot demo — partnerships shown are illustrative
+                    <Info className="size-3" /> Demo — partnerships shown are illustrative
                   </p>
                 </div>
               </div>

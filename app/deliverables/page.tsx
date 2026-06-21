@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Gift, ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { OrgThumb } from "@/components/org-thumb";
 import { EmptyState } from "@/components/empty-state";
 import { listPublishedDeliverables } from "@/lib/deliverables";
@@ -23,6 +22,7 @@ const CATEGORY_LABEL: Record<TaskCategory, string> = {
   "civic-input": "Civic input",
   "neighborhood-writing": "Writing",
   seminar: "Learning",
+  "food-audit": "Food prices",
 };
 
 function snippet(text: string | null, max = 220): string {
@@ -42,7 +42,6 @@ export default async function DeliverablesPage() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1">
         {/* Hero */}

@@ -120,7 +120,7 @@ export function TaskFilters({ counts }: { counts: { location: Record<string, num
           aria-label="Search tasks"
         />
         <span className="hidden items-center gap-1.5 border-l border-line pl-3 text-sm text-meta sm:flex">
-          <MapPin className="size-4" /> San Francisco
+          <MapPin className="size-4" /> California
         </span>
       </div>
 

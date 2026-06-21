@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/session";
 import { getOrg } from "@/lib/queries";
-import { PilotBanner } from "@/components/pilot-banner";
 import { OrgHeader } from "@/components/org-header";
 
 export default async function OrgLayout({ children }: { children: React.ReactNode }) {
@@ -14,7 +13,6 @@ export default async function OrgLayout({ children }: { children: React.ReactNod
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <OrgHeader
         user={{
           name: user.full_name ?? "You",

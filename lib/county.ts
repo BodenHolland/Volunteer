@@ -6,9 +6,9 @@
 import { getDb } from "./cf";
 
 const CITY_TO_COUNTY: Record<string, string> = {
-  "San Francisco": "county_sf",
-  Oakland: "county_alameda",
-  "San Jose": "county_santaclara",
+  Sacramento: "county_sacramento",
+  "Los Angeles": "county_losangeles",
+  Fresno: "county_fresno",
 };
 
 export interface County {

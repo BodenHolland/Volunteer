@@ -13,7 +13,7 @@ import { getCurrentUser } from "@/lib/session";
 export async function submitLocation(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
-  const city = String(formData.get("city") ?? "San Francisco");
+  const city = String(formData.get("city") ?? "Sacramento");
   const state = String(formData.get("state") ?? "CA");
   const intent = String(formData.get("intent") ?? "casual_volunteer");
   await getDb()
@@ -47,7 +47,7 @@ export async function submitPii(formData: FormData) {
   const address = {
     line1: String(formData.get("line1") ?? "").trim(),
     line2: String(formData.get("line2") ?? "").trim(),
-    city: String(formData.get("city") ?? "San Francisco").trim(),
+    city: String(formData.get("city") ?? "Sacramento").trim(),
     state: String(formData.get("state") ?? "CA").trim(),
     zip: String(formData.get("zip") ?? "").trim(),
   };

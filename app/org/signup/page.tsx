@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, Building2, MailCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PilotBanner } from "@/components/pilot-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +23,6 @@ export default async function OrgSignupPage({
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <PilotBanner />
       <SiteHeader />
       <main id="main" className="flex-1 bg-section">
         <div className="mx-auto max-w-[720px] px-4 py-16 md:px-6 md:py-20">
@@ -41,7 +39,7 @@ export default async function OrgSignupPage({
               </p>
               <div className="mx-auto mt-6 max-w-md rounded-lg border border-line bg-amber-subtle p-4 text-left">
                 <p className="text-sm leading-relaxed text-amber">
-                  This is a pilot demo, so no email is actually sent and no review happens. Your
+                  This is a demo, so no email is actually sent and no review happens. Your
                   entry was saved so you can see the flow end to end.
                 </p>
               </div>
@@ -78,7 +76,7 @@ export default async function OrgSignupPage({
               <form action={createOrgSignup} className="mt-8 space-y-5 rounded-lg border border-line bg-white p-6 md:p-8">
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Organization name</Label>
-                  <Input id="name" name="name" required placeholder="Friends of the Urban Forest" />
+                  <Input id="name" name="name" required placeholder="Community Tree Project" />
                 </div>
 
                 <div className="grid gap-5 sm:grid-cols-2">

@@ -49,7 +49,7 @@ export function ListingCard({ task }: { task: ListingCardData }) {
             {task.location !== "online" && (
               <SecondaryTag>
                 <MapPin className="mr-1 size-3" />
-                San Francisco
+                California
               </SecondaryTag>
             )}
           </div>

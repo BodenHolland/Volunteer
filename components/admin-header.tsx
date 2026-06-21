@@ -26,6 +26,7 @@ const NAV = [
   { href: "/admin/orgs", label: "Orgs", icon: Building2 },
   { href: "/admin/tasks", label: "Tasks", icon: ListChecks },
   { href: "/admin/submissions", label: "Submissions", icon: Inbox },
+  { href: "/admin/audits", label: "Food audits", icon: Inbox },
   { href: "/admin/audit", label: "Audit", icon: ScrollText },
   { href: "/admin/system", label: "System", icon: Activity },
   { href: "/admin/feedback", label: "Feedback", icon: MessageSquare },

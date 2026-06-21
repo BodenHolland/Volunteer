@@ -11,7 +11,7 @@ export default async function AdminResetPage() {
     <div className="max-w-2xl space-y-6">
       <div>
         <h1 className="text-[28px] font-semibold text-ink">Reset demo data</h1>
-        <p className="mt-1 text-body">Restore the pilot to a clean, known state.</p>
+        <p className="mt-1 text-body">Restore the demo to a clean, known state.</p>
       </div>
 
       <div className="rounded-lg border border-line bg-amber-subtle p-5">

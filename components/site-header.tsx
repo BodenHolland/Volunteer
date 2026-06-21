@@ -48,7 +48,7 @@ export function SiteHeader({ locale = "en", t = EN }: { locale?: "en" | "es"; t?
                     <div className="space-y-2">
                       <Link href="/about" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
                         <BookOpen className="mt-0.5 size-[18px] text-forest" />
-                        <span><span className="block text-sm font-semibold text-ink">About the pilot</span><span className="block text-xs text-body">Why we built Tended.</span></span>
+                        <span><span className="block text-sm font-semibold text-ink">About Tended</span><span className="block text-xs text-body">Why we built Tended.</span></span>
                       </Link>
                       <Link href="/for-organizations" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
                         <Building2 className="mt-0.5 size-[18px] text-forest" />
