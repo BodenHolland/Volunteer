@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -18,7 +17,6 @@ import { getFirebaseAuth } from "@/lib/firebase-client";
 
 /** Firebase sign-in / sign-up that exchanges the ID token for our D1 session. */
 export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +34,11 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
     });
     if (!res.ok) throw new Error("session exchange failed");
     const data = (await res.json()) as { next?: string };
-    router.push(next || data.next || "/app");
+    // Full-page navigation (not router.push): the session cookie was just set
+    // via fetch, and a hard load guarantees the next request carries it and is
+    // server-rendered fresh — a soft navigation can replay a cached logged-out
+    // redirect for the destination and bounce the user back to /login (loop).
+    window.location.assign(next || data.next || "/app");
   }
 
   async function onSubmit(e: React.FormEvent) {
