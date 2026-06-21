@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { DraftBanner } from "./draft-banner";
 
 export function ArticleShell({
   number,
@@ -24,7 +23,6 @@ export function ArticleShell({
         Skip to content
       </a>
       <SiteHeader />
-      <DraftBanner />
       <main id="main" className="flex-1">
         <article className="mx-auto max-w-[720px] px-4 py-12 md:px-6 md:py-16">
           <p className="overline mb-3">
