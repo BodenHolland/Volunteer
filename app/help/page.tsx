@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { DraftBanner } from "./_components/draft-banner";
 import { ARTICLES, SECTIONS } from "./_components/articles";
 
-export const metadata = { title: "Help Center (Draft) — Tended" };
+export const metadata = { title: "Help Center — Tended" };
 
 export default function HelpIndex() {
   return (
@@ -13,7 +12,6 @@ export default function HelpIndex() {
         Skip to content
       </a>
       <SiteHeader />
-      <DraftBanner />
       <main id="main" className="flex-1">
         <section className="bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">

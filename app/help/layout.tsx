@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Help Center (Draft) — Tended",
+  title: "Help Center — Tended",
+  // Soft-launch: reachable by URL, not indexed by search engines.
+  // See app/help/PENDING_UPDATES.md before removing this.
   robots: { index: false, follow: false, nocache: true },
 };
 
