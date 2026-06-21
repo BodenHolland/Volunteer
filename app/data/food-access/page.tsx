@@ -7,9 +7,9 @@ import { relativeTime } from "@/lib/time";
 // for performance rather than ISR.
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "California food access dashboard — Tended",
+  title: "Food access dashboard — Tended",
   description:
-    "Volunteer-collected shelf prices for a 6-item USDA basket across California. Free, public, updated continuously.",
+    "Volunteer-collected shelf prices for a 6-item USDA basket. Free, public, updated continuously.",
 };
 
 function fmtUsd(n: number | null): string {
@@ -27,14 +27,14 @@ export default async function FoodAccessDashboardPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <header className="mb-8">
-        <p className="text-xs uppercase tracking-wide text-muted">Public dataset</p>
-        <h1 className="text-3xl font-semibold mt-1">California food access dashboard</h1>
-        <p className="text-muted mt-2 max-w-2xl">
+        <p className="text-xs uppercase tracking-wide text-body">Public dataset</p>
+        <h1 className="text-3xl font-semibold mt-1">Food access dashboard</h1>
+        <p className="text-body mt-2 max-w-2xl">
           Volunteer-collected shelf-tag prices for a standard 6-item USDA basket — milk, eggs, bread,
-          rice, beans, and fresh produce — across California food retailers. Free, public, CC0.
+          rice, beans, and fresh produce — across food retailers nationwide. Free, public, CC0.
           Data refreshes every 5 minutes.
         </p>
-        <p className="text-sm text-muted mt-3">
+        <p className="text-sm text-body mt-3">
           Last updated {relativeTime(report.generated_at)} ·{" "}
           <a
             className="text-forest underline-offset-2 hover:underline"
@@ -54,7 +54,7 @@ export default async function FoodAccessDashboardPage() {
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-3">Basket cost by ZIP code</h2>
         {report.zips.length === 0 ? (
-          <p className="text-muted">
+          <p className="text-body">
             No verified audits yet. As volunteers complete audits, this table populates with median
             basket cost per ZIP.
           </p>
@@ -117,9 +117,9 @@ export default async function FoodAccessDashboardPage() {
         </div>
       </section>
 
-      <footer className="text-xs text-muted border-t border-line pt-4">
+      <footer className="text-xs text-body border-t border-line pt-4">
         Methodology: each row is the volunteer-captured shelf price (not promo / sale) of the
-        specified item at a California food retailer. Prices and median basket costs are derived from
+        specified item at a food retailer. Prices and median basket costs are derived from
         audits that passed automated photo + OCR + plausibility checks. Dataset is CC0 — reuse freely.
       </footer>
     </main>
@@ -129,7 +129,7 @@ export default async function FoodAccessDashboardPage() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-lg border border-line bg-white p-5">
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-body">{label}</p>
       <p className="text-3xl font-semibold mt-1">{value}</p>
     </div>
   );

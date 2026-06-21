@@ -34,13 +34,13 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
   const captures = capturesRes.results ?? [];
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
+    <div className="mx-auto max-w-2xl pb-24">
       <header className="mb-6">
-        <p className="text-xs uppercase tracking-wide text-muted">Food access price audit</p>
-        <h1 className="text-2xl font-semibold mt-1">USDA Thrifty 6-item basket</h1>
-        <p className="text-sm text-muted mt-2">
-          Visit any California food retailer. For each of the 6 basket items, snap a photo of the
-          item next to its shelf tag and enter the price. About 12 minutes.
+        <p className="overline mb-2">Food access price audit</p>
+        <h1 className="text-[28px] font-semibold text-ink">USDA Thrifty 6-item basket</h1>
+        <p className="mt-2 text-body">
+          Visit any food retailer. For each of the 6 basket items, snap a photo of the item next to
+          its shelf tag and enter the price.
         </p>
       </header>
       <AuditClient
@@ -51,6 +51,6 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
         storeTypes={STORE_TYPES}
         ebtOptions={EBT_OBSERVATIONS}
       />
-    </main>
+    </div>
   );
 }
