@@ -58,11 +58,11 @@ export default function HowItWorksPage() {
       <SiteHeader />
       <main id="main" className="flex-1">
         {/* Header */}
-        <section className="bg-section">
-          <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
+        <section className="border-b border-line bg-white">
+          <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-16">
             <div className="max-w-[720px]">
-              <p className="overline mb-4">How it works</p>
-              <h1 className="text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">
+              <p className="overline mb-4 text-teal">How it works</p>
+              <h1 className="service-heading text-[40px] leading-[1.1] md:text-[48px]">
                 Real work, fairly counted.
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-body">
@@ -76,16 +76,16 @@ export default function HowItWorksPage() {
         </section>
 
         <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-          <div className="grid gap-12 py-16 lg:grid-cols-[220px_1fr] md:py-20">
+          <div className="grid gap-8 py-10 lg:grid-cols-[240px_1fr] md:py-14">
             {/* Anchor nav */}
-            <nav aria-label="On this page" className="lg:sticky lg:top-20 lg:self-start">
-              <p className="overline mb-3">On this page</p>
+            <nav aria-label="On this page" className="service-panel h-fit p-4 lg:sticky lg:top-20 lg:self-start">
+              <p className="overline mb-3 text-teal">On this page</p>
               <ul className="space-y-1">
                 {SECTIONS.map((s) => (
                   <li key={s.id}>
                     <a
                       href={`#${s.id}`}
-                      className="block rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section hover:text-forest"
+                      className="block rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-teal-subtle hover:text-teal"
                     >
                       {s.label}
                     </a>
@@ -95,13 +95,13 @@ export default function HowItWorksPage() {
             </nav>
 
             {/* Content */}
-            <div className="min-w-0 max-w-[720px] space-y-16">
+            <div className="min-w-0 max-w-[760px] space-y-5">
               {/* Civic work */}
-              <section id="civic-work" className="scroll-mt-24">
-                <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
+              <section id="civic-work" className="service-panel scroll-mt-24 p-6 md:p-8">
+                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
                   <Trees className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">Online volunteering</h2>
+                <h2 className="service-heading mt-4 text-[28px]">Online volunteering</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   Every task on Tended is real work that a local organization actually needs done,
                   and every task produces a <strong className="font-semibold text-ink">free public
@@ -131,11 +131,11 @@ export default function HowItWorksPage() {
               </section>
 
               {/* SNAP */}
-              <section id="calfresh" className="scroll-mt-24">
-                <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
+              <section id="calfresh" className="service-panel scroll-mt-24 p-6 md:p-8">
+                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
                   <FileCheck2 className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">SNAP & the CF 888</h2>
+                <h2 className="service-heading mt-4 text-[28px]">SNAP & the CF 888</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   Recent changes expanded the work rules that apply to many adults who receive SNAP —
                   known in California as CalFresh — and California begins enforcing them on{" "}
@@ -183,11 +183,11 @@ export default function HowItWorksPage() {
               </section>
 
               {/* Identity & privacy */}
-              <section id="identity" className="scroll-mt-24">
-                <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
+              <section id="identity" className="service-panel scroll-mt-24 p-6 md:p-8">
+                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
                   <ShieldCheck className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">Identity & privacy</h2>
+                <h2 className="service-heading mt-4 text-[28px]">Identity & privacy</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   The state already verified everyone enrolled in SNAP. Our job is not to
                   re-prove who you are — it is to keep your account consistent and capture the
@@ -225,11 +225,11 @@ export default function HowItWorksPage() {
               </section>
 
               {/* For organizations */}
-              <section id="for-organizations" className="scroll-mt-24">
-                <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
+              <section id="for-organizations" className="service-panel scroll-mt-24 p-6 md:p-8">
+                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
                   <Building2 className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">For organizations</h2>
+                <h2 className="service-heading mt-4 text-[28px]">For organizations</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   Any 501(c)(3) nonprofit, government agency, public school, or food bank can sponsor
                   civic work on Tended. There is no state pre-approval list to get onto — if you are

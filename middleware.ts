@@ -28,7 +28,9 @@ export function middleware(req: NextRequest) {
         `referer=${referer.slice(0, 120)} cookies_present=${JSON.stringify(cookieNames)}`
     );
     const url = new URL("/login", req.url);
-    url.searchParams.set("next", pathname);
+    // Preserve the full destination so a valid reauthentication never drops a
+    // person on an unrelated screen after a session expires.
+    url.searchParams.set("next", `${pathname}${req.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

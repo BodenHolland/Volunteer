@@ -54,14 +54,15 @@ export default async function SettingsPage({
   const prefs = parseNotifyPrefs(prefsRow?.notify_prefs_json);
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-[28px] font-semibold text-ink">Settings</h1>
+    <div className="max-w-[900px] space-y-5">
+      <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
+        <p className="overline mb-2 text-teal">Account</p>
+        <h1 className="service-heading text-[28px]">Settings</h1>
         <p className="mt-1 text-body">Manage your account and how you use Tended.</p>
       </div>
 
       {/* Account */}
-      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+      <section className="service-panel space-y-4 p-5 md:p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-ink">Account</h2>
           {saved === "account" && <Saved>Saved</Saved>}
@@ -80,7 +81,7 @@ export default async function SettingsPage({
       </section>
 
       {/* Intent */}
-      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+      <section className="service-panel space-y-4 p-5 md:p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-ink">How you use Tended</h2>
           {saved === "intent" && <Saved>Saved</Saved>}
@@ -105,7 +106,7 @@ export default async function SettingsPage({
       </section>
 
       {/* Notifications */}
-      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+      <section className="service-panel space-y-4 p-5 md:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell className="size-5 text-meta" />
@@ -135,7 +136,7 @@ export default async function SettingsPage({
       </section>
 
       {/* Data export */}
-      <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+      <section className="service-panel space-y-4 p-5 md:p-6">
         <h2 className="text-base font-semibold text-ink">Your data</h2>
         <p className="text-sm text-body">
           Download a copy of your account, submissions, and certified hours as a JSON file.
@@ -148,7 +149,7 @@ export default async function SettingsPage({
       </section>
 
       {/* Danger zone */}
-      <section className="space-y-4 rounded-lg border border-brick/30 bg-white p-5">
+      <section className="service-panel space-y-4 border-brick/30 p-5 md:p-6">
         <h2 className="text-base font-semibold text-ink">Danger zone</h2>
         <div className="flex flex-wrap items-center gap-3">
           <Button asChild variant="destructive">

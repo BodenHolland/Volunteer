@@ -21,9 +21,12 @@ export default async function ProfilePage({
 
   if (user.intent !== "snap_cert") {
     return (
-      <div className="max-w-2xl space-y-6">
-        <h1 className="text-[28px] font-semibold text-ink">SNAP profile</h1>
-        <div className="rounded-lg border border-line bg-section p-5">
+      <div className="max-w-[900px] space-y-5">
+        <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
+          <p className="overline mb-2 text-teal">Benefits details</p>
+          <h1 className="service-heading text-[28px]">SNAP profile</h1>
+        </div>
+        <div className="service-panel bg-section p-5">
           <p className="flex items-center gap-2 font-medium text-ink">
             <Info className="size-5 text-forest" /> Only needed for certifying hours
           </p>
@@ -57,9 +60,10 @@ export default async function ProfilePage({
   const addr = parseJson<Address>(addressJson, { line1: "", city: "", state: "", zip: "" });
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-[28px] font-semibold text-ink">SNAP profile</h1>
+    <div className="max-w-[900px] space-y-5">
+      <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
+        <p className="overline mb-2 text-teal">Benefits details</p>
+        <h1 className="service-heading text-[28px]">SNAP profile</h1>
         <p className="mt-1 text-body">This appears on your CF 888 exactly as entered.</p>
       </div>
 
@@ -70,7 +74,7 @@ export default async function ProfilePage({
       )}
 
       <form action={updateProfile} className="space-y-6">
-        <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+        <section className="service-panel space-y-4 p-5 md:p-6">
           <h2 className="text-base font-semibold text-ink">Identity</h2>
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>
@@ -92,7 +96,7 @@ export default async function ProfilePage({
           </div>
         </section>
 
-        <section className="space-y-4 rounded-lg border border-line bg-white p-5">
+        <section className="service-panel space-y-4 p-5 md:p-6">
           <h2 className="text-base font-semibold text-ink">Address</h2>
           <div className="space-y-1.5">
             <Label htmlFor="line1">Street address</Label>
