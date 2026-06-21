@@ -45,6 +45,18 @@ export function DonePolling({
             ? `${(status.credited_hours * 60).toFixed(0)} minutes credited to your CalFresh hours.`
             : "Hours credited."}
         </p>
+        <p className="text-xs text-muted mt-3">
+          Your shelf prices are also flowing into{" "}
+          <a
+            href="https://prices.openfoodfacts.org/?project=tended-ca-food-access"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-forest underline-offset-2 hover:underline"
+          >
+            Open Prices
+          </a>
+          , the global open-data food price dataset.
+        </p>
       </div>
     );
   }

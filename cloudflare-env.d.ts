@@ -9,6 +9,7 @@ interface CloudflareEnv {
 	OPENROUTER_SITE_URL: string;
 	OPENROUTER_APP_NAME: string;
 	PII_ENCRYPTION_KEY?: string;
+	OPEN_PRICES_TOKEN?: string;
 	FIREBASE_PROJECT_ID?: string;
 	NEXT_PUBLIC_FIREBASE_API_KEY?: string;
 	NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?: string;

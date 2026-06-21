@@ -46,6 +46,21 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
     .all<ValidationFlagRow>();
   const flags = flagRes.results ?? [];
 
+  const contribRes = await db
+    .prepare(
+      `SELECT basket_item_id, status, attempt_count, open_prices_id, last_error
+       FROM open_prices_contributions WHERE audit_id = ?`
+    )
+    .bind(id)
+    .all<{
+      basket_item_id: string;
+      status: string;
+      attempt_count: number;
+      open_prices_id: string | null;
+      last_error: string | null;
+    }>();
+  const contribs = contribRes.results ?? [];
+
   const credited = creditedHoursFromSeconds(audit.session_time_seconds);
 
   return (
@@ -115,6 +130,33 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
           })}
         </ul>
       </section>
+
+      {contribs.length > 0 ? (
+        <section className="rounded-lg border border-line bg-white p-5 mb-4">
+          <h2 className="font-semibold mb-2">Open Prices contributions</h2>
+          <ul className="text-sm flex flex-col gap-1">
+            {contribs.map((c) => (
+              <li key={c.basket_item_id} className="flex justify-between">
+                <span>
+                  <strong>{c.basket_item_id}</strong> — {c.status}
+                  {c.attempt_count ? ` (${c.attempt_count} attempt${c.attempt_count > 1 ? "s" : ""})` : ""}
+                  {c.last_error ? <span className="text-brick"> — {c.last_error}</span> : null}
+                </span>
+                {c.open_prices_id ? (
+                  <a
+                    href={`https://prices.openfoodfacts.org/prices/${c.open_prices_id}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-forest underline-offset-2 hover:underline"
+                  >
+                    open-prices/{c.open_prices_id}
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {flags.length > 0 ? (
         <section className="rounded-lg border border-terracotta bg-terracotta/10 p-5 mb-4">

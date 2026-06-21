@@ -260,6 +260,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
 
   // ---- wipe (children before parents; remote D1 enforces foreign keys) ----
   const wipeTables = [
+    "open_prices_contributions",
     "audit_validation_flags",
     "audit_photos",
     "audit_item_captures",

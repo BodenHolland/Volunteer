@@ -279,6 +279,9 @@ export async function processAudit(auditId: string): Promise<void> {
       .bind(now, credited, audit.submission_id)
       .run();
     if (credited) await addCreditedHoursToLedger(audit.user_id, credited);
+    await contributeAuditToOpenPrices(auditId).catch(() => {
+      /* contribution failures are queued, not surfaced */
+    });
   } else if (nextStatus === "rejected") {
     await db
       .prepare(
@@ -419,6 +422,234 @@ export function haversineMeters(a: { lat: number; lng: number }, b: { lat: numbe
   const lat2 = toRad(b.lat);
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+// ---------------------------------------------------------------------------
+// Open Prices contribution (Slice 3)
+// ---------------------------------------------------------------------------
+
+interface ContribRow {
+  id: string;
+  audit_id: string;
+  audit_item_capture_id: string;
+  basket_item_id: string;
+  product_code: string | null;
+  status: "pending" | "sent" | "failed" | "skipped";
+  attempt_count: number;
+  last_error: string | null;
+  open_prices_id: string | null;
+  posted_at: number | null;
+  next_retry_at: number | null;
+  created_at: number;
+}
+
+/**
+ * For a verified audit, enqueue + attempt one Open Prices POST per in-stock
+ * basket item with a mapped product code. Failures land in the retry queue.
+ */
+export async function contributeAuditToOpenPrices(auditId: string): Promise<void> {
+  const db = getDb();
+  const env = getEnv();
+  const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(auditId).first<AuditRow>();
+  if (!audit || audit.validation_status !== "verified") return;
+
+  const captures =
+    (
+      await db
+        .prepare(
+          `SELECT * FROM audit_item_captures WHERE audit_id = ? AND stock_status = 'in-stock' AND price_usd IS NOT NULL`
+        )
+        .bind(auditId)
+        .all<AuditItemCaptureRow>()
+    ).results ?? [];
+
+  const store = audit.store_id
+    ? await db.prepare("SELECT * FROM stores WHERE id = ?").bind(audit.store_id).first<Store>()
+    : null;
+  const now = Date.now();
+  const dateStr = isoDate(audit.submitted_at ?? now);
+  const sourceTag = `${OPEN_PRICES_PROJECT_TAG}:${audit.id}`;
+
+  for (const cap of captures) {
+    const existing = await db
+      .prepare("SELECT id FROM open_prices_contributions WHERE audit_item_capture_id = ?")
+      .bind(cap.id)
+      .first<{ id: string }>();
+    if (existing) continue;
+
+    const item = findItem(cap.basket_item_id);
+    if (!item) continue;
+    const code = OFF_PRODUCT_CODES[cap.basket_item_id];
+    const rowId = newId("opc");
+
+    if (!code) {
+      await db
+        .prepare(
+          `INSERT INTO open_prices_contributions
+            (id, audit_id, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
+           VALUES (?,?,?,?,?, 'skipped', 0, ?)`
+        )
+        .bind(rowId, auditId, cap.id, cap.basket_item_id, null, now)
+        .run();
+      continue;
+    }
+
+    await db
+      .prepare(
+        `INSERT INTO open_prices_contributions
+          (id, audit_id, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
+         VALUES (?,?,?,?,?, 'pending', 0, ?)`
+      )
+      .bind(rowId, auditId, cap.id, cap.basket_item_id, code, now)
+      .run();
+
+    if (!env.OPEN_PRICES_TOKEN) {
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions
+           SET status = 'pending', last_error = 'No OPEN_PRICES_TOKEN configured.', next_retry_at = ?
+           WHERE id = ?`
+        )
+        .bind(now + nextRetryDelayMs(0), rowId)
+        .run();
+      continue;
+    }
+
+    const result = await postOpenPrice({
+      token: env.OPEN_PRICES_TOKEN,
+      price: {
+        product_code: code,
+        price: normalizeUnitPrice(item, cap.price_usd!),
+        currency: "USD",
+        date: dateStr,
+        location_label: store ? `${store.name}, ${store.address}` : undefined,
+        source: sourceTag,
+      },
+    });
+
+    if (result.ok) {
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions
+           SET status = 'sent', open_prices_id = ?, posted_at = ?, attempt_count = 1
+           WHERE id = ?`
+        )
+        .bind(result.open_prices_id ?? null, Date.now(), rowId)
+        .run();
+    } else {
+      const delay = nextRetryDelayMs(0);
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions
+           SET status = 'failed', attempt_count = 1, last_error = ?, next_retry_at = ?
+           WHERE id = ?`
+        )
+        .bind((result.error ?? `HTTP ${result.status}`).slice(0, 500), now + delay, rowId)
+        .run();
+    }
+  }
+}
+
+/** Drain the retry queue. Caller is the cron / manual admin trigger. */
+export async function retryOpenPricesQueue(limit = 25): Promise<{ tried: number; sent: number; failed: number }> {
+  const db = getDb();
+  const env = getEnv();
+  const now = Date.now();
+  const rows =
+    (
+      await db
+        .prepare(
+          `SELECT * FROM open_prices_contributions
+           WHERE status IN ('pending','failed') AND attempt_count < ?
+             AND (next_retry_at IS NULL OR next_retry_at <= ?)
+           ORDER BY created_at ASC
+           LIMIT ?`
+        )
+        .bind(MAX_RETRY_ATTEMPTS, now, limit)
+        .all<ContribRow>()
+    ).results ?? [];
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const row of rows) {
+    if (!env.OPEN_PRICES_TOKEN || !row.product_code) {
+      const delay = nextRetryDelayMs(row.attempt_count);
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions SET next_retry_at = ?, last_error = ? WHERE id = ?`
+        )
+        .bind(
+          now + delay,
+          row.product_code ? "No OPEN_PRICES_TOKEN configured." : "No product code for basket item.",
+          row.id
+        )
+        .run();
+      failed++;
+      continue;
+    }
+    const cap = await db
+      .prepare("SELECT * FROM audit_item_captures WHERE id = ?")
+      .bind(row.audit_item_capture_id)
+      .first<AuditItemCaptureRow>();
+    const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(row.audit_id).first<AuditRow>();
+    const store = audit?.store_id
+      ? await db.prepare("SELECT * FROM stores WHERE id = ?").bind(audit.store_id).first<Store>()
+      : null;
+    const item = cap ? findItem(cap.basket_item_id) : undefined;
+    if (!cap || !audit || !item || cap.price_usd == null) {
+      await db
+        .prepare(`UPDATE open_prices_contributions SET status = 'skipped' WHERE id = ?`)
+        .bind(row.id)
+        .run();
+      continue;
+    }
+    const result = await postOpenPrice({
+      token: env.OPEN_PRICES_TOKEN,
+      price: {
+        product_code: row.product_code,
+        price: normalizeUnitPrice(item, cap.price_usd),
+        currency: "USD",
+        date: isoDate(audit.submitted_at ?? now),
+        location_label: store ? `${store.name}, ${store.address}` : undefined,
+        source: `${OPEN_PRICES_PROJECT_TAG}:${audit.id}`,
+      },
+    });
+
+    if (result.ok) {
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions
+           SET status = 'sent', open_prices_id = ?, posted_at = ?, attempt_count = attempt_count + 1,
+               next_retry_at = NULL, last_error = NULL
+           WHERE id = ?`
+        )
+        .bind(result.open_prices_id ?? null, Date.now(), row.id)
+        .run();
+      sent++;
+    } else {
+      const nextAttempt = row.attempt_count + 1;
+      const exhausted = nextAttempt >= MAX_RETRY_ATTEMPTS;
+      const delay = nextRetryDelayMs(nextAttempt);
+      await db
+        .prepare(
+          `UPDATE open_prices_contributions
+           SET status = ?, attempt_count = ?, last_error = ?, next_retry_at = ?
+           WHERE id = ?`
+        )
+        .bind(
+          exhausted ? "failed" : "pending",
+          nextAttempt,
+          (result.error ?? `HTTP ${result.status}`).slice(0, 500),
+          exhausted ? null : now + delay,
+          row.id
+        )
+        .run();
+      failed++;
+    }
+  }
+
+  return { tried: rows.length, sent, failed };
 }
 
 function toBase64(buf: ArrayBuffer): string {
