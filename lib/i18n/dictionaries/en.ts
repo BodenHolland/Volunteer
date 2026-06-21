@@ -7,12 +7,12 @@ export const en = {
     seeTasks: "See tasks",
   },
   hero: {
-    overline: "Volunteer work that counts",
-    title: "Earn your CalFresh hours doing real volunteer work.",
+    overline: "Online volunteering",
+    title: "Online volunteering opportunities that count.",
     subhead:
-      "Choose a task from a sponsoring nonprofit and do the work. Your reviewed hours generate a pre-filled CF 888 you upload to BenefitsCal.",
-    cta: "See available tasks",
-    calfresh: "New to the CalFresh work requirement? See how hours are certified →",
+      "Choose a task from a sponsoring nonprofit and volunteer online. If you get SNAP (EBT), your reviewed hours are certified toward your work requirement.",
+    cta: "Browse opportunities",
+    calfresh: "Getting SNAP (EBT)? See how your hours are certified →",
   },
   orgCta: {
     title: "Run a nonprofit, school, or agency?",
@@ -20,7 +20,7 @@ export const en = {
     button: "Become a partner",
   },
   footer: {
-    tagline: "Volunteer work that counts toward your CalFresh hours.",
+    tagline: "Online volunteering that counts toward your SNAP (EBT) work requirement.",
     deliverables: "Public deliverables",
     privacy: "Privacy",
     contact: "Contact",
@@ -57,7 +57,7 @@ export const en = {
       dashboard: "Dashboard",
       tasks: "Tasks",
       projects: "Projects",
-      calfreshProfile: "CalFresh profile",
+      calfreshProfile: "SNAP profile",
       settings: "Settings",
       signOut: "Sign out",
     },

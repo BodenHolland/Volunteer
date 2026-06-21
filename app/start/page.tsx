@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getDb } from "@/lib/cf";
-import { requireUser } from "@/lib/session";
+import { homeForUser, requireUser } from "@/lib/session";
 import { parseJson, type Address, type Org } from "@/lib/types";
 import {
   submitLocation,
@@ -50,6 +50,17 @@ export default async function StartPage({
   const db = getDb();
   const user = await requireUser();
 
+  // Skip onboarding entirely if the user has already finished it. Without this
+  // guard, any link back to /start (preview "Sign in to commit", "Switch identity",
+  // a stale bookmark) re-runs the wizard.
+  const isOnboarded =
+    user.role === "org_member"
+      ? !!user.org_id
+      : !!user.city && !!user.state && user.intent !== "n/a";
+  if (!sp.step && isOnboarded) {
+    redirect(homeForUser(user));
+  }
+
   // Onboarding operates on the signed-in account. Route unspecified visits.
   const step = sp.step ?? (user.role === "org_member" ? "orgpick" : "location");
 
@@ -80,9 +91,13 @@ export default async function StartPage({
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-ink">What brings you here?</legend>
             {[
-              { v: "snap_cert", t: "I want to volunteer AND certify hours for CalFresh" },
-              { v: "casual_volunteer", t: "I just want to volunteer" },
-              { v: "other", t: "Something else" },
+              { v: "casual_volunteer", t: "I just want to volunteer", hint: "" },
+              {
+                v: "snap_cert",
+                t: "I want to volunteer and certify hours toward the SNAP work requirement",
+                hint: "For ABAWDs (Able-Bodied Adults Without Dependents). Your state may call SNAP CalFresh, Lone Star, ACCESS, etc.",
+              },
+              { v: "other", t: "Something else", hint: "" },
             ].map((o, i) => (
               <label
                 key={o.v}
@@ -95,7 +110,10 @@ export default async function StartPage({
                   defaultChecked={i === 0}
                   className="mt-1 accent-[var(--color-forest)]"
                 />
-                <span className="text-sm text-ink">{o.t}</span>
+                <span className="text-sm text-ink">
+                  {o.t}
+                  {o.hint ? <span className="block text-xs text-muted mt-0.5">{o.hint}</span> : null}
+                </span>
               </label>
             ))}
           </fieldset>
