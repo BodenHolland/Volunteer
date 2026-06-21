@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, ListChecks, Gift, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, ListChecks, CheckCircle2, Info } from "lucide-react";
 import { getTask } from "@/lib/queries";
 import { commitToTask } from "@/app/app/project-actions";
 import { Markdown } from "@/components/markdown";
@@ -8,7 +8,6 @@ import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
 import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
-import { formatHours } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +46,6 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
             <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
-            <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} hrs</SecondaryTag>
           </div>
 
           <section className="mt-8">
@@ -76,18 +74,9 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="rounded-lg border border-line bg-white p-5">
-            <dl className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <dt className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> Estimated</dt>
-                <dd className="font-medium text-ink">{formatHours(task.est_hours)} hours</dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="flex items-center gap-1.5 text-body"><Gift className="size-4 text-meta" /> Hours cap</dt>
-                <dd className="font-medium text-ink">{formatHours(task.max_hours)} hours</dd>
-              </div>
-            </dl>
-            <p className="mt-3 rounded-md bg-section p-3 text-xs text-body">
-              You&apos;ll log your time as you work. Credited hours are capped at {formatHours(task.max_hours)}.
+            <p className="rounded-md bg-section p-3 text-xs text-body">
+              You&apos;ll log your time as you work. Credited hours reflect your measured engagement —
+              do as much or as little as you like.
             </p>
             <form action={commitToTask} className="mt-4">
               <input type="hidden" name="task_id" value={task.id} />

@@ -248,11 +248,18 @@ export interface ValidationFlagRow {
 
 // ---------- Validators (synchronous) ----------
 
-/** California rough bounding box. */
-export function isInCalifornia(lat: number | null, lng: number | null): boolean {
+/**
+ * Continental US + Alaska + Hawaii + US territories bounding box.
+ * Generous on purpose — we just want to catch obvious garbage (Antarctica,
+ * a phone with GPS disabled, etc.), not gatekeep based on state.
+ */
+export function isInUnitedStates(lat: number | null, lng: number | null): boolean {
   if (lat == null || lng == null) return false;
-  return lat >= 32.5 && lat <= 42.0 && lng >= -124.5 && lng <= -114.0;
+  return lat >= 17.5 && lat <= 71.5 && lng >= -179.5 && lng <= -65.0;
 }
+
+/** @deprecated kept as an alias for historical callers; use isInUnitedStates. */
+export const isInCalifornia = isInUnitedStates;
 
 export function findItem(id: string): BasketItem | undefined {
   return USDA_THRIFTY_6.items.find((i) => i.id === id);
@@ -314,8 +321,8 @@ export function syncValidate(input: SubmitCheckInput): { ok: boolean; reason?: s
     if (err) return { ok: false, reason: `${item_id}: ${err}`, flags };
   }
 
-  if (!isInCalifornia(input.store_geocode.lat, input.store_geocode.lng)) {
-    return { ok: false, reason: "Store must be in California.", flags };
+  if (!isInUnitedStates(input.store_geocode.lat, input.store_geocode.lng)) {
+    return { ok: false, reason: "Store location must be in the US.", flags };
   }
 
   if (input.session_time_seconds < SESSION_MIN_SECONDS) {

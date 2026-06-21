@@ -37,8 +37,6 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
     orgSlug: org.slug,
     category: t.category,
     location: t.location_kind,
-    estHours: t.est_hours,
-    maxHours: t.max_hours,
     createdAt: t.created_at,
   }));
 

@@ -232,17 +232,17 @@ const TASKS: SeedTask[] = [
     title: "Audit food prices at a store near you",
     category: "food-audit",
     short_description:
-      "Visit any California food retailer and capture shelf-tag prices for a 6-item basket (milk, eggs, bread, rice, beans, fresh produce). About 12 minutes.",
+      "Visit any food retailer and capture shelf-tag prices for a 6-item basket (milk, eggs, bread, rice, beans, fresh produce). You decide how many stores you do — hours credit based on your measured time.",
     instructions_md:
-      "## What you'll do\nWalk into any California food retailer — supermarket, bodega, ethnic market, dollar store, farmers market — and capture **shelf-tag prices** for a fixed 6-item USDA basket. You don't buy anything.\n\n1. Find the store.\n2. For each of the 6 items, snap **one photo** of the item next to its shelf tag, then enter the price and size.\n3. If an item is missing, mark it out-of-stock.\n4. Submit. Hours credit when your audit verifies.\n\n## What the org gets\nVerified audits flow into a public food-access dataset showing where food is most affordable across California. The deliverable is free and public.",
+      "## What you'll do\nWalk into any food retailer — supermarket, bodega, ethnic market, dollar store, farmers market — and capture **shelf-tag prices** for a fixed 6-item USDA basket. You don't buy anything.\n\n1. Find a store.\n2. For each of the 6 items, snap **one photo** of the item next to its shelf tag, then enter the price and size.\n3. If an item is missing, mark it out-of-stock.\n4. Submit. Hours credit when your audit verifies.\n\n## What you get out of it\nVerified audits flow into a public food-access dataset showing where food is most affordable. The deliverable is free and public. Your time is credited against your SNAP work-requirement hours.",
     checklist: [
-      { id: "store", label: "Pick a real California food retailer", required: true },
+      { id: "store", label: "Pick a real food retailer", required: true },
       { id: "basket", label: "Capture price + photo for each of the 6 items (or mark out-of-stock)", required: true },
       { id: "ebt", label: "Note whether the store appears to accept EBT", required: true },
     ],
     spec: { kind: "food-audit", basket_template_id: "usda-thrifty-6", require_geotag: true },
     rubric:
-      "A complete audit captures price and a clear photo for every in-stock basket item, taken inside a real California food retailer. The photo should clearly show the item and its shelf price tag side by side. Flag missing photos, illegible tags, prices wildly outside expected bands, or EXIF geotags outside California. Reject if photos are stock-like, duplicated across audits, or clearly not of the claimed item.",
+      "A complete audit captures price and a clear photo for every in-stock basket item, taken inside a real food retailer. The photo should clearly show the item and its shelf price tag side by side. Flag missing photos, illegible tags, prices wildly outside expected bands, or EXIF geotags inconsistent with the claimed store location. Reject if photos are stock-like, duplicated across audits, or clearly not of the claimed item.",
     est: 0.2,
     max: 0.25,
     location: "in_person",
@@ -437,11 +437,15 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   );
   for (const t of TASKS) {
     const createdBy = t.org_id === ORG_SFCDC ? USER_PRIYA : USER_DANIEL;
+    // Only the food-audit task is live in the catalog. Older seeded tasks stay
+    // archived so their demo submissions / hours rows still reference a valid
+    // task_template row but they don't surface in /app/tasks.
+    const status = t.id === TASK_FOOD_AUDIT ? "active" : "archived";
     stmts.push(
       taskIns.bind(
         t.id, t.org_id, createdBy, t.title, t.category, t.short_description,
         t.instructions_md, JSON.stringify(t.checklist), JSON.stringify(t.spec), t.rubric,
-        t.est, t.max, t.location, "active", now - 90 * DAY
+        t.est, t.max, t.location, status, now - 90 * DAY
       )
     );
   }

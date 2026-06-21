@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { MapPin, Clock } from "lucide-react";
 import { OrgThumb } from "@/components/org-thumb";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
-import { formatHours, relativeTime } from "@/lib/time";
+import { relativeTime } from "@/lib/time";
 import type { LocationKind, TaskCategory } from "@/lib/types";
 
 export interface ListingCardData {
@@ -14,8 +13,6 @@ export interface ListingCardData {
   orgSlug?: string;
   category: TaskCategory;
   location: LocationKind;
-  estHours: number;
-  maxHours: number;
   createdAt: number;
   featured?: boolean;
 }
@@ -42,16 +39,6 @@ export function ListingCard({ task }: { task: ListingCardData }) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <HeadlineTag>{LOCATION_LABEL[task.location]}</HeadlineTag>
             <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
-            <SecondaryTag>
-              <Clock className="mr-1 size-3" />
-              {formatHours(task.estHours)}–{formatHours(task.maxHours)} hrs
-            </SecondaryTag>
-            {task.location !== "online" && (
-              <SecondaryTag>
-                <MapPin className="mr-1 size-3" />
-                California
-              </SecondaryTag>
-            )}
           </div>
         </div>
       </div>

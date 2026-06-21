@@ -86,26 +86,31 @@ test("Hard rule: anti-dup blocks second audit of same store in 7-day window", ()
   assert.strictEqual(ANTI_DUP_WINDOW_DAYS, 7);
 });
 
-test("Hard rule: geocode must be in California", () => {
-  // SF coords → in CA
+test("Hard rule: geocode must be inside US bounds (any state)", () => {
+  // SF coords → in US
   assert.strictEqual(isInCalifornia(37.77, -122.42), true);
-  // Tijuana → outside CA (south of 32.5)
-  assert.strictEqual(isInCalifornia(32.51, -117.03), true); // border edge
-  assert.strictEqual(isInCalifornia(32.4, -117.03), false);
-  // NYC
-  assert.strictEqual(isInCalifornia(40.7, -74.0), false);
+  // NYC → in US
+  assert.strictEqual(isInCalifornia(40.7, -74.0), true);
+  // Anchorage → in US
+  assert.strictEqual(isInCalifornia(61.2, -149.9), true);
+  // Honolulu → in US
+  assert.strictEqual(isInCalifornia(21.3, -157.85), true);
+  // Tijuana → outside US
+  assert.strictEqual(isInCalifornia(17.4, -99.1), false);
+  // London → outside US
+  assert.strictEqual(isInCalifornia(51.5, -0.13), false);
   // missing
   assert.strictEqual(isInCalifornia(null, null), false);
 
   const result = syncValidate({
     captures: allSixCaptures(),
-    store_geocode: { lat: 40.7, lng: -74.0 }, // NYC
+    store_geocode: { lat: 51.5, lng: -0.13 }, // London
     session_time_seconds: 600,
     prior_audit_count_at_store_in_window: 0,
     rapid_submission_count_last_hour: 0,
   });
   assert.strictEqual(result.ok, false);
-  assert.match(result.reason ?? "", /california/i);
+  assert.match(result.reason ?? "", /US/i);
 });
 
 test("Hard rule: PII (SSN, payment card, email) is detected in free-text", () => {

@@ -268,7 +268,7 @@ function NewStoreForm({ auditId }: { auditId: string }) {
       <input type="hidden" name="lat" value={coords?.lat ?? ""} />
       <input type="hidden" name="lng" value={coords?.lng ?? ""} />
       <p className="text-xs text-muted">
-        Location must be in California. We use it to validate the audit and prevent dup submissions.
+        We use device location to validate the audit and prevent duplicate submissions.
       </p>
       <Button type="submit" disabled={!coords}>
         Add store

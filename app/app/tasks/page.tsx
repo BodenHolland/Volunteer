@@ -42,8 +42,6 @@ export default async function TasksPage({
     orgSlug: t.org.slug,
     category: t.category,
     location: t.location_kind,
-    estHours: t.est_hours,
-    maxHours: t.max_hours,
     createdAt: t.created_at,
     featured: i === 0,
   }));
