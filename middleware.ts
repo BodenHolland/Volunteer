@@ -13,6 +13,20 @@ export function middleware(req: NextRequest) {
   const needsSession = !exempt && SESSION_REQUIRED.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   if (needsSession && !req.cookies.get(SESSION_COOKIE)) {
+    // Diagnostic: log every auth bounce with enough detail to debug mobile
+    // Safari cookie-drop. Visible in `wrangler tail` and queryable later via
+    // /api/admin/errors/recent?where=auth_bounce.
+    const ua = req.headers.get("user-agent") ?? "";
+    const referer = req.headers.get("referer") ?? "";
+    const cookieHeader = req.headers.get("cookie") ?? "";
+    const cookieNames = cookieHeader
+      .split(";")
+      .map((c) => c.split("=")[0].trim())
+      .filter(Boolean);
+    console.log(
+      `[auth_bounce] path=${pathname} ua_short=${ua.slice(0, 80)} ` +
+        `referer=${referer.slice(0, 120)} cookies_present=${JSON.stringify(cookieNames)}`
+    );
     const url = new URL("/login", req.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
