@@ -32,6 +32,8 @@ const NAV = [
   { href: "/admin/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/admin/reset", label: "Reset", icon: RotateCcw },
 ];
+const PRIMARY_NAV = NAV.slice(0, 5);
+const MORE_NAV = NAV.slice(5);
 
 export function AdminHeader({ user }: { user: AdminHeaderUser }) {
   const pathname = usePathname();
@@ -39,27 +41,39 @@ export function AdminHeader({ user }: { user: AdminHeaderUser }) {
   const isActive = (href: string) => (href === "/admin" ? pathname === href : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-40 border-b border-navy-deep bg-navy text-white shadow-sm">
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-8">
-          <Link href="/admin" className="flex items-center gap-2" aria-label="Tended admin">
-            <Logo />
-            <span className="hidden rounded bg-section px-1.5 py-0.5 text-[11px] font-medium text-meta sm:inline">Admin</span>
+          <Link href="/admin" className="flex items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" aria-label="Tended admin">
+            <Logo className="text-white" size={24} />
+            <span className="hidden rounded-md border border-gold/40 bg-gold-subtle px-1.5 py-0.5 text-[11px] font-semibold text-gold-hover sm:inline">Admin</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className={cn("rounded-md px-3 py-1.5 text-sm font-medium", isActive(item.href) ? "bg-forest-subtle text-forest" : "text-body hover:bg-section")}>
+            {PRIMARY_NAV.map((item) => (
+              <Link key={item.href} href={item.href} className={cn("rounded-md px-3 py-1.5 text-sm font-medium", isActive(item.href) ? "border-b-2 border-gold text-white" : "text-blue-100 hover:text-white")}>
                 {item.label}
               </Link>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className={cn("flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium", MORE_NAV.some((item) => isActive(item.href)) ? "border-b-2 border-gold text-white" : "text-blue-100 hover:text-white")}>
+                More <ChevronDown className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {MORE_NAV.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href}><item.icon /> {item.label}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
 
         <div className="flex items-center gap-2">
           <DropdownMenu>
-            <DropdownMenuTrigger className="hidden items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section md:flex">
+            <DropdownMenuTrigger className="hidden items-center gap-1.5 rounded-full border border-white/30 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 md:flex">
               {user.name.split(" ")[0]}
-              <ChevronDown className="size-4 text-meta" />
+              <ChevronDown className="size-4 text-blue-100" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
@@ -68,22 +82,22 @@ export function AdminHeader({ user }: { user: AdminHeaderUser }) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <button className="rounded-md p-2 text-ink hover:bg-section md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+          <button className="rounded-md p-2 text-white hover:bg-white/10 md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="border-t border-line bg-white px-4 py-3 md:hidden">
+        <div className="border-t border-white/15 bg-navy px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={cn("flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium [&_svg]:size-[18px]", isActive(item.href) ? "bg-forest-subtle text-forest" : "text-body hover:bg-section")}>
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={cn("flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium [&_svg]:size-[18px]", isActive(item.href) ? "bg-white/15 text-white" : "text-blue-100 hover:bg-white/10 hover:text-white")}>
                 <item.icon /> {item.label}
               </Link>
             ))}
-            <div className="my-1 h-px bg-line" />
-            <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-brick hover:bg-brick-subtle [&_svg]:size-[18px]"><LogOut /> Sign out</Link>
+            <div className="my-1 h-px bg-white/15" />
+            <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]"><LogOut /> Sign out</Link>
           </nav>
         </div>
       )}

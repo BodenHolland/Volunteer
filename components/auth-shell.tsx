@@ -16,17 +16,23 @@ export async function AuthShell({
 }) {
   const locale = await getLocale();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-section px-4 py-10">
-      <Link href="/" className="mb-8">
-        <Logo size={24} className="text-xl" />
-      </Link>
-      <div className="w-full max-w-[420px] rounded-lg border border-line bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-ink">{title}</h1>
+    <main className="min-h-screen bg-[#f7fafc]">
+      <header className="border-b border-navy-deep bg-navy">
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center px-4 md:px-6">
+          <Link href="/" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            <Logo size={24} className="text-xl text-white" />
+          </Link>
+        </div>
+      </header>
+      <div className="flex flex-col items-center px-4 py-12 md:py-16">
+      <div className="w-full max-w-[420px] border-l-4 border-teal bg-white p-8 shadow-sm">
+        <h1 className="service-heading text-2xl">{title}</h1>
         {subtitle && <p className="mt-2 text-sm text-body">{subtitle}</p>}
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="mt-6 text-sm text-body">{footer}</div>}
       <div className="mt-6"><LocaleSwitcher locale={locale} /></div>
+      </div>
     </main>
   );
 }
