@@ -8,12 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-forest text-white hover:bg-forest-hover",
+        primary: "bg-forest text-white hover:bg-forest-hover shadow-sm",
         secondary: "bg-white border border-forest text-forest hover:bg-forest-subtle",
         tertiary: "text-forest underline-offset-4 hover:underline px-0",
         destructive: "text-brick hover:bg-brick-subtle",
         ghost: "text-ink hover:bg-section",
-        accent: "bg-terracotta text-white hover:brightness-95",
+        accent: "bg-terracotta text-white hover:bg-terracotta/90 shadow-sm",
       },
       size: {
         default: "h-10 px-4 text-sm",

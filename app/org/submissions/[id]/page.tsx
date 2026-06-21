@@ -35,14 +35,15 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
   const decided = ["approved", "rejected", "needs_changes"].includes(sub.status);
 
   return (
-    <div>
+    <div className="mx-auto max-w-[1280px]">
       <Link href="/org/submissions" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
         <ArrowLeft className="size-4" /> Review queue
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight text-ink">{sub.task.title}</h1>
+          <p className="overline mb-1">Submission review</p>
+          <h1 className="service-heading text-3xl">{sub.task.title}</h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-body">
             <UserIcon className="size-4 text-meta" /> {names.get(sub.user_id) ?? "A volunteer"}
             <span className="text-meta">· submitted {relativeTime(sub.submitted_at ?? sub.committed_at)}</span>
@@ -51,15 +52,15 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         <StatusPill status={sub.status} />
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
         <div className="space-y-6">
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-ink">Submission</h2>
+          <section className="service-panel p-5">
+            <h2 className="mb-4 text-lg font-semibold text-ink">Submission evidence</h2>
             <SubmissionContent submission={sub} task={sub.task} files={files} />
           </section>
 
           {verdict && (
-            <section className="space-y-3">
+            <section className="service-panel space-y-3 p-5">
               <AiVerdictBox verdict={verdict} />
               <div>
                 <p className="overline mb-1.5">Integrity checks</p>
@@ -70,7 +71,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="mb-4 rounded-lg border border-line bg-white p-4 text-sm">
+          <div className="mb-4 rounded-lg border border-line bg-section p-5 text-sm">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> Active time measured</span>
               <span className="font-medium text-ink">{formatHours(logged)}h</span>
@@ -82,7 +83,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
           </div>
 
           {decided ? (
-            <div className="rounded-lg border border-line bg-section p-4">
+            <div className="rounded-lg border border-line bg-teal-subtle p-5">
               <p className="text-sm font-medium text-ink">
                 {sub.status === "approved"
                   ? `Approved — ${formatHours(sub.hours_credited ?? 0)}h certified.`

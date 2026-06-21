@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { OrgThumb } from "@/components/org-thumb";
 import { BookmarkButton } from "@/components/bookmark-button";
-import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
+import { LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { relativeTime } from "@/lib/time";
 import type { LocationKind, TaskCategory } from "@/lib/types";
 
@@ -19,33 +18,27 @@ export interface ListingCardData {
 
 export function ListingCard({ task }: { task: ListingCardData }) {
   return (
-    <Link
-      href={task.href}
-      className="group relative block rounded-lg border border-line bg-white p-5 transition-colors hover:bg-section hover:shadow-sm md:p-6"
-    >
-      <div className="absolute right-4 top-4">
+    <article className="group relative border-b border-line py-5 last:border-b-0 sm:px-1">
+      <div className="absolute right-0 top-5">
         <BookmarkButton label={task.title} />
       </div>
-      <div className="flex gap-4 md:gap-5">
-        <OrgThumb
-          name={task.orgName}
-          slug={task.orgSlug}
-          size={96}
-          className="h-24 w-24 md:h-[120px] md:w-[120px]"
-        />
-        <div className="min-w-0 flex-1 pr-8">
-          <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-ink">{task.title}</h3>
-          <p className="mt-1 text-[15px] font-medium text-ink">{task.orgName}</p>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <HeadlineTag>{LOCATION_LABEL[task.location]}</HeadlineTag>
-            <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
+      <Link href={task.href} className="block pr-14 focus-visible:outline-none">
+        <div className="flex items-start gap-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-teal-subtle text-sm font-bold text-forest">
+            {task.orgName.slice(0, 1).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-ink group-hover:text-forest">{task.title}</h3>
+            <p className="mt-1 text-sm font-medium text-body">{task.orgName}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-meta">
+              <span>{LOCATION_LABEL[task.location]}</span>
+              <span>{CATEGORY_LABEL[task.category]}</span>
+              {task.featured && <span className="font-medium text-amber">Featured</span>}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-[13px] text-meta">Posted {relativeTime(task.createdAt)}</span>
-        {task.featured && <span className="overline rounded-full bg-section px-2 py-1">Featured</span>}
-      </div>
-    </Link>
+        <span className="mt-3 block text-xs text-meta">Posted {relativeTime(task.createdAt)}</span>
+      </Link>
+    </article>
   );
 }

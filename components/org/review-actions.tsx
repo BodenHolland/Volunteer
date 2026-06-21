@@ -26,9 +26,13 @@ export function ReviewActions({
   const round = (n: number) => Math.round(n * 10) / 10;
 
   return (
-    <div className="space-y-4">
+    <div className="service-panel space-y-4 p-5">
+      <div>
+        <p className="text-lg font-semibold text-ink">Review decision</p>
+        <p className="mt-1 text-sm text-body">Choose an outcome, then record the measured hours to certify.</p>
+      </div>
       {/* Approve */}
-      <form action={approveSubmission} className="rounded-lg border border-line bg-white p-4">
+      <form action={approveSubmission} className="rounded-lg border-2 border-forest bg-teal-subtle p-4">
         <input type="hidden" name="submission_id" value={submissionId} />
         <Label htmlFor="hours" className="mb-1.5">Hours to credit</Label>
         <div className="flex items-center gap-3">
@@ -40,15 +44,15 @@ export function ReviewActions({
           never credit above measured time. The {round(estHours)}h task estimate is a ceiling and
           flag only — it is not the credited number. Reject to credit zero.
         </p>
-        <Button type="submit" className="mt-3 w-full"><Check /> Approve and certify</Button>
+        <Button type="submit" className="mt-4 w-full"><Check /> Approve and certify</Button>
       </form>
 
       {/* Secondary actions */}
       <div className="grid grid-cols-2 gap-3">
-        <Button type="button" variant="secondary" onClick={() => setPanel(panel === "changes" ? "none" : "changes")}>
+        <Button type="button" variant="secondary" onClick={() => setPanel(panel === "changes" ? "none" : "changes")} className="h-auto min-h-14 justify-start border-amber/60 text-left text-amber hover:bg-amber-subtle">
           <MessageSquareWarning /> Request changes
         </Button>
-        <Button type="button" variant="secondary" onClick={() => setPanel(panel === "reject" ? "none" : "reject")} className="border-brick text-brick hover:bg-brick-subtle">
+        <Button type="button" variant="secondary" onClick={() => setPanel(panel === "reject" ? "none" : "reject")} className="h-auto min-h-14 justify-start border-brick text-left text-brick hover:bg-brick-subtle">
           <XCircle /> Reject
         </Button>
       </div>

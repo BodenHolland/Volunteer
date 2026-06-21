@@ -8,34 +8,45 @@
 */
 
 @theme {
-  /* Brand */
-  --color-forest: #2d5f3f;
-  --color-forest-hover: #234d32;
-  --color-forest-subtle: #eaf0ec;
-  --color-terracotta: #c26b3c;
-  --color-terracotta-subtle: #faede4;
+  /* Service-marketplace brand */
+  --color-navy: #082b5b;
+  --color-navy-deep: #061f42;
+  --color-teal: #008b8c;
+  --color-teal-hover: #007274;
+  --color-teal-subtle: #e5f5f4;
+  --color-gold: #f59e0b;
+  --color-gold-hover: #d97706;
+  --color-gold-subtle: #fff5de;
+
+  /* Legacy semantic aliases used throughout the app. */
+  --color-forest: var(--color-teal);
+  --color-forest-hover: var(--color-teal-hover);
+  --color-forest-subtle: var(--color-teal-subtle);
+  --color-terracotta: var(--color-gold);
+  --color-terracotta-subtle: var(--color-gold-subtle);
 
   /* Slate / ink scale */
-  --color-ink: #3e4a45;
-  --color-body: #5c6a64;
-  --color-meta: #8a968f;
-  --color-line: #dce2de;
-  --color-section: #f7f5f0;
+  --color-ink: #102a4f;
+  --color-body: #4b617c;
+  --color-meta: #687d96;
+  --color-muted: #687d96;
+  --color-line: #d8e2ee;
+  --color-section: #f4f8fb;
 
   /* Status */
-  --color-amber: #b07d2b;
-  --color-amber-subtle: #f4ead6;
-  --color-brick: #b0463c;
-  --color-brick-subtle: #f6e4e2;
+  --color-amber: #b76d00;
+  --color-amber-subtle: #fff3d8;
+  --color-brick: #c53d3d;
+  --color-brick-subtle: #fff0f0;
 
   /* Surfaces */
-  --color-cream: #f3eee3;
+  --color-cream: #eef6f6;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   /* Radii to match spec (cards rounded-lg, controls rounded-md) */
   --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-lg: 0.625rem;
 
   /* Single allowed shadow: 4% black 1px */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
@@ -46,11 +57,23 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: #f7fafc;
   color: var(--color-body);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
+}
+
+.service-panel {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+}
+
+.service-heading {
+  color: var(--color-navy);
+  font-weight: 650;
+  letter-spacing: -0.025em;
 }
 
 /* Visible focus ring everywhere: 2px forest at 2px offset */

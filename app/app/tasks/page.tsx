@@ -1,4 +1,4 @@
-import { Bookmark, SearchX } from "lucide-react";
+import { SearchX, Sprout } from "lucide-react";
 import { listActiveTasks } from "@/lib/queries";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { TaskFilters } from "@/components/task-filters";
@@ -47,37 +47,63 @@ export default async function TasksPage({
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)_240px]">
+      <aside className="lg:border-r lg:border-line lg:pr-6">
+        <p className="overline mb-2">Find civic work</p>
+        <TaskFilters counts={counts} variant="sidebar" />
+      </aside>
+
       <div>
-        <h1 className="text-[28px] font-semibold text-ink">{tr.app.tasks.title}</h1>
+        <div>
+        <h1 className="service-heading text-3xl">{tr.app.tasks.title}</h1>
         <p className="mt-1 text-body">{tr.app.tasks.subhead}</p>
-      </div>
+        </div>
 
-      <TaskFilters counts={counts} />
-
-      <div className="flex items-center justify-between">
+      <div className="mt-8 flex items-center justify-between border-b border-line pb-3">
         <p className="text-sm text-body">
           {filtered.length} {filtered.length === 1 ? tr.app.tasks.opportunity : tr.app.tasks.opportunities}
         </p>
-        <button className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm font-medium text-forest hover:bg-section [&_svg]:size-4">
-          <Bookmark /> Save Search
-        </button>
+        <span className="text-sm text-meta">Most recent</span>
       </div>
 
       {cards.length === 0 ? (
-        <EmptyState
-          icon={<SearchX />}
-          title="No tasks match. Clear filters or try another category."
-        />
+        all.length === 0 ? (
+          <EmptyState
+            icon={<Sprout />}
+            title="No opportunities open right now"
+            body="New civic tasks from sponsoring nonprofits are posted regularly. Check back soon — or see how Tended works in the meantime."
+            ctaLabel="How Tended works"
+            ctaHref="/how-it-works"
+          />
+        ) : (
+          <EmptyState
+            icon={<SearchX />}
+            title="No tasks match your filters"
+            body="Try a different category or location, or clear your filters to see everything that's open."
+            ctaLabel="Clear filters"
+            ctaHref="/app/tasks"
+          />
+        )
       ) : (
-        <ul className="space-y-4">
+        <div className="mt-1">
           {cards.map((c) => (
-            <li key={c.id}>
-              <ListingCard task={c} />
-            </li>
+            <ListingCard key={c.id} task={c} />
           ))}
-        </ul>
+        </div>
       )}
+      </div>
+
+      <aside className="hidden space-y-4 lg:block">
+        <div className="service-panel p-5">
+          <p className="text-sm font-semibold text-ink">Your civic work</p>
+          <p className="mt-3 text-3xl font-semibold text-forest">Browse</p>
+          <p className="mt-1 text-sm text-body">Choose a task to begin a project.</p>
+        </div>
+        <div className="rounded-md border border-teal/20 bg-teal-subtle p-4">
+          <p className="text-sm font-semibold text-ink">Need a hand?</p>
+          <p className="mt-1 text-sm text-body">Read task instructions before committing.</p>
+        </div>
+      </aside>
     </div>
   );
 }

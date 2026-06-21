@@ -29,9 +29,9 @@ export function SubmissionContent({
           <p className="overline mb-1.5 flex items-center gap-1.5">
             <FileText className="size-3.5" aria-hidden="true" /> {photos.length} photo{photos.length === 1 ? "" : "s"}
           </p>
-          <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {photos.map((p, i) => (
-              <li key={p.id} className="overflow-hidden rounded-md border border-line">
+              <li key={p.id} className="overflow-hidden rounded-lg border border-line bg-section p-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`/api/files?key=${encodeURIComponent(p.r2_key)}`}

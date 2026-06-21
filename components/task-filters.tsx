@@ -20,7 +20,13 @@ const CATEGORIES = [
   { value: "seminar", label: "Learning" },
 ];
 
-export function TaskFilters({ counts }: { counts: { location: Record<string, number>; category: Record<string, number> } }) {
+export function TaskFilters({
+  counts,
+  variant = "toolbar",
+}: {
+  counts: { location: Record<string, number>; category: Record<string, number> };
+  variant?: "toolbar" | "sidebar";
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -56,6 +62,7 @@ export function TaskFilters({ counts }: { counts: { location: Record<string, num
   const locSel = selected("loc");
   const catSel = selected("cat");
   const anyActive = locSel.size > 0 || catSel.size > 0 || !!params.get("q");
+  const isSidebar = variant === "sidebar";
 
   const Chip = ({
     icon,
@@ -77,7 +84,8 @@ export function TaskFilters({ counts }: { counts: { location: Record<string, num
     <Popover>
       <PopoverTrigger
         className={cn(
-          "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium [&_svg]:size-4",
+          "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-sm font-medium [&_svg]:size-4",
+          isSidebar && "w-full justify-between",
           count > 0 ? "border-forest bg-forest-subtle text-forest" : "border-line bg-white text-ink hover:bg-section"
         )}
       >
@@ -119,26 +127,28 @@ export function TaskFilters({ counts }: { counts: { location: Record<string, num
           className="h-full flex-1 bg-transparent text-sm text-ink placeholder:text-meta focus:outline-none"
           aria-label="Search tasks"
         />
-        <span className="hidden items-center gap-1.5 border-l border-line pl-3 text-sm text-meta sm:flex">
+        <span className={cn("hidden items-center gap-1.5 border-l border-line pl-3 text-sm text-meta sm:flex", isSidebar && "lg:hidden")}>
           <MapPin className="size-4" /> California
         </span>
       </div>
 
       {/* Chip row */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <div className={cn("flex items-center gap-2 overflow-x-auto pb-1", isSidebar && "flex-col items-stretch overflow-visible")}>
         {anyActive && (
           <button
             onClick={() => router.push(pathname)}
-            className="shrink-0 whitespace-nowrap text-sm font-medium text-forest hover:underline"
+            className={cn("shrink-0 whitespace-nowrap text-sm font-medium text-forest hover:underline", isSidebar && "text-left")}
           >
             Clear Filters
           </button>
         )}
         <Chip icon={<MapPin />} label="Location Type" count={locSel.size} options={LOCATIONS} paramKey="loc" sel={locSel} optCounts={counts.location} />
         <Chip icon={<Tag />} label="Category" count={catSel.size} options={CATEGORIES} paramKey="cat" sel={catSel} optCounts={counts.category} />
-        <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm font-medium text-meta [&_svg]:size-4">
-          <SlidersHorizontal /> More Filters
-        </span>
+        {!isSidebar && (
+          <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm font-medium text-meta [&_svg]:size-4">
+            <SlidersHorizontal /> More Filters
+          </span>
+        )}
       </div>
     </div>
   );

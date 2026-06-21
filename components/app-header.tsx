@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, User as UserIcon, Settings, Users, LogOut, LayoutDashboard, ListChecks, FolderKanban } from "lucide-react";
+import { ChevronDown, Menu, X, User as UserIcon, Settings, LogOut, LayoutDashboard, ListChecks, FolderKanban } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { cn } from "@/lib/utils";
@@ -62,11 +62,11 @@ export function AppHeader({
   const isActive = (href: string) => (href === home ? pathname === href : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-40 border-b border-navy-deep bg-navy text-white shadow-sm">
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-8">
-          <Link href={home} aria-label="Tended home">
-            <Logo />
+          <Link href={home} aria-label="Tended home" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            <Logo className="text-white" size={24} />
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {nav.map((item) => (
@@ -75,7 +75,7 @@ export function AppHeader({
                 href={item.href}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm font-medium",
-                  isActive(item.href) ? "bg-forest-subtle text-forest" : "text-body hover:bg-section"
+                  isActive(item.href) ? "border-b-2 border-gold text-white" : "text-blue-100 hover:text-white"
                 )}
               >
                 {item.label}
@@ -85,11 +85,11 @@ export function AppHeader({
         </div>
 
         <div className="flex items-center gap-2">
-          <LocaleSwitcher locale={locale} className="hidden md:inline-flex" />
+          <LocaleSwitcher locale={locale} className="hidden text-white md:inline-flex" />
           <DropdownMenu>
-            <DropdownMenuTrigger className="hidden items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section md:flex">
+            <DropdownMenuTrigger className="hidden items-center gap-2 rounded-full border border-white/30 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 md:flex">
               {user.name.split(" ")[0]}
-              <ChevronDown className="size-4 text-meta" />
+              <ChevronDown className="size-4 text-blue-100" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
@@ -109,7 +109,7 @@ export function AppHeader({
           </DropdownMenu>
 
           <button
-            className="rounded-md p-2 text-ink hover:bg-section md:hidden"
+            className="rounded-md p-2 text-white hover:bg-white/10 md:hidden"
             aria-label="Menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -120,7 +120,7 @@ export function AppHeader({
       </div>
 
       {open && (
-        <div className="border-t border-line bg-white px-4 py-3 md:hidden">
+        <div className="border-t border-white/15 bg-navy px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1">
             {nav.map((item) => (
               <Link
@@ -129,19 +129,19 @@ export function AppHeader({
                 onClick={() => setOpen(false)}
                 className={cn(
                   "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium [&_svg]:size-[18px]",
-                  isActive(item.href) ? "bg-forest-subtle text-forest" : "text-body hover:bg-section"
+                  isActive(item.href) ? "bg-white/15 text-white" : "text-blue-100 hover:bg-white/10 hover:text-white"
                 )}
               >
                 <item.icon /> {item.label}
               </Link>
             ))}
-            <div className="my-1 h-px bg-line" />
+            <div className="my-1 h-px bg-white/15" />
             {user.isSnap && (
-              <Link href="/app/profile" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section [&_svg]:size-[18px]"><UserIcon /> {labels.calfreshProfile}</Link>
+              <Link href="/app/profile" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><UserIcon /> {labels.calfreshProfile}</Link>
             )}
-            <Link href="/app/settings" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-section [&_svg]:size-[18px]"><Settings /> {labels.settings}</Link>
-            <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-brick hover:bg-brick-subtle [&_svg]:size-[18px]"><LogOut /> {labels.signOut}</Link>
-            <div className="my-1 h-px bg-line" />
+            <Link href="/app/settings" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><Settings /> {labels.settings}</Link>
+            <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]"><LogOut /> {labels.signOut}</Link>
+            <div className="my-1 h-px bg-white/15" />
             <div className="px-3 py-1"><LocaleSwitcher locale={locale} /></div>
           </nav>
         </div>
