@@ -2,8 +2,10 @@ import { loadVerifiedAudits } from "@/lib/audit-aggregate";
 import { USDA_THRIFTY_6, STORE_TYPES } from "@/lib/food-audit";
 import { relativeTime } from "@/lib/time";
 
+// Reads from D1 (Cloudflare context) which isn't available at prerender time.
+// We rely on Cloudflare's edge cache (Cache-Control headers from /api/data/audits.csv)
+// for performance rather than ISR.
 export const dynamic = "force-dynamic";
-export const revalidate = 300;
 export const metadata = {
   title: "California food access dashboard — Tended",
   description:
