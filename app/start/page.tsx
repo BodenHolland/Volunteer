@@ -18,7 +18,7 @@ import {
 
 export const metadata = { title: "Finish setting up — Tended" };
 
-const ROLE_STEPS = ["Location", "Verify", "Details", "BenefitsCal", "Done"];
+const ROLE_STEPS = ["Location", "Verify", "Details", "Benefits", "Done"];
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -133,7 +133,7 @@ export default async function StartPage({
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Verify your phone</h1>
         <p className="mt-2 text-body">
           We use this only to fill out your CF 888 when you certify hours. We don&apos;t share it with
-          the state — you upload the form to BenefitsCal yourself.
+          the state — you upload the form to your benefits portal yourself.
         </p>
         <form action={submitPhone} className="mt-6 space-y-4">
           <div className="space-y-1.5">
@@ -159,7 +159,7 @@ export default async function StartPage({
     return (
       <Shell>
         <StepHint index={2} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Your CalFresh details</h1>
+        <h1 className="text-[28px] font-semibold leading-tight text-ink">Your SNAP details</h1>
         <p className="mt-2 text-body">This appears on your CF 888 exactly as entered.</p>
         <form action={submitPii} className="mt-6 space-y-4">
           <div className="space-y-1.5">
@@ -208,9 +208,9 @@ export default async function StartPage({
     return (
       <Shell>
         <StepHint index={3} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload a BenefitsCal screenshot</h1>
+        <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload a benefits screenshot</h1>
         <p className="mt-2 text-body">
-          A screenshot of your BenefitsCal account confirms your enrollment. We don&apos;t run OCR in
+          A screenshot of your SNAP benefits account confirms your enrollment. We don&apos;t run OCR in
           this demo — any image works.
         </p>
         <form action={submitBenefitsCal} className="mt-6 space-y-4" encType="multipart/form-data">

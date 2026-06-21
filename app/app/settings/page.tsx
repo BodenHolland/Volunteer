@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Settings — Tended" };
 
 const INTENTS = [
-  { value: "snap_cert", label: "Certify CalFresh hours" },
+  { value: "snap_cert", label: "Certify SNAP hours" },
   { value: "casual_volunteer", label: "Volunteer only" },
   { value: "other", label: "Other" },
 ];
@@ -98,7 +98,7 @@ export default async function SettingsPage({
                 <option key={i.value} value={i.value}>{i.label}</option>
               ))}
             </select>
-            <p className="text-xs text-meta">Choosing &ldquo;Certify CalFresh hours&rdquo; unlocks your CF 888 profile.</p>
+            <p className="text-xs text-meta">Choosing &ldquo;Certify SNAP hours&rdquo; unlocks your CF 888 profile.</p>
           </div>
           <Button type="submit" size="sm">Save intent</Button>
         </form>

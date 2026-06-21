@@ -17,7 +17,7 @@ export async function SiteFooter() {
             <Link href="/about" className="text-body hover:text-forest">{t.nav.about}</Link>
             <Link href="/for-organizations" className="text-body hover:text-forest">{t.nav.forOrgs}</Link>
             <Link href="/deliverables" className="text-body hover:text-forest">{t.footer.deliverables}</Link>
-            <Link href="/how-it-works#calfresh" className="text-body hover:text-forest">CalFresh &amp; CF 888</Link>
+            <Link href="/how-it-works#calfresh" className="text-body hover:text-forest">SNAP/EBT &amp; CF 888</Link>
             <Link href="/how-it-works#identity" className="text-body hover:text-forest">{t.footer.privacy}</Link>
             <Link href="/contact" className="text-body hover:text-forest">{t.footer.contact}</Link>
           </div>

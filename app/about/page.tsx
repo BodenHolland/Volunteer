@@ -10,7 +10,7 @@ const VALUES = [
   {
     icon: Sprout,
     title: "Work first, paperwork second",
-    body: "Tended is built around real volunteer work for nonprofits and public agencies. CalFresh certification is one supported path through it, not the headline. That framing widens who feels welcome and takes the stigma out of showing up.",
+    body: "Tended is built around real volunteer work for nonprofits and public agencies. SNAP certification is one supported path through it, not the headline. That framing widens who feels welcome and takes the stigma out of showing up.",
   },
   {
     icon: Users,
@@ -41,7 +41,7 @@ export default function AboutPage() {
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-body">
                 Starting June 1, 2026, California enforces an expanded work requirement for many
-                adults who receive CalFresh. Tended helps people meet it through real volunteer
+                adults who get SNAP (EBT). Tended helps people meet it through real volunteer
                 work — and helps the nonprofits already doing that work bring more people in.
               </p>
             </div>
@@ -55,13 +55,13 @@ export default function AboutPage() {
               When the new requirement was announced, the people most affected were also the ones
               with the least margin to navigate another bureaucratic hurdle. The official path —
               find an approved activity, log the hours, get a CF 888 signed, upload it to
-              BenefitsCal — is doable, but it is easy to get lost in. We wanted something that felt
+              your benefits portal — is doable, but it is easy to get lost in. We wanted something that felt
               less like a compliance task and more like doing something useful.
             </p>
             <p className="leading-relaxed text-body">
               So we started with the work. Counting trees, translating notices, mapping hazards,
               documenting the places people gather. This is work nonprofits genuinely need, and it
-              is work that anyone can be proud of. CalFresh certification rides along for the people
+              is work that anyone can be proud of. SNAP certification rides along for the people
               who need it, but the door is open to volunteers and neighbors of every kind. That is
               deliberate: a platform centered on civic work reaches a wider audience and carries far
               less stigma than one labeled by who qualifies for which benefit.

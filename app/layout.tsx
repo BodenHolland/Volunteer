@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tended — Volunteer hours that count toward CalFresh",
+  title: "Tended — Online volunteering that counts toward SNAP (EBT)",
   description:
-    "Pick a task from a sponsoring nonprofit, do the work, and — if you receive CalFresh — certify the hours toward your monthly work requirement.",
+    "Find online volunteering opportunities from sponsoring nonprofits. If you get SNAP (EBT), certify the hours toward your monthly work requirement.",
 };
 
 export default function RootLayout({

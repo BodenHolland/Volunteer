@@ -30,7 +30,7 @@ const STEPS = [
   {
     icon: Stamp,
     title: "Certify hours",
-    body: "When you approve a submission, the credited hours are recorded. For recipients certifying CalFresh, your approval becomes Section 2 of their CF 888 — the certification that makes it valid.",
+    body: "When you approve a submission, the credited hours are recorded. For recipients certifying SNAP hours, your approval becomes Section 2 of their CF 888 — the certification that makes it valid.",
   },
 ];
 
@@ -58,7 +58,7 @@ export default function ForOrganizationsPage() {
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-body">
                 Sponsor civic tasks, review the work that comes back, and certify volunteer hours
-                for the people you serve. For recipients meeting the new CalFresh work requirement,
+                for the people you serve. For recipients meeting the new SNAP work requirement,
                 your certification is the final piece.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -122,7 +122,7 @@ export default function ForOrganizationsPage() {
                   {[
                     "A queue of reviewed civic work, with AI flags surfaced for you.",
                     "Real results from the field — data, translations, write-ups you can use.",
-                    "A simple way to certify CalFresh hours without touching the state system yourself.",
+                    "A simple way to certify SNAP hours without touching the state system yourself.",
                     "More volunteers reached, with less stigma than benefit-first framing.",
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-2.5 text-body">

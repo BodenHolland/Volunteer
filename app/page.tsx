@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "Tended — Volunteer hours that count toward CalFresh" };
+export const metadata = { title: "Tended — Online volunteering that counts toward SNAP (EBT)" };
 
 export const dynamic = "force-dynamic";
 

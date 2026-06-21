@@ -36,7 +36,7 @@ const EN_LABELS: NavLabels = {
   dashboard: "Dashboard",
   tasks: "Tasks",
   projects: "Projects",
-  calfreshProfile: "CalFresh profile",
+  calfreshProfile: "SNAP profile",
   settings: "Settings",
   signOut: "Sign out",
 };

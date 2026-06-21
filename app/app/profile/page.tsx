@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { updateProfile } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "CalFresh profile — Tended" };
+export const metadata = { title: "SNAP profile — Tended" };
 
 export default async function ProfilePage({
   searchParams,
@@ -22,14 +22,14 @@ export default async function ProfilePage({
   if (user.intent !== "snap_cert") {
     return (
       <div className="max-w-2xl space-y-6">
-        <h1 className="text-[28px] font-semibold text-ink">CalFresh profile</h1>
+        <h1 className="text-[28px] font-semibold text-ink">SNAP profile</h1>
         <div className="rounded-lg border border-line bg-section p-5">
           <p className="flex items-center gap-2 font-medium text-ink">
             <Info className="size-5 text-forest" /> Only needed for certifying hours
           </p>
           <p className="mt-2 text-sm text-body">
-            The CalFresh profile holds the details that appear on your CF 888 form — it only
-            applies to people certifying volunteer hours toward CalFresh. You&apos;re set up to
+            The SNAP profile holds the details that appear on your CF 888 form — it only
+            applies to people certifying volunteer hours toward SNAP. You&apos;re set up to
             volunteer without certification, so there&apos;s nothing to fill in here.
           </p>
           <p className="mt-3 text-sm text-body">
@@ -59,7 +59,7 @@ export default async function ProfilePage({
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-[28px] font-semibold text-ink">CalFresh profile</h1>
+        <h1 className="text-[28px] font-semibold text-ink">SNAP profile</h1>
         <p className="mt-1 text-body">This appears on your CF 888 exactly as entered.</p>
       </div>
 
@@ -78,7 +78,7 @@ export default async function ProfilePage({
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="case_number">CalFresh case number</Label>
+              <Label htmlFor="case_number">SNAP case number</Label>
               <Input id="case_number" name="case_number" defaultValue={caseNumber ?? ""} inputMode="numeric" />
             </div>
             <div className="space-y-1.5">

@@ -16,8 +16,8 @@ import { Button } from "@/components/ui/button";
 export const metadata = { title: "How it works — Tended" };
 
 const SECTIONS = [
-  { id: "civic-work", label: "Civic work" },
-  { id: "calfresh", label: "CalFresh & CF 888" },
+  { id: "civic-work", label: "Online volunteering" },
+  { id: "calfresh", label: "SNAP & CF 888" },
   { id: "identity", label: "Identity & privacy" },
   { id: "for-organizations", label: "For organizations" },
 ];
@@ -40,8 +40,8 @@ const TIERS = [
     body: "Before your first task you enter the same information the CF 888 asks for — legal name, case number, address, date of birth.",
   },
   {
-    title: "BenefitsCal screenshot",
-    body: "Before your first CF 888, a screenshot from your BenefitsCal account confirms you have an open CalFresh case.",
+    title: "Benefits screenshot",
+    body: "Before your first CF 888, a screenshot from your benefits account confirms you have an open SNAP case.",
   },
   {
     title: "Always-on signals",
@@ -68,7 +68,7 @@ export default function HowItWorksPage() {
               <p className="mt-5 text-lg leading-relaxed text-body">
                 Tended connects you with useful civic tasks posted by local nonprofits and
                 agencies. You do the work, log your time, and a sponsoring organization reviews it.
-                If you receive CalFresh, your approved hours can be certified toward your monthly
+                If you get SNAP (EBT), your approved hours can be certified toward your monthly
                 work requirement.
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function HowItWorksPage() {
                 <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
                   <Trees className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">Civic work</h2>
+                <h2 className="mt-4 text-[28px] font-semibold text-ink">Online volunteering</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   Every task on Tended is real work that a local organization actually needs done,
                   and every task produces a <strong className="font-semibold text-ink">free public
@@ -130,12 +130,12 @@ export default function HowItWorksPage() {
                 </ul>
               </section>
 
-              {/* CalFresh */}
+              {/* SNAP */}
               <section id="calfresh" className="scroll-mt-24">
                 <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
                   <FileCheck2 className="size-6" strokeWidth={1.5} />
                 </div>
-                <h2 className="mt-4 text-[28px] font-semibold text-ink">CalFresh & the CF 888</h2>
+                <h2 className="mt-4 text-[28px] font-semibold text-ink">SNAP & the CF 888</h2>
                 <p className="mt-3 leading-relaxed text-body">
                   Recent changes expanded the work rules that apply to many adults who receive SNAP —
                   known in California as CalFresh — and California begins enforcing them on{" "}
@@ -162,12 +162,12 @@ export default function HowItWorksPage() {
                 <p className="mt-4 leading-relaxed text-body">
                   When your hours are approved, Tended generates a pre-filled CF 888 with both
                   sections already drawn from your account and the organization&apos;s certification.
-                  You download it and upload it to BenefitsCal yourself.
+                  You download it and upload it to your benefits portal yourself.
                 </p>
                 <div className="mt-5 rounded-lg border border-line bg-amber-subtle p-4">
                   <p className="text-sm leading-relaxed text-amber">
                     <strong className="font-semibold">Tended never submits anything to the state.</strong>{" "}
-                    You stay in control: you upload your own CF 888 to BenefitsCal, the same way you
+                    You stay in control: you upload your own CF 888 to your benefits portal, the same way you
                     handle the rest of your case.
                   </p>
                 </div>
@@ -189,7 +189,7 @@ export default function HowItWorksPage() {
                 </div>
                 <h2 className="mt-4 text-[28px] font-semibold text-ink">Identity & privacy</h2>
                 <p className="mt-3 leading-relaxed text-body">
-                  The state already verified everyone enrolled in CalFresh. Our job is not to
+                  The state already verified everyone enrolled in SNAP. Our job is not to
                   re-prove who you are — it is to keep your account consistent and capture the
                   Section 1 details accurately. The CF 888 case number is the bridge to your
                   identity; we don&apos;t need to rebuild it from scratch.

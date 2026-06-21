@@ -59,7 +59,7 @@ export default async function DashboardPage() {
               </Button>
               <p className="mt-2 max-w-[260px] text-xs text-meta md:ml-auto">
                 {canDownload
-                  ? "Pre-filled with your details. Upload it to BenefitsCal yourself."
+                  ? "Pre-filled with your details. Upload it to your benefits portal yourself."
                   : "Available once at least one hour is certified."}
               </p>
             </div>

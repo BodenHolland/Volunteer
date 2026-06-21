@@ -1,0 +1,427 @@
+[
+  {
+    "id": "directory-freshness-audit",
+    "title": "Verify a community service listing",
+    "category": "civic-data",
+    "short_description": "Pick a community service org in our directory and verify its info is still current. About 5 minutes per listing — do as many as you want.",
+    "instructions_md": "Community service directories go stale fast. Hours change, programs end, phone numbers stop working — and the people who most need those services hit the dead end.\n\nIn this session you'll verify one listing at a time. The app walks you through three steps: try the phone, open the website, confirm the address. Each takes seconds. \"Still current\" is a perfectly valid result — confirming nothing changed is just as useful as finding a change.\n\nYour verifications feed Tended's continuously refreshed **Community Services Directory**, distributed free to 211, navigators, and nonprofit partners across the country.",
+    "deliverable_spec": {
+      "kind": "structured-form",
+      "requirements": "Each session = one listing verified. All three checklist actions must be completed. Branch fields filled in as triggered."
+    },
+    "checklist": [
+      "Call the listed phone number",
+      "Open the listed website",
+      "Confirm the address on the map",
+      "Submit verification"
+    ],
+    "workflow": {
+      "atomic_unit": "one directory listing verified",
+      "time_per_unit_minutes": 5,
+      "primitives_used": ["dial", "open-link", "confirm-location", "multi-choice", "short-text"],
+      "steps": [
+        {
+          "action": "dial",
+          "target": "listed phone number",
+          "captures": "dial event, call duration",
+          "result_options": ["answered", "voicemail", "disconnected", "wrong-number"],
+          "branch": "if answered → 3 multi-choice prompts: still operating? hours same? services same?"
+        },
+        {
+          "action": "open-link",
+          "target": "listed website (in-app browser)",
+          "captures": "open event, dwell time",
+          "result_options": ["live", "dead", "parked", "redirected"],
+          "branch": "if live → optional short-text: anything on the site that contradicts what we have?"
+        },
+        {
+          "action": "confirm-location",
+          "target": "listed address on embedded map",
+          "captures": "pin confirmation",
+          "result_options": ["confirmed", "needs-correction"],
+          "branch": "if needs-correction → structured fields for new address"
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: every action event captured (dial, open-link, location-confirm); dwell time on each action > 5s; all required multi-choice results present; if any \"needs-correction\" branch triggered, branch fields are non-empty.\n\nFLAG for spot-review if: all three results came back \"unchanged\" but total session time < 60s (too-fast pattern); volunteer's last 5 sessions all returned identical results (suspicious uniformity); structured correction fields contain PII beyond what the listing requires.\n\nAnti-dup: hash on (volunteer_id, listing_id, calendar_day). Same listing can be re-verified by the same volunteer only after 30 days.",
+    "est_hours": 0.08,
+    "max_hours": 0.08,
+    "location_kind": "online",
+    "buyer_or_use": "Tended Community Services Directory — distributed free to 211, navigator programs, and nonprofit partners",
+    "deliverable_use_statement": "Your verification keeps the Community Services Directory accurate. Tended publishes it openly and shares it with 211, navigators, and partner nonprofits, so people looking for help reach orgs that are actually open and accepting clients.",
+    "qualification_test": {
+      "charitable_purpose": "Maintains a free, publicly available directory of community services — a recognized civic-information public good.",
+      "qualifying_org": "Tended (501(c)(3) or routed through partner 501(c)(3)). Beneficiaries include 211, navigator programs, food banks, legal-aid nonprofits.",
+      "unpaid": "Volunteer receives only certified ABAWD hours, no cash, gift card, or eligibility-affecting benefit.",
+      "real_work_product": "Each session produces a verified listing record contributed to the live directory dataset.",
+      "documented_hours": "Per-unit cap of 5 minutes; app records dial event, link-open event, location-confirmation event, and dwell time; credit = min(measured engagement, calibrated cap).",
+      "not_employment": "No supervision, no quotas, no economic relationship, no W-2/1099. Volunteer chooses sessions and stops at will."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "cheap"
+  },
+
+  {
+    "id": "food-access-price-audit",
+    "title": "Audit shelf prices for a 6-item Thrifty Basket at a food retailer",
+    "category": "civic-data",
+    "short_description": "Visit any food retailer in your community and capture shelf-tag prices, package sizes, and stock status for a standardized 6-item basket aligned with the USDA Thrifty Food Plan. ~12 min per store.",
+    "instructions_md": "What does it actually cost to buy a basic week of groceries in your community right now? Block by block, the answer differs more than you'd think — and it shifts faster than agencies and food banks can track on their own.\n\nIn this audit you'll visit any food retailer (chain supermarket, independent grocery, corner store, bodega, ethnic market, farmers market, dollar store) and capture **shelf-tag prices** for a fixed 6-item basket. The basket is aligned with the USDA Thrifty Food Plan — the basis SNAP allotments are calculated against — so your data maps directly to the real purchasing power of SNAP recipients.\n\n**The basket (must be these specific items):**\n\n1. **Milk** — 1 gallon, whole, generic/store brand\n2. **Eggs** — 1 dozen, large, Grade A, generic/store brand\n3. **Bread** — 1 standard loaf (16–20 oz), sliced white or whole wheat\n4. **Rice** — 1 lb bag, standard white long-grain\n5. **Canned beans** — 1 standard can (15–16 oz), black or pinto\n6. **Fresh produce** — bananas or apples (per pound or per single unit, whichever the store sells)\n\n**For each item you'll capture:**\n- The literal price on the shelf tag (NOT the price you paid after coupons/loyalty discounts)\n- The package size or weight as printed on the package\n- One photo framing the item next to its shelf price tag\n- Or, if the item is entirely out of stock, just flag it\n\nYour audit feeds the monthly **Community Food Access Report** (stratified by region) AND contributes to the global **Open Prices** open-data ecosystem (run by Open Food Facts), so the data is reusable by researchers, journalists, and policy advocates anywhere.",
+    "deliverable_spec": {
+      "kind": "mixed",
+      "requirements": "Geocoded store confirmation with store-type tag + per-item capture for all 6 basket items (price + size + photo + OOS flag where applicable). Optional storefront photo for context."
+    },
+    "checklist": [
+      "Confirm the store location and store type on the map",
+      "For each of the 6 basket items: capture shelf price, package size, photo of item+tag (or mark out-of-stock)",
+      "Submit audit"
+    ],
+    "workflow": {
+      "atomic_unit": "one retailer audit covering the 6-item basket",
+      "time_per_unit_minutes": 12,
+      "primitives_used": ["confirm-location", "photo", "multi-choice", "short-text"],
+      "steps": [
+        {
+          "action": "confirm-location",
+          "target": "store (pick from suggestion or drop pin)",
+          "captures": "geocode, store name",
+          "result_options": ["confirmed", "not-listed-add-new"],
+          "branch": "if not-listed → short-text store name and address"
+        },
+        {
+          "action": "multi-choice",
+          "target": "store type (used for dataset stratification)",
+          "captures": "selection",
+          "result_options": ["chain supermarket", "independent grocery", "corner store / bodega", "ethnic market", "farmers market", "dollar store / general merchandise", "other"]
+        },
+        {
+          "action": "multi-choice",
+          "target": "EBT acceptance (single observation, store-level)",
+          "captures": "selection",
+          "result_options": ["signage visible", "asked staff (accepted)", "asked staff (not accepted)", "not visible / not asked"]
+        },
+        {
+          "action": "REPEAT-FOR-EACH-BASKET-ITEM",
+          "target": "the 6 basket items (milk, eggs, bread, rice, canned beans, produce)",
+          "captures": "per-item sub-flow described below",
+          "result_options": ["captured", "out-of-stock", "not-sold-here"],
+          "branch": "per-item sub-flow:\n  1. multi-choice → stock status {in stock, out of stock, not sold at this store}\n  2. if in stock:\n     a. photo → single frame showing item AND its shelf price tag together\n     b. short-text → literal shelf-tag price (numeric, $ prefix)\n     c. short-text → package size or weight as printed (numeric)\n     d. multi-choice → unit {oz, lb, gal, dozen, count/each, ml, L}\n     e. (produce only) multi-choice → priced as {per pound, per single unit / each}\n  3. if out of stock: capture only (no photo, no price)\n  4. if not sold at this store: capture only"
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: store location confirmed + store type captured + EBT field present + all 6 basket items have a stock-status result; for every in-stock item, photo + price + size + unit are all present.\n\n**Photo validation (vision model, per in-stock item):**\n- Photo contains a recognizable shelf price tag (yes/no)\n- Photo contains the item or its packaging within the same frame (yes/no)\n- OCR'd price on the tag is within ±10% of the volunteer-entered price (cross-check)\n- Item visible in photo plausibly matches the basket-item category (e.g., a milk gallon photo doesn't show a can of beans)\n\n**Price plausibility (per item, vs. regional median for store-type):**\n- Flag if entered price is < 25% or > 400% of running median for (item × store-type × metro/state)\n- These bands tighten as the dataset grows; segment by region (state + metro area), never use a single national median\n\n**FLAG for spot-review if:** any photo fails vision validation; OCR price disagrees with entered price by > 10%; ≥3 items priced as outliers; same volunteer submitted > 3 stores in < 60 min (location hopping); store-type tag inconsistent with prior audits of same store.\n\n**Anti-dup:** hash on (volunteer_id, store_id, calendar_week). One store per volunteer per week.\n\n**Trust weighting:** first 3 audits get tighter review; consistent photo+OCR agreement earns trust; repeated photo failures reduce weight.",
+    "est_hours": 0.2,
+    "max_hours": 0.25,
+    "location_kind": "in_person",
+    "buyer_or_use": "Tended Monthly Community Food Access Report, stratified by region (state SNAP agencies, regional food banks, Feeding America affiliates, food-policy researchers, USDA Food Access Research Atlas contributors) + Open Prices contribution (https://prices.openfoodfacts.org/) for global open-data reuse",
+    "deliverable_use_statement": "Your audit becomes a row in the monthly Community Food Access Report AND a contribution to the global Open Prices open-data project. Together, these let agencies, food banks, journalists, and researchers see what a real SNAP basket costs — store by store, block by block, week by week — and use that to push for accurate SNAP allotments, food-bank siting, and emergency-food response.",
+    "qualification_test": {
+      "charitable_purpose": "Builds a public-benefit, openly-licensed dataset on food affordability and accessibility — recognized public good for SNAP policy, food-bank operations, and food-policy research.",
+      "qualifying_org": "Tended (501(c)(3)). Beneficiaries: state and county SNAP agencies, regional food banks, Feeding America affiliates, Open Food Facts (501(c)(3) equivalent), academic food-policy researchers.",
+      "unpaid": "Volunteer receives only certified ABAWD hours. No reimbursement for items photographed (volunteer does not need to buy anything — shelf-tag photos only).",
+      "real_work_product": "Each audit produces 6 structured price records + photos contributed to the published dataset and Open Prices.",
+      "documented_hours": "Per-unit cap 15 min (target 12); app records geocode confirmation, per-item action events, photos with EXIF, time-on-task; credit = min(measured, cap).",
+      "not_employment": "Volunteer picks store, picks time, no quota, no supervision. No purchase required."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "medium"
+  },
+
+  {
+    "id": "public-meeting-report",
+    "title": "Report on a public meeting you attended",
+    "category": "civic-data",
+    "short_description": "Watched, attended, or listened to any CA public meeting (city council, school board, planning commission, transit board)? Submit a structured report. ~30 min.",
+    "instructions_md": "Thousands of public meetings happen across the country every week. Decisions made in those rooms shape benefits, services, transit, and housing for the people in this program. But most go unwatched and unrecorded outside of dense official minutes.\n\nPick any public meeting you attended in person, watched live, or watched a recording of. Verify it on the agency calendar, then structure what happened: agenda items, decisions, vote counts, and a short summary of public comment.\n\nYour reports feed the **Public Meeting Civic Record**, used by local journalism nonprofits, open-government orgs, and civic researchers in your region.",
+    "deliverable_spec": {
+      "kind": "mixed",
+      "requirements": "Meeting cross-referenced to agency calendar + structured agenda-item results + vote counts for voted items + summary of public comment."
+    },
+    "checklist": [
+      "Find the meeting on the agency's calendar (paste link)",
+      "Identify meeting type and date",
+      "Walk through agenda items: discussed, voted, deferred, withdrawn",
+      "Capture vote counts for voted items",
+      "Summarize public comment (up to 200 words)",
+      "Submit report"
+    ],
+    "workflow": {
+      "atomic_unit": "one public meeting reported",
+      "time_per_unit_minutes": 30,
+      "primitives_used": ["open-link", "multi-choice", "short-text"],
+      "steps": [
+        {
+          "action": "open-link",
+          "target": "agency calendar entry or agenda PDF",
+          "captures": "open event, dwell time, pasted URL",
+          "result_options": ["meeting confirmed", "can't find"],
+          "branch": "if can't find → short-text reason; session can still complete if meeting is verifiable some other way (e.g., recording link)"
+        },
+        {
+          "action": "multi-choice",
+          "target": "meeting type",
+          "captures": "selection",
+          "result_options": ["city council", "county board", "school board", "planning commission", "transit board", "water board", "other"]
+        },
+        {
+          "action": "short-text",
+          "target": "meeting identifier (agency, date, agenda URL)",
+          "captures": "string"
+        },
+        {
+          "action": "multi-choice",
+          "target": "agenda item grid (up to 10 items)",
+          "captures": "per-item selection",
+          "result_options": ["discussed only", "voted", "deferred", "withdrawn", "consent calendar"]
+        },
+        {
+          "action": "short-text",
+          "target": "vote count per voted item (e.g., '5-2 approved')",
+          "captures": "string per voted item"
+        },
+        {
+          "action": "short-text",
+          "target": "public comment summary (max 200 words, prompted: 'who spoke, what they asked for, how the body responded')",
+          "captures": "string"
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: agenda link resolves to an agency calendar/agenda; agenda items reported substantially overlap with the posted agenda (LLM check, 60% match threshold); engagement time 15–60 min; no PII beyond named officials in the public-comment summary.\n\nFLAG for spot-review if: agenda link doesn't resolve; agenda items list contains items not on posted agenda (could be confabulation); volunteer has reported >3 meetings in one day (implausible); summary contains apparent PII of public commenters who weren't acting in an official capacity.\n\nAnti-dup: hash on (meeting_id). Two volunteers can independently report the same meeting — both credited, both submissions retained (this is one of the cases where multiple submissions strengthen the record).",
+    "est_hours": 0.5,
+    "max_hours": 0.5,
+    "location_kind": "hybrid",
+    "buyer_or_use": "Tended Public Meeting Civic Record → local journalism nonprofits (regional partners include CalMatters in CA, City Bureau in IL, The CITY in NY, and Spotlight PA in PA, among others), open-government orgs (MuckRock, Documenters Network), civic researchers",
+    "deliverable_use_statement": "Your report becomes part of the Public Meeting Civic Record. Tended publishes it openly and shares it with local journalism nonprofits and open-government researchers so the public knows what their school boards, city councils, and transit boards actually decided.",
+    "qualification_test": {
+      "charitable_purpose": "Documents public-meeting outcomes for open-government and journalism use — recognized civic-transparency public good.",
+      "qualifying_org": "Tended (501(c)(3)). Beneficiaries are journalism nonprofits, open-gov orgs, researchers.",
+      "unpaid": "No cash, gift card, or benefit.",
+      "real_work_product": "Each report is a structured record in the published civic dataset.",
+      "documented_hours": "Per-unit cap 30 min; app records agenda-link open, dwell time, structured submission; credit = min(measured, cap).",
+      "not_employment": "Volunteer picks meeting, picks time, no quota."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "cheap"
+  },
+
+  {
+    "id": "public-service-experience-report",
+    "title": "Report on a public service experience",
+    "category": "civic-data",
+    "short_description": "Visited a CA court, DMV, county benefits office, public clinic, or library? Report on the experience — accessibility, wait time, signage, language access. ~10 min after the visit.",
+    "instructions_md": "Public-service quality varies wildly — same agency, different offices, very different experience. Oversight bodies and agency leadership have almost no real-time data on what people actually encounter at the counter.\n\nAfter any in-person visit to a public service (court, DMV, county benefits office, public clinic, library, etc.), file a structured report. The form prompts you for accessibility, wait time, language access, signage clarity, and what happened. It's about the **service**, not about you personally — what worked or didn't work, structurally.\n\nYour reports feed the **Public-Service Quality Dataset**, shared with agency leadership, state auditors, and oversight bodies in your region.",
+    "deliverable_spec": {
+      "kind": "structured-form",
+      "requirements": "Confirmed agency + location, full multi-choice grid completed, structured short-text incident (≤150 words)."
+    },
+    "checklist": [
+      "Confirm the agency and location on the map",
+      "Pick the service category",
+      "Rate wait, accessibility, language access, signage, online alternative",
+      "Pick the outcome of your visit",
+      "Write a short structured incident note",
+      "Submit report"
+    ],
+    "workflow": {
+      "atomic_unit": "one in-person public-service interaction",
+      "time_per_unit_minutes": 10,
+      "primitives_used": ["confirm-location", "multi-choice", "short-text"],
+      "steps": [
+        {
+          "action": "confirm-location",
+          "target": "agency + location (geocode)",
+          "captures": "geocode, agency name",
+          "result_options": ["confirmed", "not-in-registry-add"],
+          "branch": "if not-in-registry → short-text agency + address"
+        },
+        {
+          "action": "multi-choice",
+          "target": "service category",
+          "captures": "selection",
+          "result_options": ["court", "DMV", "county benefits office", "public clinic", "public library", "social security", "housing authority", "other"]
+        },
+        {
+          "action": "multi-choice",
+          "target": "rating grid",
+          "captures": "per-dimension rating",
+          "result_options": ["wait time: <15min / 15-45min / 45min-2hr / >2hr", "physical accessibility: full / partial / none", "language access: native-language signage / interpreter offered / English-only", "signage clarity: clear / unclear / missing", "online-alternative quality: works / works partially / broken / none"]
+        },
+        {
+          "action": "multi-choice",
+          "target": "visit outcome",
+          "captures": "selection",
+          "result_options": ["completed", "partially completed", "turned away", "walked out", "redirected to another office"]
+        },
+        {
+          "action": "short-text",
+          "target": "structured incident note (max 150 words, prompted: 'what specifically about the SERVICE made the visit good or bad — not about you')",
+          "captures": "string"
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: agency exists in the public-agency registry for the volunteer's state (or successfully added); geocode in continental US AND within the volunteer's registered state; all rating-grid dimensions completed; outcome selected; incident note within 20–150 words and passes PII screen.\n\nFLAG for spot-review if: incident note contains PII (volunteer's own SSN, case #, full name of named non-public individuals); language flags negative outcome with no incident note explaining why; volunteer has filed >2 reports per day (implausible for in-person visits).\n\nAnti-dup: hash on (volunteer_id, agency_id, calendar_day). Same agency, same day, one report per volunteer.",
+    "est_hours": 0.17,
+    "max_hours": 0.17,
+    "location_kind": "in_person",
+    "buyer_or_use": "Tended Public-Service Quality Dataset → agency leadership, state auditors' offices, civic-oversight nonprofits, GAO-style oversight bodies",
+    "deliverable_use_statement": "Your report becomes one row in the Public-Service Quality Dataset. Tended publishes it openly and shares it with agency leadership and state oversight bodies so the people running these services can see, in near real time, where their offices are working and where they aren't.",
+    "qualification_test": {
+      "charitable_purpose": "Builds a public-benefit dataset for civic accountability and service-quality improvement.",
+      "qualifying_org": "Tended (501(c)(3)). Beneficiaries are agency leadership and state oversight bodies.",
+      "unpaid": "No cash, gift card, or benefit.",
+      "real_work_product": "Each report is a structured record in the published quality dataset.",
+      "documented_hours": "Per-unit cap 10 min; app records geocode confirmation, structured ratings, time-on-task.",
+      "not_employment": "Volunteer picks visit, no quota, no supervision. The visit itself is independently motivated."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "cheap"
+  },
+
+  {
+    "id": "ai-translation-review",
+    "title": "Review an AI translation of government / agency content",
+    "category": "ai-review",
+    "short_description": "Help check AI-translated government and agency content (benefits forms, court info, transit notices) for accuracy, register, and missing meaning in a language you read fluently. ~8 min per segment.",
+    "instructions_md": "Tended produces AI translations of government and agency content into community languages — Spanish, Chinese, Vietnamese, Tagalog, Korean, Russian, Arabic, and more. AI translation is fast and cheap; it is also wrong in ways that can mislead people about their rights and benefits.\n\nIf you read one of these languages fluently, you can help. The app shows you a source segment in English and the AI translation side by side. Rate the translation, flag specific issues, and suggest fixes.\n\nYour reviews feed the **Tended Language Access Library** — corrected translations shared back with the originating agencies and published openly for community use.\n\n*One-time onboarding: you'll self-attest to fluency in your target language pair. Repeated low-quality flags reduce your trust weight.*",
+    "deliverable_spec": {
+      "kind": "structured-form",
+      "requirements": "Overall rating + per-flagged-issue type + per-flagged-issue suggested fix. If rating is excellent/good, no flagged issues required."
+    },
+    "checklist": [
+      "Open the source-and-translation side-by-side view",
+      "Rate the overall translation quality",
+      "Flag specific issues (if any) by type",
+      "Write a suggested fix for each flagged issue",
+      "Mark whether you would use this translation as-is",
+      "Submit review"
+    ],
+    "workflow": {
+      "atomic_unit": "one document segment (typically 3–5 paragraphs, ~300 source words)",
+      "time_per_unit_minutes": 8,
+      "primitives_used": ["open-link", "multi-choice", "short-text"],
+      "steps": [
+        {
+          "action": "open-link",
+          "target": "source + AI translation side-by-side panel",
+          "captures": "open event, dwell time on EACH panel independently",
+          "result_options": ["reviewed"],
+          "branch": "validation: dwell time on each panel > 30s individually (proves both were read)"
+        },
+        {
+          "action": "multi-choice",
+          "target": "overall translation quality",
+          "captures": "selection",
+          "result_options": ["excellent — use as-is", "good — minor issues", "has-issues — needs editing", "unusable — re-translate"]
+        },
+        {
+          "action": "multi-choice",
+          "target": "per-flagged-issue type (repeatable; required only if rating is 'has-issues' or 'unusable')",
+          "captures": "selection per flag",
+          "result_options": ["mistranslation", "wrong register / formality", "missing content from source", "added content not in source", "cultural error", "inaccessible language (too formal/dense)"]
+        },
+        {
+          "action": "short-text",
+          "target": "suggested fix per flagged issue (max 100 words each)",
+          "captures": "string per flag"
+        },
+        {
+          "action": "multi-choice",
+          "target": "would you use this translation as-is for a community member?",
+          "captures": "selection",
+          "result_options": ["yes", "yes with my suggested edits", "no"]
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: dwell time on both panels > 30s each; overall rating present; if rating is 'has-issues' or 'unusable', at least one flagged issue with both type AND suggested-fix non-empty; suggested-fix text is in target language (LLM check).\n\nFLAG for spot-review if: rating is 'excellent' but dwell time < 60s total (rubber-stamp pattern); suggested fix appears machine-translated (LLM check vs. natural-speaker patterns); volunteer's first 5 reviews disagree systematically with established consensus on calibration segments.\n\nAnti-dup: hash on (volunteer_id, segment_id). Same segment, one review per volunteer.\n\nNote: multiple volunteers reviewing the same segment is encouraged — disagreements between fluent reviewers are themselves a signal about translation difficulty.",
+    "est_hours": 0.13,
+    "max_hours": 0.13,
+    "location_kind": "online",
+    "buyer_or_use": "Tended Language Access Library → originating government / agency content owners (SNAP agencies, unemployment-insurance agencies, courts, transit, public health), community-based language-access nonprofits, county navigator programs",
+    "deliverable_use_statement": "Your review improves an AI translation of public-service content. Tended publishes the corrected version in the Language Access Library and sends it back to the originating agency so the next person who reads it in your language gets accurate, usable information.",
+    "qualification_test": {
+      "charitable_purpose": "Improves language access to public services — a recognized civic-equity public good supported by federal and state language-access law.",
+      "qualifying_org": "Tended (501(c)(3)). Beneficiaries are CA agencies and community language-access partners.",
+      "unpaid": "No cash, gift card, or benefit.",
+      "real_work_product": "Each review produces a structured QA record + corrected translation contributed to the published library.",
+      "documented_hours": "Per-unit cap 8 min; app records dual-panel dwell time, structured ratings, suggested-fix text; credit = min(measured, cap).",
+      "not_employment": "Volunteer picks segment, picks language pair, no quota."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "medium"
+  },
+
+  {
+    "id": "online-grocery-price-observation",
+    "title": "Audit online grocery prices at your delivery address",
+    "category": "civic-data",
+    "short_description": "From your computer or phone, audit one online grocery retailer at YOUR home delivery address. Capture listed prices for the same 6-item Thrifty Basket used in the in-store audit. ~10 min per session.",
+    "instructions_md": "Online grocery prices are not the same as in-store prices, and they're not the same for every shopper. Retailers personalize what you see based on your delivery address, your account history, and (sometimes) what they think you'll pay. To understand what a SNAP recipient actually faces online, we need real prices captured by real people at real addresses.\n\nThis task is the online counterpart to the in-store food audit. The structure mirrors it exactly — same 6-item basket, same per-item capture (listed price + package size + screenshot or OOS flag). The only differences: you're on a website instead of in an aisle, and you'll be signed into your own account so the prices we capture are the prices a real SNAP recipient at your address would see.\n\n**Before you start, three things must be true:**\n\n1. **You have an account at the retailer you're auditing.** If you don't, pick a different retailer — don't create a new account just for this audit.\n2. **You're signed in.** Throughout the audit, you should be logged into your existing retailer account.\n3. **The delivery address in your retailer account matches the home address you have on file with Tended.** Update the retailer's address if needed before starting. We use this match to make the data meaningful — \"this is what someone living at this ZIP sees\" — and to detect personalized pricing.\n\nYou do **NOT** need to purchase anything. You do **NOT** need an EBT card. You don't even need to add items to a cart. All you're doing is finding each of the 6 basket items on the retailer's site and capturing the listed price + a screenshot — exactly like reading a shelf tag in a store.\n\n**The basket (same 6 items as the in-store audit):**\n\n1. Milk — 1 gallon, whole, generic/store brand\n2. Eggs — 1 dozen, large, Grade A, generic/store brand\n3. Bread — 1 standard loaf (16–20 oz), sliced white or whole wheat\n4. Rice — 1 lb bag, standard white long-grain\n5. Canned beans — 1 standard can (15–16 oz), black or pinto\n6. Fresh produce — bananas or apples (per pound or per single unit)\n\n**For each item you'll capture:** a screenshot of the product listing, the literal listed price, the package size as shown, or an OOS / not-sold-online flag.\n\nYour audit feeds the quarterly **Online Grocery Access Report** (stratified by region) AND contributes to the global **Open Prices** open-data project. Paired with the in-store audits, this gives agencies, food banks, and policy advocates the first complete picture of how grocery prices actually vary across channels, retailers, and neighborhoods — including the personalized pricing differences that no one has measured at scale.",
+    "deliverable_spec": {
+      "kind": "mixed",
+      "requirements": "Retailer + signed-in confirmation + delivery-address ZIP match confirmed + 6 per-item listings (price + size + screenshot, or OOS / not-sold flag)."
+    },
+    "checklist": [
+      "Pick a retailer where you already have an account",
+      "Sign in and confirm your delivery address matches the one Tended has on file",
+      "For each of the 6 basket items: search the retailer's site, screenshot the listing, capture price + size (or mark OOS / not-sold-online)",
+      "Submit audit"
+    ],
+    "workflow": {
+      "atomic_unit": "one retailer × one volunteer's home delivery address",
+      "time_per_unit_minutes": 10,
+      "primitives_used": ["multi-choice", "short-text", "screenshot", "repeat-group"],
+      "steps": [
+        {
+          "action": "multi-choice",
+          "target": "do you already have an account at the retailer you'd like to audit?",
+          "captures": "selection",
+          "result_options": ["yes (continue)", "no (pick a different retailer)"],
+          "branch": "if 'no' → return to retailer pick; do NOT prompt the volunteer to create a new account"
+        },
+        {
+          "action": "multi-choice",
+          "target": "retailer (curated, expandable list of online grocery retailers — Tier 1 nationally-present chains shown first; only those where the volunteer already has an account)",
+          "captures": "selection",
+          "result_options": ["Amazon Fresh / Whole Foods", "Walmart Grocery", "Target / Shipt", "Kroger family (Ralphs, Fred Meyer, King Soopers, Smith's, Fry's, Harris Teeter, etc.)", "Albertsons family (Safeway, Vons, Jewel-Osco, Acme, ACME, Tom Thumb, Randalls, Shaw's, Star Market)", "ALDI (where available)", "Instacart (via retailer)", "My regional retailer is not listed → add a new one"],
+          "branch": "if 'add a new one' → short-text retailer name + URL + state(s) served. New-retailer submissions go to admin review (one-click approve/reject); audit credits to the volunteer once BOTH the audit AND the new-retailer approval pass. Once approved, the retailer joins the catalog and is available to all volunteers in the relevant region."
+        },
+        {
+          "action": "multi-choice",
+          "target": "sign-in + address-match confirmation",
+          "captures": "two confirmations + supporting evidence",
+          "result_options": ["I am signed in AND my delivery address in this retailer matches my Tended home address"],
+          "branch": "this step requires:\n  - short-text → enter the ZIP shown in the retailer's delivery address header (must match the ZIP Tended has on file for this volunteer; mismatch = block + instructions to update retailer address before continuing)\n  - screenshot → a page that shows BOTH the signed-in account indicator (account name visible in chrome) AND the delivery address (the home/header shows the matched ZIP)\n  - PII auto-blur on the screenshot: the volunteer's display name in the account chrome is auto-blurred before storage; the address line keeps the ZIP visible but blurs the street\n  - if the retailer says 'we do not deliver to this address' → flag as 'no-coverage', submit early, fully credited"
+        },
+        {
+          "action": "REPEAT-FOR-EACH-BASKET-ITEM",
+          "target": "the 6 basket items",
+          "captures": "per-item sub-flow described below",
+          "result_options": ["captured", "out-of-stock", "not-sold-online-at-this-retailer", "couldn't-find"],
+          "branch": "per-item sub-flow (mirrors the in-store flow):\n  1. multi-choice → availability {found, out-of-stock, not-sold-online, couldn't-find-after-reasonable-search}\n  2. if found:\n     a. screenshot → product listing page showing the item AND its listed price together\n     b. short-text → literal listed price (numeric, $ prefix)\n     c. short-text → package size as displayed on the listing\n     d. multi-choice → unit {oz, lb, gal, dozen, count, ml, L}\n     e. (produce only) multi-choice → priced as {per pound, per single unit}\n  3. if not-found / not-sold / couldn't-find: capture only (no screenshot, no price) — this is a valid finding"
+        }
+      ],
+      "zero_result_credited": true
+    },
+    "validation_rubric_md": "PASS if: retailer selected; sign-in + address-match screenshot captured AND ZIP entered matches Tended on-file ZIP; all 6 basket items have an availability result; for every 'found' item, screenshot + price + size + unit are present.\n\n**Sign-in + address-match validation:**\n- ZIP entered by volunteer must match Tended's on-file ZIP for this volunteer (exact match)\n- Screenshot must show evidence of a signed-in state (account chrome present) AND the matched delivery address (LLM page-content check)\n- After PII auto-blur: name is blurred, street address is blurred, ZIP remains visible\n- If retailer does not deliver to this address → 'no-coverage' is a complete and credited submission on its own\n\n**Screenshot validation (vision + URL, per product screenshot):**\n- URL is on the claimed retailer's domain (allow-list match)\n- Page content (LLM check) matches the claimed step type — product listings show a price and a product image\n- Listed price OCR'd from screenshot is within ±5% of the volunteer-entered price (online listings have crisper text than shelf tags, so the tolerance is tighter than in-store)\n- No payment-card or order-history PII visible — auto-blur or reject\n\n**Price plausibility (per item, vs. regional online median for that retailer × ZIP):**\n- Flag if entered price is < 25% or > 400% of running median for (item × retailer × volunteer's ZIP)\n- Flag if entered price is > 200% of the in-store median for the same item × same metro/state region (online markups exist; > 2x suggests data error)\n- Personalized-pricing signal (informational, not a flag): if the same item × retailer × ZIP has been audited by another volunteer in the last 7 days and prices differ > 5%, mark for follow-up research (this is a finding, not a problem)\n\n**FLAG for spot-review if:** any screenshot fails URL allow-list or content match; OCR price disagrees with entered price by > 5%; PII detected in screenshots after blur attempt; ZIP entered does not match Tended on-file ZIP; same volunteer submitted > 3 retailer audits in < 30 min (rushing); price plausibility band breached.\n\n**Anti-dup:** hash on (volunteer_id, retailer_id, calendar_week). One retailer per volunteer per week (the address is fixed to the volunteer's on-file home address; multiple ZIPs per volunteer would defeat the personalization-data design).\n\n**Trust weighting:** same tiers as in-store audit. Online and in-store audits accrue toward the same trust state.\n\n**Privacy note for spot-review:** admins reviewing flagged audits see the post-blur screenshots only. Original (with blur boxes removed) is never displayed in the admin UI. If a manual decision requires the unblurred image, a second admin must approve the access (two-person rule) and the access is logged.",
+    "est_hours": 0.17,
+    "max_hours": 0.2,
+    "location_kind": "online",
+    "buyer_or_use": "Tended Quarterly Online Grocery Access Report, stratified by region (state SNAP agencies, USDA FNS Online Purchasing Pilot evaluators, regional food banks, Feeding America affiliates, food-policy researchers, disability-rights and senior-services orgs) + Open Prices contribution (https://prices.openfoodfacts.org/) under online-shop type for global open-data reuse. Personalized-pricing variation analysis offered to academic researchers and consumer-protection partners.",
+    "deliverable_use_statement": "Your audit becomes part of the Online Grocery Access Report and contributes to the global Open Prices open-data project. Because the prices you capture are tied to a real account at a real residential address, this is some of the only public data on how grocery prices vary across neighborhoods and across personalized accounts — information food banks, SNAP agencies, and consumer-protection researchers cannot get any other way.",
+    "qualification_test": {
+      "charitable_purpose": "Builds a public-benefit dataset on online grocery prices and personalized pricing variation — directly relevant to USDA Online Purchasing Pilot evaluation, county navigator programs, food-access policy, and consumer-protection research.",
+      "qualifying_org": "Tended (501(c)(3)). Beneficiaries: state SNAP agencies, USDA FNS, food banks, Open Food Facts (Open Prices), academic and consumer-protection researchers.",
+      "unpaid": "Volunteer receives only certified ABAWD hours. No purchase required; no EBT card required; volunteer uses their existing account at the retailer.",
+      "real_work_product": "Each audit produces up to 6 structured online price records + screenshots, tied to a verified delivery address, contributed to the published dataset and Open Prices.",
+      "documented_hours": "Per-unit cap 12 min (target 10); app records each in-app action event, screenshot uploads, dwell time, ZIP-match confirmation; credit = min(measured, cap).",
+      "not_employment": "Volunteer picks retailer, picks time, no quota, no supervision. No purchase obligation. Uses their own existing account."
+    },
+    "scalability": "massively-parallel",
+    "ai_validation_cost_tier": "medium"
+  }
+]

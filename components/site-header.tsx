@@ -41,8 +41,8 @@ export function SiteHeader({ locale = "en", t = EN }: { locale?: "en" | "es"; t?
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="overline mb-2">Explore</p>
-                      <Link href="/how-it-works#civic-work" className="block rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section">Civic work</Link>
-                      <Link href="/how-it-works#calfresh" className="block rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section">CalFresh certification</Link>
+                      <Link href="/how-it-works#civic-work" className="block rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section">Online volunteering</Link>
+                      <Link href="/how-it-works#calfresh" className="block rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section">SNAP/EBT certification</Link>
                       <Link href="/how-it-works#identity" className="block rounded-md px-2 py-1.5 text-sm font-medium text-ink hover:bg-section">Privacy &amp; identity</Link>
                     </div>
                     <div className="space-y-2">

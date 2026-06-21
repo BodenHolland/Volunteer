@@ -45,7 +45,7 @@ export const TASK_SEMINAR = "task_seminar";
 export const TASK_FOOD_AUDIT = "task_food_audit";
 
 export const PERSONAS: Persona[] = [
-  { user_id: USER_MARISOL, label: "Marisol Reyes", sublabel: "Recipient · certifies CalFresh hours", role: "recipient" },
+  { user_id: USER_MARISOL, label: "Marisol Reyes", sublabel: "Recipient · certifies SNAP hours", role: "recipient" },
   { user_id: USER_TREVOR, label: "Trevor Nakamura", sublabel: "Recipient · volunteer only", role: "recipient" },
   { user_id: USER_DANIEL, label: "Daniel Okafor", sublabel: "Canopy Commons · reviewer", role: "org_member" },
   { user_id: USER_PRIYA, label: "Priya Venkatesan", sublabel: "Civic Data Collective · admin", role: "org_member" },
@@ -338,7 +338,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       "87-9999001",
       "food@tended.org",
       null,
-      "Tended Food Access publishes an open, volunteer-collected dataset of shelf-tag grocery prices across California. The data is free, public (CC0), and used by food banks, researchers, and county health departments to track food affordability where SNAP/CalFresh recipients actually shop.",
+      "Tended Food Access publishes an open, volunteer-collected dataset of shelf-tag grocery prices across California. The data is free, public (CC0), and used by food banks, researchers, and county health departments to track food affordability where SNAP recipients actually shop.",
       addr({ line1: "1 Capitol Mall", city: "Sacramento", state: "CA", zip: "95814" }),
       "Alex Mercado",
       "Program Director",

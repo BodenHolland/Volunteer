@@ -32,7 +32,7 @@ export async function GET(req: Request) {
   // until written CDSS/county confirmation is on record.
   if (!(await isCertEnabledForCity(user.city))) {
     return NextResponse.json(
-      { error: "CalFresh certification isn't available in your county yet. We're working on it." },
+      { error: "SNAP certification isn't available in your county yet. We're working on it." },
       { status: 403 }
     );
   }

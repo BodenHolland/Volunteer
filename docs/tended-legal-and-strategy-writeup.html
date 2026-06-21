@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Tended — Legal &amp; Strategy Summary</title>
+<style>
+@page { size: Letter; margin: 0.85in 0.9in; }
+* { box-sizing: border-box; }
+body { font-family: "Georgia","Times New Roman",serif; font-size: 10.8pt; line-height: 1.5; color: #1a1a1a; max-width: 7in; margin: 0 auto; padding: 0.4in 0; }
+h1 { font-size: 20pt; border-bottom: 2px solid #333; padding-bottom: 6px; margin: 0 0 4px; line-height:1.2; }
+h2 { font-size: 14.5pt; margin: 22px 0 6px; border-bottom: 1px solid #bbb; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-size: 12pt; margin: 16px 0 4px; page-break-after: avoid; }
+p { margin: 6px 0; }
+ul, ol { margin: 6px 0 6px 0; padding-left: 22px; }
+li { margin: 3px 0; }
+blockquote { margin: 10px 0; padding: 8px 14px; background: #f6f6f4; border-left: 3px solid #888; font-size: 10.2pt; }
+code { font-family: "SF Mono","Menlo",monospace; font-size: 9.2pt; background:#f0f0ee; padding: 1px 4px; border-radius: 3px; }
+pre { background:#f5f5f3; border:1px solid #ddd; border-radius:5px; padding:10px 12px; overflow:auto; page-break-inside: avoid; }
+pre code { background:none; padding:0; font-size:9pt; line-height:1.45; }
+a { color:#1155cc; text-decoration:none; word-break: break-word; }
+hr { border:none; border-top:1px solid #ccc; margin:18px 0; }
+strong { font-weight:700; }
+h2, h3, blockquote, pre, li { page-break-inside: avoid; }
+</style></head>
+<body><h1>Tended — Concept, Legal Grounding, and Go-to-Market Strategy</h1>
+<p><strong>Status:</strong> Working strategy document (not legal advice) — Revision 5</p>
+<p><strong>Date:</strong> June 19, 2026</p>
+<p><strong>Prepared as:</strong> Synthesis of the legal stress-test, redesign, and pre-launch findings for the Tended concept</p>
+<blockquote><strong>Read me first.</strong> This document folds together (a) the idea, (b) its legal foundation and the authorities that support it, (c) the risks that sank the original version and how the redesign neutralizes them, (d) the funding structure that keeps the charity safe, and (e) a rollout strategy realistically likely to succeed. It is an internal strategy memo, not legal advice. Items I could not verify against a primary source are marked <strong>[UNVERIFIED]</strong>. Before relying on anything here, confirm the flagged items and have counsel review.</blockquote>
+<hr/>
+<h2>1. Executive summary</h2>
+<p><strong>The idea:</strong> Tended is a web platform that lets California residents complete short, low-tech civic/charitable volunteer tasks online, logs the time they spend, and — for residents who must meet the CalFresh ABAWD work requirement — verifies those hours on California&#x27;s <strong>CF 888</strong> form so they count toward the <strong>80-hours-per-month</strong> requirement.</p>
+<p><strong>The legal core is sound.</strong> Federal law expressly lets unpaid volunteer work count toward the ABAWD requirement when verified under a state standard (<strong>7 CFR §273.24(a)(2)(iii)</strong>), and California created exactly such a standard in 2025 (<strong>CDSS ACL 25-34</strong> and the <strong>CF 888 Volunteer Work Hour Verification Form</strong>). A properly structured Tended volunteer is legally indistinguishable from a food-bank volunteer meeting the same requirement.</p>
+<p><strong>Two design decisions define the model and keep it on solid ground.</strong> (1) Tended is <strong>funded by grants and donations and distributes its outputs free</strong> rather than selling the volunteers&#x27; work product — which keeps volunteers clearly volunteers and avoids the employee-status analysis of <em>Tony &amp; Susan Alamo Foundation v. Secretary of Labor</em>, 471 U.S. 290 (1985). (2) Tended <strong>certifies measured actual hours, never task estimates</strong> (a calibrated cap bounds each credit — §5.3) — which keeps every CF 888 a true statement. §4 sets out each decision and the variables weighed.</p>
+<p>The result: Tended sits on the side of the line California already approved — a bona-fide volunteer organization whose participants meet the ABAWD requirement the same way a food-bank volunteer does.</p>
+<p><strong>Two disciplines keep the model clean:</strong> <strong>certify actual hours only</strong> (the CF 888&#x27;s certification is light, but knowingly inflated hours are still fraud — §3.2), and keep the <strong>certification function independent of funders</strong> (corporate and other support is welcome; what&#x27;s avoided is funding <em>conditioned on</em> enrollment or certification outcomes — §6).</p>
+<p>On approvals and rollout: no agency pre-approval is legally required, and there is no adverse precedent, but acceptance of the forms is discretionary at the county level and subject to appeal. The approach is to pilot small, optionally pre-clear with a county, and scale deliberately. The verification records serve as both audit defense and the evidence a recipient needs to win a benefits appeal.</p>
+<hr/>
+<h2>2. The idea</h2>
+<p>Tended is a <strong>virtual volunteer and civic-participation organization</strong> — a 501(c)(3) with a charitable <em>and</em> educational purpose that mobilizes remote volunteers to produce free, public-benefit civic and educational outputs. It runs on a simple loop:</p>
+<ol>
+<li><strong>Tasks.</strong> Short, massively-parallel, low-tech civic tasks — e.g., reviewing/correcting AI-generated translations or plain-language rewrites for limited-English residents; light civic data collection (sidewalk-hazard photos, tree census, EBT-acceptance audits) routed to a city agency; transcription for public archives; contributions to free community resource guides and oral-history collections.</li>
+<li><strong>Performance.</strong> Any California resident can complete tasks. Volunteers receive nothing of value from Tended.</li>
+<li><strong>Hours logging.</strong> The platform measures active engagement; the volunteer self-reports and attests to their time.</li>
+<li><strong>Validation.</strong> Automated checks validate each submission — engagement measurement, a deliverable-present/usability check, and PII screening; submissions outside normal bounds are flagged for human spot-review; work with no genuine deliverable earns zero hours (§5.11).</li>
+<li><strong>Verification.</strong> For volunteers subject to the ABAWD work requirement, Tended generates a pre-filled <strong>CF 888</strong>, and an authorized representative signs Section 2 attesting to the organization and the <strong>actual verified hours</strong>. The volunteer uploads it to BenefitsCal as proof toward the 80-hour requirement.</li>
+</ol>
+<p><strong>Outputs are distributed free</strong> (never sold) to mission-aligned recipients — the commissioning agency, partner organizations, or the community served. Distribution need not be fully public: access can be controlled to protect privacy, and submissions are screened for personal information before release (§5.12). Tended is funded entirely by grants and donations and <strong>does not sell</strong> data, deliverables, or research.</p>
+<p>The design intent: a permissionless, scalable way for benefit recipients to meet a work requirement through genuine community service that also produces real public goods.</p>
+<hr/>
+<h2>3. Legal grounding</h2>
+<h3>3.1 The federal hook — unpaid volunteer work can count</h3>
+<p>The ABAWD time limit and work requirement live at <strong>7 CFR §273.24</strong> (not §273.7, which is the general work-registration/E&amp;T/workfare provision). Under <strong>§273.24(a)(1)</strong>, a person fulfills the requirement by working 80 hours/month, participating in a work program, a combination, or workfare. Critically, <strong>§273.24(a)(2)</strong> defines &quot;working&quot; to include:</p>
+<blockquote>&quot;(i) Work in exchange for money; (ii) Work in exchange for goods or services (&#x27;in kind&#x27; work); or <strong>(iii) Unpaid work, verified under standards established by the State agency.</strong>&quot;</blockquote>
+<p>That third prong is the entire foundation. Note what it is <strong>not</strong>: nonprofit volunteering is <strong>not</strong> an enumerated &quot;work program&quot; under §273.24(a)(3) (those are WIOA, Trade Act, E&amp;T, veterans programs). Tended qualifies <strong>only</strong> through the unpaid-work prong — which means it lives or dies on the <strong>State verification standard</strong>.</p>
+<h3>3.2 The California standard — ACL 25-34 and CF 888 (verified)</h3>
+<p>California supplied that standard. Via <strong>All-County Letter (ACL) 25-34 (issued May 14, 2025)</strong>, CDSS released the <strong>CF 888 — CalFresh ABAWD Volunteer Work Hours Verification Form</strong> (rev. 5/25). Under the framework:</p>
+<ul>
+<li>An ABAWD may satisfy the requirement through <strong>community service or volunteer work</strong>, alone or combined with other qualifying activities.</li>
+<li>Hours must be <strong>verified</strong>. The CF 888 is one accepted vehicle; the county may alternatively accept the <strong>verbal statement</strong> of an authorized representative of the organization.</li>
+</ul>
+<p><strong>CF 888 Section 2 — exact wording (verified against the English form, rev. 5/25).</strong> The entire certification reads:</p>
+<blockquote><em>&quot;For the month of ______, I certify that the person named above volunteered or performed community service for the organization I represent for ______ hours. The volunteer activity is: ☐ Ongoing ☐ One Time&quot;</em> — followed by Signature of Representative / Date Signed.</blockquote>
+<p>Key facts about the form:</p>
+<ul>
+<li><strong>No penalty-of-perjury clause</strong> is printed — it says only &quot;I certify.&quot; (Knowingly false hours still carry fraud exposure under 18 U.S.C. §1001 and Cal. Welf. &amp; Inst. Code §10980, independent of any jurat.)</li>
+<li><strong>No observation or supervision requirement.</strong> The signer is simply &quot;a representative of the organization where the person volunteers.&quot; An AI-rubric + human-review basis is sufficient.</li>
+<li><strong>The certified value is actual &quot;hours [the person] volunteered or performed&quot;</strong> — not a task estimate. This is the discipline that governs crediting.</li>
+<li><strong>No EIN field</strong> — a correction to the original concept, which assumed the form captures the EIN. Fields are: organization name, representative name, address, phone, month, hours, ongoing/one-time, signature, date.</li>
+<li><strong>&quot;Required Form — No Substitutes Permitted.&quot;</strong> Tended may <em>pre-fill the official CF 888</em> but may <strong>not</strong> issue its own substitute verification form.</li>
+</ul>
+<p><strong>Crediting rule to conform to:</strong> <code>certified hours = actual volunteered hours</code> (= the <code>min(measured engagement, calibrated cap)</code> figure from §5.3). The form&#x27;s formal bar is low; your internal discipline is what keeps it honest.</p>
+<h3>3.3 The &quot;volunteer work&quot; must be bona fide</h3>
+<p>The framework assumes a genuine volunteer relationship with a qualifying organization (published examples: food pantries, libraries, religious/community orgs, Red Cross, Goodwill). Two things make volunteer work &quot;bona fide&quot;:</p>
+<ul>
+<li>It is <strong>service to a third party / the community</strong>, not solely self-serving busywork.</li>
+<li>The volunteer receives <strong>no compensation</strong> from the organization. The SNAP benefit is an <strong>independent State entitlement</strong>, not payment from Tended — exactly as it is for a food-bank volunteer.</li>
+</ul>
+<h3>3.4 The current ABAWD landscape (why this is urgent)</h3>
+<p>The <strong>One Big Beautiful Bill Act (H.R. 1, 2025)</strong> expanded ABAWD work requirements: the age range rose from 18–54 to <strong>18–64</strong>, the dependent-care exemption narrowed (children under 14 only), and exemptions for veterans, people experiencing homelessness, and former foster youth were eliminated. California began enforcing the time limit broadly in 2026. The result is a large population newly subject to the 80-hour requirement and actively seeking qualifying-hours options — the demand Tended addresses.</p>
+<hr/>
+<h2>4. Key design decisions and the variables considered</h2>
+<p>The eligibility core (§3) is sound. Four design choices determine whether the model stays on the right side of the law. For each: the decision, the variables weighed, and why we landed where we did.</p>
+<h3>4.1 Decision: distribute outputs free; do not sell the work product</h3>
+<p><strong>Decision:</strong> outputs are given away to the public, libraries, or government; Tended does not sell the volunteers&#x27; work product. <strong>Variables weighed:</strong> a sales-funded model would place unpaid volunteers&#x27; labor inside a revenue-generating operation — the fact pattern of ***Tony &amp; Susan Alamo Foundation v. Secretary of Labor*, 471 U.S. 290 (1985)<strong>, where workers who considered themselves volunteers were held to be FLSA </strong>employees<strong> under the &quot;economic reality&quot; test because their labor fed the organization&#x27;s </strong>commercial<strong> activity. California&#x27;s </strong>ABC test** (Labor Code §2775; <em>Dynamex Operations West v. Superior Court</em>, 4 Cal.5th 903 (2018)) would compound it with minimum-wage, overtime, and <strong>PAGA</strong> exposure. <strong>Why we landed here:</strong> giving outputs away removes the commercial enterprise, so there is no business the volunteers are &quot;integral&quot; to — the volunteer characterization holds and the misclassification analysis falls away. The trade-off (foregoing earned revenue) is handled by the funding strategy in §6.</p>
+<h3>4.2 Decision: certify measured actual hours, not task estimates</h3>
+<p><strong>Decision:</strong> the certified number is measured engagement, with the AI estimate serving only as a calibrated ceiling (§5.3) — never a flat estimate credited regardless of time spent. <strong>Variables weighed:</strong> the CF 888 certifies hours <strong>a specific person actually worked</strong>; crediting a flat &quot;3 hours&quot; to someone who finished in 40 minutes would be a false statement on a government benefit form (exposure under <strong>7 U.S.C. §2024</strong>, <strong>18 U.S.C. §1001</strong>, <strong>Cal. Welf. &amp; Inst. Code §10980</strong>). A pure-estimate model is simpler to build but puts every certification at risk. <strong>Why we landed here:</strong> measuring actual engagement keeps each CF 888 true and turns the records into both audit defense and the evidence a recipient needs on appeal (§8).</p>
+<h3>4.3 Decision: fund via grants and donations, not data sales</h3>
+<p><strong>Decision:</strong> the platform is funded philanthropically; aggregated data and analysis are not sold as a commercial line. <strong>Variables weighed:</strong> fee-for-service data sales would likely be <strong>unrelated business income</strong> (IRC §§511–513) and, if they became the funding engine, would threaten exempt status under the <strong>commerciality doctrine</strong> (<em>Better Business Bureau v. United States</em>, 326 U.S. 279 (1945); <em>United Cancer Council v. Commissioner</em>, 165 F.3d 1173 (7th Cir. 1999)). <strong>Why we landed here:</strong> philanthropic funding keeps the organization plainly charitable and removes the UBIT/commerciality question entirely. The funding model is detailed in §6.</p>
+<h3>4.4 Decision: full Form 1023 and conflict-of-interest governance</h3>
+<p><strong>Decision:</strong> file the full <strong>Form 1023</strong> (not 1023-EZ) and adopt board-level conflict-of-interest governance over the certification function. <strong>Variables weighed:</strong> an organization projecting &gt;$50k in gross receipts in any of its next three years <strong>may not use Form 1023-EZ</strong> (IRS 1023-EZ eligibility worksheet), and Tended&#x27;s dual role as platform <em>and</em> certifier is a structural conflict that governance must address. <strong>Why we landed here:</strong> the full 1023 matches the real revenue trajectory (§5.1), and an insulated certification function (§5.5, §6) keeps verification demonstrably independent of fundraising and growth incentives.</p>
+<h3>4.5 Citation precision (carry these everywhere)</h3>
+<ul>
+<li>ABAWD unpaid-work authority is <strong>7 CFR §273.24(a)(2)(iii) + CDSS ACL 25-34</strong> — <strong>not</strong> 7 CFR §273.7.</li>
+<li><strong>Do not</strong> cite <strong>29 CFR §553.101</strong> to establish volunteer status — it governs <strong>public-agency</strong> volunteers only, not private 501(c)(3)s. Use the general FLSA nonprofit-volunteer framework instead.</li>
+<li>The CF 888 has <strong>no EIN field</strong> and <strong>no perjury jurat</strong> (§3.2).</li>
+</ul>
+<hr/>
+<h2>5. The operating model</h2>
+<p>Core mechanism: a platform hosts massively-parallel, low-tech civic volunteer tasks; ABAWD recipients perform them as genuine volunteers; <strong>verified actual hours</strong> generate a CF 888 that counts toward the 80-hour requirement.</p>
+<h3>5.1 Entity, purpose, and filing</h3>
+<p>A 501(c)(3) <strong>virtual volunteer and civic-participation organization</strong> with a **charitable <em>and</em> educational<strong> purpose: mobilizing remote volunteers to produce free public-benefit civic and educational outputs, and building civic capacity, public knowledge, and educational resources for the communities it serves. The broad charitable-and-educational mandate is deliberate future-proofing — it lets the organization grow into civic-literacy materials, plain-language public education, and volunteer-produced learning resources without amending its articles. Anchor it to established, already-remote nonprofit precedents — </strong>Smithsonian Transcription Center<strong>, </strong>Library of Congress &quot;By the People,&quot;<strong> </strong>Zooniverse<strong>, </strong>Tarjimly** — which prove remote, massively-parallel nonprofit volunteering is legitimate and accepted.</p>
+<blockquote><strong>Drafting caution — keep the stated purpose mission-level, never benefit-level.</strong> The articles, Form 1023 narrative, website, and grant materials must describe the organization&#x27;s purpose as its <strong>charitable and educational mission and the public goods it produces</strong> (civic participation, community knowledge, public education). They must <strong>never</strong> frame the purpose as helping participants <em>retain public benefits.</em> Benefit retention is an <em>incidental effect for individual participants</em>, not the organization&#x27;s purpose. Stating it as the purpose (a) is not itself a 501(c)(3) exempt purpose, (b) reinforces the &quot;scheme to satisfy a work requirement&quot; narrative an auditor is primed to look for, and (c) compounds the private-benefit exposure in §6. This applies to public-facing copy as much as to legal filings.</blockquote>
+<p><strong>File the full Form 1023, not 1023-EZ.</strong> Your funding strategy will predictably exceed the EZ ceilings (&gt;$50k projected gross receipts in any of the next 3 years; &gt;$250k assets), so the EZ attestation would be false at filing.</p>
+<ul>
+<li><strong>There is no &quot;EZ now, full 1023 later&quot; upgrade path.</strong> A determination letter is the determination; you never re-apply for exemption because you grew. A genuinely small org that later crosses $50k simply switches its annual return from the <strong>990-N</strong> postcard to <strong>Form 990</strong> — it does not re-file an application.</li>
+<li><strong>Cost is one-time, not annual.</strong> IRS application fee: <strong>$600</strong> (full 1023) vs. $275 (EZ) — a one-time delta of ~$325. Optional professional prep (attorney/CPA) runs <strong>~$2,500–$5,000</strong> one-time; self-preparation is possible. There is <strong>no annual IRS exemption fee.</strong></li>
+<li><strong>Recurring obligations are cheap and size-driven, identical regardless of which form you filed:</strong> annual <strong>Form 990/990-EZ/990-N</strong> (free to file; <em>missing it 3 years running auto-revokes exemption</em>); California <strong>FTB Form 199</strong>, <strong>AG Form RRF-1</strong> (tiered ~$25–$75+), and the biennial <strong>Statement of Information</strong> (~$20).</li>
+</ul>
+<p>Adopt a board, an <strong>IRS-style conflict-of-interest policy</strong>, and oversight of the certification function. <em>(Confirm current fee figures before filing.)</em></p>
+<h3>5.2 Task design: the gate and the priority order</h3>
+<p>Every task must pass four tests before it ships:</p>
+<ol>
+<li><strong>External beneficiary</strong> — a third party or the community, not just the volunteer.</li>
+<li><strong>Genuine need</strong> — the organization or a partner agency actually needs the output.</li>
+<li><strong>Free public deliverable</strong> — published or donated, never sold.</li>
+<li><strong>Verifiable output</strong> — the work produces a reviewable artifact, so the hours can be supported if questioned.</li>
+</ol>
+<p>Among tasks that pass the gate, prioritize in this order (most defensible first):</p>
+<ul>
+<li><strong>Tier 1 — Agency-commissioned tasks.</strong> A city, county, or public agency posts the task, states the need, and uses the result. This produces the strongest version of every gate criterion and anchors legitimacy outside Tended. This is the direction to build toward. Agency sponsorship establishes the <em>task&#x27;s</em> legitimacy; it does not remove the requirement to measure actual hours or to keep the deliverable verifiable.</li>
+<li><strong>Tier 2 — Data collection and information production with a self-verifying deliverable.</strong> Geotagged hazard photos with metadata, EBT-acceptance audits, translation and plain-language QA, archive transcription. The artifact is its own proof, quality-gates cleanly, and is straightforward to support in an audit.</li>
+<li><strong>Tier 3 — Qualitative tasks that produce a real, used artifact.</strong> Community conversations or interviews qualify only when they yield structured output that feeds a published needs assessment, oral history, or resource guide that is reviewed and used — not a free-form &quot;we talked to people&quot; with no reviewable product.</li>
+</ul>
+<p>Do not build:</p>
+<ul>
+<li><strong>Passive time tasks</strong> — &quot;open a task, start a timer, read a document, get credited for the elapsed time.&quot; Reading is consumption, not service, and an unattended timer measures nothing.</li>
+<li><strong>Content sized to manufacture hours</strong> — documents whose only function is to extend credited reading time. Credited time tracks genuine effort on a deliverable, not page count.</li>
+<li><strong>Deliberately unverifiable tasks</strong> — work designed so the claim cannot be checked. A task that cannot be verified is a CF 888 that cannot be supported; certifying it is the false-attestation exposure in §4.2.</li>
+</ul>
+<p>Reading time counts only as necessary, proportionate preparation for a deliverable (§5.9), never as the activity itself.</p>
+<h3>5.3 Hours engine</h3>
+<pre><code>
+credited_hours = min( measured_active_engagement , calibrated_cap )
+                 — gated on deliverable passing quality review
+</code></pre>
+<ul>
+<li><strong>Measured active engagement</strong> — active-session timer, idle detection, minimum-engagement floors (cannot submit before genuine engagement). This is the primary record of actual time.</li>
+<li><strong>Self-report + attestation</strong> — the volunteer affirms they personally did the work and the time is genuine.</li>
+<li><strong>AI calibrated cap / outlier flag</strong> — the AI estimate is the <strong>ceiling</strong> and the outlier detector: in-band self-reports auto-clear; outliers go to human review; nobody is credited above the cap. The estimate may only pull a number <strong>down</strong>, never up.</li>
+<li><strong>Quality gate</strong> — rejected or low-effort work earns zero hours.</li>
+</ul>
+<p>Credited time must correspond to genuine effort that produces the task&#x27;s deliverable. An open timer with no engagement, or reading detached from a deliverable, does not count.</p>
+<p>Three distinct numbers are involved, and only one is certified. The <strong>AI estimate</strong> is a planning figure and the cap. The <strong>measured engagement</strong> is the record of actual time. The <strong>self-report</strong> is the volunteer&#x27;s attestation. On the CF 888 it is <strong>Tended&#x27;s representative — not the volunteer — who certifies the hours</strong> in Section 2; the certified number is the measured engagement bounded by the cap (<code>min(measured, cap)</code>), corroborated by the self-report. The estimate (calibrated with variance from reported data) sizes the cap; it is never itself the certified figure.</p>
+<p>Defensible framing: <em>&quot;We credit measured active engagement, bounded by an empirically-calibrated cap, gated on quality review — here are the methodology and the session records.&quot;</em> Not: <em>&quot;Our AI predicts 3 hours, so we credit 3 hours.&quot;</em></p>
+<h3>5.4 Estimate methodology</h3>
+<ol>
+<li>Seed caps with AI task decomposition (reading load = words ÷ reading speed; exercise complexity; output length).</li>
+<li><strong>Calibrate to the observed median of real, quality-passing human sessions</strong> — not the AI&#x27;s a-priori guess.</li>
+<li><strong>Document the methodology in writing</strong>; recalibrate quarterly with version history.</li>
+<li>Optionally, <strong>structurally enforce time</strong> (minimum engagement floors, time-gated content) so estimate ≈ actual <em>by design</em> — making a clean block-time credit a <em>true</em> statement, like crediting a shift.</li>
+</ol>
+<h3>5.5 Certification &amp; governance</h3>
+<p>Tended signs CF 888 as &quot;a representative of the organization where the person volunteers&quot; (allowed; Tended genuinely assigns and reviews the work; the form requires no observation/supervision and carries no perjury jurat — see §3.2). De-risk the residual conflict: a <strong>written verification methodology</strong>, certification insulated from fundraising/growth metrics, human review confirming the work was performed, and an audit trail. Certify <strong>actual volunteered hours only</strong> (the §5.3 figure).</p>
+<p><strong>Authorized representative and signing.</strong> Section 2 requires a <strong>named individual</strong> who is a genuine authorized representative of the organization (officer, employee, or board-designated agent) — not the entity in the abstract, and not an outside party hired only to absorb liability (a figurehead signer is a sham that offloads nothing and simply spreads exposure). The board should formally designate the authorized representative(s) and document the delegation. That representative&#x27;s signature <strong>may be applied electronically and automatically</strong> to forms generated from validated records — e-signatures are valid (federal <strong>ESIGN Act</strong>, 15 U.S.C. §7001; California <strong>UETA</strong>, Civ. Code §1633.1 et seq.), and the CF 888 has no notary or perjury jurat. Auto-signing changes the mechanics, not the accountability: the named person certifies every form, so the auto-signature must fire <strong>only on submissions that passed the documented validation</strong> (§5.3, §5.11), and the representative should sample and audit batches to genuinely stand behind the system. <strong>[Confirm county/BenefitsCal acceptance of an e-signed CF 888.]</strong></p>
+<p><strong>Officer-protection stack.</strong> Because one named officer certifies at volume, use the standard nonprofit protections: sign <strong>in official capacity</strong> (on behalf of the entity, not personally); rely on the <strong>501(c)(3) corporate liability shield</strong> for ordinary civil claims; carry <strong>D&amp;O insurance</strong> before certifying at scale; include <strong>indemnification</strong> for good-faith official acts in the bylaws (Cal. Corp. Code §5238); and anchor certifications in <strong>good-faith reliance on the documented methodology</strong> — criminal exposure (e.g., 18 U.S.C. §1001) requires <em>knowing or willful</em> falsity, so honest reliance on a sound system is not fraud even if a bad actor occasionally games it. What is not protected is knowingly certifying false forms or building a deliberately gameable system. Volume itself is not the risk; the reliability of the validation behind the signature is.</p>
+<h3>5.6 Volunteer-status hygiene</h3>
+<p><strong>Zero compensation</strong> of any kind from Tended to volunteers. No displacement of paid staff. Frame consistently: <strong>&quot;Tended records and verifies hours; the County determines eligibility.&quot;</strong> The only benefit is the independent State SNAP entitlement.</p>
+<h3>5.7 Identity basis</h3>
+<p>No ID.me required, but build a defensible chain that the <strong>certified beneficiary personally did the certified hours</strong>: one account per person, controls against one person farming multiple case numbers. Tended&#x27;s attestation must be supportable.</p>
+<h3>5.8 The two hard lines</h3>
+<ol>
+<li><strong>Never credit hours above actual measured time.</strong></li>
+<li><strong>Never ship a task that is self-serving busywork rather than service to an external beneficiary.</strong></li>
+</ol>
+<h3>5.9 Onboarding &amp; task-preparation time</h3>
+<p>Time a volunteer spends consuming content that is <em>reasonably necessary to perform the service</em> — onboarding packets, a style guide before translation QA, a data-collection protocol before a civic audit — <strong>can count as volunteer time</strong>, on the same footing a food bank counts a safety orientation or a crisis line counts pre-shift training. It holds only inside four guardrails; cross any one and it flips from volunteer work into education-as-beneficiary (the wrong ABAWD pathway — §5.10):</p>
+<ol>
+<li><strong>Genuinely necessary to the task.</strong> The content must be required to perform the service well, with a one-sentence necessity rationale on record — not general self-improvement.</li>
+<li><strong>Proportionate — a clear minority of the engagement.</strong> The bulk of credited time must be the volunteer <em>producing the service deliverable.</em> If consuming content becomes the main activity, the person is a student, not a volunteer.</li>
+<li><strong>Tied to actual subsequent service.</strong> Preparation must precede real volunteer output the person then performs.</li>
+<li><strong>Not hour-padding.</strong> Do not bolt &quot;required reading&quot; onto tasks to inflate monthly totals (the §4.2 estimate-inflation problem).</li>
+</ol>
+<p>Mechanics: credit <strong>measured engagement, not an estimate</strong> (the §5.3 rule applies); credit core onboarding <strong>once, not every month</strong> (you don&#x27;t re-onboard a recurring volunteer); and <strong>document the necessity</strong> of each required item — that note is the audit defense. The distinction: preparation <em>in service of</em> the work counts; content consumption <em>as</em> the activity does not.</p>
+<h3>5.10 Educational mission vs. training-for-hours (keep them separate)</h3>
+<p>The educational mandate (§5.1) is real and worth building toward, but two uses of &quot;education&quot; must never be blurred:</p>
+<ul>
+<li>**Educational <em>mission</em>, delivered as volunteer <em>service</em> — YES.** Volunteers who <em>produce</em> educational public goods (review AI-generated educational/plain-language content for free distribution, draft civic-literacy explainers, build community learning resources) are providing service in furtherance of an educational purpose. This is clean on CF 888 and is the intended growth path.</li>
+<li>**Education/training the participant <em>receives</em>, counted for hours — DIFFERENT PATHWAY.** A person <em>receiving</em> training is a beneficiary, not a volunteer, and such hours generally count toward the ABAWD requirement only through a qualifying <strong>work program</strong> under 7 CFR §273.24(a)(1)(ii) — i.e., <strong>CalFresh Employment &amp; Training (E&amp;T)</strong> — a separate regulatory regime that <strong>requires a provider contract with CDSS/the county</strong> (and can draw federal reimbursement). This is a legitimate <em>future</em> expansion (a deliberate Phase-5 build), <strong>not</strong> a wording tweak to the volunteer model, and carries its own legal lift. <strong>[Verify E&amp;T mechanics with CDSS/the county before pursuing.]</strong></li>
+</ul>
+<p>The boundary to hold: the volunteer-hours product stays about service the person <em>provides</em>; &quot;training that itself counts as hours&quot; is a separate program you build on purpose, with its own approvals, if and when you choose to.</p>
+<h3>5.11 Validation at scale, and participant use of AI</h3>
+<p>Manual human review of every submission does not scale and is not the plan. Validation is automated, with human attention reserved for exceptions:</p>
+<ul>
+<li><strong>Engagement measurement</strong> (§5.3) is the primary integrity layer.</li>
+<li><strong>An automated agent</strong> performs three narrow jobs: confirm a deliverable of the expected type is present and usable (not blank or junk), screen for personal information (§5.12), and flag hour or pattern outliers for a human spot-check. These are processing steps, not quality adjudication.</li>
+<li><strong>Attestation</strong> — the volunteer affirms the work and time are genuine — backed by a <strong>terms-of-service right to validate, retain records, and correct or reverse credited hours</strong> if a submission is later found false.</li>
+<li><strong>Human review is exception-only</strong>, triggered by flags — which is what makes it scale.</li>
+</ul>
+<p>Participants may use AI tools in their work. The platform does not test for AI use, and does not use AI to detect AI — that is unreliable and beside the point. The integrity question is not <em>whether a tool was used</em> but <em>whether genuine effort produced a usable deliverable</em>, which engagement measurement and the usability check already address. Tasks should be designed so AI assistance is fine or irrelevant (e.g., a human reviewing and correcting an AI-generated translation — the value is the human judgment applied, whatever tools were used).</p>
+<h3>5.12 Privacy and personal information</h3>
+<p>Volunteer submissions (reflections, survey responses, community data, photos) can contain personal information, so instructing participants not to include it is necessary but not sufficient — some will include it anyway. The safeguards:</p>
+<ul>
+<li><strong>Data minimization</strong> — collect only what the task requires.</li>
+<li><strong>Automated PII screening and redaction</strong> before any output is distributed (the agent&#x27;s most valuable job — §5.11).</li>
+<li><strong>A published privacy policy</strong>, defined <strong>retention limits</strong>, and <strong>access controls</strong> on distributed outputs.</li>
+<li><strong>Heightened care for sensitive content</strong> — SDOH/health-adjacent data and images of identifiable people warrant stricter handling.</li>
+</ul>
+<p>California nonprofits sit largely outside the CCPA/CPRA&#x27;s core obligations, but breach exposure and other privacy duties remain. This is an area for counsel and a written policy, not user instructions alone. <strong>[Confirm current CCPA/CPRA nonprofit treatment with counsel.]</strong></p>
+<hr/>
+<h2>6. Funding strategy and the certification firewall</h2>
+<p>Tended is funded by <strong>grants and donations</strong> — a diversified base that may include foundations, government grants, individual donors, and <strong>corporate philanthropy</strong>, including from companies with a commercial interest in food access and community well-being. Corporate support for remote and virtual volunteering is ordinary, legitimate philanthropy. The fact that a funder benefits <em>indirectly</em> when the mission succeeds — greater food security, civic participation, community health, more dollars circulating in local economies — is <strong>incidental private benefit</strong>, which the law tolerates and which describes most charitable funding. It is not, by itself, a conflict: employers fund job-training nonprofits whose graduates they may hire; hospitals fund health nonprofits; that downstream interest does not taint the gift.</p>
+<p>The variable to manage is narrow, and it exists only because <strong>Tended is also the certifier</strong> of the CF 888 hours. Two structural practices keep it clean and let Tended accept interested money with confidence:</p>
+<ol>
+<li><strong>No funding conditioned on, or priced to, certification/enrollment outcomes.</strong> General operating and program support is welcome from any aligned funder. What is avoided is a <em>quid pro quo</em> — payment tied to the number of recipients certified or kept enrolled. That is the actual line the law draws: funding the <em>mission</em> is fine; being <em>operated to produce a private party&#x27;s revenue</em> is the version that draws private-benefit scrutiny (IRC §501(c)(3); Treas. Reg. §1.501(c)(3)-1(d)(1)(ii); <em>American Campaign Academy v. Commissioner</em>, 92 T.C. 1053 (1989)).</li>
+<li><strong>The certification function is walled off from funders</strong>, documented in the conflict-of-interest policy. No funder influences which tasks exist, how hours are measured, or who is certified. This firewall is what makes the verification <em>demonstrably</em> independent of anyone&#x27;s financial interest — and is therefore the thing that lets even an obviously-interested funder participate without compromising the program.</li>
+</ol>
+<p>Two lighter practices reinforce it: <strong>reasonable diversification</strong> (so the organization is plainly nobody&#x27;s instrument) and, given the certifier role, <strong>transparent disclosure of major funders</strong> (which turns a &quot;who&#x27;s behind this?&quot; question into a non-issue). Neither is a barrier to corporate support; both are cheap governance that makes the support easy to defend.</p>
+<p><strong>Lobbying</strong> is a separate matter: a 501(c)(3) cannot make lobbying a <em>substantial part</em> of its activities (IRC §501(c)(3); the §501(h) expenditure election sets dollar limits). That constrains Tended&#x27;s own lobbying, not a funder&#x27;s independent advocacy. If organized policy advocacy ever becomes central to the work, house it in an affiliated <strong>501(c)(4)</strong>, kept at arm&#x27;s length from the entity that signs the forms.</p>
+<hr/>
+<h2>7. Agency relationships — what&#x27;s required vs. what&#x27;s wise</h2>
+<p><strong>Legally required: nothing.</strong> There is no pre-approval gate. No statute, regulation, or CDSS guidance requires a 501(c)(3) to be vetted, registered, or partnered before signing CF 888. A fresh determination letter satisfies the qualifying-org category.</p>
+<p><strong>No adverse precedent exists.</strong> Multiple targeted searches (CDSS, county handbooks, FNS ABAWD Q&amp;A, ACL 25-34, LSNC) found <strong>no published guidance addressing remote/virtual/AI-validated volunteer hours — and nothing requiring in-person work.</strong> The CF 888 and ACL 25-34 are silent on modality. <strong>Conclusion: the model is unaddressed, not prohibited;</strong> no legal interpretation is required to be compliant.</p>
+<p><strong>But &quot;can sign&quot; ≠ &quot;will be honored.&quot;</strong> The CF 888 is an <strong>optional tool</strong>; the underlying requirement is that hours be <strong>verified to the county&#x27;s satisfaction</strong>. California SNAP is <strong>county-administered, state-supervised</strong> (~58 county welfare departments). The caseworker makes the first call under CDSS policy and <strong>7 CFR §273.2(f)</strong>, with discretion to find verification inadequate and request more. A cluster of recipients all citing one unfamiliar online org is the pattern that draws a county data-match flag.</p>
+<p><strong>Therefore: pre-clearance is prudence, not a prerequisite.</strong> Optional but recommended:</p>
+<ol>
+<li><strong>CDSS (policy):</strong> a written read that the remote/online model qualifies — converting silence into an affirmative interpretation you solicited.</li>
+<li><strong>1–2 pilot counties (operational):</strong> informal buy-in where first volunteers live, so forms are accepted at the counter and Tended is a known quantity.</li>
+</ol>
+<hr/>
+<h2>8. What happens if a county rejects the hours</h2>
+<p>Rejection is <strong>not the end</strong>, and it&#x27;s <strong>not unreviewable</strong>. SNAP benefits are a protected entitlement (<em>Goldberg v. Kelly</em>, 397 U.S. 254 (1970)), so:</p>
+<ol>
+<li><strong>Notice of Action</strong> with the reason and appeal rights (7 CFR §273.13).</li>
+<li><strong>State fair hearing</strong> before a <strong>CDSS administrative law judge</strong> — not the county (7 U.S.C. §2020(e)(10); 7 CFR §273.15; Cal. Welf. &amp; Inst. Code §10950 et seq.). The ALJ reviews de novo; this is where wrongful rejections are overturned.</li>
+<li><strong>Aid paid pending</strong> if the hearing is requested before the action&#x27;s effective date (7 CFR §273.15(k)).</li>
+<li><strong>Judicial review</strong> by writ of administrative mandamus (Cal. Code Civ. Proc. §1094.5) after exhausting the hearing.</li>
+</ol>
+<p><strong>Why this matters for Tended:</strong> the fair hearing <strong>tests the adequacy of Tended&#x27;s verification.</strong> Strong records → the recipient wins, and favorable decisions build informal precedent for the model. Weak records → the recipient loses, and Tended&#x27;s design failure directly harms a low-income person. Two implications:</p>
+<ul>
+<li>The measured-hours-plus-methodology system is <strong>both</strong> audit defense <strong>and</strong> the evidence your users need to win an appeal.</li>
+<li><strong>Never guarantee outcomes.</strong> Even a winning recipient endures weeks of stress and possible interim loss. Disclaim clearly: <em>Tended records and verifies hours; the county determines eligibility.</em> Direct disputing recipients to a legal-aid SNAP specialist.</li>
+</ul>
+<hr/>
+<h2>9. Strategy most likely to succeed (sequenced)</h2>
+<p><strong>Phase 0 — Build it right.</strong> Stand up the 501(c)(3) (<strong>full Form 1023</strong>), conflict-of-interest policy, and the hours engine (§5.3) with documented estimate methodology (§5.4). Conform crediting to the verified CF 888 wording (§3.2). Curate an initial task catalog passing the four-part gate (§5.2), weighted to the strongest categories. Lock in diversified, arm&#x27;s-length funding (§6).</p>
+<p><strong>Phase 1 — (Optional) pre-clear.</strong> Obtain CDSS&#x27;s written interpretation and/or informal buy-in from 1–2 pilot county welfare departments. Bring your verification methodology — it&#x27;s your credibility.</p>
+<p><strong>Phase 2 — Pilot small.</strong> Operate with a limited cohort in pilot counties. Track form-acceptance rates and caseworker pushback. Capture records you&#x27;d be comfortable putting in front of an ALJ. Support any rejected recipient through the fair-hearing process and use the outcome to refine.</p>
+<p><strong>Phase 3 — Harden.</strong> Use pilot data to recalibrate caps, tighten engagement measurement, and document a clean audit trail. Aim for at least one favorable fair-hearing decision to anchor the model.</p>
+<p><strong>Phase 4 — Scale deliberately.</strong> Expand county by county, leading each new county with your methodology and pilot track record — converting yourself from &quot;anomaly&quot; to &quot;known, trusted verifier.&quot;</p>
+<p><strong>Phase 5 — (Optional) deliberate expansion.</strong> If and when the educational mandate extends into <em>training that itself counts toward the work requirement</em>, build it as a separate <strong>CalFresh E&amp;T provider</strong> track with its own CDSS/county contracting (§5.10) — never by reframing the volunteer model. Keep the two hard lines (§5.8) and the funding discipline (§6) inviolable throughout every phase.</p>
+<p><strong>Geographic scope.</strong> The federal basis (7 CFR §273.24) applies nationwide, but the <em>verification layer is state-specific</em> and must be rebuilt per state. New York is a live example: it permits ABAWD volunteer/community service and has its own form (the <strong>Monthly ABAWD Volunteer Participation Record</strong>, completed by the host nonprofit), and <strong>New York City</strong> accepts documentation through the <strong>ACCESS HRA</strong> portal with active municipal benefits-access infrastructure — a plausible partner environment. But New York differs materially: it values volunteer hours by the <strong>SNAP allotment ÷ minimum wage</strong> formula (workfare-style), so required hours are typically far below 80 — unlike California&#x27;s straight 80-hour standard. A New York build therefore needs a state-specific hours target and form, not a copy of the California flow. Pilot one state first; treat each additional state as its own state-law layer on the shared federal base. <strong>[Confirm NY form signatory rules and the hours formula before building.]</strong></p>
+<p>In sum: with no data sales, measured (not estimated) hours, and clean funding, the remaining question is one California has already answered — <em>can a SNAP recipient meet the ABAWD requirement through genuine volunteer work for a qualifying nonprofit that verifies the hours?</em> The model treats remote volunteering as the in-person equivalent, supported by a documented evidentiary trail.</p>
+<hr/>
+<h2>10. Pre-launch checklist — status</h2>
+<h3>Resolved findings</h3>
+<ol>
+<li><strong>CF 888 Section 2 wording — RESOLVED.</strong> Verified against the English form (rev. 5/25); see §3.2. Light certification, no perjury jurat, no observation requirement, no EIN field, no substitutes permitted. Crediting rule: certify actual volunteered hours only.</li>
+</ol>
+<ol>
+<li><strong>Remote/online/AI-validated volunteer hours — RESOLVED (no precedent).</strong> No published CDSS/county/FNS guidance addresses remote, virtual, or AI-validated volunteer hours, and nothing requires in-person work. The model is <strong>unaddressed, not prohibited</strong>; no legal interpretation is required to be compliant. Optional county pre-clearance is operational prudence (action below), not a legal prerequisite.</li>
+</ol>
+<ol>
+<li><strong>Form 1023 vs. 1023-EZ — RESOLVED (use full Form 1023).</strong> The funding strategy will exceed the EZ ceilings, making the EZ attestation false; there is no &quot;EZ-then-upgrade&quot; path. Cost is a one-time ~$325 IRS-fee delta (plus optional prep), not an annual cost. See §5.1.</li>
+</ol>
+<h3>Remaining actions (cannot be closed by research)</h3>
+<ol>
+<li><strong>Pilot-county operational buy-in</strong> — requires direct outreach to 1–2 county welfare departments. Recommended for smooth acceptance; de-risk with a pre-clearance packet (cover letter + one-page verification-methodology spec).</li>
+</ol>
+<ol>
+<li><strong>Counsel review</strong> — licensed nonprofit/public-benefits attorney to bless: (a) the certification methodology; (b) volunteer-status documentation (no compensation / no staff displacement / FLSA–ABC posture); (c) the Form 1023 path, including any already-filed 1023-EZ that should be addressed; (d) the funding structure and private-benefit risk if any interested corporate money is involved; (e) the privacy/PII program and CCPA/CPRA nonprofit treatment (§5.12).</li>
+</ol>
+<hr/>
+<h2>11. Primary sources</h2>
+<p><strong>Federal</strong></p>
+<ul>
+<li>7 CFR §273.24 (ABAWD; unpaid work at (a)(2)(iii)): https://www.law.cornell.edu/cfr/text/7/273.24</li>
+<li>7 CFR §273.7 (general work provisions): https://www.law.cornell.edu/cfr/text/7/273.7</li>
+<li>7 CFR §273.15 (fair hearings); §273.2(f) (verification); §273.13 (notices of adverse action)</li>
+<li>29 CFR §553.101 (public-agency volunteers — <em>inapplicable to nonprofits</em>): https://www.law.cornell.edu/cfr/text/29/553.101</li>
+<li>7 U.S.C. §2020(e)(10) (fair hearing); §2024 (SNAP fraud); 18 U.S.C. §1001 (false statements)</li>
+<li>IRC §§511–513 (UBIT); §501(c)(3) and Treas. Reg. §1.501(c)(3)-1(d)(1)(ii) (private benefit/inurement)</li>
+<li>IRS Form 1023-EZ Instructions / eligibility worksheet: https://www.irs.gov/instructions/i1023ez</li>
+</ul>
+<p><strong>California</strong></p>
+<ul>
+<li>CDSS ACL 25-34 / CF 888 (via CalFresh Update 2025-07): https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/Updates/2025/CalFresh_Update_2025-07.htm</li>
+<li>CF 888 form (English): https://cdss.ca.gov/Portals/9/Additional-Resources/Forms-and-Brochures/2020/A-D/CF888.pdf</li>
+<li>&quot;Satisfying the ABAWD Work Requirement&quot; (county handbook): https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/ABAWDs/StsfygABAWDWkReq.htm</li>
+<li>LSNC Regulation Summaries, &quot;New ABAWD forms&quot;: https://reg.summaries.guide/2025/06/new-abawd-forms/</li>
+<li>LSNC CalFresh Guide (ways to meet the requirement): https://calfresh.guide/work-programs-for-people-subject-to-abawd-requirements/</li>
+<li>Cal. Welf. &amp; Inst. Code §10950 et seq. (state hearings); §10980 (CalFresh fraud); Cal. Labor Code §2775 (ABC test); Cal. Code Civ. Proc. §1094.5 (administrative mandamus)</li>
+</ul>
+<p><strong>OBBBA / H.R. 1 (2025)</strong></p>
+<ul>
+<li>National Agricultural Law Center, OBBBA Nutrition Title: https://nationalaglawcenter.org/one-big-beautiful-bill-act-nutrition-title/</li>
+</ul>
+<p><strong>Case law</strong></p>
+<ul>
+<li><em>Tony &amp; Susan Alamo Foundation v. Secretary of Labor</em>, 471 U.S. 290 (1985): https://caselaw.findlaw.com/court/us-supreme-court/471/290.html</li>
+<li><em>Goldberg v. Kelly</em>, 397 U.S. 254 (1970); <em>Dynamex Operations West v. Superior Court</em>, 4 Cal.5th 903 (2018); <em>Better Business Bureau v. United States</em>, 326 U.S. 279 (1945); <em>United Cancer Council v. Commissioner</em>, 165 F.3d 1173 (7th Cir. 1999); <em>American Campaign Academy v. Commissioner</em>, 92 T.C. 1053 (1989) <em>(citations reliable; not all re-pulled this session)</em></li>
+</ul>
+<hr/>
+<p><em>This is a strategy document, not legal advice. Engage qualified nonprofit/public-benefits counsel before operating. Confirm current IRS and California fee amounts before filing.</em></p></body></html>

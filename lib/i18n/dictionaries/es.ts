@@ -9,12 +9,12 @@ export const es: typeof en = {
     seeTasks: "Ver tareas",
   },
   hero: {
-    overline: "Trabajo voluntario que cuenta",
-    title: "Gana tus horas de CalFresh haciendo trabajo voluntario real.",
+    overline: "Voluntariado en línea",
+    title: "Oportunidades de voluntariado en línea que cuentan.",
     subhead:
-      "Elige una tarea de una organización patrocinadora y haz el trabajo. Tus horas revisadas generan un CF 888 prellenado que subes a BenefitsCal.",
-    cta: "Ver tareas disponibles",
-    calfresh: "¿Nuevo en el requisito de trabajo de CalFresh? Mira cómo se certifican las horas →",
+      "Elige una tarea de una organización patrocinadora y haz voluntariado en línea. Si recibes SNAP (EBT), tus horas revisadas se certifican para tu requisito de trabajo.",
+    cta: "Ver oportunidades",
+    calfresh: "¿Recibes SNAP (EBT)? Mira cómo se certifican tus horas →",
   },
   orgCta: {
     title: "¿Diriges una organización sin fines de lucro, escuela o agencia?",
@@ -22,7 +22,7 @@ export const es: typeof en = {
     button: "Conviértete en socio",
   },
   footer: {
-    tagline: "Trabajo voluntario que cuenta para tus horas de CalFresh.",
+    tagline: "Voluntariado en línea que cuenta para tu requisito de trabajo de SNAP (EBT).",
     deliverables: "Entregables públicos",
     privacy: "Privacidad",
     contact: "Contacto",
@@ -59,7 +59,7 @@ export const es: typeof en = {
       dashboard: "Panel",
       tasks: "Tareas",
       projects: "Proyectos",
-      calfreshProfile: "Perfil de CalFresh",
+      calfreshProfile: "Perfil de SNAP",
       settings: "Configuración",
       signOut: "Cerrar sesión",
     },

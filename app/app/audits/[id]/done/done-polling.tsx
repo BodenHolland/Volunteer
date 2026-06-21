@@ -42,7 +42,7 @@ export function DonePolling({
         <p className="font-semibold text-forest">Verified</p>
         <p className="text-sm text-ink mt-1">
           {status.credited_hours != null
-            ? `${(status.credited_hours * 60).toFixed(0)} minutes credited to your CalFresh hours.`
+            ? `${(status.credited_hours * 60).toFixed(0)} minutes credited to your SNAP hours.`
             : "Hours credited."}
         </p>
         <p className="text-xs text-muted mt-3">
