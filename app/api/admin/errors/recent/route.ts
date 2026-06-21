@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/cf";
 import { requireAdmin } from "@/lib/session";
 
-export const runtime = "edge";
-
 interface ErrorRow {
   id: string;
   action: string;
