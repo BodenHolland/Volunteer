@@ -120,11 +120,6 @@ export function SiteHeaderClient({
             <Logo className="text-white" size={24} />
           </Link>
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
-            {viewer && (
-              <Link href={viewer.home} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">
-                <LayoutDashboard className="size-4" /> {workspaceLabel}
-              </Link>
-            )}
             <Link href="/how-it-works" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
             <Link href="/data/hours-calculator" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.hoursCalculator}</Link>
@@ -133,9 +128,11 @@ export function SiteHeaderClient({
         </div>
 
         <div className="flex items-center gap-2">
-          <LocaleSwitcher locale={locale} className="hidden text-white md:inline-flex" />
           {viewer ? (
             <>
+              <Link href={viewer.home} className="hidden items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white md:flex">
+                <LayoutDashboard className="size-4" /> {workspaceLabel}
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger aria-label={`Account: ${viewer.name}`} className="hidden items-center gap-1.5 rounded-full border border-white/30 py-1 pl-1 pr-2 text-sm font-medium text-white hover:bg-white/10 md:flex">
                   <span className="flex size-7 items-center justify-center rounded-full bg-white/15 text-xs font-semibold text-white">{viewer.name.trim().split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase() || "U"}</span>
@@ -160,6 +157,7 @@ export function SiteHeaderClient({
               <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/signup">{t.signUp}</Link></Button>
             </>
           )}
+          <LocaleSwitcher locale={locale} className="hidden text-white md:inline-flex" />
           <button className="rounded-md p-2 text-white hover:bg-white/10 md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
