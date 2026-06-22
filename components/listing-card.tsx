@@ -16,13 +16,15 @@ export interface ListingCardData {
   featured?: boolean;
 }
 
-export function ListingCard({ task }: { task: ListingCardData }) {
+export function ListingCard({ task, showBookmark = false }: { task: ListingCardData; showBookmark?: boolean }) {
   return (
     <article className="group relative border-b border-line py-5 last:border-b-0 sm:px-1">
-      <div className="absolute right-0 top-5">
-        <BookmarkButton label={task.title} />
-      </div>
-      <Link href={task.href} className="block pr-14 focus-visible:outline-none">
+      {showBookmark && (
+        <div className="absolute right-0 top-5">
+          <BookmarkButton label={task.title} />
+        </div>
+      )}
+      <Link href={task.href} className={showBookmark ? "block pr-14 focus-visible:outline-none" : "block focus-visible:outline-none"}>
         <div className="flex items-start gap-4">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-teal-subtle text-sm font-bold text-forest">
             {task.orgName.slice(0, 1).toUpperCase()}

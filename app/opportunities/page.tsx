@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getDict } from "@/lib/i18n";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Volunteer opportunities — Tended" };
@@ -17,6 +18,7 @@ export default async function OpportunitiesPage({
 }) {
   const sp = await searchParams;
   const { t: tr } = await getDict();
+  const viewer = await getCurrentUser();
   const all = await listActiveTasks();
 
   const counts = { location: {} as Record<string, number>, category: {} as Record<string, number> };
@@ -93,7 +95,7 @@ export default async function OpportunitiesPage({
               ) : (
                 <div className="mt-1">
                   {cards.map((c) => (
-                    <ListingCard key={c.id} task={c} />
+                    <ListingCard key={c.id} task={c} showBookmark={!!viewer} />
                   ))}
                 </div>
               )}

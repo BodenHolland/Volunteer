@@ -16,7 +16,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { getDict } from "@/lib/i18n";
-import { viewerInCalifornia } from "@/lib/session";
+import { getCurrentUser, viewerInCalifornia } from "@/lib/session";
 import { listActiveTasks } from "@/lib/queries";
 
 export const metadata = { title: "Tended — Online volunteering that counts toward SNAP (EBT)" };
@@ -28,6 +28,7 @@ export default async function LandingPage() {
   const L = t.landing;
   // The CF 888 is California's CalFresh form — only surface it to CA viewers.
   const isCA = await viewerInCalifornia();
+  const viewer = await getCurrentUser();
   const featuredTasks = (await listActiveTasks()).slice(0, 4);
   const featuredCards: ListingCardData[] = featuredTasks.map((t, i) => ({
     id: t.id,
@@ -93,17 +94,17 @@ export default async function LandingPage() {
         {featuredCards.length > 0 && (
           <section className="bg-white">
             <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <h2 className="text-[30px] font-semibold leading-tight text-ink md:text-[34px]">Open volunteer opportunities</h2>
-                  <p className="mt-2 max-w-[640px] text-body">Real civic work from sponsoring nonprofits. Browse freely — sign up when you find one you want to commit to.</p>
-                </div>
-                <Button asChild variant="secondary"><Link href="/opportunities">See all <ArrowRight /></Link></Button>
+              <div className="mx-auto max-w-[640px] text-center">
+                <h2 className="text-[30px] font-semibold leading-tight text-ink md:text-[34px]">Open volunteer opportunities</h2>
+                <p className="mt-2 text-body">Real civic work from sponsoring nonprofits. Browse freely — sign up when you find one you want to commit to.</p>
               </div>
               <div className="mt-8 border-t border-line">
                 {featuredCards.map((c) => (
-                  <ListingCard key={c.id} task={c} />
+                  <ListingCard key={c.id} task={c} showBookmark={!!viewer} />
                 ))}
+              </div>
+              <div className="mt-8 flex justify-center">
+                <Button asChild variant="secondary"><Link href="/opportunities">See all opportunities <ArrowRight /></Link></Button>
               </div>
             </div>
           </section>
@@ -141,30 +142,15 @@ export default async function LandingPage() {
 
         {/* Organization CTA */}
         <section className="border-t border-line bg-section">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-6 px-4 py-12 md:flex-row md:items-center md:px-6">
-            <div className="flex items-start gap-4">
-              <div className="hidden size-11 shrink-0 items-center justify-center rounded-lg bg-white text-forest shadow-sm sm:flex">
-                <Building2 className="size-5" strokeWidth={1.75} aria-hidden />
-              </div>
-              <div>
-                <h2 className="text-[22px] font-semibold text-ink">{t.orgCta.title}</h2>
-                <p className="mt-1 text-body">{t.orgCta.body}</p>
-              </div>
+          <div className="mx-auto max-w-[640px] px-4 py-14 text-center md:px-6 md:py-16">
+            <div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-lg bg-white text-forest shadow-sm">
+              <Building2 className="size-5" strokeWidth={1.75} aria-hidden />
             </div>
-            <Button asChild variant="secondary"><Link href="/for-organizations">{t.orgCta.button} <ArrowRight /></Link></Button>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="bg-forest">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-start gap-6 px-4 py-14 md:flex-row md:items-center md:justify-between md:px-6">
-            <div>
-              <h2 className="text-[28px] font-semibold leading-tight text-white md:text-[32px]">{L.finalCta.title}</h2>
-              <p className="mt-2 text-white/80">{L.finalCta.body}</p>
+            <h2 className="text-[22px] font-semibold text-ink">{t.orgCta.title}</h2>
+            <p className="mt-2 text-body">{t.orgCta.body}</p>
+            <div className="mt-6 flex justify-center">
+              <Button asChild variant="secondary"><Link href="/for-organizations">{t.orgCta.button} <ArrowRight /></Link></Button>
             </div>
-            <Button asChild size="lg" variant="secondary" className="border-white bg-white text-forest hover:bg-white/90">
-              <Link href="/opportunities">{L.finalCta.button} <ArrowRight /></Link>
-            </Button>
           </div>
         </section>
       </main>
