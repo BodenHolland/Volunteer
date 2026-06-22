@@ -63,10 +63,10 @@ export default async function LandingPage() {
         {/* Hero */}
         <section className="border-b border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
-            <div className="max-w-[640px]">
+            <div className="mx-auto max-w-[680px] text-center">
               <h1 className="text-[38px] font-semibold leading-[1.08] text-ink md:text-[52px]">{t.hero.title}</h1>
               <p className="mt-5 text-lg leading-relaxed text-body">{t.hero.subhead}</p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg"><Link href="/opportunities">{t.hero.cta} <ArrowRight /></Link></Button>
                 <Button asChild size="lg" variant="secondary"><Link href="/how-it-works">{L.secondaryCta}</Link></Button>
               </div>
@@ -112,8 +112,8 @@ export default async function LandingPage() {
         {/* What you'll do */}
         <section className="border-y border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
-            <h2 className="max-w-[640px] text-[30px] font-semibold leading-tight text-ink md:text-[34px]">{L.work.title}</h2>
-            <p className="mt-4 max-w-[640px] text-body">{L.work.body}</p>
+            <h2 className="mx-auto max-w-[640px] text-center text-[30px] font-semibold leading-tight text-ink md:text-[34px]">{L.work.title}</h2>
+            <p className="mx-auto mt-4 max-w-[640px] text-center text-body">{L.work.body}</p>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {work.map(({ icon: Icon, title, hint }) => (
                 <div key={title} className="rounded-lg border border-line bg-white p-5">

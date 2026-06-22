@@ -149,7 +149,7 @@ export default async function HowItWorksPage() {
         {/* Header */}
         <section className="border-b border-line bg-white">
           <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-16">
-            <div className="max-w-[720px]">
+            <div className="mx-auto max-w-[720px] text-center">
               <h1 className="service-heading text-[40px] leading-[1.1] md:text-[48px]">
                 {c.title}
               </h1>

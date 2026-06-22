@@ -84,7 +84,7 @@ export default async function AboutPage() {
       <main id="main" className="flex-1">
         <section className="bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
-            <div className="max-w-[720px]">
+            <div className="mx-auto max-w-[720px] text-center">
               <h1 className="text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">
                 {c.title}
               </h1>

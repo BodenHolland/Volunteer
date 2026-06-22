@@ -54,7 +54,7 @@ export default async function OpportunitiesPage({
       <SiteHeader />
       <main id="main" className="flex-1">
         <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6 md:py-14">
-          <div className="max-w-[720px]">
+          <div className="mx-auto max-w-[720px] text-center">
             <h1 className="text-[32px] font-semibold leading-tight text-ink md:text-[40px]">Volunteer opportunities</h1>
             <p className="mt-3 text-body">Real civic work — counting street trees, translating flyers, mapping sidewalk hazards. Free to start, no sign-in required to browse.</p>
           </div>
