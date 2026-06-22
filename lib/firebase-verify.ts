@@ -49,10 +49,50 @@ export interface FirebaseIdentity {
   phone: string | null;
 }
 
+/**
+ * Verify the token with Firebase's Identity Toolkit. This is the primary
+ * verifier in the Workers runtime: it avoids depending on x509 parsing in an
+ * isolate while Firebase remains the authority that validates signature,
+ * audience, issuer, and expiry. The API key is intentionally public client
+ * configuration, not a credential.
+ */
+async function verifyWithIdentityToolkit(token: string): Promise<FirebaseIdentity | null> {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ idToken: token }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      users?: Array<{ localId?: string; email?: string; emailVerified?: boolean; phoneNumber?: string }>;
+    };
+    const user = data.users?.[0];
+    if (!user?.localId) return null;
+    return {
+      uid: user.localId,
+      email: user.email ?? null,
+      emailVerified: user.emailVerified === true,
+      phone: user.phoneNumber ?? null,
+    };
+  } catch (error) {
+    console.warn("[firebase_identity_toolkit_verification_failed]", error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
 /** Returns the verified identity, or null if the token is missing/invalid. */
 export async function verifyFirebaseToken(token: string | null | undefined): Promise<FirebaseIdentity | null> {
+  if (!token) return null;
+
+  const firebaseIdentity = await verifyWithIdentityToolkit(token);
+  if (firebaseIdentity) return firebaseIdentity;
+
   const pid = projectId();
-  if (!token || !pid) return null;
+  if (!pid) return null;
   try {
     const { kid } = decodeProtectedHeader(token);
     if (!kid) return null;
