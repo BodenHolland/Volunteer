@@ -25,9 +25,38 @@ export async function commitToTask(formData: FormData) {
     .first<{ id: string; category: string }>();
   if (!task) redirect("/app/tasks");
 
+  const db = getDb();
+
+  // Resume an existing unfinished draft for this task instead of spawning a
+  // duplicate every time "Commit" is clicked. A *new* instance is created only
+  // once the prior one is submitted — doing the task again (e.g. auditing a
+  // different store) is intentional, accumulating empty drafts is not.
+  if (task.category === "food-audit") {
+    const draft = await db
+      .prepare(
+        `SELECT a.id FROM audits a
+         JOIN submissions s ON s.id = a.submission_id
+         WHERE a.user_id = ? AND s.task_template_id = ? AND a.submitted_at IS NULL
+         ORDER BY a.started_at DESC LIMIT 1`
+      )
+      .bind(user.id, taskId)
+      .first<{ id: string }>();
+    if (draft) redirect(`/app/audits/${draft.id}`);
+  } else {
+    const draft = await db
+      .prepare(
+        `SELECT id FROM submissions
+         WHERE user_id = ? AND task_template_id = ? AND status IN ('committed','in_progress')
+         ORDER BY committed_at DESC LIMIT 1`
+      )
+      .bind(user.id, taskId)
+      .first<{ id: string }>();
+    if (draft) redirect(`/app/projects/${draft.id}`);
+  }
+
   const id = newId("sub");
   const now = Date.now();
-  await getDb()
+  await db
     .prepare(
       "INSERT INTO submissions (id, user_id, task_template_id, status, committed_at, time_log_json, checklist_progress_json) VALUES (?,?,?,?,?,?,?)"
     )
@@ -37,7 +66,7 @@ export async function commitToTask(formData: FormData) {
   if (task.category === "food-audit") {
     const { BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION } = await import("@/lib/food-audit");
     const auditId = newId("aud");
-    await getDb()
+    await db
       .prepare(
         `INSERT INTO audits (id, submission_id, user_id, basket_template_id, basket_template_version, started_at)
          VALUES (?,?,?,?,?,?)`

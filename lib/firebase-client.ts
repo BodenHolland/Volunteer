@@ -6,7 +6,13 @@
  * so the app falls back to the built-in D1 email+password form until then.
  */
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  type Auth,
+} from "firebase/auth";
 
 const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -25,6 +31,15 @@ let authInstance: Auth | undefined;
 export function getFirebaseAuth(): Auth | null {
   if (!firebaseEnabled) return null;
   if (!app) app = getApps()[0] ?? initializeApp(config as Record<string, string>);
-  if (!authInstance) authInstance = getAuth(app);
+  if (!authInstance) {
+    authInstance = getAuth(app);
+    // Keep the client auth state across reloads/tabs. Default is already
+    // local persistence, but pin it explicitly and fall back to session
+    // persistence where IndexedDB is unavailable (Safari private mode, some
+    // embedded webviews) instead of silently dropping to in-memory.
+    setPersistence(authInstance, browserLocalPersistence).catch(() =>
+      setPersistence(authInstance!, browserSessionPersistence).catch(() => {})
+    );
+  }
   return authInstance;
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import exifr from "exifr";
+import { Camera, Check, Loader2, MapPin, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,15 +16,24 @@ import type {
   StockStatus,
   StoreType,
 } from "@/lib/food-audit";
+import type { NearbyStore } from "@/lib/places";
 import {
   captureItemAction,
   createStoreAction,
+  nearbyStoresAction,
+  selectNearbyStoreAction,
   selectStoreAction,
   searchStoresAction,
   setEbtAction,
   setStoreTypeAction,
   submitAuditAction,
 } from "./audit-actions";
+
+function formatDistance(meters: number, away: string): string {
+  const miles = meters / 1609.34;
+  const value = miles < 0.1 ? "<0.1" : miles.toFixed(1);
+  return `${value} mi ${away}`;
+}
 
 export interface AuditCopy {
   step1Title: string;
@@ -34,6 +44,12 @@ export interface AuditCopy {
   searchLabel: string;
   searchPlaceholder: string;
   searching: string;
+  useLocationCta: string;
+  locating: string;
+  nearbyTitle: string;
+  nearbyNone: string;
+  searchOr: string;
+  away: string;
   cancel: string;
   addStore: string;
   storeName: string;
@@ -50,6 +66,10 @@ export interface AuditCopy {
   notSoldHere: string;
   notSoldAtStore: string;
   photoLabel: string;
+  takePhoto: string;
+  retake: string;
+  photoHint: string;
+  photoReady: string;
   shelfPrice: string;
   size: string;
   unit: string;
@@ -208,6 +228,12 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
   const [showNew, setShowNew] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Nearby-by-location state.
+  const [locating, setLocating] = useState(false);
+  const [nearby, setNearby] = useState<NearbyStore[] | null>(null);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [picking, startPick] = useTransition();
+
   useEffect(() => {
     if (query.length < 2) {
       setResults([]);
@@ -228,14 +254,111 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
     };
   }, [query]);
 
+  function useMyLocation() {
+    setGeoError(null);
+    if (!navigator.geolocation) {
+      setGeoError(copy.locationUnavailable);
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const list = await nearbyStoresAction(pos.coords.latitude, pos.coords.longitude);
+          setNearby(list);
+        } catch {
+          setGeoError(copy.locationError);
+        } finally {
+          setLocating(false);
+        }
+      },
+      (err) => {
+        setGeoError(err.message || copy.locationError);
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10_000 }
+    );
+  }
+
+  function pick(store: NearbyStore) {
+    startPick(async () => {
+      const fd = new FormData();
+      fd.set("audit_id", auditId);
+      if (store.source === "db" && store.store_id) {
+        fd.set("store_id", store.store_id);
+        await selectStoreAction(fd);
+      } else {
+        fd.set("name", store.name);
+        fd.set("address", store.address);
+        fd.set("lat", String(store.lat));
+        fd.set("lng", String(store.lng));
+        fd.set("place_id", store.place_id ?? "");
+        await selectNearbyStoreAction(fd);
+      }
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <Label>{copy.searchLabel}</Label>
-      <Input
-        placeholder={copy.searchPlaceholder}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <Button
+        type="button"
+        variant="secondary"
+        className="self-start"
+        onClick={useMyLocation}
+        disabled={locating}
+      >
+        {locating ? <Loader2 className="size-4 animate-spin" /> : <MapPin className="size-4" />}
+        {locating ? copy.locating : copy.useLocationCta}
+      </Button>
+      {geoError ? <p className="text-sm text-brick">{geoError}</p> : null}
+
+      {nearby ? (
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm font-medium text-ink">{copy.nearbyTitle}</p>
+          {nearby.length === 0 ? (
+            <p className="text-sm text-body">{copy.nearbyNone}</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {nearby.map((s) => {
+                const isCurrent = s.source === "db" && s.store_id === currentStoreId;
+                return (
+                  <li key={s.place_id ?? s.store_id ?? `${s.lat},${s.lng}`}>
+                    <button
+                      type="button"
+                      onClick={() => pick(s)}
+                      disabled={picking}
+                      className={
+                        isCurrent
+                          ? "flex w-full items-center gap-3 rounded-md border border-forest bg-forest-subtle px-3 py-2 text-left disabled:opacity-60"
+                          : "flex w-full items-center gap-3 rounded-md border border-line px-3 py-2 text-left hover:bg-section disabled:opacity-60"
+                      }
+                    >
+                      <MapPin className="size-4 shrink-0 text-forest" aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-medium text-ink">{s.name}</span>
+                        <span className="block truncate text-sm text-body">{s.address}</span>
+                      </span>
+                      <span className="shrink-0 text-xs text-meta">
+                        {formatDistance(s.distance_m, copy.away)}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      ) : null}
+
+      <div className="border-t border-line pt-3">
+        <Label>{nearby ? copy.searchOr : copy.searchLabel}</Label>
+        <Input
+          className="mt-1"
+          placeholder={copy.searchPlaceholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
       {loading ? <p className="text-sm text-body">{copy.searching}</p> : null}
       <ul className="flex flex-col gap-1">
         {results.map((s) => (
@@ -450,6 +573,7 @@ function CaptureForm({
   const [status, setStatus] = useState<StockStatus>(current?.stock_status ?? "in-stock");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [hasPhoto, setHasPhoto] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -508,17 +632,7 @@ function CaptureForm({
 
       {status === "in-stock" ? (
         <>
-          <div>
-            <Label htmlFor={`photo-${item.id}`}>{copy.photoLabel}</Label>
-            <Input
-              id={`photo-${item.id}`}
-              name="photo"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              required
-            />
-          </div>
+          <PhotoCapture item={item} copy={copy} onHasPhoto={setHasPhoto} />
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor={`price-${item.id}`}>{copy.shelfPrice}</Label>
@@ -589,7 +703,7 @@ function CaptureForm({
       {error ? <p className="text-sm text-brick">{error}</p> : null}
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting || (status === "in-stock" && !hasPhoto)}>
           {submitting ? copy.saving : copy.save}
         </Button>
         <Button type="button" variant="secondary" onClick={onDone}>
@@ -597,6 +711,87 @@ function CaptureForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Camera-only photo capture. `capture="environment"` opens the rear camera on
+ * mobile; a fresh, EXIF-timestamped photo is far stronger audit evidence than
+ * an uploaded library file, so we intentionally don't offer a file picker. The
+ * file stays inside the form (name="photo") and is uploaded to R2 on save.
+ */
+function PhotoCapture({
+  item,
+  copy,
+  onHasPhoto,
+}: {
+  item: BasketItem;
+  copy: AuditCopy;
+  onHasPhoto: (has: boolean) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (f) {
+      setPreviewUrl(URL.createObjectURL(f));
+      setFileName(f.name);
+      onHasPhoto(true);
+    } else {
+      setPreviewUrl(null);
+      setFileName(null);
+      onHasPhoto(false);
+    }
+  }
+
+  return (
+    <div>
+      <Label htmlFor={`photo-${item.id}`}>{copy.photoLabel}</Label>
+      <input
+        ref={inputRef}
+        id={`photo-${item.id}`}
+        name="photo"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={onChange}
+        className="sr-only"
+      />
+      {previewUrl ? (
+        <div className="mt-1 flex items-center gap-3 rounded-md border border-line p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={previewUrl} alt="" className="size-16 shrink-0 rounded object-cover" />
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1 text-sm font-medium text-forest">
+              <Check className="size-4" aria-hidden /> {copy.photoReady}
+            </p>
+            {fileName ? <p className="truncate text-xs text-meta">{fileName}</p> : null}
+          </div>
+          <Button type="button" variant="secondary" size="sm" onClick={() => inputRef.current?.click()}>
+            <RefreshCw className="size-4" /> {copy.retake}
+          </Button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="mt-1 flex w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-line bg-section/50 px-4 py-6 text-center hover:bg-section"
+        >
+          <Camera className="size-6 text-forest" aria-hidden />
+          <span className="text-sm font-medium text-ink">{copy.takePhoto}</span>
+          <span className="text-xs text-body">{copy.photoHint}</span>
+        </button>
+      )}
+    </div>
   );
 }
 

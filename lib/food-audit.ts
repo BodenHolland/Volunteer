@@ -201,6 +201,12 @@ export interface AuditRow {
   validation_flag_count: number;
   credited_hours: number | null;
   trust_tier_at_submission: number;
+  // Immutable store snapshot, frozen at submit (migration 0010). Null on drafts
+  // and on records that predate the migration.
+  store_name_snapshot?: string | null;
+  store_address_snapshot?: string | null;
+  store_geocode_lat_snapshot?: number | null;
+  store_geocode_lng_snapshot?: number | null;
 }
 
 export interface AuditItemCaptureRow {

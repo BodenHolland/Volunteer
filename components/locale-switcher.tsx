@@ -2,10 +2,24 @@
 
 import { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Languages } from "lucide-react";
+import { Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/** EN | ES toggle. Sets the locale cookie via /api/locale and returns to the current page. */
+const LOCALES = [
+  { code: "en", short: "EN", name: "English" },
+  { code: "es", short: "ES", name: "Español" },
+] as const;
+
+/**
+ * EN | ES language toggle. Each option is a real link to /api/locale, which
+ * sets the `locale` cookie and returns to the current page — so it works
+ * without JS and is keyboard/screen-reader accessible.
+ *
+ * Note: we deliberately use a Globe icon, not lucide's `Languages` icon — the
+ * latter is drawn with a CJK character ("文"), which read to users as random
+ * "Asian symbols" sitting next to a control that (being decorative) didn't do
+ * anything when clicked. Both segments below are sized as obvious tap targets.
+ */
 export function LocaleSwitcher({ locale, className }: { locale: "en" | "es"; className?: string }) {
   // useSearchParams() forces dynamic rendering unless wrapped in Suspense.
   // The /help static pages render the site header, which renders us — so we
@@ -35,23 +49,33 @@ function LocaleSwitcherLinks({
   className?: string;
 }) {
   return (
-    <div className={cn("inline-flex items-center gap-1 text-sm", className)}>
-      <Languages className="size-4 text-meta" aria-hidden />
-      <a
-        href={`/api/locale?to=en&next=${next}`}
-        className={cn("rounded px-1.5 py-0.5 font-medium", locale === "en" ? "bg-forest-subtle text-forest" : "text-meta hover:text-ink")}
-        aria-current={locale === "en" ? "true" : undefined}
-      >
-        EN
-      </a>
-      <span className="text-line">·</span>
-      <a
-        href={`/api/locale?to=es&next=${next}`}
-        className={cn("rounded px-1.5 py-0.5 font-medium", locale === "es" ? "bg-forest-subtle text-forest" : "text-meta hover:text-ink")}
-        aria-current={locale === "es" ? "true" : undefined}
-      >
-        ES
-      </a>
+    <div
+      role="group"
+      aria-label="Select language · Seleccionar idioma"
+      className={cn("inline-flex items-center gap-0.5 rounded-full text-sm", className)}
+    >
+      <Globe className="mr-0.5 size-4 opacity-70" aria-hidden />
+      {LOCALES.map((l) => {
+        const active = l.code === locale;
+        return (
+          <a
+            key={l.code}
+            href={`/api/locale?to=${l.code}&next=${next}`}
+            aria-current={active ? "true" : undefined}
+            aria-label={l.name}
+            title={l.name}
+            className={cn(
+              "rounded-full px-2.5 py-1 font-semibold leading-none transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/60 focus-visible:ring-offset-1",
+              active
+                ? "bg-forest-subtle text-forest"
+                : "opacity-80 hover:bg-forest-subtle hover:text-forest hover:opacity-100"
+            )}
+          >
+            {l.short}
+          </a>
+        );
+      })}
     </div>
   );
 }

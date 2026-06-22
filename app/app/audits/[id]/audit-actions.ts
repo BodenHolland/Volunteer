@@ -9,12 +9,14 @@ import { requireUser } from "@/lib/session";
 import { putFile } from "@/lib/r2";
 import { processAudit, recomputeTrust } from "@/lib/audit-pipeline";
 import { logError } from "@/lib/audit";
+import { fetchOsmNearby, haversineMeters, type NearbyStore } from "@/lib/places";
 import {
   ANTI_DUP_WINDOW_DAYS,
   creditedHoursFromSeconds,
   detectPii,
   findItem,
   isInCalifornia,
+  isInUnitedStates,
   syncValidate,
   USDA_THRIFTY_6,
   type AuditRow,
@@ -54,6 +56,102 @@ export async function selectStoreAction(formData: FormData) {
   const a = await loadOwnedAudit(auditId);
   if (!a) return;
   await getDb().prepare("UPDATE audits SET store_id = ? WHERE id = ?").bind(storeId, auditId).run();
+  revalidatePath(`/app/audits/${auditId}`);
+}
+
+/**
+ * Stores near a device location: existing D1 stores (within 25 km) merged with
+ * live OpenStreetMap food retailers, sorted by distance. Powers the
+ * "Use my location" path in the store step.
+ */
+export async function nearbyStoresAction(lat: number, lng: number): Promise<NearbyStore[]> {
+  await requireUser();
+  if (!isInUnitedStates(lat, lng)) return [];
+  const db = getDb();
+  const dbRows =
+    (
+      await db
+        .prepare(
+          `SELECT id, name, address, geocode_lat, geocode_lng, google_place_id
+           FROM stores WHERE geocode_lat IS NOT NULL AND geocode_lng IS NOT NULL`
+        )
+        .all<{
+          id: string;
+          name: string;
+          address: string;
+          geocode_lat: number;
+          geocode_lng: number;
+          google_place_id: string | null;
+        }>()
+    ).results ?? [];
+
+  const dbNearby: NearbyStore[] = dbRows
+    .map((s) => ({
+      source: "db" as const,
+      store_id: s.id,
+      place_id: s.google_place_id,
+      name: s.name,
+      address: s.address,
+      lat: s.geocode_lat,
+      lng: s.geocode_lng,
+      distance_m: haversineMeters(lat, lng, s.geocode_lat, s.geocode_lng),
+    }))
+    .filter((s) => s.distance_m <= 25_000);
+
+  const osm = await fetchOsmNearby(lat, lng);
+  const seen = new Set(dbNearby.map((s) => s.place_id).filter(Boolean) as string[]);
+  const merged = [...dbNearby, ...osm.filter((o) => !o.place_id || !seen.has(o.place_id))];
+  merged.sort((a, b) => a.distance_m - b.distance_m);
+  return merged.slice(0, 25);
+}
+
+/**
+ * Assign a store picked from the nearby list. DB results reuse their row;
+ * OpenStreetMap results create (or reuse, by place id) a store row first.
+ */
+export async function selectNearbyStoreAction(formData: FormData) {
+  const auditId = String(formData.get("audit_id") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const address = String(formData.get("address") ?? "").trim();
+  const lat = Number(formData.get("lat") ?? NaN);
+  const lng = Number(formData.get("lng") ?? NaN);
+  const placeId = String(formData.get("place_id") ?? "").trim() || null;
+  if (!name || !address) return;
+  if (detectPii(name) || detectPii(address)) {
+    revalidatePath(`/app/audits/${auditId}`);
+    return;
+  }
+  const geoLat = Number.isFinite(lat) ? lat : null;
+  const geoLng = Number.isFinite(lng) ? lng : null;
+  if (!isInUnitedStates(geoLat, geoLng)) {
+    revalidatePath(`/app/audits/${auditId}`);
+    return;
+  }
+
+  const a = await loadOwnedAudit(auditId);
+  if (!a) return;
+  const db = getDb();
+
+  let storeId: string | null = null;
+  if (placeId) {
+    const existing = await db
+      .prepare("SELECT id FROM stores WHERE google_place_id = ?")
+      .bind(placeId)
+      .first<{ id: string }>();
+    storeId = existing?.id ?? null;
+  }
+  if (!storeId) {
+    storeId = newId("store");
+    const user = await requireUser();
+    await db
+      .prepare(
+        `INSERT INTO stores (id, name, address, geocode_lat, geocode_lng, google_place_id, created_by_user_id, created_at)
+         VALUES (?,?,?,?,?,?,?,?)`
+      )
+      .bind(storeId, name, address, geoLat, geoLng, placeId, user.id, Date.now())
+      .run();
+  }
+  await db.prepare("UPDATE audits SET store_id = ? WHERE id = ?").bind(storeId, auditId).run();
   revalidatePath(`/app/audits/${auditId}`);
 }
 
@@ -355,6 +453,23 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
     )
     .bind(now, sessionSeconds, result.flags.length, a.id)
     .run();
+
+  // Freeze an immutable snapshot of the store onto the audit, so this serialized
+  // record stays self-contained even if the shared store row is later edited.
+  // Best-effort: tolerate DBs that predate the 0010 migration.
+  try {
+    await db
+      .prepare(
+        `UPDATE audits
+         SET store_name_snapshot = ?, store_address_snapshot = ?,
+             store_geocode_lat_snapshot = ?, store_geocode_lng_snapshot = ?
+         WHERE id = ?`
+      )
+      .bind(store.name, store.address, store.geocode_lat, store.geocode_lng, a.id)
+      .run();
+  } catch (err) {
+    await logError("auditStoreSnapshot", err, { auditId: a.id });
+  }
 
   // Submission stays in 'submitted' until async pipeline routes it to approved/rejected/pending_review.
   await db

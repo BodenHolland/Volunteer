@@ -29,7 +29,8 @@ export async function GET(req: Request) {
       await db
         .prepare(
           `SELECT a.id AS audit_id, a.submitted_at,
-                  s.name AS store_name, s.address AS store_address,
+                  COALESCE(a.store_name_snapshot, s.name) AS store_name,
+                  COALESCE(a.store_address_snapshot, s.address) AS store_address,
                   a.store_type_observed, a.ebt_observation,
                   c.basket_item_id, c.stock_status, c.price_usd, c.size_value, c.size_unit
            FROM audits a

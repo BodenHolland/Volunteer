@@ -56,11 +56,16 @@ export async function verifyPassword(password: string, stored: string | null): P
 
 // ---- sessions (revocable, server-side; cookie holds an opaque token) ----
 
+// Secure cookies are only sent back over HTTPS. Prod and the workers.dev preview
+// are HTTPS, but local `next dev` is plain http://localhost (and LAN IPs on a
+// phone), where a Secure cookie is silently dropped by the browser — which made
+// sign-in "not stick" (middleware saw no cookie and bounced back to /login on the
+// very next request). Gate Secure on a real HTTPS deployment instead of hardcoding.
+const IS_SECURE_ENV = process.env.NODE_ENV === "production";
+
 export const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
-  // Set Secure unconditionally — both prod and the workers.dev preview are HTTPS-only.
-  // The non-HTTPS local dev case is handled by browsers that ignore Secure on http://localhost.
-  secure: true,
+  secure: IS_SECURE_ENV,
   sameSite: "lax" as const,
   path: "/",
   maxAge: Math.floor(SESSION_TTL / 1000),

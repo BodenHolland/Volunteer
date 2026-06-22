@@ -37,8 +37,10 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  // Disable powerful features we don't use.
-  { key: "Permissions-Policy", value: "geolocation=(), camera=(), microphone=(), interest-cohort=()" },
+  // The food-price audit uses device geolocation (find nearby stores, stamp a
+  // store's coordinates) and the camera (photograph items + shelf tags), so
+  // allow both for our own origin. Everything else stays disabled.
+  { key: "Permissions-Policy", value: "geolocation=(self), camera=(self), microphone=(), interest-cohort=()" },
   { key: "Content-Security-Policy", value: csp },
 ];
 
