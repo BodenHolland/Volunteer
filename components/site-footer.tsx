@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { getDict } from "@/lib/i18n";
+import { viewerInCalifornia } from "@/lib/session";
 
 export async function SiteFooter() {
-  const { t } = await getDict();
+  const [{ t }, isCA] = await Promise.all([getDict(), viewerInCalifornia()]);
   return (
     <footer className="border-t border-navy-deep bg-navy text-white">
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -17,7 +18,7 @@ export async function SiteFooter() {
             <Link href="/about" className="text-blue-100 hover:text-white">{t.nav.about}</Link>
             <Link href="/for-organizations" className="text-blue-100 hover:text-white">{t.nav.forOrgs}</Link>
             <Link href="/deliverables" className="text-blue-100 hover:text-white">{t.footer.deliverables}</Link>
-            <Link href="/how-it-works#calfresh" className="text-blue-100 hover:text-white">SNAP/EBT &amp; CF 888</Link>
+            <Link href="/how-it-works#calfresh" className="text-blue-100 hover:text-white">{isCA ? t.footer.snapEbtCA : t.footer.snapEbt}</Link>
             <Link href="/how-it-works#identity" className="text-blue-100 hover:text-white">{t.footer.privacy}</Link>
             <Link href="/help" className="text-blue-100 hover:text-white">{t.footer.help}</Link>
             <Link href="/contact" className="text-blue-100 hover:text-white">{t.footer.contact}</Link>

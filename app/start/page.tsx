@@ -34,7 +34,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function StepHint({ index }: { index: number }) {
   return (
-    <p className="overline mb-2">
+    <p className="mb-2 text-sm text-body">
       Step {index + 1} of {ROLE_STEPS.length} · {ROLE_STEPS[index]}
     </p>
   );
@@ -214,7 +214,6 @@ export default async function StartPage({
     const orgs = (await db.prepare("SELECT * FROM orgs ORDER BY name").all<Org>()).results ?? [];
     return (
       <Shell>
-        <p className="overline mb-2">For nonprofits</p>
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Join your organization</h1>
         <form action={submitOrgPick} className="mt-6 space-y-4">
           <div className="space-y-1.5">

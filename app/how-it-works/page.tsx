@@ -150,7 +150,6 @@ export default async function HowItWorksPage() {
         <section className="border-b border-line bg-white">
           <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-16">
             <div className="max-w-[720px]">
-              <p className="overline mb-4 text-teal">{c.overline}</p>
               <h1 className="service-heading text-[40px] leading-[1.1] md:text-[48px]">
                 {c.title}
               </h1>
@@ -165,7 +164,6 @@ export default async function HowItWorksPage() {
           <div className="grid gap-8 py-10 lg:grid-cols-[240px_1fr] md:py-14">
             {/* Anchor nav */}
             <nav aria-label="On this page" className="service-panel h-fit p-4 lg:sticky lg:top-20 lg:self-start">
-              <p className="overline mb-3 text-teal">{c.onThisPage}</p>
               <ul className="space-y-1">
                 {sections.map((s) => (
                   <li key={s.id}>

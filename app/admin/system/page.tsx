@@ -81,7 +81,6 @@ export default async function AdminSystemPage() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="overline mb-1">Tended admin</p>
         <h1 className="text-[28px] font-semibold text-ink">System health</h1>
         <p className="mt-1 text-body">Service availability and the two legal-invariant monitors.</p>
       </div>

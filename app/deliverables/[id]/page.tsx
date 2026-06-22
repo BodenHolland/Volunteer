@@ -144,7 +144,6 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
           <div className="mt-8 space-y-6">
             {d.userNotes && (
               <div>
-                <p className="overline mb-1.5">{outputLabel(d.category, locale)}</p>
                 <p className="whitespace-pre-wrap rounded-lg border border-line bg-white p-5 text-[15px] leading-relaxed text-ink">
                   {d.userNotes}
                 </p>
@@ -153,10 +152,6 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
 
             {d.files.length > 0 && (
               <div>
-                <p className="overline mb-1.5 flex items-center gap-1.5">
-                  <FileText className="size-3.5" /> {d.files.length}{" "}
-                  {d.files.length === 1 ? c.photoOne : c.photoMany}
-                </p>
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {d.files.map((p) => (
                     <li key={p.id} className="overflow-hidden rounded-md border border-line">

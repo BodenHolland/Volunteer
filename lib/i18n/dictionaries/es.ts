@@ -6,6 +6,9 @@ export const es: typeof en = {
     about: "Acerca de",
     forOrgs: "Para organizaciones",
     signIn: "Iniciar sesión",
+    signUp: "Crear cuenta",
+    opportunities: "Oportunidades",
+    hoursCalculator: "Calculadora de horas",
     seeTasks: "Ver tareas",
   },
   hero: {
@@ -27,6 +30,8 @@ export const es: typeof en = {
     privacy: "Privacidad",
     contact: "Contacto",
     help: "Centro de ayuda",
+    snapEbt: "SNAP/EBT",
+    snapEbtCA: "SNAP/EBT y CF 888",
   },
   auth: {
     signInTitle: "Iniciar sesión",
@@ -104,7 +109,8 @@ export const es: typeof en = {
       free: "Gratis y sin fines de lucro",
       realHours: "Tus horas reales, nunca infladas",
       phone: "Hazlo desde tu teléfono",
-      snap: "Certificable para SNAP (CF 888)",
+      snap: "Certificable para SNAP",
+      snapCA: "Certificable para SNAP (CF 888)",
     },
     preview: {
       badge: "Datos cívicos",
@@ -124,6 +130,8 @@ export const es: typeof en = {
         "Trabaja cuando quieras y registra el tiempo que realmente dedicas. Solo contamos tus minutos reales.",
       s3Title: "Revisión y certificación",
       s3Body:
+        "Una organización revisa la calidad de tu trabajo. Si recibes SNAP, las horas aprobadas se certifican en el formulario de horas de trabajo que acepta tu estado — tú mismo lo subes.",
+      s3BodyCA:
         "Una organización revisa la calidad de tu trabajo. Si recibes SNAP, las horas aprobadas se añaden a un CF 888 que tú mismo subes.",
     },
     work: {
@@ -144,6 +152,8 @@ export const es: typeof en = {
       overline: "Si recibes SNAP (EBT)",
       title: "Horas que cuentan para tu requisito de trabajo.",
       body:
+        "Tus horas revisadas pueden certificarse en el formulario de verificación de horas de trabajo de SNAP de tu estado: pre-llenado con tus datos, descargado por ti y subido por ti. Mantienes el control de tu información en todo momento.",
+      bodyCA:
         "Tus horas revisadas pueden certificarse en el Formulario CF 888 de California: pre-llenado con tus datos, descargado por ti y subido por ti a BenefitsCal. Mantienes el control de tu información en todo momento.",
       link: "Mira cómo funciona la certificación →",
     },

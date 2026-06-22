@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   BookOpen,
   Building2,
+  Calculator,
   ChevronDown,
   CircleHelp,
   LayoutDashboard,
@@ -33,7 +34,9 @@ export interface PublicNavStrings {
   about: string;
   forOrgs: string;
   signIn: string;
-  seeTasks: string;
+  signUp: string;
+  opportunities: string;
+  hoursCalculator: string;
   help: string;
 }
 
@@ -42,7 +45,9 @@ const EN: PublicNavStrings = {
   about: "About",
   forOrgs: "For organizations",
   signIn: "Sign in",
-  seeTasks: "See tasks",
+  signUp: "Sign up",
+  opportunities: "Opportunities",
+  hoursCalculator: "Hours calculator",
   help: "Help center",
 };
 
@@ -125,32 +130,38 @@ export function SiteHeaderClient({
                 {t.howItWorks} <ChevronDown className="size-4" />
               </button>
               {mega && (
-                <div className="absolute left-0 top-full mt-2 w-[520px] rounded-lg border border-line bg-white p-4 text-ink shadow-sm">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="overline mb-2">Explore</p>
-                      <Link href="/how-it-works#civic-work" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Online volunteering</Link>
-                      <Link href="/how-it-works#calfresh" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">SNAP/EBT certification</Link>
-                      <Link href="/how-it-works#identity" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Privacy &amp; identity</Link>
-                    </div>
-                    <div className="space-y-2">
-                      <Link href="/about" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                        <BookOpen className="mt-0.5 size-[18px] text-teal" />
-                        <span><span className="block text-sm font-semibold">About Tended</span><span className="block text-xs text-body">Why we built Tended.</span></span>
-                      </Link>
-                      <Link href="/for-organizations" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                        <Building2 className="mt-0.5 size-[18px] text-teal" />
-                        <span><span className="block text-sm font-semibold">For organizations</span><span className="block text-xs text-body">Host tasks and review work.</span></span>
-                      </Link>
-                      <Link href="/help" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                        <CircleHelp className="mt-0.5 size-[18px] text-teal" />
-                        <span><span className="block text-sm font-semibold">{t.help}</span><span className="block text-xs text-body">Methodology &amp; the law behind it.</span></span>
-                      </Link>
+                <div className="absolute left-0 top-full pt-2 w-[520px]">
+                  <div className="rounded-lg border border-line bg-white p-4 text-ink shadow-sm">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Link href="/how-it-works#civic-work" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Online volunteering</Link>
+                        <Link href="/how-it-works#calfresh" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">SNAP/EBT certification</Link>
+                        <Link href="/how-it-works#identity" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Privacy &amp; identity</Link>
+                      </div>
+                      <div className="space-y-2">
+                        <Link href="/about" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
+                          <BookOpen className="mt-0.5 size-[18px] text-teal" />
+                          <span><span className="block text-sm font-semibold">About Tended</span><span className="block text-xs text-body">Why we built Tended.</span></span>
+                        </Link>
+                        <Link href="/for-organizations" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
+                          <Building2 className="mt-0.5 size-[18px] text-teal" />
+                          <span><span className="block text-sm font-semibold">For organizations</span><span className="block text-xs text-body">Host tasks and review work.</span></span>
+                        </Link>
+                        <Link href="/data/hours-calculator" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
+                          <Calculator className="mt-0.5 size-[18px] text-teal" />
+                          <span><span className="block text-sm font-semibold">{t.hoursCalculator}</span><span className="block text-xs text-body">How many hours you need to keep benefits.</span></span>
+                        </Link>
+                        <Link href="/help" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
+                          <CircleHelp className="mt-0.5 size-[18px] text-teal" />
+                          <span><span className="block text-sm font-semibold">{t.help}</span><span className="block text-xs text-body">Methodology &amp; the law behind it.</span></span>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+            <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
             <Link href="/about" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.about}</Link>
             <Link href="/for-organizations" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.forOrgs}</Link>
           </nav>}
@@ -182,8 +193,8 @@ export function SiteHeaderClient({
             </>
           ) : (
             <>
-              <Button asChild variant="secondary" size="sm" className="hidden md:inline-flex"><Link href="/login">{t.signIn}</Link></Button>
-              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/app/tasks">{t.seeTasks}</Link></Button>
+              <Button asChild size="sm" variant="ghost" className="hidden text-white hover:bg-white/10 hover:text-white md:inline-flex"><Link href="/login">{t.signIn}</Link></Button>
+              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/start">{t.signUp}</Link></Button>
             </>
           )}
           <button className="rounded-md p-2 text-white hover:bg-white/10 md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
@@ -196,7 +207,9 @@ export function SiteHeaderClient({
         <div className="border-t border-white/15 bg-navy px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
             {!viewer && <>
+              <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
               <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
+              <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
               <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
               <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
               <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
@@ -215,8 +228,8 @@ export function SiteHeaderClient({
               </>
             ) : (
               <>
+                <Button asChild className="w-full"><Link href="/start">{t.signUp}</Link></Button>
                 <Button asChild variant="secondary" className="w-full"><Link href="/login">{t.signIn}</Link></Button>
-                <Button asChild className="mt-2 w-full"><Link href="/app/tasks">{t.seeTasks}</Link></Button>
               </>
             )}
             <div className="my-1 h-px bg-white/15" />

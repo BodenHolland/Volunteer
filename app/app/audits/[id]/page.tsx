@@ -162,7 +162,6 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
   return (
     <div className="mx-auto max-w-2xl pb-24">
       <header className="mb-6">
-        <p className="overline mb-2">{c.overline}</p>
         <h1 className="text-[28px] font-semibold text-ink">{c.title}</h1>
         <p className="mt-2 text-body">{c.intro}</p>
       </header>

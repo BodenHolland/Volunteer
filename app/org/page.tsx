@@ -33,7 +33,6 @@ export default async function OrgDashboardPage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="overline mb-1">{org.name}</p>
           <h1 className="text-[28px] font-semibold text-ink">Review dashboard</h1>
         </div>
         {data.pendingCount > 0 && (

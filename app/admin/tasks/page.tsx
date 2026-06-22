@@ -36,7 +36,6 @@ export default async function AdminTasksPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="overline mb-1">Tended admin</p>
         <h1 className="text-[28px] font-semibold text-ink">Task approval</h1>
         <p className="mt-1 text-body">
           Every task template must pass the 4-part beneficiary gate before it can go active.

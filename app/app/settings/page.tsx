@@ -128,7 +128,6 @@ export default async function SettingsPage({
   return (
     <div className="max-w-[900px] space-y-5">
       <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
-        <p className="overline mb-2 text-teal">{c.accountOverline}</p>
         <h1 className="service-heading text-[28px]">{c.settingsHeading}</h1>
         <p className="mt-1 text-body">{c.settingsSubhead}</p>
       </div>

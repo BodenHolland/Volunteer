@@ -102,7 +102,6 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
           <section className="space-y-3">
             <AiVerdictBox verdict={verdict} />
             <div>
-              <p className="overline mb-1.5">{c.integrityChecks}</p>
               <FlagChips flags={flags as { kind: FlagKind }[]} />
             </div>
           </section>

@@ -21,7 +21,9 @@ export async function SiteHeader() {
         about: t.nav.about,
         forOrgs: t.nav.forOrgs,
         signIn: t.nav.signIn,
-        seeTasks: t.nav.seeTasks,
+        signUp: t.nav.signUp,
+        opportunities: t.nav.opportunities,
+        hoursCalculator: t.nav.hoursCalculator,
         help: t.footer.help,
       }}
       viewer={

@@ -599,13 +599,21 @@ function CaptureForm({
         }
       }
     }
-    const r = await captureItemAction(fd);
-    setSubmitting(false);
-    if (!r.ok) {
-      setError(r.error ?? copy.couldntSave);
-      return;
+    // A thrown server action (e.g. body-size rejection, network drop) would
+    // skip setSubmitting(false) and leave the button stuck on "Saving…" —
+    // catch it so the user sees an error and can retry.
+    try {
+      const r = await captureItemAction(fd);
+      if (!r.ok) {
+        setError(r.error ?? copy.couldntSave);
+        return;
+      }
+      onDone();
+    } catch {
+      setError(copy.couldntSave);
+    } finally {
+      setSubmitting(false);
     }
-    onDone();
   }
 
   return (

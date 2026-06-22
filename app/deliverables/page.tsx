@@ -94,9 +94,6 @@ export default async function DeliverablesPage() {
         <section className="bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-20">
             <div className="max-w-[720px]">
-              <p className="overline mb-4 flex items-center gap-2">
-                <Gift className="size-4 text-forest" strokeWidth={1.75} /> {c.overline}
-              </p>
               <h1 className="text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">
                 {c.title}
               </h1>

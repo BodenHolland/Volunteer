@@ -43,7 +43,7 @@ export async function ArticleShell({
       <SiteHeader />
       <main id="main" className="flex-1">
         <article className="mx-auto max-w-[720px] px-4 py-12 md:px-6 md:py-16">
-          <p className="overline mb-3">
+          <p className="mb-3 text-sm text-body">
             <Link href="/help" className="hover:underline">
               {labels.helpCenter}
             </Link>{" "}

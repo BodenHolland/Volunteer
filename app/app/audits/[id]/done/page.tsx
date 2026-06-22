@@ -63,7 +63,6 @@ export default async function AuditDonePage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="mx-auto max-w-xl pb-24 pt-4 text-center">
-      <p className="overline mb-2">{c.overline}</p>
       <h1 className="text-[28px] font-semibold text-ink">{c.title}</h1>
       <p className="mt-3 text-body">{c.body}</p>
 

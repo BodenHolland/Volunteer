@@ -195,8 +195,6 @@ export function HoursCalculator() {
           onSubmit={(e) => e.preventDefault()}
         >
           <fieldset className="space-y-5">
-            <legend className="overline mb-4">Inputs</legend>
-
             <label className="block">
               <span className="block text-sm font-medium text-ink">State</span>
               <select
@@ -381,9 +379,6 @@ function HoursResult(props: {
           <Calculator className="size-6" strokeWidth={1.75} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="overline mb-2">
-            {stateName} · household of {householdSize}
-          </p>
           <p className="text-[44px] font-semibold leading-none text-navy md:text-[56px]">
             {monthlyHours}
             <span className="ml-2 text-base font-medium text-meta">hours / month</span>
@@ -480,7 +475,6 @@ function StateStatusPanel({
           aria-hidden
         />
         <div className="flex-1">
-          <p className="overline mb-1">{stateName} · OBBBA enforcement</p>
           <p className="text-sm font-medium text-ink">{status.shortLabel}</p>
           <p className="mt-1 text-xs text-meta">
             {status.administration === "county"
@@ -507,7 +501,6 @@ function ExemptResult({ reason, stateName }: { reason: string; stateName: string
           <ShieldCheck className="size-6" strokeWidth={1.75} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="overline mb-2">{stateName} · exempt</p>
           <p className="text-[36px] font-semibold leading-none text-navy md:text-[44px]">
             0
             <span className="ml-2 text-base font-medium text-meta">hours required</span>

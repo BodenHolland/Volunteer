@@ -77,7 +77,6 @@ export default async function ProfilePage({
     return (
       <div className="max-w-[900px] space-y-5">
         <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
-          <p className="overline mb-2 text-teal">{c.overline}</p>
           <h1 className="service-heading text-[28px]">{c.heading}</h1>
         </div>
         <div className="service-panel bg-section p-5">
@@ -114,7 +113,6 @@ export default async function ProfilePage({
   return (
     <div className="max-w-[900px] space-y-5">
       <div className="border-l-4 border-teal bg-white px-5 py-5 md:px-6">
-        <p className="overline mb-2 text-teal">{c.overline}</p>
         <h1 className="service-heading text-[28px]">{c.heading}</h1>
         <p className="mt-1 text-body">{c.appearsExactly}</p>
       </div>

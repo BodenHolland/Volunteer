@@ -37,6 +37,16 @@ export async function requireAdmin(): Promise<User> {
   return user;
 }
 
+/**
+ * True when the signed-in viewer has selected California. The CF 888 is
+ * California's CalFresh form, so references to it only make sense for CA
+ * recipients — anonymous or other-state viewers get state-neutral wording.
+ */
+export async function viewerInCalifornia(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return (user?.state ?? "").trim().toUpperCase() === "CA";
+}
+
 /** Landing destination for a user based on role. */
 export function homeForUser(user: User): string {
   if (user.role === "org_member") return "/org";

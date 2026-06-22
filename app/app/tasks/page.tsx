@@ -49,7 +49,6 @@ export default async function TasksPage({
   return (
     <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)_240px]">
       <aside className="lg:border-r lg:border-line lg:pr-6">
-        <p className="overline mb-2">Find civic work</p>
         <TaskFilters counts={counts} variant="sidebar" />
       </aside>
 

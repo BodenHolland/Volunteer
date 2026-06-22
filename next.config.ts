@@ -55,6 +55,15 @@ const nextConfig: NextConfig = {
     // We don't use remote images; org thumbnails are generated inline.
     unoptimized: true,
   },
+  experimental: {
+    serverActions: {
+      // Food-audit captures a rear-camera photo per basket item; modern phones
+      // produce 3–8 MB JPEGs and the default 1 MB cap silently rejects the
+      // upload, leaving the "Save" button spinning. 20 MB covers a high-res
+      // photo with headroom.
+      bodySizeLimit: "20mb",
+    },
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

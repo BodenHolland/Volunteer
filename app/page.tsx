@@ -9,13 +9,15 @@ import {
   MapPin,
   ShoppingBasket,
   Building2,
-  CheckCircle2,
   type LucideIcon,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { getDict, type Dict } from "@/lib/i18n";
+import { ListingCard, type ListingCardData } from "@/components/listing-card";
+import { getDict } from "@/lib/i18n";
+import { viewerInCalifornia } from "@/lib/session";
+import { listActiveTasks } from "@/lib/queries";
 
 export const metadata = { title: "Tended — Online volunteering that counts toward SNAP (EBT)" };
 
@@ -24,18 +26,26 @@ export const dynamic = "force-dynamic";
 export default async function LandingPage() {
   const { t } = await getDict();
   const L = t.landing;
+  // The CF 888 is California's CalFresh form — only surface it to CA viewers.
+  const isCA = await viewerInCalifornia();
+  const featuredTasks = (await listActiveTasks()).slice(0, 4);
+  const featuredCards: ListingCardData[] = featuredTasks.map((t, i) => ({
+    id: t.id,
+    href: `/opportunities/${t.id}`,
+    title: t.title,
+    orgName: t.org.name,
+    orgSlug: t.org.slug,
+    category: t.category,
+    location: t.location_kind,
+    createdAt: t.created_at,
+    featured: i === 0,
+  }));
 
   const trust: { icon: LucideIcon; label: string }[] = [
     { icon: HandHeart, label: L.trust.free },
     { icon: Clock, label: L.trust.realHours },
     { icon: Smartphone, label: L.trust.phone },
-    { icon: FileCheck, label: L.trust.snap },
-  ];
-
-  const steps = [
-    { title: L.steps.s1Title, body: L.steps.s1Body },
-    { title: L.steps.s2Title, body: L.steps.s2Body },
-    { title: L.steps.s3Title, body: L.steps.s3Body },
+    { icon: FileCheck, label: isCA ? L.trust.snapCA : L.trust.snap },
   ];
 
   const work: { icon: LucideIcon; title: string; hint: string }[] = [
@@ -52,20 +62,18 @@ export default async function LandingPage() {
       <main id="main" className="flex-1">
         {/* Hero */}
         <section className="border-b border-line bg-section">
-          <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-16 md:grid-cols-2 md:px-6 md:py-24">
-            <div className="max-w-[560px]">
-              <p className="overline mb-4">{t.hero.overline}</p>
+          <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
+            <div className="max-w-[640px]">
               <h1 className="text-[38px] font-semibold leading-[1.08] text-ink md:text-[52px]">{t.hero.title}</h1>
               <p className="mt-5 text-lg leading-relaxed text-body">{t.hero.subhead}</p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg"><Link href="/app/tasks">{t.hero.cta} <ArrowRight /></Link></Button>
+                <Button asChild size="lg"><Link href="/opportunities">{t.hero.cta} <ArrowRight /></Link></Button>
                 <Button asChild size="lg" variant="secondary"><Link href="/how-it-works">{L.secondaryCta}</Link></Button>
               </div>
               <p className="mt-6 text-[15px]">
                 <Link href="/how-it-works#calfresh" className="font-medium text-forest hover:underline">{t.hero.calfresh}</Link>
               </p>
             </div>
-            <HeroPreview L={L} />
           </div>
         </section>
 
@@ -81,27 +89,29 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="bg-white">
-          <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
-            <p className="overline mb-3">{L.steps.overline}</p>
-            <h2 className="max-w-[640px] text-[30px] font-semibold leading-tight text-ink md:text-[34px]">{L.steps.title}</h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {steps.map((s, i) => (
-                <div key={s.title} className="rounded-lg border border-line bg-white p-6 shadow-sm">
-                  <div className="flex size-9 items-center justify-center rounded-full bg-forest-subtle text-sm font-semibold text-forest">{i + 1}</div>
-                  <h3 className="mt-4 text-lg font-semibold text-ink">{s.title}</h3>
-                  <p className="mt-2 text-body">{s.body}</p>
+        {/* Featured opportunities */}
+        {featuredCards.length > 0 && (
+          <section className="bg-white">
+            <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <h2 className="text-[30px] font-semibold leading-tight text-ink md:text-[34px]">Open volunteer opportunities</h2>
+                  <p className="mt-2 max-w-[640px] text-body">Real civic work from sponsoring nonprofits. Browse freely — sign up when you find one you want to commit to.</p>
                 </div>
-              ))}
+                <Button asChild variant="secondary"><Link href="/opportunities">See all <ArrowRight /></Link></Button>
+              </div>
+              <div className="mt-8 border-t border-line">
+                {featuredCards.map((c) => (
+                  <ListingCard key={c.id} task={c} />
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* What you'll do */}
         <section className="border-y border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
-            <p className="overline mb-3">{L.work.overline}</p>
             <h2 className="max-w-[640px] text-[30px] font-semibold leading-tight text-ink md:text-[34px]">{L.work.title}</h2>
             <p className="mt-4 max-w-[640px] text-body">{L.work.body}</p>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -120,9 +130,8 @@ export default async function LandingPage() {
         <section className="bg-white">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
             <div className="rounded-lg border border-line bg-terracotta-subtle p-8 md:p-10">
-              <p className="overline mb-3">{L.snap.overline}</p>
               <h2 className="max-w-[680px] text-[26px] font-semibold leading-tight text-ink md:text-[30px]">{L.snap.title}</h2>
-              <p className="mt-4 max-w-[680px] text-body">{L.snap.body}</p>
+              <p className="mt-4 max-w-[680px] text-body">{isCA ? L.snap.bodyCA : L.snap.body}</p>
               <p className="mt-6">
                 <Link href="/how-it-works#calfresh" className="font-medium text-forest hover:underline">{L.snap.link}</Link>
               </p>
@@ -154,41 +163,12 @@ export default async function LandingPage() {
               <p className="mt-2 text-white/80">{L.finalCta.body}</p>
             </div>
             <Button asChild size="lg" variant="secondary" className="border-white bg-white text-forest hover:bg-white/90">
-              <Link href="/app/tasks">{L.finalCta.button} <ArrowRight /></Link>
+              <Link href="/opportunities">{L.finalCta.button} <ArrowRight /></Link>
             </Button>
           </div>
         </section>
       </main>
       <SiteFooter />
     </>
-  );
-}
-
-function HeroPreview({ L }: { L: Dict["landing"] }) {
-  return (
-    <div className="hidden md:block">
-      <div className="mx-auto w-full max-w-[380px]">
-        <div className="rounded-lg border border-line bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-md bg-forest-subtle px-2 py-0.5 text-xs font-semibold text-forest">{L.preview.badge}</span>
-            <span className="text-xs text-meta">{L.preview.remote}</span>
-          </div>
-          <p className="mt-3 font-semibold text-ink">{L.work.c}</p>
-          <p className="mt-1 text-sm text-body">{L.preview.org}</p>
-          <div className="mt-4 flex items-center gap-2 border-t border-line pt-3 text-xs text-meta">
-            <ShoppingBasket className="size-4 text-terracotta" aria-hidden /> {L.work.cHint}
-          </div>
-        </div>
-        <div className="mt-3 ml-8 flex items-center gap-3 rounded-lg border border-line bg-white p-4 shadow-sm">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-forest-subtle text-forest">
-            <CheckCircle2 className="size-5" aria-hidden />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-ink">{L.preview.certified}</p>
-            <p className="text-xs text-meta">{L.preview.certifiedSub}</p>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

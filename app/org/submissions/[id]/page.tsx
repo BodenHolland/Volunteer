@@ -42,7 +42,6 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="overline mb-1">Submission review</p>
           <h1 className="service-heading text-3xl">{sub.task.title}</h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-body">
             <UserIcon className="size-4 text-meta" /> {names.get(sub.user_id) ?? "A volunteer"}
@@ -63,7 +62,6 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
             <section className="service-panel space-y-3 p-5">
               <AiVerdictBox verdict={verdict} />
               <div>
-                <p className="overline mb-1.5">Integrity checks</p>
                 <FlagChips flags={flags as { kind: FlagKind }[]} />
               </div>
             </section>

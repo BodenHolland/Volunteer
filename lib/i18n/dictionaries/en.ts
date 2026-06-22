@@ -4,6 +4,9 @@ export const en = {
     about: "About",
     forOrgs: "For organizations",
     signIn: "Sign in",
+    signUp: "Sign up",
+    opportunities: "Opportunities",
+    hoursCalculator: "Hours calculator",
     seeTasks: "See tasks",
   },
   hero: {
@@ -25,6 +28,8 @@ export const en = {
     privacy: "Privacy",
     contact: "Contact",
     help: "Help center",
+    snapEbt: "SNAP/EBT",
+    snapEbtCA: "SNAP/EBT & CF 888",
   },
   auth: {
     signInTitle: "Sign in",
@@ -102,7 +107,8 @@ export const en = {
       free: "Free & nonprofit-run",
       realHours: "Your real hours, never inflated",
       phone: "Do it from your phone",
-      snap: "SNAP-certifiable (CF 888)",
+      snap: "SNAP-certifiable",
+      snapCA: "SNAP-certifiable (CF 888)",
     },
     preview: {
       badge: "Civic data",
@@ -122,6 +128,8 @@ export const en = {
         "Work whenever you want and track the time you actually spend. We only ever count your real minutes.",
       s3Title: "Get reviewed and certified",
       s3Body:
+        "A nonprofit reviews your work for quality. If you get SNAP, approved hours are certified on the work-hours form your state accepts — you upload it yourself.",
+      s3BodyCA:
         "A nonprofit reviews your work for quality. If you get SNAP, approved hours land on a CF 888 you upload yourself.",
     },
     work: {
@@ -142,6 +150,8 @@ export const en = {
       overline: "If you get SNAP (EBT)",
       title: "Hours that count toward your work requirement.",
       body:
+        "Your reviewed hours can be certified on your state's SNAP work-hours verification form — pre-filled with your details, downloaded by you, and uploaded by you. You stay in control of your information the whole way.",
+      bodyCA:
         "Your reviewed hours can be certified on California's Form CF 888 — pre-filled with your details, downloaded by you, and uploaded by you to BenefitsCal. You stay in control of your information the whole way.",
       link: "See how certification works →",
     },

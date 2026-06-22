@@ -21,7 +21,6 @@ export default async function HoursCalculatorPage() {
       <main id="main" className="flex-1">
         <section className="border-b border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
-            <p className="overline mb-3">Public tool · ABAWD operability</p>
             <h1 className="service-heading max-w-[760px] text-[36px] font-semibold leading-tight text-ink md:text-[44px]">
               How many volunteer hours does ABAWD actually require?
             </h1>
@@ -60,7 +59,6 @@ export default async function HoursCalculatorPage() {
 
         <section className="border-t border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
-            <p className="overline mb-3">Why this matters</p>
             <h2 className="service-heading max-w-[640px] text-[26px] font-semibold leading-tight md:text-[30px]">
               80 hours sounds like a part-time job. 10 hours sounds like a Saturday.
             </h2>

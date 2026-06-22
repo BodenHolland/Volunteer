@@ -129,7 +129,6 @@ export default async function ForOrganizationsPage() {
         <section className="bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
             <div className="max-w-[720px]">
-              <p className="overline mb-4">{c.overline}</p>
               <h1 className="text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">
                 {c.title}
               </h1>
@@ -162,7 +161,6 @@ export default async function ForOrganizationsPage() {
                 <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
                   <s.icon className="size-6" strokeWidth={1.5} />
                 </div>
-                <p className="overline mt-4">{c.step} {i + 1}</p>
                 <h3 className="mt-1 text-xl font-semibold text-ink">{s.title}</h3>
                 <p className="mt-2 leading-relaxed text-body">{s.body}</p>
               </div>

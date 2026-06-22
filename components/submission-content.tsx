@@ -15,9 +15,6 @@ export function SubmissionContent({
     <div className="space-y-5">
       {submission.user_notes && (
         <div>
-          <p className="overline mb-1.5">
-            {task.category === "translation" ? "Translation" : task.category === "neighborhood-writing" ? "Write-up" : "Notes"}
-          </p>
           <p className="whitespace-pre-wrap rounded-lg border border-line bg-white p-4 text-sm leading-relaxed text-ink">
             {submission.user_notes}
           </p>
@@ -26,9 +23,6 @@ export function SubmissionContent({
 
       {photos.length > 0 && (
         <div>
-          <p className="overline mb-1.5 flex items-center gap-1.5">
-            <FileText className="size-3.5" aria-hidden="true" /> {photos.length} photo{photos.length === 1 ? "" : "s"}
-          </p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {photos.map((p, i) => (
               <li key={p.id} className="overflow-hidden rounded-lg border border-line bg-section p-1">

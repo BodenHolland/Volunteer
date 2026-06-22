@@ -75,7 +75,6 @@ export default async function AdminAuditPage({
   return (
     <div className="space-y-6">
       <div>
-        <p className="overline mb-1">Tended admin</p>
         <h1 className="text-[28px] font-semibold text-ink">Audit log</h1>
         <p className="mt-1 text-body">
           The {rows.length} most recent sensitive actions, newest first. Immutable, append-only.
