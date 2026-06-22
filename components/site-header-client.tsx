@@ -9,7 +9,6 @@ import {
   CircleHelp,
   LayoutDashboard,
   ListChecks,
-  LogOut,
   Menu,
   Settings,
   UserRound,
@@ -19,6 +18,7 @@ import {
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { SignOutMenuItem, SignOutButton } from "@/components/sign-out";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -176,7 +176,7 @@ export function SiteHeaderClient({
                   {viewer.role === "admin" && <DropdownMenuItem asChild><Link href="/admin"><Settings /> Admin workspace</Link></DropdownMenuItem>}
                   <DropdownMenuItem asChild><Link href="/help"><CircleHelp /> {t.help}</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem destructive asChild><Link href="/signout"><LogOut /> Sign out</Link></DropdownMenuItem>
+                  <SignOutMenuItem />
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -211,7 +211,7 @@ export function SiteHeaderClient({
                 <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
                 <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
                 <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
-                <Link href="/signout" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10"><LogOut className="size-[18px]" /> Sign out</Link>
+                <SignOutButton className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]" />
               </>
             ) : (
               <>

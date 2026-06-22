@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { CheckCircle2, LogOut, Bell, Download } from "lucide-react";
+import { signOut } from "@/app/auth-actions";
 import { requireRecipient } from "@/lib/session";
 import { getDb } from "@/lib/cf";
 import { Button } from "@/components/ui/button";
@@ -224,9 +224,9 @@ export default async function SettingsPage({
       <section className="service-panel space-y-4 border-brick/30 p-5 md:p-6">
         <h2 className="text-base font-semibold text-ink">{c.dangerZone}</h2>
         <div className="flex flex-wrap items-center gap-3">
-          <Button asChild variant="destructive">
-            <Link href="/signout"><LogOut /> {c.signOut}</Link>
-          </Button>
+          <form action={signOut}>
+            <Button type="submit" variant="destructive"><LogOut /> {c.signOut}</Button>
+          </form>
         </div>
 
         <div className="space-y-3 rounded-md border border-brick/30 bg-brick-subtle/40 p-4">

@@ -8,6 +8,7 @@ import {
   hashPassword,
   verifyPassword,
   createSession,
+  destroyCurrentSession,
   destroyAllUserSessions,
   createToken,
   consumeToken,
@@ -202,4 +203,16 @@ export async function resetPassword(formData: FormData) {
   logEvent("password_reset", { ip, userId });
   await writeAudit({ actorUserId: userId, action: "password_reset", entityType: "user", entityId: userId, detail: { ip } });
   redirect("/login?reset=1");
+}
+
+/**
+ * Sign out. This is a POST-only server action precisely so it can NEVER be
+ * triggered by a GET — Next.js <Link> prefetch, browser predictive prefetch,
+ * and link scanners all issue GETs, and a GET-based logout was silently
+ * revoking sessions in the background (so the next click bounced to /login).
+ */
+export async function signOut() {
+  await destroyCurrentSession();
+  logEvent("signout", {});
+  redirect("/login");
 }

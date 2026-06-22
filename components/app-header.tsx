@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, User as UserIcon, Settings, LogOut, LayoutDashboard, ListChecks, FolderKanban, CircleHelp } from "lucide-react";
+import { ChevronDown, Menu, X, User as UserIcon, Settings, LayoutDashboard, ListChecks, FolderKanban, CircleHelp } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { SignOutMenuItem, SignOutButton } from "@/components/sign-out";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -107,9 +108,7 @@ export function AppHeader({
                 <Link href="/help"><CircleHelp /> {labels.help}</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem destructive asChild>
-                <Link href="/signout"><LogOut /> {labels.signOut}</Link>
-              </DropdownMenuItem>
+              <SignOutMenuItem label={labels.signOut} />
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -146,7 +145,7 @@ export function AppHeader({
             )}
             <Link href="/app/settings" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><Settings /> {labels.settings}</Link>
             <Link href="/help" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><CircleHelp /> {labels.help}</Link>
-            <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]"><LogOut /> {labels.signOut}</Link>
+            <SignOutButton className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]" label={labels.signOut} />
             <div className="my-1 h-px bg-white/15" />
             <div className="px-3 py-1"><LocaleSwitcher locale={locale} /></div>
           </nav>
