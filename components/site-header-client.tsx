@@ -194,7 +194,7 @@ export function SiteHeaderClient({
           ) : (
             <>
               <Button asChild size="sm" variant="ghost" className="hidden text-white hover:bg-white/10 hover:text-white md:inline-flex"><Link href="/login">{t.signIn}</Link></Button>
-              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/start">{t.signUp}</Link></Button>
+              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/signup">{t.signUp}</Link></Button>
             </>
           )}
           <button className="rounded-md p-2 text-white hover:bg-white/10 md:hidden" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
@@ -228,7 +228,7 @@ export function SiteHeaderClient({
               </>
             ) : (
               <>
-                <Button asChild className="w-full"><Link href="/start">{t.signUp}</Link></Button>
+                <Button asChild className="w-full"><Link href="/signup">{t.signUp}</Link></Button>
                 <Button asChild variant="secondary" className="w-full"><Link href="/login">{t.signIn}</Link></Button>
               </>
             )}
