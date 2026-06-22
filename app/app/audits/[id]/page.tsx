@@ -6,6 +6,7 @@ import {
   USDA_THRIFTY_6,
   STORE_TYPES,
   EBT_OBSERVATIONS,
+  TRAVEL_MODES,
   type AuditRow,
   type AuditItemCaptureRow,
   type Store,
@@ -77,6 +78,18 @@ const COPY = {
       submitting: "Submitting…",
       submitBtn: "Submit audit",
       finishSteps: "Finish all 4 steps above before submitting.",
+      edit: "Edit",
+      activeTime: "Active time on this audit",
+      activeTimeHint: "Audits need at least 4 minutes of active time. Keep working — this counts only while the tab is open and you're active.",
+      activeTimeMet: "You've reached the minimum active time.",
+      needMoreTime: "About {t} more of active time before you can submit.",
+      commuteTitle: "How did you get to the store?",
+      commuteHint: "We estimate round-trip travel time from your home and add it to your credited hours.",
+      commuteRoundTrip: "Estimated round trip: about {m} min.",
+      commuteUnknown: "We can't estimate your commute yet — add your home address in your profile to include travel time.",
+      customCommuteTitle: "Use my actual travel time instead",
+      customCommuteHint: "Round-trip minutes. Capped at {cap} min — the slowest estimate across drive, walk, and transit.",
+      customCommuteClear: "Use the estimate",
       cancelTask: "Cancel task",
       cancelConfirm: "Remove this task from your work? Your progress on it will be deleted.",
       cancelYes: "Yes, cancel",
@@ -143,6 +156,18 @@ const COPY = {
       submitting: "Enviando…",
       submitBtn: "Enviar auditoría",
       finishSteps: "Completa los 4 pasos de arriba antes de enviar.",
+      edit: "Editar",
+      activeTime: "Tiempo activo en esta auditoría",
+      activeTimeHint: "Las auditorías necesitan al menos 4 minutos de tiempo activo. Sigue trabajando — solo cuenta mientras la pestaña está abierta y estás activo.",
+      activeTimeMet: "Alcanzaste el tiempo activo mínimo.",
+      needMoreTime: "Faltan unos {t} de tiempo activo antes de poder enviar.",
+      commuteTitle: "¿Cómo llegaste a la tienda?",
+      commuteHint: "Estimamos el tiempo de ida y vuelta desde tu casa y lo sumamos a tus horas acreditadas.",
+      commuteRoundTrip: "Ida y vuelta estimada: unos {m} min.",
+      commuteUnknown: "Aún no podemos estimar tu trayecto — agrega la dirección de tu casa en tu perfil para incluir el tiempo de viaje.",
+      customCommuteTitle: "Usar mi tiempo real de viaje",
+      customCommuteHint: "Minutos ida y vuelta. Límite de {cap} min — la estimación más lenta entre coche, a pie y transporte público.",
+      customCommuteClear: "Usar la estimación",
       cancelTask: "Cancelar tarea",
       cancelConfirm: "¿Quitar esta tarea de tu trabajo? Se borrará tu progreso en ella.",
       cancelYes: "Sí, cancelar",
@@ -190,6 +215,7 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
         basketItems={USDA_THRIFTY_6.items}
         storeTypes={STORE_TYPES}
         ebtOptions={EBT_OBSERVATIONS}
+        travelModes={TRAVEL_MODES}
         copy={c.client as AuditCopy}
         creditPreview={creditPreview}
       />

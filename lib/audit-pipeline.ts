@@ -19,12 +19,15 @@ import { decryptField } from "./crypto";
 import { osrmRoute } from "./places";
 import { parseJson, type Address } from "./types";
 import {
+  commuteSecondsForMode,
   creditedHoursFromAuditInputs,
+  DEFAULT_TRAVEL_MODE,
   findItem,
   type AuditItemCaptureRow,
   type AuditPhotoRow,
   type AuditRow,
   type Store,
+  type TravelMode,
 } from "./food-audit";
 import { nextTier, rollSample, strictnessForTier, type TrustRow } from "./audit-trust";
 import {
@@ -300,8 +303,13 @@ export async function processAudit(auditId: string): Promise<void> {
 
 export interface AuditCreditBreakdown {
   itemsDocumented: number;
+  /** Round-trip commute seconds actually credited (mode-estimate or user override). */
   oneWayCommuteSeconds: number | null;
   creditedHours: number;
+  /** Per-mode one-way commute estimates from the same route, for the UI picker. */
+  modeEstimates: Record<TravelMode, number> | null;
+  /** User-entered round-trip minutes override, if any. */
+  userMinutes: number | null;
 }
 
 /**
@@ -315,10 +323,24 @@ export interface AuditCreditBreakdown {
 export async function previewCreditForAudit(auditId: string): Promise<AuditCreditBreakdown> {
   const db = getDb();
   const audit = await db
-    .prepare("SELECT id, user_id, store_id FROM audits WHERE id = ?")
+    .prepare("SELECT id, user_id, store_id, commute_mode, commute_user_minutes FROM audits WHERE id = ?")
     .bind(auditId)
-    .first<{ id: string; user_id: string; store_id: string | null }>();
-  if (!audit) return { itemsDocumented: 0, oneWayCommuteSeconds: null, creditedHours: 0 };
+    .first<{
+      id: string;
+      user_id: string;
+      store_id: string | null;
+      commute_mode: string | null;
+      commute_user_minutes: number | null;
+    }>();
+  if (!audit) {
+    return {
+      itemsDocumented: 0,
+      oneWayCommuteSeconds: null,
+      creditedHours: 0,
+      modeEstimates: null,
+      userMinutes: null,
+    };
+  }
 
   const itemsRow = await db
     .prepare("SELECT COUNT(*) AS n FROM audit_item_captures WHERE audit_id = ?")
@@ -327,6 +349,9 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
   const itemsDocumented = itemsRow?.n ?? 0;
 
   let oneWaySeconds: number | null = null;
+  let modeEstimates: Record<TravelMode, number> | null = null;
+  const userMinutes = audit.commute_user_minutes ?? null;
+
   if (audit.store_id) {
     const store = await db
       .prepare("SELECT geocode_lat, geocode_lng FROM stores WHERE id = ?")
@@ -349,7 +374,24 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
         { lat: home.lat, lng: home.lng },
         { lat: store.geocode_lat, lng: store.geocode_lng }
       );
-      if (route) oneWaySeconds = route.durationSeconds;
+      if (route) {
+        modeEstimates = {
+          drive: commuteSecondsForMode("drive", route),
+          walk: commuteSecondsForMode("walk", route),
+          transit: commuteSecondsForMode("transit", route),
+        };
+        const mode = (audit.commute_mode as TravelMode | null) ?? DEFAULT_TRAVEL_MODE;
+        // User override (round-trip minutes) wins when set, but is clamped to
+        // the slowest per-mode estimate so a typo can't run hours away.
+        if (userMinutes != null && userMinutes > 0) {
+          const slowestOneWay = Math.max(modeEstimates.drive, modeEstimates.walk, modeEstimates.transit);
+          const slowestRoundTripMin = (slowestOneWay * 2) / 60;
+          const clamped = Math.min(userMinutes, slowestRoundTripMin);
+          oneWaySeconds = (clamped * 60) / 2;
+        } else {
+          oneWaySeconds = modeEstimates[mode];
+        }
+      }
     }
   }
 
@@ -357,6 +399,8 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
     itemsDocumented,
     oneWayCommuteSeconds: oneWaySeconds,
     creditedHours: creditedHoursFromAuditInputs(itemsDocumented, oneWaySeconds),
+    modeEstimates,
+    userMinutes,
   };
 }
 

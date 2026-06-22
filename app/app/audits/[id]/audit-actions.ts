@@ -245,6 +245,35 @@ export async function setStoreTypeAction(formData: FormData) {
   revalidatePath(`/app/audits/${auditId}`);
 }
 
+export async function setCommuteModeAction(formData: FormData) {
+  const auditId = String(formData.get("audit_id") ?? "");
+  const mode = String(formData.get("commute_mode") ?? "");
+  if (!["drive", "walk", "transit"].includes(mode)) return;
+  const a = await loadOwnedAudit(auditId);
+  if (!a) return;
+  await getDb().prepare("UPDATE audits SET commute_mode = ? WHERE id = ?").bind(mode, auditId).run();
+  revalidatePath(`/app/audits/${auditId}`);
+}
+
+export async function setCommuteUserMinutesAction(formData: FormData) {
+  const auditId = String(formData.get("audit_id") ?? "");
+  const raw = String(formData.get("minutes") ?? "").trim();
+  const a = await loadOwnedAudit(auditId);
+  if (!a) return;
+  if (raw === "") {
+    // Clearing the override falls back to the per-mode estimate.
+    await getDb().prepare("UPDATE audits SET commute_user_minutes = NULL WHERE id = ?").bind(auditId).run();
+  } else {
+    const n = Math.max(0, Math.round(Number(raw)));
+    if (!Number.isFinite(n)) return;
+    await getDb()
+      .prepare("UPDATE audits SET commute_user_minutes = ? WHERE id = ?")
+      .bind(n, auditId)
+      .run();
+  }
+  revalidatePath(`/app/audits/${auditId}`);
+}
+
 export async function setEbtAction(formData: FormData) {
   const auditId = String(formData.get("audit_id") ?? "");
   const v = String(formData.get("ebt") ?? "") as EbtObservation;

@@ -17,7 +17,6 @@ export type StoreType =
   | "chain-supermarket"
   | "independent-grocery"
   | "corner-store-bodega"
-  | "ethnic-market"
   | "farmers-market"
   | "dollar-store"
   | "other";
@@ -26,7 +25,6 @@ export const STORE_TYPES: { value: StoreType; label: string; help: string }[] = 
   { value: "chain-supermarket", label: "Chain supermarket", help: "Safeway, Kroger, Albertsons, Walmart, Target" },
   { value: "independent-grocery", label: "Independent grocery", help: "Local non-chain" },
   { value: "corner-store-bodega", label: "Corner store / bodega", help: "Small neighborhood store" },
-  { value: "ethnic-market", label: "Ethnic market", help: "Asian, Latino, Halal, etc." },
   { value: "farmers-market", label: "Farmers market", help: "" },
   { value: "dollar-store", label: "Dollar store", help: "Dollar Tree, 99 Cents Only, Dollar General" },
   { value: "other", label: "Other", help: "" },
@@ -44,6 +42,38 @@ export const EBT_OBSERVATIONS: { value: EbtObservation; label: string }[] = [
   { value: "asked-staff-not-accepted", label: "Asked staff — they said they don't accept EBT" },
   { value: "not-visible", label: "Couldn't tell — no signage and didn't ask" },
 ];
+
+export type TravelMode = "drive" | "walk" | "transit";
+
+export const TRAVEL_MODES: { value: TravelMode; label: string }[] = [
+  { value: "drive", label: "Drove" },
+  { value: "walk", label: "Walked" },
+  { value: "transit", label: "Public transit" },
+];
+
+export const DEFAULT_TRAVEL_MODE: TravelMode = "drive";
+
+// The OSRM public router only routes driving, so walking/transit durations are
+// estimated from the driving route's distance. Walking ≈ 5 km/h; transit ≈
+// 21 km/h plus a flat wait/transfer allowance.
+const WALK_SPEED_MPS = 1.4;
+const TRANSIT_SPEED_MPS = 6;
+const TRANSIT_WAIT_SECONDS = 300;
+
+/**
+ * One-way commute seconds for the chosen travel mode, from a driving route's
+ * distance and duration. "drive" uses the routed duration directly; "walk" and
+ * "transit" are distance-based estimates. The value is still clamped by
+ * COMMUTE_CAP_MINUTES downstream in {@link creditedHoursFromAuditInputs}.
+ */
+export function commuteSecondsForMode(
+  mode: TravelMode,
+  route: { distanceMeters: number; durationSeconds: number }
+): number {
+  if (mode === "walk") return route.distanceMeters / WALK_SPEED_MPS;
+  if (mode === "transit") return route.distanceMeters / TRANSIT_SPEED_MPS + TRANSIT_WAIT_SECONDS;
+  return route.durationSeconds;
+}
 
 export type StockStatus = "in-stock" | "out-of-stock" | "not-sold-at-this-store";
 export type ProducePricingMode = "per-pound" | "per-unit";
@@ -194,6 +224,8 @@ export interface AuditRow {
   basket_template_version: string;
   store_type_observed: StoreType | null;
   ebt_observation: EbtObservation | null;
+  commute_mode?: TravelMode | null;
+  commute_user_minutes?: number | null;
   started_at: number;
   submitted_at: number | null;
   session_time_seconds: number;

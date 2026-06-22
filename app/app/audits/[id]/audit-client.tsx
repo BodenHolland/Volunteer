@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RepeatGroup, type RepeatGroupItem } from "@/components/repeat-group";
+import { SESSION_MIN_SECONDS } from "@/lib/food-audit";
 import type {
   AuditRow,
   AuditItemCaptureRow,
@@ -15,6 +16,7 @@ import type {
   Store,
   StockStatus,
   StoreType,
+  TravelMode,
 } from "@/lib/food-audit";
 /* Store is still used by Props from the server component, but the search list now
  * deals in NearbyStore so DB hits and Nominatim hits can share one render path. */
@@ -26,6 +28,8 @@ import {
   selectNearbyStoreAction,
   selectStoreAction,
   searchStoresAction,
+  setCommuteModeAction,
+  setCommuteUserMinutesAction,
   setEbtAction,
   setStoreTypeAction,
   submitAuditAction,
@@ -91,6 +95,18 @@ export interface AuditCopy {
   submitting: string;
   submitBtn: string;
   finishSteps: string;
+  edit: string;
+  activeTime: string;
+  activeTimeHint: string;
+  activeTimeMet: string;
+  needMoreTime: string;
+  commuteTitle: string;
+  commuteHint: string;
+  commuteRoundTrip: string;
+  commuteUnknown: string;
+  customCommuteTitle: string;
+  customCommuteHint: string;
+  customCommuteClear: string;
   cancelTask: string;
   cancelConfirm: string;
   cancelYes: string;
@@ -101,6 +117,8 @@ export interface CreditPreview {
   itemsDocumented: number;
   oneWayCommuteSeconds: number | null;
   creditedHours: number;
+  modeEstimates: Record<TravelMode, number> | null;
+  userMinutes: number | null;
 }
 
 interface Props {
@@ -110,11 +128,12 @@ interface Props {
   basketItems: BasketItem[];
   storeTypes: { value: StoreType; label: string; help: string }[];
   ebtOptions: { value: EbtObservation; label: string }[];
+  travelModes: { value: TravelMode; label: string }[];
   copy: AuditCopy;
   creditPreview: CreditPreview;
 }
 
-export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, copy, creditPreview }: Props) {
+export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, travelModes, copy, creditPreview }: Props) {
   const sessionSeconds = useSessionTimer(audit.id);
   const allCaptured = captures.length === basketItems.length;
   const canSubmit =
@@ -122,19 +141,35 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
 
   return (
     <div className="flex flex-col gap-8">
+      <SessionMeter seconds={sessionSeconds} copy={copy} />
+
       <Step
         n={1}
         title={copy.step1Title}
         done={!!audit.store_id}
+        editLabel={copy.edit}
         summary={store ? `${store.name} · ${store.address}` : undefined}
       >
         <StoreStep auditId={audit.id} currentStoreId={audit.store_id} copy={copy} />
       </Step>
 
+      {audit.store_id ? (
+        <CommutePanel
+          auditId={audit.id}
+          currentMode={audit.commute_mode ?? null}
+          options={travelModes}
+          oneWayCommuteSeconds={creditPreview.oneWayCommuteSeconds}
+          modeEstimates={creditPreview.modeEstimates}
+          userMinutes={creditPreview.userMinutes}
+          copy={copy}
+        />
+      ) : null}
+
       <Step
         n={2}
         title={copy.step2Title}
         done={!!audit.store_type_observed}
+        editLabel={copy.edit}
         summary={
           audit.store_type_observed
             ? storeTypes.find((t) => t.value === audit.store_type_observed)?.label
@@ -148,6 +183,7 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
         n={3}
         title={copy.step3Title}
         done={!!audit.ebt_observation}
+        editLabel={copy.edit}
         summary={
           audit.ebt_observation
             ? ebtOptions.find((e) => e.value === audit.ebt_observation)?.label
@@ -157,7 +193,7 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
         <EbtStep auditId={audit.id} current={audit.ebt_observation} options={ebtOptions} />
       </Step>
 
-      <Step n={4} title={copy.step4Title} done={allCaptured} summary={copy.capturedSummary.replace("{n}", String(captures.length)).replace("{total}", String(basketItems.length))}>
+      <Step n={4} title={copy.step4Title} done={allCaptured} editLabel={copy.edit} summary={copy.capturedSummary.replace("{n}", String(captures.length)).replace("{total}", String(basketItems.length))}>
         <BasketStep auditId={audit.id} items={basketItems} captures={captures} copy={copy} />
       </Step>
 
@@ -204,6 +240,164 @@ function useSessionTimer(auditId: string) {
   return Math.floor(seconds);
 }
 
+// ---------- Live active-time meter ----------
+
+function formatClock(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+function SessionMeter({ seconds, copy }: { seconds: number; copy: AuditCopy }) {
+  const met = seconds >= SESSION_MIN_SECONDS;
+  const pct = Math.min(100, Math.round((seconds / SESSION_MIN_SECONDS) * 100));
+  return (
+    <div className="rounded-xl border border-line bg-white p-4">
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium text-ink">{copy.activeTime}</span>
+        <span className={met ? "font-semibold tabular-nums text-forest" : "font-semibold tabular-nums text-ink"}>
+          {formatClock(seconds)}{met ? "" : ` / ${formatClock(SESSION_MIN_SECONDS)}`}
+        </span>
+      </div>
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-section">
+        <div className={met ? "h-full bg-forest" : "h-full bg-amber"} style={{ width: `${pct}%` }} />
+      </div>
+      <p className="mt-2 text-xs text-meta">{met ? copy.activeTimeMet : copy.activeTimeHint}</p>
+    </div>
+  );
+}
+
+// ---------- Commute (how the volunteer got to the store) ----------
+
+function CommutePanel({
+  auditId,
+  currentMode,
+  options,
+  oneWayCommuteSeconds,
+  modeEstimates,
+  userMinutes,
+  copy,
+}: {
+  auditId: string;
+  currentMode: TravelMode | null;
+  options: { value: TravelMode; label: string }[];
+  oneWayCommuteSeconds: number | null;
+  modeEstimates: Record<TravelMode, number> | null;
+  userMinutes: number | null;
+  copy: AuditCopy;
+}) {
+  const mode = currentMode ?? "drive";
+  const roundTripMin =
+    oneWayCommuteSeconds == null ? null : Math.round((oneWayCommuteSeconds * 2) / 60);
+
+  // Per-mode round-trip minutes (for the picker labels and the override cap).
+  const modeRoundTripMin = modeEstimates
+    ? {
+        drive: Math.round((modeEstimates.drive * 2) / 60),
+        walk: Math.round((modeEstimates.walk * 2) / 60),
+        transit: Math.round((modeEstimates.transit * 2) / 60),
+      }
+    : null;
+  const capMinutes = modeRoundTripMin
+    ? Math.max(modeRoundTripMin.drive, modeRoundTripMin.walk, modeRoundTripMin.transit)
+    : null;
+
+  return (
+    <section className="rounded-xl border border-line bg-white p-5">
+      <h2 className="font-semibold text-ink">{copy.commuteTitle}</h2>
+      <p className="mt-1 text-sm text-body">{copy.commuteHint}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {options.map((o) => {
+          const mins = modeRoundTripMin?.[o.value];
+          return (
+            <form key={o.value} action={setCommuteModeAction}>
+              <input type="hidden" name="audit_id" value={auditId} />
+              <input type="hidden" name="commute_mode" value={o.value} />
+              <button
+                type="submit"
+                className={
+                  o.value === mode
+                    ? "rounded-md border border-forest bg-forest-subtle px-3 py-2 text-sm font-medium text-ink"
+                    : "rounded-md border border-line px-3 py-2 text-sm font-medium text-ink hover:bg-section"
+                }
+              >
+                {o.label}
+                {mins != null ? <span className="ml-1.5 text-xs text-meta">~{mins} min</span> : null}
+              </button>
+            </form>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-sm text-body">
+        {roundTripMin == null
+          ? copy.commuteUnknown
+          : copy.commuteRoundTrip.replace("{m}", String(roundTripMin))}
+      </p>
+      {capMinutes != null ? (
+        <CustomCommute auditId={auditId} userMinutes={userMinutes} capMinutes={capMinutes} copy={copy} />
+      ) : null}
+    </section>
+  );
+}
+
+function CustomCommute({
+  auditId,
+  userMinutes,
+  capMinutes,
+  copy,
+}: {
+  auditId: string;
+  userMinutes: number | null;
+  capMinutes: number;
+  copy: AuditCopy;
+}) {
+  const [value, setValue] = useState<string>(userMinutes == null ? "" : String(userMinutes));
+  // Keep input in sync if the server-side value changes (e.g., after a save).
+  useEffect(() => {
+    setValue(userMinutes == null ? "" : String(userMinutes));
+  }, [userMinutes]);
+
+  return (
+    <details className="mt-4 border-t border-line pt-3 text-sm">
+      <summary className="cursor-pointer font-medium text-ink">{copy.customCommuteTitle}</summary>
+      <p className="mt-2 text-xs text-meta">
+        {copy.customCommuteHint.replace("{cap}", String(capMinutes))}
+      </p>
+      <form action={setCommuteUserMinutesAction} className="mt-3 flex items-center gap-2">
+        <input type="hidden" name="audit_id" value={auditId} />
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={capMinutes}
+          step={1}
+          name="minutes"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={`0 – ${capMinutes}`}
+          className="w-28 rounded-md border border-line px-3 py-1.5 text-sm"
+        />
+        <button
+          type="submit"
+          className="rounded-md border border-forest bg-forest-subtle px-3 py-1.5 text-sm font-medium text-forest hover:bg-forest hover:text-white"
+        >
+          {copy.save}
+        </button>
+        {userMinutes != null ? (
+          <button
+            type="submit"
+            name="minutes"
+            value=""
+            formAction={setCommuteUserMinutesAction}
+            className="text-xs font-medium text-meta hover:text-ink"
+          >
+            {copy.customCommuteClear}
+          </button>
+        ) : null}
+      </form>
+    </details>
+  );
+}
+
 // ---------- Step shell ----------
 
 function Step({
@@ -211,17 +405,27 @@ function Step({
   title,
   done,
   summary,
+  editLabel,
   children,
 }: {
   n: number;
   title: string;
   done: boolean;
   summary?: string;
+  editLabel: string;
   children: React.ReactNode;
 }) {
+  const [editing, setEditing] = useState(false);
+  // Collapse automatically once the step is done, and again whenever the
+  // selection changes (summary updates) after the user re-opens it to edit.
+  useEffect(() => {
+    setEditing(false);
+  }, [done, summary]);
+  const open = !done || editing;
+
   return (
     <section className="rounded-xl border border-line bg-white">
-      <header className="flex items-start gap-3 px-5 py-4 border-b border-line">
+      <header className="flex items-center gap-3 px-5 py-4">
         <span
           className={
             done
@@ -231,12 +435,21 @@ function Step({
         >
           {done ? "✓" : n}
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="font-semibold text-ink">{title}</h2>
-          {summary ? <p className="text-sm text-body mt-0.5">{summary}</p> : null}
+          {summary && !open ? <p className="mt-0.5 truncate text-sm text-body">{summary}</p> : null}
         </div>
+        {done && !open ? (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="shrink-0 text-sm font-medium text-teal hover:underline"
+          >
+            {editLabel}
+          </button>
+        ) : null}
       </header>
-      <div className="p-5">{children}</div>
+      {open ? <div className="border-t border-line p-5">{children}</div> : null}
     </section>
   );
 }
@@ -854,6 +1067,7 @@ function SubmitStep({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const meetsTime = sessionSeconds >= SESSION_MIN_SECONDS;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -891,12 +1105,16 @@ function SubmitStep({
             <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
             <p className="text-sm text-body">{creditLine}</p>
           </div>
-          <Button type="submit" disabled={!canSubmit || submitting} size="lg">
+          <Button type="submit" disabled={!canSubmit || !meetsTime || submitting} size="lg">
             {submitting ? copy.submitting : copy.submitBtn}
           </Button>
         </div>
         {!canSubmit ? (
           <p className="text-sm text-body">{copy.finishSteps}</p>
+        ) : !meetsTime ? (
+          <p className="text-sm text-body">
+            {copy.needMoreTime.replace("{t}", formatClock(SESSION_MIN_SECONDS - sessionSeconds))}
+          </p>
         ) : null}
         {error ? <p className="text-sm text-brick">{error}</p> : null}
       </form>
