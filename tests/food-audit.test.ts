@@ -120,26 +120,23 @@ test("Hard rule: PII (SSN, payment card, email) is detected in free-text", () =>
   assert.strictEqual(detectPii("Safeway on Market Street"), null);
 });
 
-test("Session time must be between min and max", () => {
-  const tooFast = syncValidate({
-    captures: allSixCaptures(),
-    store_geocode: { lat: 37.77, lng: -122.42 },
-    session_time_seconds: SESSION_MIN_SECONDS - 1,
-    prior_audit_count_at_store_in_window: 0,
-    rapid_submission_count_last_hour: 0,
-  });
-  assert.strictEqual(tooFast.ok, false);
-  assert.match(tooFast.reason ?? "", /too quick/i);
-
-  const tooLong = syncValidate({
-    captures: allSixCaptures(),
-    store_geocode: { lat: 37.77, lng: -122.42 },
-    session_time_seconds: SESSION_MAX_SECONDS + 60,
-    prior_audit_count_at_store_in_window: 0,
-    rapid_submission_count_last_hour: 0,
-  });
-  assert.strictEqual(tooLong.ok, true);
-  assert.ok(tooLong.flags.some((f) => f.flag_type === "session-too-long"));
+test("Session time has no gating effect — credit is items × 5 min + commute", () => {
+  // Timer was removed: any session length (including 0) is accepted and produces
+  // no "session-too-long" or "too quick" flags. Credit comes from items + commute.
+  for (const seconds of [0, SESSION_MIN_SECONDS - 1, SESSION_MAX_SECONDS + 60]) {
+    const result = syncValidate({
+      captures: allSixCaptures(),
+      store_geocode: { lat: 37.77, lng: -122.42 },
+      session_time_seconds: seconds,
+      prior_audit_count_at_store_in_window: 0,
+      rapid_submission_count_last_hour: 0,
+    });
+    assert.strictEqual(result.ok, true, `expected ok=true for ${seconds}s`);
+    assert.ok(
+      !result.flags.some((f) => f.flag_type === "session-too-long"),
+      `expected no session-too-long flag for ${seconds}s`
+    );
+  }
 });
 
 test("Price outliers flag but do not block", () => {

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RepeatGroup, type RepeatGroupItem } from "@/components/repeat-group";
-import { SESSION_MIN_SECONDS } from "@/lib/food-audit";
 import type {
   AuditRow,
   AuditItemCaptureRow,
@@ -96,10 +95,6 @@ export interface AuditCopy {
   submitBtn: string;
   finishSteps: string;
   edit: string;
-  activeTime: string;
-  activeTimeHint: string;
-  activeTimeMet: string;
-  needMoreTime: string;
   commuteTitle: string;
   commuteHint: string;
   commuteRoundTrip: string;
@@ -134,14 +129,12 @@ interface Props {
 }
 
 export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, travelModes, copy, creditPreview }: Props) {
-  const sessionSeconds = useSessionTimer(audit.id);
   const allCaptured = captures.length === basketItems.length;
   const canSubmit =
     !!audit.store_id && !!audit.store_type_observed && !!audit.ebt_observation && allCaptured;
 
   return (
     <div className="flex flex-col gap-8">
-      <SessionMeter seconds={sessionSeconds} copy={copy} />
 
       <Step
         n={1}
@@ -200,68 +193,9 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
       <SubmitStep
         auditId={audit.id}
         canSubmit={canSubmit}
-        sessionSeconds={sessionSeconds}
         copy={copy}
         creditPreview={creditPreview}
       />
-    </div>
-  );
-}
-
-// ---------- Session timer (measured active engagement) ----------
-
-function useSessionTimer(auditId: string) {
-  const [seconds, setSeconds] = useState(0);
-  const lastInteractionRef = useRef(Date.now());
-
-  useEffect(() => {
-    const bump = () => {
-      lastInteractionRef.current = Date.now();
-    };
-    const events = ["pointerdown", "keydown", "scroll", "input", "touchstart"];
-    events.forEach((e) => window.addEventListener(e, bump, { passive: true }));
-    let lastTick = Date.now();
-    const tick = setInterval(() => {
-      const now = Date.now();
-      const visible = document.visibilityState === "visible";
-      const idleMs = now - lastInteractionRef.current;
-      const sinceLast = (now - lastTick) / 1000;
-      lastTick = now;
-      if (visible && idleMs < 60_000) {
-        setSeconds((s) => s + sinceLast);
-      }
-    }, 1000);
-    return () => {
-      clearInterval(tick);
-      events.forEach((e) => window.removeEventListener(e, bump));
-    };
-  }, [auditId]);
-
-  return Math.floor(seconds);
-}
-
-// ---------- Live active-time meter ----------
-
-function formatClock(totalSeconds: number): string {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
-
-function SessionMeter({ seconds, copy }: { seconds: number; copy: AuditCopy }) {
-  const met = seconds >= SESSION_MIN_SECONDS;
-  const pct = Math.min(100, Math.round((seconds / SESSION_MIN_SECONDS) * 100));
-  return (
-    <div className="rounded-xl border border-line bg-white p-4">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-ink">{copy.activeTime}</span>
-        <span className={met ? "font-semibold tabular-nums text-forest" : "font-semibold tabular-nums text-ink"}>
-          {formatClock(seconds)}{met ? "" : ` / ${formatClock(SESSION_MIN_SECONDS)}`}
-        </span>
-      </div>
-      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-section">
-        <div className={met ? "h-full bg-forest" : "h-full bg-amber"} style={{ width: `${pct}%` }} />
-      </div>
-      <p className="mt-2 text-xs text-meta">{met ? copy.activeTimeMet : copy.activeTimeHint}</p>
     </div>
   );
 }
@@ -1055,19 +989,16 @@ function PhotoCapture({
 function SubmitStep({
   auditId,
   canSubmit,
-  sessionSeconds,
   copy,
   creditPreview,
 }: {
   auditId: string;
   canSubmit: boolean;
-  sessionSeconds: number;
   copy: AuditCopy;
   creditPreview: CreditPreview;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const meetsTime = sessionSeconds >= SESSION_MIN_SECONDS;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -1075,7 +1006,8 @@ function SubmitStep({
     setSubmitting(true);
     const fd = new FormData();
     fd.set("audit_id", auditId);
-    fd.set("session_seconds", String(sessionSeconds));
+    // Session timer was removed — credit is items × 5 min + commute, both capped.
+    fd.set("session_seconds", "0");
     const result = await submitAuditAction(fd);
     setSubmitting(false);
     if (result && !result.ok && result.error) setError(result.error);
@@ -1105,16 +1037,12 @@ function SubmitStep({
             <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
             <p className="text-sm text-body">{creditLine}</p>
           </div>
-          <Button type="submit" disabled={!canSubmit || !meetsTime || submitting} size="lg">
+          <Button type="submit" disabled={!canSubmit || submitting} size="lg">
             {submitting ? copy.submitting : copy.submitBtn}
           </Button>
         </div>
         {!canSubmit ? (
           <p className="text-sm text-body">{copy.finishSteps}</p>
-        ) : !meetsTime ? (
-          <p className="text-sm text-body">
-            {copy.needMoreTime.replace("{t}", formatClock(SESSION_MIN_SECONDS - sessionSeconds))}
-          </p>
         ) : null}
         {error ? <p className="text-sm text-brick">{error}</p> : null}
       </form>

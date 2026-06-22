@@ -363,20 +363,9 @@ export function syncValidate(input: SubmitCheckInput): { ok: boolean; reason?: s
     return { ok: false, reason: "Store location must be in the US.", flags };
   }
 
-  if (input.session_time_seconds < SESSION_MIN_SECONDS) {
-    return {
-      ok: false,
-      reason: `Audit was too quick (${input.session_time_seconds}s). Minimum is ${SESSION_MIN_SECONDS}s.`,
-      flags,
-    };
-  }
-  if (input.session_time_seconds > SESSION_MAX_SECONDS) {
-    flags.push({
-      flag_type: "session-too-long",
-      flag_severity: "review",
-      flag_reason: `Session exceeded ${SESSION_MAX_SECONDS}s — possible idle time.`,
-    });
-  }
+  // Session-time gating removed: credit is now items × 5 min + commute, both
+  // hard-capped (AUDIT_CAP_MINUTES, COMMUTE_CAP_MINUTES). A timer that runs
+  // silently in the tab adds no integrity value but bounced users at submit.
 
   if (input.prior_audit_count_at_store_in_window > 0) {
     return {
