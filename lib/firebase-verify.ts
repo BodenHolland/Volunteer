@@ -10,6 +10,11 @@ import { getEnv } from "./cf";
 const CERT_URL =
   "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
 
+// Firebase project IDs are public identifiers (they are embedded in the web
+// client configuration). Keeping this final fallback prevents an OpenNext
+// request-context gap from breaking the server half of authentication.
+const DEFAULT_FIREBASE_PROJECT_ID = "volunteer-online-bcfa9";
+
 let certCache: { certs: Record<string, string>; expires: number } | null = null;
 
 async function getCerts(): Promise<Record<string, string>> {
@@ -29,7 +34,12 @@ function projectId(): string | undefined {
   // value is a safe fallback for route handlers where OpenNext has not yet
   // initialized the request context (otherwise Firebase signs in successfully
   // but the server rejects its token and never creates a Tended session).
-  return env.FIREBASE_PROJECT_ID || env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  return (
+    env.FIREBASE_PROJECT_ID ||
+    env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    DEFAULT_FIREBASE_PROJECT_ID
+  );
 }
 
 export interface FirebaseIdentity {
