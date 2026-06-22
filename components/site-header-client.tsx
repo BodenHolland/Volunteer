@@ -124,7 +124,12 @@ export function SiteHeaderClient({
           <Link href={viewer?.home ?? "/"} aria-label="Tended home" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             <Logo className="text-white" size={24} />
           </Link>
-          {!viewer && <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
+            {viewer && (
+              <Link href={viewer.home} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">
+                <LayoutDashboard className="size-4" /> {workspaceLabel}
+              </Link>
+            )}
             <div className="relative" onMouseEnter={() => setMega(true)} onMouseLeave={() => setMega(false)}>
               <button className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white" aria-expanded={mega}>
                 {t.howItWorks} <ChevronDown className="size-4" />
@@ -164,16 +169,13 @@ export function SiteHeaderClient({
             <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
             <Link href="/about" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.about}</Link>
             <Link href="/for-organizations" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.forOrgs}</Link>
-          </nav>}
+          </nav>
         </div>
 
         <div className="flex items-center gap-2">
           <LocaleSwitcher locale={locale} className="hidden text-white md:inline-flex" />
           {viewer ? (
             <>
-              <Button asChild variant="secondary" size="sm" className="hidden md:inline-flex">
-                <Link href={viewer.home}><LayoutDashboard /> {workspaceLabel}</Link>
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger className="hidden items-center gap-2 rounded-full border border-white/30 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 md:flex">
                   {viewer.name.split(" ")[0]} <ChevronDown className="size-4 text-blue-100" />
@@ -206,24 +208,22 @@ export function SiteHeaderClient({
       {open && (
         <div className="border-t border-white/15 bg-navy px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-            {!viewer && <>
-              <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
-              <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
-              <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
-              <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
-              <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
-              <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
-              <div className="my-1 h-px bg-white/15" />
-            </>}
-            {viewer ? (
+            {viewer && (
               <>
                 <Link href={viewer.home} onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10"><LayoutDashboard className="size-[18px]" /> {workspaceLabel}</Link>
-                <AccountLinks viewer={viewer} onNavigate={() => setOpen(false)} />
                 <div className="my-1 h-px bg-white/15" />
-                <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
-                <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
-                <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
-                <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
+              </>
+            )}
+            <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
+            <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
+            <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
+            <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
+            <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
+            <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
+            <div className="my-1 h-px bg-white/15" />
+            {viewer ? (
+              <>
+                <AccountLinks viewer={viewer} onNavigate={() => setOpen(false)} />
                 <SignOutButton className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]" />
               </>
             ) : (
