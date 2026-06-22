@@ -31,7 +31,6 @@ export const es: typeof en = {
     contact: "Contacto",
     help: "Centro de ayuda",
     snapEbt: "SNAP/EBT",
-    snapEbtCA: "SNAP/EBT y CF 888",
   },
   auth: {
     signInTitle: "Iniciar sesión",

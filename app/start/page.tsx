@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Phone, Upload, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Upload, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getDb, isDemoMode } from "@/lib/cf";
 import { homeForUser, requireUser } from "@/lib/session";
+import { decryptField } from "@/lib/crypto";
 import { parseJson, type Address, type Org } from "@/lib/types";
 import {
   submitLocation,
@@ -14,6 +15,7 @@ import {
   submitBenefitsCal,
   submitOrgPick,
 } from "./actions";
+import { AddressFields, PhoneInput } from "./pii-fields";
 
 export const metadata = { title: "Finish setting up — Tended" };
 
@@ -63,10 +65,22 @@ export default async function StartPage({
   // Onboarding operates on the signed-in account. Route unspecified visits.
   const step = sp.step ?? (user.role === "org_member" ? "orgpick" : "location");
 
-  const addr = parseJson<Address>(user.address_json, {
+  // PII is stored encrypted at rest. Decrypt before rendering so the form
+  // shows the actual values back to the signed-in owner (and not the ciphertext
+  // blob, which would also get re-saved as garbage). Decryption happens
+  // server-side; only the rendered HTML reaches the client, which is the same
+  // surface area as /app/profile.
+  const [legalName, caseNumber, dob, phone, addressJsonPlain] = await Promise.all([
+    decryptField(user.legal_name),
+    decryptField(user.case_number),
+    decryptField(user.dob),
+    decryptField(user.phone),
+    decryptField(user.address_json),
+  ]);
+  const addr = parseJson<Address>(addressJsonPlain, {
     line1: "",
     city: "",
-    state: "CA",
+    state: "",
     zip: "",
   });
 
@@ -84,7 +98,14 @@ export default async function StartPage({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="state">State</Label>
-              <Input id="state" name="state" required defaultValue={addr.state} maxLength={2} />
+              <Input
+                id="state"
+                name="state"
+                required
+                defaultValue={addr.state}
+                maxLength={2}
+                placeholder="CA"
+              />
             </div>
           </div>
           <fieldset className="space-y-2">
@@ -134,42 +155,30 @@ export default async function StartPage({
         <form action={submitPii} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>
-            <Input id="legal_name" name="legal_name" required defaultValue={user.legal_name ?? ""} />
+            <Input id="legal_name" name="legal_name" required defaultValue={legalName ?? ""} autoComplete="name" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">Mobile number</Label>
-            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} required defaultValue={user.phone ?? ""} placeholder="(916) 555-0142" />
+            <PhoneInput defaultValue={phone ?? ""} />
             <p className="text-xs text-meta">For updates about your hours. We never share it with the state.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="case_number">Case number</Label>
-              <Input id="case_number" name="case_number" required defaultValue={user.case_number ?? ""} />
+              <Input id="case_number" name="case_number" required defaultValue={caseNumber ?? ""} inputMode="numeric" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dob">Date of birth</Label>
-              <Input id="dob" name="dob" type="date" required defaultValue={user.dob ?? ""} />
+              <Input id="dob" name="dob" type="date" required defaultValue={dob ?? ""} />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="line1">Street address</Label>
-            <Input id="line1" name="line1" required defaultValue={addr.line1} />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="line2">Apt / unit</Label>
-              <Input id="line2" name="line2" defaultValue={addr.line2 ?? ""} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="city2">City</Label>
-              <Input id="city2" name="city" defaultValue={addr.city} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="zip">ZIP</Label>
-              <Input id="zip" name="zip" required defaultValue={addr.zip} />
-            </div>
-          </div>
-          <input type="hidden" name="state" value="CA" />
+          <AddressFields
+            defaultLine1={addr.line1}
+            defaultLine2={addr.line2 ?? ""}
+            defaultCity={addr.city}
+            defaultState={addr.state}
+            defaultZip={addr.zip}
+          />
           <Button type="submit" className="w-full">
             Continue <ArrowRight />
           </Button>

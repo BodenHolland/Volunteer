@@ -13,7 +13,7 @@ const COPY = {
     publicDataset: "Public dataset",
     title: "Food access dashboard",
     intro:
-      "Volunteer-collected shelf-tag prices for a standard 6-item USDA basket — milk, eggs, bread, rice, beans, and fresh produce — across food retailers nationwide. Free, public, CC0. Data refreshes every 5 minutes.",
+      "Volunteer-collected shelf-tag prices for 6 neighborhood staples — milk, eggs, bread, rice, beans, and bananas — across food retailers nationwide. Free, public, CC0. Data refreshes every 5 minutes.",
     lastUpdated: "Last updated",
     downloadCsv: "Download CSV",
     verifiedAudits: "Verified audits",
@@ -34,7 +34,7 @@ const COPY = {
     publicDataset: "Conjunto de datos público",
     title: "Panel de acceso a alimentos",
     intro:
-      "Precios de etiqueta de estante recopilados por voluntarios para una canasta estándar de 6 artículos del USDA — leche, huevos, pan, arroz, frijoles y productos frescos — en tiendas de alimentos de todo el país. Gratis, público, CC0. Los datos se actualizan cada 5 minutos.",
+      "Precios de etiqueta de estante recopilados por voluntarios para 6 productos básicos del vecindario — leche, huevos, pan, arroz, frijoles y plátanos — en tiendas de alimentos de todo el país. Gratis, público, CC0. Los datos se actualizan cada 5 minutos.",
     lastUpdated: "Última actualización",
     downloadCsv: "Descargar CSV",
     verifiedAudits: "Auditorías verificadas",
@@ -55,7 +55,7 @@ const COPY = {
 export const metadata = {
   title: "Food access dashboard — Tended",
   description:
-    "Volunteer-collected shelf prices for a 6-item USDA basket. Free, public, updated continuously.",
+    "Volunteer-collected shelf prices for 6 neighborhood staples. Free, public, updated continuously.",
 };
 
 function fmtUsd(n: number | null): string {

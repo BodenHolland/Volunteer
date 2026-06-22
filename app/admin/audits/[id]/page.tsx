@@ -12,8 +12,8 @@ import {
   type AuditPhotoRow,
   type Store,
   type ValidationFlagRow,
-  creditedHoursFromSeconds,
 } from "@/lib/food-audit";
+import { computeCreditedHoursForAudit } from "@/lib/audit-pipeline";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +61,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
     }>();
   const contribs = contribRes.results ?? [];
 
-  const credited = creditedHoursFromSeconds(audit.session_time_seconds);
+  const credited = await computeCreditedHoursForAudit(audit.id);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">

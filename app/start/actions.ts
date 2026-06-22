@@ -2,19 +2,71 @@
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
-import { writeAudit } from "@/lib/audit";
+import { logError, writeAudit } from "@/lib/audit";
 import { verifyBenefitsCalScreenshot } from "@/lib/benefitscal";
 import { getDb, getEnv, isDemoMode } from "@/lib/cf";
 import { decryptField, encryptField, encryptJson } from "@/lib/crypto";
 import { newId } from "@/lib/ids";
 import { putFile } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
+import { nominatimGeocode, nominatimSearch } from "@/lib/places";
+
+export interface AddressSuggestion {
+  place_id: string;
+  display: string;
+  line1: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+/**
+ * Street-address autocomplete via Nominatim. Reuses the same free OSM endpoint
+ * the food-audit store search uses; here we map the parsed result down to the
+ * five fields the onboarding PII form needs.
+ */
+export async function addressAutocompleteAction(query: string): Promise<AddressSuggestion[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  let hits;
+  try {
+    hits = await nominatimSearch(query, undefined, 5);
+  } catch (err) {
+    await writeAudit({
+      actorUserId: user.id,
+      action: "server_error",
+      entityType: "error",
+      entityId: "addressAutocompleteAction",
+      detail: { message: err instanceof Error ? err.message : String(err), query },
+    });
+    return [];
+  }
+  return hits.map((h) => {
+    // h.address is "house_number street, city state, zip" — split apart with a
+    // forgiving regex so we can repopulate the form even when Nominatim returns
+    // an incomplete address.
+    const parts = h.address.split(",").map((s) => s.trim());
+    const line1 = parts[0] ?? "";
+    const cityStateZip = parts.slice(1).join(", ");
+    const zipMatch = cityStateZip.match(/\b(\d{5})(?:-\d{4})?\b/);
+    const stateMatch = cityStateZip.match(/\b([A-Z]{2})\b/);
+    const city = parts[1] ?? "";
+    return {
+      place_id: h.place_id ?? `${h.lat},${h.lng}`,
+      display: h.address,
+      line1,
+      city,
+      state: stateMatch?.[1] ?? "",
+      zip: zipMatch?.[1] ?? "",
+    };
+  });
+}
 
 export async function submitLocation(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
-  const city = String(formData.get("city") ?? "Sacramento");
-  const state = String(formData.get("state") ?? "CA");
+  const city = String(formData.get("city") ?? "").trim();
+  const state = String(formData.get("state") ?? "").trim().toUpperCase();
   const intent = String(formData.get("intent") ?? "casual_volunteer");
   await getDb()
     .prepare("UPDATE users SET city = ?, state = ?, intent = ? WHERE id = ?")
@@ -27,28 +79,63 @@ export async function submitLocation(formData: FormData) {
 export async function submitPii(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
-  const legalName = String(formData.get("legal_name") ?? "").trim();
-  const caseNumber = String(formData.get("case_number") ?? "").trim();
-  const dob = String(formData.get("dob") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const address = {
-    line1: String(formData.get("line1") ?? "").trim(),
-    line2: String(formData.get("line2") ?? "").trim(),
-    city: String(formData.get("city") ?? "Sacramento").trim(),
-    state: String(formData.get("state") ?? "CA").trim(),
-    zip: String(formData.get("zip") ?? "").trim(),
-  };
-  await getDb()
-    .prepare("UPDATE users SET legal_name = ?, case_number = ?, address_json = ?, dob = ?, phone = ? WHERE id = ?")
-    .bind(
-      await encryptField(legalName),
-      await encryptField(caseNumber),
-      await encryptJson(address),
-      await encryptField(dob),
-      await encryptField(phone),
-      user.id
-    )
-    .run();
+  try {
+    const legalName = String(formData.get("legal_name") ?? "").trim();
+    const caseNumber = String(formData.get("case_number") ?? "").trim();
+    const dob = String(formData.get("dob") ?? "").trim();
+    // Store phone as digits only — the formatted "(916) 555-0142" the user typed
+    // is a display detail, not the source of truth.
+    const phone = String(formData.get("phone") ?? "").replace(/\D/g, "").slice(0, 10);
+    const address: Record<string, string | number | undefined> = {
+      line1: String(formData.get("line1") ?? "").trim(),
+      line2: String(formData.get("line2") ?? "").trim(),
+      city: String(formData.get("city") ?? "").trim(),
+      state: String(formData.get("state") ?? "").trim().toUpperCase(),
+      zip: String(formData.get("zip") ?? "").trim(),
+    };
+
+    const db = getDb();
+    await db
+      .prepare("UPDATE users SET legal_name = ?, case_number = ?, address_json = ?, dob = ?, phone = ? WHERE id = ?")
+      .bind(
+        await encryptField(legalName),
+        await encryptField(caseNumber),
+        await encryptJson(address),
+        await encryptField(dob),
+        await encryptField(phone),
+        user.id
+      )
+      .run();
+
+    // Defer geocoding so a slow / blocked Nominatim never holds up onboarding.
+    // On success we re-encrypt the address_json with lat/lng appended.
+    const geocodeAndUpdate = async () => {
+      try {
+        const geo = await nominatimGeocode(
+          [address.line1, address.city, address.state, address.zip].filter(Boolean).join(", ")
+        );
+        if (!geo) return;
+        const augmented = { ...address, lat: geo.lat, lng: geo.lng };
+        await db
+          .prepare("UPDATE users SET address_json = ? WHERE id = ?")
+          .bind(await encryptJson(augmented), user.id)
+          .run();
+      } catch (geoErr) {
+        await logError("submitPii.geocode", geoErr, { userId: user.id });
+      }
+    };
+    try {
+      getCloudflareContext().ctx.waitUntil(geocodeAndUpdate());
+    } catch {
+      await geocodeAndUpdate();
+    }
+  } catch (err) {
+    if (err && typeof err === "object" && "digest" in err && String((err as { digest: unknown }).digest).startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
+    await logError("submitPii", err, { userId: user.id });
+    throw err;
+  }
   redirect("/start?step=benefitscal");
 }
 

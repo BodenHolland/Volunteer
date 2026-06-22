@@ -75,7 +75,7 @@ export interface BasketTemplateConfig {
 export const USDA_THRIFTY_6: BasketTemplateConfig = {
   id: BASKET_TEMPLATE_ID,
   version: BASKET_TEMPLATE_VERSION,
-  display_name: "USDA Thrifty 6-Item Basket",
+  display_name: "Neighborhood food price audit",
   items: [
     {
       id: "milk-gallon",
@@ -144,8 +144,8 @@ export const USDA_THRIFTY_6: BasketTemplateConfig = {
     },
     {
       id: "produce-banana-or-apple",
-      display_name: "Fresh produce",
-      spec: "Bananas or apples — per pound or per unit (whichever the store sells)",
+      display_name: "Bananas",
+      spec: "Bananas — per pound or per unit (whichever the store sells)",
       category: "produce",
       expected_size_range_min: 0.1,
       expected_size_range_max: 5.0,
@@ -394,9 +394,46 @@ export function detectPii(text: string): string | null {
   return null;
 }
 
-/** Hours credited from measured session time, capped at SESSION_CAP_MINUTES. */
+/** Hours credited from measured session time, capped at SESSION_CAP_MINUTES.
+ *  Legacy: kept for backward-compatibility with already-credited rows. New
+ *  audits use creditedHoursFromAuditInputs. */
 export function creditedHoursFromSeconds(seconds: number): number {
   const minutes = Math.max(0, seconds / 60);
   const capped = Math.min(minutes, SESSION_CAP_MINUTES);
   return Math.round((capped / 60) * 100) / 100;
+}
+
+/** Minutes of credited engagement per documented basket item — applies to
+ *  in-stock items (photo + price + size capture) and out-of-stock items
+ *  (verifying absence). The number is a structured estimate, not a measured
+ *  timer: a measured countdown stops if a volunteer backgrounds the app to
+ *  open the camera, so we credit per-task instead and bound it with a cap. */
+export const CREDIT_MINUTES_PER_ITEM = 5;
+/** Upper bound on commute time credited per audit, in minutes. Bounds the
+ *  total even when OSRM returns an unreasonably long round-trip estimate. */
+export const COMMUTE_CAP_MINUTES = 90;
+/** Upper bound on total credited time per audit, in minutes. */
+export const AUDIT_CAP_MINUTES = 120;
+
+/**
+ * Credited hours = (5 min × items documented) + round-trip commute minutes,
+ * each side bounded, then total bounded by AUDIT_CAP_MINUTES. Returns hours
+ * (rounded to 2 decimals).
+ *
+ *  - itemsDocumented: count of audit_item_captures with a non-null stock_status
+ *    on this audit (typically 6).
+ *  - oneWayCommuteSeconds: OSRM duration from home → store (or null when we
+ *    have no home geocode or routing failed; commute contributes 0).
+ */
+export function creditedHoursFromAuditInputs(
+  itemsDocumented: number,
+  oneWayCommuteSeconds: number | null
+): number {
+  const docMin = Math.max(0, itemsDocumented) * CREDIT_MINUTES_PER_ITEM;
+  const commuteMin =
+    oneWayCommuteSeconds == null
+      ? 0
+      : Math.min(COMMUTE_CAP_MINUTES, Math.max(0, (oneWayCommuteSeconds * 2) / 60));
+  const total = Math.min(AUDIT_CAP_MINUTES, docMin + commuteMin);
+  return Math.round((total / 60) * 100) / 100;
 }

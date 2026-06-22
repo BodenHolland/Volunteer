@@ -7,12 +7,11 @@ import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { requireUser } from "@/lib/session";
 import { putFile } from "@/lib/r2";
-import { processAudit, recomputeTrust } from "@/lib/audit-pipeline";
+import { computeCreditedHoursForAudit, processAudit, recomputeTrust } from "@/lib/audit-pipeline";
 import { logError } from "@/lib/audit";
-import { fetchOsmNearby, haversineMeters, type NearbyStore } from "@/lib/places";
+import { fetchOsmNearby, haversineMeters, nominatimSearch, type NearbyStore } from "@/lib/places";
 import {
   ANTI_DUP_WINDOW_DAYS,
-  creditedHoursFromSeconds,
   detectPii,
   findItem,
   isInCalifornia,
@@ -39,15 +38,60 @@ async function loadOwnedAudit(auditId: string): Promise<AuditRow | null> {
   return a;
 }
 
-export async function searchStoresAction(query: string): Promise<Store[]> {
-  const q = `%${query.trim().toLowerCase()}%`;
-  const res = await getDb()
-    .prepare(
-      `SELECT * FROM stores WHERE LOWER(name) LIKE ? OR LOWER(address) LIKE ? ORDER BY name LIMIT 20`
-    )
-    .bind(q, q)
-    .all<Store>();
-  return res.results ?? [];
+/**
+ * Free-text store search. Hits two sources in parallel and merges them:
+ *  - Our D1 `stores` table (instant, includes already-audited stores)
+ *  - OpenStreetMap Nominatim (broad, US-scoped, free, keyless)
+ *
+ * Results are deduped by OSM place_id (so a store we've audited before doesn't
+ * appear twice once Nominatim also returns it) and ranked by distance from the
+ * optional location hint, falling back to name order.
+ */
+export async function searchStoresAction(
+  query: string,
+  hint?: { lat: number; lng: number } | null
+): Promise<NearbyStore[]> {
+  await requireUser();
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const like = `%${q.toLowerCase()}%`;
+  const [dbRes, osm] = await Promise.all([
+    getDb()
+      .prepare(
+        `SELECT id, name, address, geocode_lat, geocode_lng, google_place_id
+         FROM stores WHERE LOWER(name) LIKE ? OR LOWER(address) LIKE ? ORDER BY name LIMIT 10`
+      )
+      .bind(like, like)
+      .all<{
+        id: string;
+        name: string;
+        address: string;
+        geocode_lat: number | null;
+        geocode_lng: number | null;
+        google_place_id: string | null;
+      }>(),
+    nominatimSearch(q, hint ?? undefined, 10),
+  ]);
+
+  const dbResults: NearbyStore[] = (dbRes.results ?? []).map((s) => ({
+    source: "db",
+    store_id: s.id,
+    place_id: s.google_place_id,
+    name: s.name,
+    address: s.address,
+    lat: s.geocode_lat ?? 0,
+    lng: s.geocode_lng ?? 0,
+    distance_m:
+      hint && s.geocode_lat != null && s.geocode_lng != null
+        ? haversineMeters(hint.lat, hint.lng, s.geocode_lat, s.geocode_lng)
+        : 0,
+  }));
+
+  const seen = new Set(dbResults.map((s) => s.place_id).filter(Boolean) as string[]);
+  const merged = [...dbResults, ...osm.filter((o) => !o.place_id || !seen.has(o.place_id))];
+  if (hint) merged.sort((a, b) => a.distance_m - b.distance_m);
+  return merged.slice(0, 10);
 }
 
 export async function selectStoreAction(formData: FormData) {
@@ -102,7 +146,7 @@ export async function nearbyStoresAction(lat: number, lng: number): Promise<Near
   const seen = new Set(dbNearby.map((s) => s.place_id).filter(Boolean) as string[]);
   const merged = [...dbNearby, ...osm.filter((o) => !o.place_id || !seen.has(o.place_id))];
   merged.sort((a, b) => a.distance_m - b.distance_m);
-  return merged.slice(0, 25);
+  return merged.slice(0, 10);
 }
 
 /**
@@ -502,7 +546,7 @@ export async function adminApproveAuditAction(formData: FormData) {
   const a = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(auditId).first<AuditRow>();
   if (!a) return;
 
-  const credited = creditedHoursFromSeconds(a.session_time_seconds);
+  const credited = await computeCreditedHoursForAudit(a.id);
   const now = Date.now();
   await db
     .prepare(

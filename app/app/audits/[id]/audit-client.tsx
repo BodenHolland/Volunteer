@@ -16,6 +16,8 @@ import type {
   StockStatus,
   StoreType,
 } from "@/lib/food-audit";
+/* Store is still used by Props from the server component, but the search list now
+ * deals in NearbyStore so DB hits and Nominatim hits can share one render path. */
 import type { NearbyStore } from "@/lib/places";
 import {
   captureItemAction,
@@ -84,9 +86,17 @@ export interface AuditCopy {
   save: string;
   submitTitle: string;
   measuredEngagement: string;
+  commuteAppend: string;
+  noCommute: string;
   submitting: string;
   submitBtn: string;
   finishSteps: string;
+}
+
+export interface CreditPreview {
+  itemsDocumented: number;
+  oneWayCommuteSeconds: number | null;
+  creditedHours: number;
 }
 
 interface Props {
@@ -97,9 +107,10 @@ interface Props {
   storeTypes: { value: StoreType; label: string; help: string }[];
   ebtOptions: { value: EbtObservation; label: string }[];
   copy: AuditCopy;
+  creditPreview: CreditPreview;
 }
 
-export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, copy }: Props) {
+export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, copy, creditPreview }: Props) {
   const sessionSeconds = useSessionTimer(audit.id);
   const allCaptured = captures.length === basketItems.length;
   const canSubmit =
@@ -146,7 +157,13 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
         <BasketStep auditId={audit.id} items={basketItems} captures={captures} copy={copy} />
       </Step>
 
-      <SubmitStep auditId={audit.id} canSubmit={canSubmit} sessionSeconds={sessionSeconds} copy={copy} />
+      <SubmitStep
+        auditId={audit.id}
+        canSubmit={canSubmit}
+        sessionSeconds={sessionSeconds}
+        copy={copy}
+        creditPreview={creditPreview}
+      />
     </div>
   );
 }
@@ -224,13 +241,14 @@ function Step({
 
 function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; currentStoreId: string | null; copy: AuditCopy }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Store[]>([]);
+  const [results, setResults] = useState<NearbyStore[]>([]);
   const [showNew, setShowNew] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Nearby-by-location state.
   const [locating, setLocating] = useState(false);
   const [nearby, setNearby] = useState<NearbyStore[] | null>(null);
+  const [hint, setHint] = useState<{ lat: number; lng: number } | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [picking, startPick] = useTransition();
 
@@ -241,18 +259,20 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
     }
     let cancelled = false;
     setLoading(true);
+    // Debounce 350ms — Nominatim's policy is ≤1 req/sec, and the longer pause
+    // also avoids firing on every keystroke mid-word.
     const t = setTimeout(async () => {
-      const r = await searchStoresAction(query);
+      const r = await searchStoresAction(query, hint);
       if (!cancelled) {
         setResults(r);
         setLoading(false);
       }
-    }, 200);
+    }, 350);
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [query]);
+  }, [query, hint]);
 
   function useMyLocation() {
     setGeoError(null);
@@ -263,6 +283,7 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        setHint({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         try {
           const list = await nearbyStoresAction(pos.coords.latitude, pos.coords.longitude);
           setNearby(list);
@@ -361,25 +382,34 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
       </div>
       {loading ? <p className="text-sm text-body">{copy.searching}</p> : null}
       <ul className="flex flex-col gap-1">
-        {results.map((s) => (
-          <li key={s.id}>
-            <form action={selectStoreAction}>
-              <input type="hidden" name="audit_id" value={auditId} />
-              <input type="hidden" name="store_id" value={s.id} />
+        {results.map((s) => {
+          const isCurrent = s.source === "db" && s.store_id === currentStoreId;
+          return (
+            <li key={s.place_id ?? s.store_id ?? `${s.lat},${s.lng}`}>
               <button
-                type="submit"
+                type="button"
+                onClick={() => pick(s)}
+                disabled={picking}
                 className={
-                  s.id === currentStoreId
-                    ? "w-full text-left rounded-md border border-forest bg-forest-subtle px-3 py-2"
-                    : "w-full text-left rounded-md border border-line hover:bg-section px-3 py-2"
+                  isCurrent
+                    ? "flex w-full items-center gap-3 rounded-md border border-forest bg-forest-subtle px-3 py-2 text-left disabled:opacity-60"
+                    : "flex w-full items-center gap-3 rounded-md border border-line px-3 py-2 text-left hover:bg-section disabled:opacity-60"
                 }
               >
-                <div className="font-medium text-ink">{s.name}</div>
-                <div className="text-sm text-body">{s.address}</div>
+                <MapPin className="size-4 shrink-0 text-forest" aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-ink">{s.name}</span>
+                  <span className="block truncate text-sm text-body">{s.address}</span>
+                </span>
+                {hint ? (
+                  <span className="shrink-0 text-xs text-meta">
+                    {formatDistance(s.distance_m, copy.away)}
+                  </span>
+                ) : null}
               </button>
-            </form>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
       <button
@@ -810,11 +840,13 @@ function SubmitStep({
   canSubmit,
   sessionSeconds,
   copy,
+  creditPreview,
 }: {
   auditId: string;
   canSubmit: boolean;
   sessionSeconds: number;
   copy: AuditCopy;
+  creditPreview: CreditPreview;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -831,6 +863,19 @@ function SubmitStep({
     if (result && !result.ok && result.error) setError(result.error);
   }
 
+  const commuteMinutes =
+    creditPreview.oneWayCommuteSeconds == null
+      ? null
+      : Math.round((creditPreview.oneWayCommuteSeconds * 2) / 60);
+  const commuteFragment =
+    commuteMinutes == null
+      ? copy.noCommute
+      : copy.commuteAppend.replace("{m}", String(commuteMinutes));
+  const creditLine = copy.measuredEngagement
+    .replace("{h}", creditPreview.creditedHours.toFixed(2))
+    .replace("{n}", String(creditPreview.itemsDocumented))
+    .replace("{commute}", commuteFragment);
+
   return (
     <form
       onSubmit={onSubmit}
@@ -839,9 +884,7 @@ function SubmitStep({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
-          <p className="text-sm text-body">
-            {copy.measuredEngagement.replace("{m}", String(Math.floor(sessionSeconds / 60))).replace("{s}", String(sessionSeconds % 60))}
-          </p>
+          <p className="text-sm text-body">{creditLine}</p>
         </div>
         <Button type="submit" disabled={!canSubmit || submitting} size="lg">
           {submitting ? copy.submitting : copy.submitBtn}

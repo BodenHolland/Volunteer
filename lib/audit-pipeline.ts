@@ -15,7 +15,11 @@
 import { getDb, getEnv, getFiles } from "./cf";
 import { newId } from "./ids";
 import { validateAuditPhoto, visionPasses, type VisionResult } from "./audit-vision";
+import { decryptField } from "./crypto";
+import { osrmRoute } from "./places";
+import { parseJson, type Address } from "./types";
 import {
+  creditedHoursFromAuditInputs,
   findItem,
   type AuditItemCaptureRow,
   type AuditPhotoRow,
@@ -255,8 +259,7 @@ export async function processAudit(auditId: string): Promise<void> {
     nextStatus = "flagged";
   } else {
     nextStatus = "verified";
-    const { creditedHoursFromSeconds } = await import("./food-audit");
-    credited = creditedHoursFromSeconds(audit.session_time_seconds);
+    credited = await computeCreditedHoursForAudit(auditId);
   }
 
   await db
@@ -293,6 +296,73 @@ export async function processAudit(auditId: string): Promise<void> {
   // 'flagged' stays in pending_review for human spot-review (already set on submit).
 
   await recomputeTrust(audit.user_id);
+}
+
+export interface AuditCreditBreakdown {
+  itemsDocumented: number;
+  oneWayCommuteSeconds: number | null;
+  creditedHours: number;
+}
+
+/**
+ * Server-side credit computation for an audit, broken down so the UI can
+ * explain *why* a volunteer is getting credited what they are.
+ *   credited = 5 min × items_documented + round-trip commute from home → store
+ * Each side is capped (see food-audit.ts constants). When the user has no
+ * geocoded home address, the store has no coords, or OSRM is down, commute
+ * is reported as null and we credit only the documentation time.
+ */
+export async function previewCreditForAudit(auditId: string): Promise<AuditCreditBreakdown> {
+  const db = getDb();
+  const audit = await db
+    .prepare("SELECT id, user_id, store_id FROM audits WHERE id = ?")
+    .bind(auditId)
+    .first<{ id: string; user_id: string; store_id: string | null }>();
+  if (!audit) return { itemsDocumented: 0, oneWayCommuteSeconds: null, creditedHours: 0 };
+
+  const itemsRow = await db
+    .prepare("SELECT COUNT(*) AS n FROM audit_item_captures WHERE audit_id = ?")
+    .bind(auditId)
+    .first<{ n: number }>();
+  const itemsDocumented = itemsRow?.n ?? 0;
+
+  let oneWaySeconds: number | null = null;
+  if (audit.store_id) {
+    const store = await db
+      .prepare("SELECT geocode_lat, geocode_lng FROM stores WHERE id = ?")
+      .bind(audit.store_id)
+      .first<{ geocode_lat: number | null; geocode_lng: number | null }>();
+    const userRow = await db
+      .prepare("SELECT address_json FROM users WHERE id = ?")
+      .bind(audit.user_id)
+      .first<{ address_json: string | null }>();
+    const addrPlain = await decryptField(userRow?.address_json);
+    const home = parseJson<Partial<Address>>(addrPlain, {});
+
+    if (
+      store?.geocode_lat != null &&
+      store?.geocode_lng != null &&
+      typeof home.lat === "number" &&
+      typeof home.lng === "number"
+    ) {
+      const route = await osrmRoute(
+        { lat: home.lat, lng: home.lng },
+        { lat: store.geocode_lat, lng: store.geocode_lng }
+      );
+      if (route) oneWaySeconds = route.durationSeconds;
+    }
+  }
+
+  return {
+    itemsDocumented,
+    oneWayCommuteSeconds: oneWaySeconds,
+    creditedHours: creditedHoursFromAuditInputs(itemsDocumented, oneWaySeconds),
+  };
+}
+
+/** Hours-only convenience wrapper for callers that don't need the breakdown. */
+export async function computeCreditedHoursForAudit(auditId: string): Promise<number> {
+  return (await previewCreditForAudit(auditId)).creditedHours;
 }
 
 async function getOrInitTrust(userId: string): Promise<TrustRow> {

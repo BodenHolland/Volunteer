@@ -232,11 +232,11 @@ const TASKS: SeedTask[] = [
     title: "Audit food prices at a store near you",
     category: "food-audit",
     short_description:
-      "Visit any food retailer and capture shelf-tag prices for a 6-item basket (milk, eggs, bread, rice, beans, fresh produce). You decide how many stores you do — hours credit based on your measured time.",
+      "Visit any food retailer and capture shelf-tag prices for 6 staples (milk, eggs, bread, rice, beans, bananas). You decide how many stores you do — hours credit based on items documented plus round-trip commute from home.",
     instructions_md:
-      "## What you'll do\nWalk into any food retailer — supermarket, bodega, ethnic market, dollar store, farmers market — and capture **shelf-tag prices** for a fixed 6-item USDA basket. You don't buy anything.\n\n1. Find a store.\n2. For each of the 6 items, snap **one photo** of the item next to its shelf tag, then enter the price and size.\n3. If an item is missing, mark it out-of-stock.\n4. Submit. Hours credit when your audit verifies.\n\n## What you get out of it\nVerified audits flow into a public food-access dataset showing where food is most affordable. The deliverable is free and public. Your time is credited against your SNAP work-requirement hours.",
+      "## What you'll do\nWalk into any food retailer — supermarket, bodega, ethnic market, dollar store, farmers market — and capture **shelf-tag prices** for the 6 staple items. You don't buy anything.\n\n1. Find a store.\n2. For each of the 6 items, snap **one photo** of the item next to its shelf tag, then enter the price and size.\n3. If an item is missing, mark it out-of-stock.\n4. Submit. Hours credit when your audit verifies.\n\n## What you get out of it\nVerified audits flow into a public food-access dataset showing where food is most affordable. The deliverable is free and public. Your time is credited against your SNAP work-requirement hours.",
     checklist: [
-      { id: "store", label: "Pick a real food retailer", required: true },
+      { id: "store", label: "Pick a retailer", required: true },
       { id: "basket", label: "Capture price + photo for each of the 6 items (or mark out-of-stock)", required: true },
       { id: "ebt", label: "Note whether the store appears to accept EBT", required: true },
     ],

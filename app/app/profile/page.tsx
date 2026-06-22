@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "./actions";
 import { getLocale } from "@/lib/i18n";
+import { PhoneInput } from "@/app/start/pii-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SNAP profile — Tended" };
@@ -142,7 +143,7 @@ export default async function ProfilePage({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">{c.phone}</Label>
-            <Input id="phone" name="phone" type="tel" defaultValue={phone ?? ""} autoComplete="tel" />
+            <PhoneInput defaultValue={phone ?? ""} />
           </div>
         </section>
 

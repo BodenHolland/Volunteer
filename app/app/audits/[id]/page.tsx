@@ -10,6 +10,7 @@ import {
   type AuditItemCaptureRow,
   type Store,
 } from "@/lib/food-audit";
+import { previewCreditForAudit } from "@/lib/audit-pipeline";
 import { AuditClient, type AuditCopy } from "./audit-client";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +18,8 @@ export const metadata = { title: "Food price audit — Tended" };
 
 const COPY = {
   en: {
-    overline: "Food access price audit",
-    title: "USDA Thrifty 6-item basket",
+    overline: "Neighborhood food price audit",
+    title: "Neighborhood food price audit",
     intro:
       "Visit any food retailer. For each of the 6 basket items, snap a photo of the item next to its shelf tag and enter the price.",
     client: {
@@ -70,15 +71,17 @@ const COPY = {
       saving: "Saving…",
       save: "Save",
       submitTitle: "Submit audit",
-      measuredEngagement: "{m}m {s}s of measured engagement so far.",
+      measuredEngagement: "Estimated credit: {h} hours · {n} items × 5 min{commute}",
+      commuteAppend: " + {m} min round-trip from your home",
+      noCommute: "",
       submitting: "Submitting…",
       submitBtn: "Submit audit",
       finishSteps: "Finish all 4 steps above before submitting.",
     },
   },
   es: {
-    overline: "Auditoría de precios de acceso a la comida",
-    title: "Canasta USDA Thrifty de 6 productos",
+    overline: "Auditoría de precios de comida del vecindario",
+    title: "Auditoría de precios de comida del vecindario",
     intro:
       "Visita cualquier tienda de comida. Para cada uno de los 6 productos de la canasta, toma una foto del producto junto a su etiqueta de precio en el estante e ingresa el precio.",
     client: {
@@ -130,7 +133,9 @@ const COPY = {
       saving: "Guardando…",
       save: "Guardar",
       submitTitle: "Enviar auditoría",
-      measuredEngagement: "{m}m {s}s de actividad medida hasta ahora.",
+      measuredEngagement: "Crédito estimado: {h} horas · {n} artículos × 5 min{commute}",
+      commuteAppend: " + {m} min ida y vuelta desde tu casa",
+      noCommute: "",
       submitting: "Enviando…",
       submitBtn: "Enviar auditoría",
       finishSteps: "Completa los 4 pasos de arriba antes de enviar.",
@@ -159,6 +164,11 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
     .all<AuditItemCaptureRow>();
   const captures = capturesRes.results ?? [];
 
+  // Compute the credit preview server-side so the submit step shows the
+  // volunteer exactly what they're being credited and why. Safe even when the
+  // audit is still incomplete — items count and commute reflect current state.
+  const creditPreview = await previewCreditForAudit(audit.id);
+
   return (
     <div className="mx-auto max-w-2xl pb-24">
       <header className="mb-6">
@@ -173,6 +183,7 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
         storeTypes={STORE_TYPES}
         ebtOptions={EBT_OBSERVATIONS}
         copy={c.client as AuditCopy}
+        creditPreview={creditPreview}
       />
     </div>
   );

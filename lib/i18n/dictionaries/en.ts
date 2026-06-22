@@ -29,7 +29,6 @@ export const en = {
     contact: "Contact",
     help: "Help center",
     snapEbt: "SNAP/EBT",
-    snapEbtCA: "SNAP/EBT & CF 888",
   },
   auth: {
     signInTitle: "Sign in",

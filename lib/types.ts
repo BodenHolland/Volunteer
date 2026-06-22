@@ -28,6 +28,11 @@ export interface Address {
   city: string;
   state: string;
   zip: string;
+  /** Forward-geocoded coordinates, set when the address is saved. Optional
+   *  because legacy rows and addresses Nominatim couldn't resolve won't have
+   *  them. Used to estimate round-trip commute distance to audit stores. */
+  lat?: number;
+  lng?: number;
 }
 
 export interface ChecklistItem {
