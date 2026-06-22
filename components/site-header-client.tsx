@@ -128,9 +128,7 @@ export function SiteHeaderClient({
             <Link href="/how-it-works" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
             <Link href="/data/hours-calculator" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.hoursCalculator}</Link>
-            <Link href="/help" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.help}</Link>
-            <Link href="/about" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.about}</Link>
-            <Link href="/for-organizations" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.forOrgs}</Link>
+            {!viewer && <Link href="/help" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.help}</Link>}
           </nav>
         </div>
 
@@ -180,9 +178,7 @@ export function SiteHeaderClient({
             <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
             <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
-            <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
-            <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
-            <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
+            {!viewer && <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>}
             <div className="my-1 h-px bg-white/15" />
             {viewer ? (
               <>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 const ADMIN_NAV = [
   { href: "/admin", label: "Overview" },
@@ -37,6 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8 md:px-6">
         {children}
       </main>
+      <SiteFooter />
     </>
   );
 }

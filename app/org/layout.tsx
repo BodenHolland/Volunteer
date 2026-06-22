@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export default async function OrgLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -15,6 +16,7 @@ export default async function OrgLayout({ children }: { children: React.ReactNod
       <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8 md:px-6">
         {children}
       </main>
+      <SiteFooter />
     </>
   );
 }

@@ -2,6 +2,8 @@ import { loadVerifiedAudits } from "@/lib/audit-aggregate";
 import { USDA_THRIFTY_6, STORE_TYPES } from "@/lib/food-audit";
 import { relativeTime } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 // Reads from D1 (Cloudflare context) which isn't available at prerender time.
 // We rely on Cloudflare's edge cache (Cache-Control headers from /api/data/audits.csv)
@@ -73,7 +75,10 @@ export default async function FoodAccessDashboardPage() {
   const c = COPY[locale];
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <>
+      <a href="#main" className="skip-link">Skip to content</a>
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-5xl px-4 py-10">
       <header className="mb-8">
         <p className="text-xs uppercase tracking-wide text-body">{c.publicDataset}</p>
         <h1 className="text-3xl font-semibold mt-1">{c.title}</h1>
@@ -166,6 +171,8 @@ export default async function FoodAccessDashboardPage() {
         {c.methodology}
       </footer>
     </main>
+    <SiteFooter />
+    </>
   );
 }
 
