@@ -47,7 +47,7 @@ Three research passes pushed the dataset from 13 high-confidence records (initia
 
 ## Monthly hour requirement — KEY OPERATIONAL FINDING
 
-Federal default is **80 hours/month**, but **6 states use the SNAP workfare formula** for general nonprofit volunteering (`allotment ÷ minimum wage`). In these states, recipients owe **dramatically fewer** hours per month — which means Tended can certify a full month's compliance with much less work. Three additional states (**MI, SD, GA**) offer the formula path *only* if the volunteer site is registered as a state workfare provider; general 501(c)(3) volunteering in those states defaults to 80.
+Federal default is **80 hours/month**, but **7 states use the SNAP workfare formula** for general nonprofit volunteering (`allotment ÷ minimum wage`). In these states, recipients owe **dramatically fewer** hours per month — which means Tended can certify a full month's compliance with much less work. Three additional states (**MI, SD, AR**) offer the formula path *only* if the volunteer site is registered as a state workfare provider; general 501(c)(3) volunteering in those states defaults to 80.
 
 | State | Hours/month | Formula |
 |---|---|---|
@@ -55,9 +55,10 @@ Federal default is **80 hours/month**, but **6 states use the SNAP workfare form
 | **ME** | 19 | allotment ÷ $15.10 ME min wage |
 | **MA** | 20 | allotment ÷ $15.00 MA min wage |
 | **VT** | 20 | allotment ÷ $14.42 VT min wage |
+| **GA** | 40 | allotment ÷ $7.25 federal min wage (PAMMS 3355 Comparable Workfare; self-initiated placement permitted) |
 | **VA** | 40 | allotment ÷ $7.25 federal min wage |
 | **PA** | 41 | allotment ÷ $7.25 federal min wage |
-| Other 45 jurisdictions | **80** | federal baseline (MI/SD/GA included unless site is state-registered workfare) |
+| Other 44 jurisdictions | **80** | federal baseline (MI/SD/AR included unless site is state-registered workfare) |
 
 **Implication:** Tended's recipient UX should show the state-specific monthly hour goal, not a generic "80 hours." A NYC recipient who does 10 hours of civic work in a month has met their full ABAWD requirement.
 

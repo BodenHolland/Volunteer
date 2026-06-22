@@ -25,10 +25,10 @@ export default async function HoursCalculatorPage() {
               How many volunteer hours does ABAWD actually require?
             </h1>
             <p className="mx-auto mt-4 max-w-[680px] text-center text-lg leading-relaxed text-body">
-              The federal default is 80 hours per month — but 6 states (NY, ME, MA, VT, PA, VA) use
-              the SNAP workfare formula for general nonprofit volunteering, which can drop the
+              The federal default is 80 hours per month — but 7 states (NY, ME, MA, VT, PA, VA, GA)
+              use the SNAP workfare formula for general nonprofit volunteering, which can drop the
               requirement to as few as <span className="font-medium text-ink">10 hours</span> in New
-              York City. Three more (MI, SD, GA) offer the lower formula only at state-registered
+              York City. Three more (MI, SD, AR) offer the lower formula only at state-registered
               workfare sites.
             </p>
             <div className="service-panel mx-auto mt-6 flex max-w-[760px] items-start gap-3 border-amber/40 bg-amber-subtle p-5 text-left">
@@ -66,11 +66,11 @@ export default async function HoursCalculatorPage() {
               {[
                 {
                   title: "Federal baseline · 80 hrs/month",
-                  body: "Applies in 45 jurisdictions (including MI, SD, GA for general nonprofit volunteering). The standard 20-hours-a-week ABAWD work requirement.",
+                  body: "Applies in 44 jurisdictions (including MI, SD, AR for general nonprofit volunteering). The standard 20-hours-a-week ABAWD work requirement.",
                 },
                 {
                   title: "Workfare-formula states · varies",
-                  body: "NY, ME, MA, VT, PA, VA compute hours as SNAP allotment ÷ state min wage for any nonprofit volunteering. NY is the only one with sub-state regional rates (NYC/LI $17 vs upstate $15.50).",
+                  body: "NY, ME, MA, VT, PA, VA, GA compute hours as SNAP allotment ÷ state min wage for any nonprofit volunteering. NY is the only one with sub-state regional rates (NYC/LI $17 vs upstate $15.50).",
                 },
                 {
                   title: "Upper bound caveat",

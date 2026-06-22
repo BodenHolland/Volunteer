@@ -1,10 +1,10 @@
 {
-  "schema_version": 2,
-  "last_verified": "2026-06-21",
+  "schema_version": 3,
+  "last_verified": "2026-06-22",
   "next_review_by": "2027-01-15",
   "federal_default_hours": 80,
   "federal_minimum_wage_usd": 7.25,
-  "doc": "Per-state ABAWD monthly hour requirement. States not listed default to federal_default_hours (80). For workfare-formula states, the calculator computes floor(snap_max_allotment[household_size] / minimum_wage_used). Only NY has sub-state regional variation (NYC/LI vs upstate). MI/SD/GA were removed from this list in schema v2: their workfare formula only applies when the volunteer site is registered as a state workfare provider — general nonprofit volunteering defaults to 80 hours. See workfare_if_registered for those cases.",
+  "doc": "Per-state ABAWD monthly hour requirement. States not listed default to federal_default_hours (80). For workfare-formula states, the calculator computes floor(snap_max_allotment[household_size] / minimum_wage_used). Only NY has sub-state regional variation (NYC/LI vs upstate). Schema v3 (2026-06-22): GA moved back into `states` after re-verification of PAMMS 3355 confirmed self-initiated placement is permitted (Form 805 PART I is the case-manager's hours-calculation worksheet, not a site-approval gate); AR added to workfare_if_registered after verification of Arkansas SNAP Manual §3700/§3730 (Comparable Workfare lane only).",
   "workfare_if_registered": {
     "doc": "States where the workfare formula yields lower required hours, BUT only when the volunteer site is registered as a state-approved workfare/comparable-workfare/SICS provider. Tended-style general 501(c)(3) volunteering at an unregistered nonprofit gets 80 hrs in these states.",
     "MI": {
@@ -19,11 +19,11 @@
       "minimum_wage_usd": 11.50,
       "policy_source_url": "https://dss.sd.gov/docs/economicassistance/snap/snapmanual.pdf"
     },
-    "GA": {
+    "AR": {
       "alternative_path_name": "Comparable Workfare",
-      "requirement": "Site must be a DFCS-registered Comparable Workfare provider (Form 805)",
-      "minimum_wage_usd": 7.25,
-      "policy_source_url": "https://pamms.dhs.ga.gov/dfcs/snap/3355/"
+      "requirement": "Supervising site must be an authorized Comparable Workfare entity meeting AR DHS reporting/supervision rules (church, local government agency, or other non-profit per AR SNAP Manual §3700)",
+      "minimum_wage_usd": 11.00,
+      "policy_source_url": "https://humanservices.arkansas.gov/wp-content/uploads/Complete_SNAP_Manual.pdf"
     }
   },
   "states": {
@@ -65,6 +65,13 @@
       "minimum_wage_source_url": "https://www.doli.virginia.gov/labor-law-resources/",
       "policy_source_url": "https://www.dss.virginia.gov/files/division/bp/snap/manuals_forms/manual/Part_XV.pdf",
       "note": "Virginia SNAP Manual Part XV.A.4 explicitly uses federal $7.25, NOT Virginia's higher state minimum wage ($12.41 in 2026)."
+    },
+    "GA": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 7.25,
+      "minimum_wage_source_url": "https://www.dol.gov/agencies/whd/state/minimum-wage/state",
+      "policy_source_url": "https://pamms.dhs.ga.gov/dfcs/snap/3355/",
+      "note": "PAMMS 3355 Comparable Workfare: 'the ABAWD is responsible for arranging their own placement at a nonprofit or for-profit provider.' Form 805 PART I is the case-manager's hours-required calculation worksheet (allotment ÷ $7.25), NOT a site-registration gate. Hours capped at 30/week."
     },
     "PA": {
       "formula": "workfare_allotment_over_minwage",

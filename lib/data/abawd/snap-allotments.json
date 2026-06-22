@@ -41,5 +41,5 @@
       "each_additional": 396
     }
   },
-  "notes": "AK and HI values are approximate FY2026 figures and are NOT used in the ABAWD hours calculator (both states use the federal_80 default, so allotment-based math does not apply). The contiguous_48_and_dc table is the only one used by the calculator, since all 6 true-workfare-formula states (NY, ME, MA, VT, PA, VA) and all 3 workfare-if-registered states (MI, SD, GA) are in that region."
+  "notes": "AK and HI values are approximate FY2026 figures and are NOT used in the ABAWD hours calculator (both states use the federal_80 default, so allotment-based math does not apply). The contiguous_48_and_dc table is the only one used by the calculator, since all 7 true-workfare-formula states (NY, ME, MA, VT, PA, VA, GA) and all 3 workfare-if-registered states (MI, SD, AR) are in that region."
 }

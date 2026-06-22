@@ -233,7 +233,7 @@ export function calculate({
       monthlyHours: hoursByState.federal_default_hours,
       formula: "federal_80",
       explanation:
-        "This state follows the federal ABAWD baseline of 80 hours per month (or 20 hours per week) — uniform across the 45 jurisdictions that have not adopted the workfare formula for general nonprofit volunteering.",
+        "This state follows the federal ABAWD baseline of 80 hours per month (or 20 hours per week) — uniform across the 44 jurisdictions that have not adopted the workfare formula for general nonprofit volunteering.",
       asOf,
       nextReviewBy,
       staleWarning,
