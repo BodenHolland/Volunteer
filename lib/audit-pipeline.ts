@@ -15,8 +15,8 @@
 import { getDb, getEnv, getFiles } from "./cf";
 import { newId } from "./ids";
 import { validateAuditPhoto, visionPasses, type VisionResult } from "./audit-vision";
-import { decryptField } from "./crypto";
-import { osrmRoute } from "./places";
+import { decryptField, encryptJson } from "./crypto";
+import { nominatimGeocode, osrmRoute } from "./places";
 import { parseJson, type Address } from "./types";
 import {
   commuteSecondsForMode,
@@ -363,6 +363,42 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
       .first<{ address_json: string | null }>();
     const addrPlain = await decryptField(userRow?.address_json);
     const home = parseJson<Partial<Address>>(addrPlain, {});
+
+    // Self-heal: an address was saved but the original background geocode call
+    // may have failed silently. Try once on this render so the user doesn't
+    // have to re-save their profile to get commute estimates.
+    if (
+      (typeof home.lat !== "number" || typeof home.lng !== "number") &&
+      home.line1 &&
+      home.city &&
+      home.state
+    ) {
+      try {
+        const geo = await nominatimGeocode(
+          [home.line1, home.city, home.state, home.zip].filter(Boolean).join(", ")
+        );
+        if (geo) {
+          home.lat = geo.lat;
+          home.lng = geo.lng;
+          // Persist so we don't re-geocode on every page load.
+          const augmented: Address = {
+            line1: home.line1!,
+            line2: home.line2,
+            city: home.city!,
+            state: home.state!,
+            zip: home.zip ?? "",
+            lat: geo.lat,
+            lng: geo.lng,
+          };
+          await db
+            .prepare("UPDATE users SET address_json = ? WHERE id = ?")
+            .bind(await encryptJson(augmented), audit.user_id)
+            .run();
+        }
+      } catch {
+        // Nominatim down or rate-limited — UI will show "can't estimate" copy.
+      }
+    }
 
     if (
       store?.geocode_lat != null &&

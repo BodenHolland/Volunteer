@@ -99,6 +99,7 @@ export interface AuditCopy {
   commuteHint: string;
   commuteRoundTrip: string;
   commuteUnknown: string;
+  commuteUnknownCta: string;
   customCommuteTitle: string;
   customCommuteHint: string;
   customCommuteClear: string;
@@ -261,11 +262,18 @@ function CommutePanel({
           );
         })}
       </div>
-      <p className="mt-3 text-sm text-body">
-        {roundTripMin == null
-          ? copy.commuteUnknown
-          : copy.commuteRoundTrip.replace("{m}", String(roundTripMin))}
-      </p>
+      {roundTripMin == null ? (
+        <p className="mt-3 text-sm text-body">
+          {copy.commuteUnknown}{" "}
+          <a href="/app/profile" className="font-medium text-forest hover:underline">
+            {copy.commuteUnknownCta}
+          </a>
+        </p>
+      ) : (
+        <p className="mt-3 text-sm text-body">
+          {copy.commuteRoundTrip.replace("{m}", String(roundTripMin))}
+        </p>
+      )}
       {capMinutes != null ? (
         <CustomCommute auditId={auditId} userMinutes={userMinutes} capMinutes={capMinutes} copy={copy} />
       ) : null}
