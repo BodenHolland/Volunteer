@@ -3,13 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  BookOpen,
-  Building2,
-  Calculator,
   ChevronDown,
   CircleHelp,
   LayoutDashboard,
-  ListChecks,
   Menu,
   Settings,
   UserRound,
@@ -114,7 +110,6 @@ export function SiteHeaderClient({
   viewer: Viewer | null;
 }) {
   const [open, setOpen] = useState(false);
-  const [mega, setMega] = useState(false);
   const workspaceLabel = viewer ? WorkspaceLabel(viewer) : null;
 
   return (
@@ -130,43 +125,10 @@ export function SiteHeaderClient({
                 <LayoutDashboard className="size-4" /> {workspaceLabel}
               </Link>
             )}
-            <div className="relative" onMouseEnter={() => setMega(true)} onMouseLeave={() => setMega(false)}>
-              <button className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white" aria-expanded={mega}>
-                {t.howItWorks} <ChevronDown className="size-4" />
-              </button>
-              {mega && (
-                <div className="absolute left-0 top-full pt-2 w-[520px]">
-                  <div className="rounded-lg border border-line bg-white p-4 text-ink shadow-sm">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <Link href="/how-it-works#civic-work" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Online volunteering</Link>
-                        <Link href="/how-it-works#calfresh" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">SNAP/EBT certification</Link>
-                        <Link href="/how-it-works#identity" className="block rounded-md px-2 py-1.5 text-sm font-medium hover:bg-section">Privacy &amp; identity</Link>
-                      </div>
-                      <div className="space-y-2">
-                        <Link href="/about" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                          <BookOpen className="mt-0.5 size-[18px] text-teal" />
-                          <span><span className="block text-sm font-semibold">About Tended</span><span className="block text-xs text-body">Why we built Tended.</span></span>
-                        </Link>
-                        <Link href="/for-organizations" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                          <Building2 className="mt-0.5 size-[18px] text-teal" />
-                          <span><span className="block text-sm font-semibold">For organizations</span><span className="block text-xs text-body">Host tasks and review work.</span></span>
-                        </Link>
-                        <Link href="/data/hours-calculator" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                          <Calculator className="mt-0.5 size-[18px] text-teal" />
-                          <span><span className="block text-sm font-semibold">{t.hoursCalculator}</span><span className="block text-xs text-body">How many hours you need to keep benefits.</span></span>
-                        </Link>
-                        <Link href="/help" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
-                          <CircleHelp className="mt-0.5 size-[18px] text-teal" />
-                          <span><span className="block text-sm font-semibold">{t.help}</span><span className="block text-xs text-body">Methodology &amp; the law behind it.</span></span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Link href="/how-it-works" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
+            <Link href="/data/hours-calculator" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.hoursCalculator}</Link>
+            <Link href="/help" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.help}</Link>
             <Link href="/about" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.about}</Link>
             <Link href="/for-organizations" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.forOrgs}</Link>
           </nav>
@@ -177,8 +139,9 @@ export function SiteHeaderClient({
           {viewer ? (
             <>
               <DropdownMenu>
-                <DropdownMenuTrigger className="hidden items-center gap-2 rounded-full border border-white/30 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 md:flex">
-                  {viewer.name.split(" ")[0]} <ChevronDown className="size-4 text-blue-100" />
+                <DropdownMenuTrigger aria-label={`Account: ${viewer.name}`} className="hidden items-center gap-1.5 rounded-full border border-white/30 py-1 pl-1 pr-2 text-sm font-medium text-white hover:bg-white/10 md:flex">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-white/15 text-xs font-semibold text-white">{viewer.name.trim().slice(0, 1).toUpperCase() || "U"}</span>
+                  <ChevronDown className="size-4 text-blue-100" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{viewer.email}</DropdownMenuLabel>
@@ -214,12 +177,12 @@ export function SiteHeaderClient({
                 <div className="my-1 h-px bg-white/15" />
               </>
             )}
-            <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
             <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
+            <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
             <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
+            <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
             <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
             <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
-            <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
             <div className="my-1 h-px bg-white/15" />
             {viewer ? (
               <>
