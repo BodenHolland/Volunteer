@@ -1,0 +1,45 @@
+{
+  "fiscal_year": 2026,
+  "effective_start": "2025-10-01",
+  "effective_end": "2026-09-30",
+  "source": "USDA FNS SNAP COLA",
+  "source_url": "https://www.fns.usda.gov/snap/allotment/cola",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2026-10-15",
+  "max_monthly_allotment_usd": {
+    "contiguous_48_and_dc": {
+      "1": 292,
+      "2": 536,
+      "3": 768,
+      "4": 975,
+      "5": 1158,
+      "6": 1390,
+      "7": 1536,
+      "8": 1756,
+      "each_additional": 220
+    },
+    "alaska_urban": {
+      "1": 378,
+      "2": 693,
+      "3": 992,
+      "4": 1260,
+      "5": 1496,
+      "6": 1796,
+      "7": 1985,
+      "8": 2269,
+      "each_additional": 284
+    },
+    "hawaii": {
+      "1": 527,
+      "2": 967,
+      "3": 1385,
+      "4": 1759,
+      "5": 2088,
+      "6": 2506,
+      "7": 2770,
+      "8": 3167,
+      "each_additional": 396
+    }
+  },
+  "notes": "AK and HI values are approximate FY2026 figures and are NOT used in the ABAWD hours calculator (both states use the federal_80 default, so allotment-based math does not apply). The contiguous_48_and_dc table is the only one used by the calculator, since all 6 true-workfare-formula states (NY, ME, MA, VT, PA, VA) and all 3 workfare-if-registered states (MI, SD, GA) are in that region."
+}

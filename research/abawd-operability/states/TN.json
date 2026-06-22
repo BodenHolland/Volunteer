@@ -1,0 +1,51 @@
+{
+  "state": "TN",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Religious or community events or public/private agencies (Policy 24.11, ABAWD exemption #14). No 501(c)(3)-specific restriction stated; nonprofits qualify as private agencies. 2025 DHS announcements describe 'reputable source' as the only qualifier.",
+  "verification_instrument": "HS-2772 (SNAP and Families First Verification Checklist) — general documentation checklist; volunteer hours uploaded as supporting documents via the One DHS Customer Portal (onedhs.tn.gov). No Tennessee-specific volunteer hours certification form found; caseworker accepts documentation from the volunteer organization.",
+  "hours_reporting": "self_reported",
+  "required_prestep": "none",
+  "remote_stance": "silent",
+  "tier": "1_clean",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "Policy 24.11 exemption #14 states verbatim: 'Volunteering for at least twenty (20) hours a week or eighty (80) a month at religious or community events or public/private agencies.' Volunteer lane requirement equals the federal 80-hour baseline.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "Policy 24.11 and all TN DHS public-facing ABAWD materials specify only 'religious or community events or public/private agencies' and 'reputable source' as qualifiers. No geographic restriction on the certifying organization is stated anywhere in state policy. Federal default (7 CFR 273.24) does not restrict nonprofit location; absent an explicit state restriction, out-of-state 501(c)(3)s should be operationally accepted.",
+  "geographic_waivers": "none — fully enforced statewide. Tennessee had no ABAWD time limit waivers in FY2025 or FY2026. All pre-OBBBA waivers nationally expired or were terminated by November 2, 2026; as of that date USDA listed no active ABAWD waivers for Tennessee.",
+  "submission_mechanism": [
+    "online_portal",
+    "paper_county_office"
+  ],
+  "reporting_cadence": "unknown",
+  "submission_deadline": "unknown — Policy 24.11 does not specify a monthly reporting deadline for ongoing volunteer hours. Recipients are instructed to upload verification via the One DHS Customer Portal or visit a local TDHS county office. A one-time deadline of October 31, 2025 was announced for the OBBBA transition period. Ongoing cadence not explicitly stated.",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://www.tn.gov/humanservices/for-families/supplemental-nutrition-assistance-program-snap/snap-abawd-information.html",
+    "https://www.tn.gov/humanservices/news/2025/9/22/new-federal-law-updates-snap-work-requirements-for-able-bodied-adults-without-dependents--abawds--in-tennessee-.html",
+    "https://www.tn.gov/content/dam/tn/human-services/documents/24.11_SNAP_Work_Requirements_-_Esigned_unlined.pdf",
+    "https://www.tn.gov/content/dam/tn/human-services/documents/hs_2772.pdf",
+    "https://sycamoretn.org/snap-in-tn/",
+    "https://www.tn.gov/content/dam/tn/workforce/documents/ProgramManagement/SNAP_manual.pdf",
+    "https://www.tn.gov/content/dam/tn/human-services/documents/TN_snap_et_state_plan.pdf",
+    "https://www.fns.usda.gov/snap-et/stateplan/tennessee",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029",
+    "https://www.fna.usda.gov/snap/abawd/waivers"
+  ],
+  "notes": "Tennessee Policy 24.11 (SNAP Work Requirements, eff. March 2023) explicitly lists volunteer work as ABAWD exemption #14 — 'volunteering for at least 20 hours a week or 80 a month at religious or community events or public/private agencies' — with no mandatory county assignment, EDP, or provider registration required. No state-specific volunteer verification form was found; verification is submitted via the One DHS Customer Portal as general documentation. Confidence is medium because Policy 24.11 predates the 2025 OBBBA/HR1 changes and a procedure manual referenced in the policy was not publicly accessible to confirm operational details have not changed.\n\nREFINEMENT PASS (2026-06-21): Conducted adversarial review with 4 fresh search angles (TN SNAP work registration/case manager/EDP, E&T State Plan FY2026 volunteer component, approved site list/nonprofit provider registration, legal aid 2025-2026 volunteer verification). Also successfully extracted the full text of Policy 24.11 via pdfminer from the locally cached PDF. Key findings: (1) Policy 24.11 'Maintaining Eligibility' section (p.15) lists volunteer work as standalone option #2 — 'completing volunteer work or work for benefits in lieu of wages or a combination of the types of work for at least twenty (20) hours per week' — requiring no E&T enrollment. (2) Policy 24.11 explicitly states 'Currently Tennessee is operating under a Voluntary E&T program' — there is no mandatory E&T intake or case manager assignment required before volunteer hours count. (3) No approved site list was found anywhere in Policy 24.11 or supporting materials; the only qualifier is 'religious or community events or public/private agencies.' (4) Work registration at SNAP application signing is a universal baseline requirement under 7 CFR 273.7 — it is not a volunteer-track-specific prestep and is completed by signing the SNAP application. (5) The verification instrument is HS-2772 ('SNAP and Families First Verification Checklist'), a general eligibility document; volunteer hours are uploaded as supporting documentation to the One DHS Customer Portal. No Tennessee-specific volunteer hours form exists. (6) The Sept 2025 TN DHS announcement on HR1/OBBBA changes confirms the volunteer lane structure is unchanged — only the age ceiling (expanded to 64) and clock period changed. Adversarial search found NO evidence of a mandatory EDP, approved site list, provider MOU, or case manager assignment required before volunteer hours count toward ABAWD compliance. Tier 1 classification confirmed. Confidence upgraded to high based on direct verbatim Policy 24.11 text extraction confirming all material fields.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) Hours formula: Policy 24.11 exemption #14 verbatim states 80 hours/month or 20 hours/week — confirmed federal_80 baseline, not workfare formula. (2) Out-of-state nonprofit: Policy 24.11 and all TN DHS materials use 'public/private agencies' and 'reputable source' with no geographic restriction on the certifying org — coded 'silent'; federal default permits out-of-state orgs absent explicit state restriction. (3) Geographic waivers: Tennessee had no active ABAWD waivers in FY2025/FY2026; all national waivers expired or were terminated post-OBBBA by November 2026. Fully enforced statewide. (4) Submission UX: One DHS Customer Portal (online upload) and local TDHS county office confirmed as mechanisms. No explicit monthly reporting deadline found in Policy 24.11; a one-time Oct 31, 2025 deadline applied to the OBBBA transition. Ongoing cadence coded 'unknown'. (5) Form fields: No TN-specific volunteer verification form exists; caseworker accepts org-provided documentation — defaulted to the standard baseline fields.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-06-21"
+}

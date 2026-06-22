@@ -1,0 +1,46 @@
+{
+  "state": "MT",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Religious or community organizations, or private individuals (SNAP 801-1). No 501(c)(3) restriction stated; broad 'community organization' language used.",
+  "verification_instrument": "Verbal or written statement from the volunteer organization or individual for whom volunteer work is being done (SNAP 801-1). No state-issued form exists; policy explicitly prohibits forms on department or state letterhead due to Workers' Compensation liability concerns.",
+  "hours_reporting": "self_reported",
+  "required_prestep": "none",
+  "remote_stance": "silent",
+  "tier": "1_clean",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "SNAP 801-1 explicitly states 80 hours in a four-week period (20 hours/week averaged monthly). The E&T Workfare component separately uses allotment ÷ higher of federal or state minimum wage, but that formula applies only within the voluntary E&T workfare track — not the general volunteer lane.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "SNAP 801-1 requires a 'verbal or written statement from the volunteer organization or individual for whom volunteer work is being done.' The policy specifies 'religious or community organizations or private individuals' with no location requirement or in-state restriction. No source found addresses out-of-state nonprofits explicitly. Federal default (any qualifying nonprofit) applies absent state restriction.",
+  "geographic_waivers": "No active county-level ABAWD waivers found for 2026. SNAP 803-1 references SNAP 802-1 for geographically waived areas, but no current 802-1 source was publicly accessible. The OBBBA eliminated the historical 'lack of sufficient jobs' waiver authority; FNA directed termination of waivers approved under that criterion. Montana's ABAWD fixed 36-month span runs July 1, 2023 through June 30, 2026 (fully enforced). Status should be verified directly with MT DPHHS.",
+  "submission_mechanism": [
+    "paper_county_office"
+  ],
+  "reporting_cadence": "other",
+  "submission_deadline": "Simplified Reporting: ABAWDs must report when hours drop below 20/week (80/month). Reportable changes are acted on within 10 days of receipt. Exemptions are re-evaluated at Simplified Report and Recertification. No monthly submission deadline for ongoing volunteer hour verification — verification is provided at the point of contact or when a change triggers reporting.",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://dphhs.mt.gov/assets/hcsd/snapmanual/SNAP801.1.pdf",
+    "https://dphhs.mt.gov/assets/hcsd/snapmanual/SNAP800.pdf",
+    "https://dphhs.mt.gov/assets/hcsd/snapmanual/SNAP803.1.7.23.pdf",
+    "https://dphhs.mt.gov/HCSD/SNAP/",
+    "https://www.mt-et.com/content/dam/mt-et/documents/StatePlan_MT_2026_Original%20Submission_Approved.pdf",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029",
+    "https://www.fna.usda.gov/snap/obbb-abawd-waivers-implementation"
+  ],
+  "notes": "Montana SNAP 801-1 (effective October 1, 2025) explicitly allows volunteer/non-compensation work at religious or community organizations to satisfy the 80-hour/month ABAWD requirement, verified by a verbal or written statement from the org — no state form, no MOU, no EDP, no county assignment required. The policy further specifies that no form tying the agency to the volunteer site should be used, confirming the general volunteer lane is fully self-directed. SNAP E&T (available only in Lewis & Clark, Missoula, and Yellowstone counties) is an optional alternative path, not a mandatory pre-step.\n\nREFINEMENT PASS (2026-06-21): Conducted adversarial review of the Tier 1 classification using four fresh search angles: MT SNAP work registration intake / case manager, MT SNAP E&T State Plan FY2026, MT food assistance ABAWD approved volunteer site list, and MT SNAP ABAWD legal aid 2025-2026. Located and fully text-extracted the approved FY2026 MT SNAP E&T State Plan (96 pp., approved 09/11/2025) from mt-et.com, and also extracted the SNAP 803-1 and SNAP 801-1 policy PDFs directly. Key adversarial findings: (1) FY2026 State Plan p.14 explicitly states 'Montana has all voluntary E&T programs and exempts all work registrants' — all 20,435 estimated work registrants are exempt from mandatory E&T (100%), and anticipated mandatory E&T participants = 0. (2) SNAP 803-1 states ABAWDs 'may choose to meet the work requirement through E&T or independently' — the word 'independently' directly forecloses any argument that E&T enrollment is a required pre-step before volunteer hours can be self-reported. (3) SNAP 801-1 text confirmed verbatim: volunteer hours verified by 'verbal or written statement from the volunteer organization or individual for whom volunteer work is being done'; policy explicitly says 'do not use any form which ties the agency to the volunteer site (i.e., do not use department or state letterhead).' (4) The FY2026 State Plan does describe a workfare component (p.55) that requires signed worksite agreements with nonprofits — but this is the E&T workfare track, which is both voluntary and entirely separate from the general volunteer lane in SNAP 801-1. No crossover requirement found. (5) No approved volunteer site list exists anywhere in the 96-page FY2026 plan or in any other source found. (6) Work registration itself (per State Plan p.20) is completed by signing the SNAP application — no intake interview with a case manager, no employability plan, no referral required before volunteer hours can count. Confidence raised to high (was already high; now corroborated by direct PDF text from SNAP 801-1, SNAP 803-1, and FY2026 SNAP E&T State Plan). The Tier 1 classification is robustly confirmed; no hidden pre-step, MOU, or site-approval requirement was found.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) HOURS: Federal 80-hour baseline confirmed verbatim in SNAP 801-1 ('80 hours in four weeks'). FY2026 State Plan p.55 Workfare component uses allotment ÷ min-wage formula, but this applies only within the voluntary E&T workfare track, not the general volunteer lane. hours_formula=federal_80. (2) OUT-OF-STATE NONPROFIT: SNAP 801-1 uses 'religious or community organizations or private individuals' with no location restriction. No source found addresses in-state vs. out-of-state. Policy is silent; federal default (any qualifying organization) applies. accepts_outofstate_nonprofit=silent. (3) GEOGRAPHIC WAIVERS: No active county-level ABAWD waivers for MT found in 2026. OBBBA eliminated the historical lack-of-sufficient-jobs waiver authority. SNAP 803-1 references SNAP 802-1 but that source was not publicly accessible; no active waivers confirmed. Montana's ABAWD span ends June 30, 2026. (4) SUBMISSION UX: Simplified Reporting model — no monthly submission form; ABAWDs report changes within 10 days; exemptions evaluated at recertification. Submission goes to county DPHHS office. submission_mechanism=paper_county_office, reporting_cadence=other (change-triggered + recertification). (5) FORM FIELDS: No required state form exists; SNAP 801-1 explicitly bans agency-letterhead forms. Baseline fields inferred from what a valid verbal/written statement must convey: org_name, org_signature, recipient_name, hours_total, activity_description, period_start_date, period_end_date. No notarization, EIN, case number, or DOB required by policy.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-06-21"
+}

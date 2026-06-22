@@ -1,0 +1,46 @@
+{
+  "state": "UT",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "unknown",
+  "qualifying_org_definition": "unknown",
+  "verification_instrument": "unknown",
+  "hours_reporting": "unknown",
+  "required_prestep": "unknown",
+  "remote_stance": "unknown",
+  "tier": "3_blocked_or_unclear",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "Utah policy explicitly states '20 hours per week or 80 hours per month' — federal baseline, no workfare formula used.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "Utah policy does not operationalize a volunteer/nonprofit lane at all (see notes), so no in-state vs. out-of-state restriction is stated anywhere. No DWS source addresses nonprofit location. Federal default (any qualifying nonprofit) applies by silence, but the lane itself is unimplemented, making the question moot in practice.",
+  "geographic_waivers": "none — fully enforced statewide. Utah has no active ABAWD waivers for FY2026. The FY26 E&T State Plan does not claim ABAWD pledge funds and no FNA waiver filings for Utah appear in the FY2025–2029 waiver database.",
+  "submission_mechanism": [
+    "paper_county_office",
+    "online_portal"
+  ],
+  "reporting_cadence": "monthly",
+  "submission_deadline": "by the 10th day of the month following a change in work hours; general compliance verified at monthly E&T counselor contact and at recertification",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://jobs.utah.gov/infosource/eligibilitymanual/300_Participation_Requirements/342_SNAP_Work_Requirements.htm",
+    "https://jobs.utah.gov/customereducation/services/foodstamps/work_able.html",
+    "https://jobs.utah.gov/customereducation/services/foodstamps/etplan.pdf",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029",
+    "https://www.fna.usda.gov/snap/work-requirements/policies/allocations-abawds-fy26"
+  ],
+  "notes": "Utah's state ABAWD policy (section 342, effective May 2026) lists only paid employment (20 hr/wk or 80 hr/month), WIOA/Trade Act training, and approved training programs as qualifying activities — volunteer/community service at nonprofits is entirely absent from state policy. The FY26 E&T State Plan (submitted 09/22/2025) explicitly categorizes ABAWDs as a state E&T exemption, projects zero ABAWDs served in E&T, and does not offer a workfare or volunteer component. No state form for nonprofit volunteer-hour verification was found in any state source. While federal law (7 CFR 273.24(a)(2)) permits volunteer hours to count nationwide, Utah DWS does not operationalize this lane in any published policy, making Tended's general-volunteer self-report path unsupported at the state level and therefore Tier 3.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) Hours formula: Utah policy text explicitly cites '20 hr/wk or 80 hr/month' — confirmed federal_80. (2) Out-of-state nonprofit: policy is silent; no lane exists to apply restrictions to, so operationally moot; recorded as 'silent'. (3) Geographic waivers: no active waivers in FY2026; FY26 E&T Plan does not claim ABAWD pledge funds; FNA waivers page shows no UT entries. (4) Submission UX: recipients report work-hour changes by the 10th of the following month; ongoing ABAWD compliance tracked via monthly E&T counselor contact in UWORKS/eREP; paper at county office and online at jobs.utah.gov are the channels; no specific volunteer verification form exists. (5) Form fields: no UT-specific volunteer verification form found; populated with standard baseline defaults.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2026-12-21"
+}

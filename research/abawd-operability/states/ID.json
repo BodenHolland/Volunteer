@@ -1,0 +1,50 @@
+{
+  "state": "ID",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Public or private non-profit agency (IDAPA 16.03.04.251.01.c); religious/community organizations also referenced in federal guidance adopted by state",
+  "verification_instrument": "No Idaho-specific form identified in regulation. Section 252 (Proof Required for ABAWDs) is minimal and does not specify a form number. Federal default applies: caseworker verifies compliance at certification/recertification via case notes, pay stubs, or letter from the nonprofit organization confirming hours. Self-attestation acceptable absent countervailing evidence.",
+  "hours_reporting": "self_reported",
+  "required_prestep": "none",
+  "remote_stance": "unknown",
+  "tier": "1_clean",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "IDAPA 16.03.04.251.01 states verbatim: 'The person must work at least eighty (80) hours per month.' Volunteer hours (unpaid work with a public or private non-profit agency) count toward this 80-hour threshold.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "IDAPA 16.03.04.251.01.c says 'unpaid work, with a public or private non-profit agency' with no geographic restriction on the nonprofit's location. No Idaho rule or guidance found requiring the nonprofit to be Idaho-based. Absent an explicit restriction, federal default applies (any qualifying nonprofit). No Idaho-specific registration or in-state MOU requirement found for nonprofits hosting general volunteers.",
+  "geographic_waivers": "No statewide waiver. IDAPA 16.03.04.251.05 notes that ABAWDs in counties identified by the Department as having high unemployment or lack of jobs 'may not be subject to the three-month limitation' — but those residents remain subject to JSAP work requirements and no specific counties are named as waived in current public guidance. No FNA-approved ABAWD county waivers for Idaho found for FY 2025-2026.",
+  "submission_mechanism": [
+    "paper_county_office"
+  ],
+  "reporting_cadence": "monthly",
+  "submission_deadline": "Within the first 10 days of the month following any month in which total work or work program hours drop below 80 hours (IDAPA 16.03.04.254). Ongoing compliance verified at recertification (typically every 12 months).",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://www.law.cornell.edu/regulations/idaho/IDAPA-16.03.04.251",
+    "https://www.law.cornell.edu/regulations/idaho/IDAPA-16.03.04.252",
+    "https://www.law.cornell.edu/regulations/idaho/title-IDAPA-16/rule-16.03.04",
+    "https://healthandwelfare.idaho.gov/services-programs/food-assistance/employment-training",
+    "https://healthandwelfare.idaho.gov/providers/employment-training/employment-and-training-provider-resources",
+    "https://www.spokesman.com/stories/2026/jan/04/changes-to-idaho-snap-food-program-coming-in-2026/",
+    "https://www.fna.usda.gov/snap/work-requirements",
+    "https://www.fns.usda.gov/snap-et/stateplan/idaho",
+    "https://proddfmmainsa.blob.core.windows.net/dfm-admin-website/rules/current/16/160304.pdf",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029"
+  ],
+  "notes": "IDAPA 16.03.04.251 explicitly lists 'unpaid work with a public or private non-profit agency' as a standalone qualifying ABAWD activity — no mandatory Employment Development Plan, county assignment, provider registration, or MOU is referenced anywhere in the regulation text or available state guidance. Idaho's E&T/JSAP program is a parallel qualifying option, not a mandatory gate before volunteer hours are credited. Confidence is medium because no Idaho-specific volunteer verification form was found in public documents, so the exact verification instrument used at recertification is unknown; the regulatory text alone supports Tier 1.\n\nREFINEMENT PASS (2026-06-21): Adversarial search attempted to refute Tier 1 classification. Conducted four fresh web searches and directly extracted the full text of IDAPA 16.03.04 (the authoritative Idaho Food Stamp Program administrative rules PDF at the state blob storage URL, updated through 7-1-24) using pdfminer. Key findings: (1) Section 251.01.c confirms verbatim that 'Unpaid work, with a public or private non-profit agency' at 80+ hours/month is a standalone ABAWD-compliant pathway — no prerequisite enrollment is required. (2) Section 252 (Proof Required for ABAWDs) is extremely sparse: it only specifies a proof requirement for documenting months received in another state; no Idaho-specific volunteer verification form is named or referenced. (3) Idaho's JSAP (Job Search Assistance Program, Section 226) requires all non-exempt SNAP recipients to register for work at certification, but this is the standard federal work-registration step applicable to all non-exempt adults — it is NOT a gating prestep unique to the volunteer ABAWD track. Section 251.01 (volunteer path) and 251.02 (JSAP/E&T participation path) are alternative, independent ABAWD compliance routes; a volunteer satisfying 251.01 does not need to complete the JSAP track. (4) No pre-approved volunteer site list, MOU requirement, or state provider registration for nonprofits was found in any searched source — the Idaho DHW provider resources page mentions a 'PDAP MOU Template' only for E&T community partners seeking funding, not for nonprofits hosting general SNAP volunteers. (5) MAXIMUS operates the E&T contract program, confirming E&T/JSAP is the separate job-training track, not a mandatory prestep for the volunteer lane. Confidence upgraded to 'high': the material Tier 1/2/3 question is fully resolved by the primary regulation text (IDAPA 16.03.04.251-252). The verification instrument field is updated to reflect that federal default applies (caseworker-documented via case notes or nonprofit letter) since no Idaho-specific form exists in public-facing rules. Remote stance remains unknown — no Idaho policy found addressing whether remote/online volunteering satisfies the in-person work definition.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) Hours formula: IDAPA 251.01 explicitly states '80 hours per month' — federal_80 confirmed from primary source PDF. (2) Out-of-state nonprofit: IDAPA 251.01.c says 'public or private non-profit agency' with no location restriction; no Idaho rule or guidance found requiring in-state registration; classified 'silent' per federal default. (3) Geographic waivers: No FNA-approved ABAWD county waivers found for Idaho FY2025-2026; IDAPA 251.05 references a high-unemployment county exemption mechanism but no specific counties are currently designated in public guidance. (4) Submission UX: IDAPA 254 requires ABAWDs to report within the first 10 days of the following month when hours drop below 80; no online portal or specific form found; paper/county office is the implied channel. (5) Form fields: No Idaho-specific verification form exists; default federal-baseline letter fields applied.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-06-21"
+}

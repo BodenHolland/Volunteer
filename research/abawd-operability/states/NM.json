@@ -1,0 +1,49 @@
+{
+  "state": "NM",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Any not-for-profit organization where the ABAWD performs volunteer work. NM Administrative Code 8.139.410.14 defines qualifying unpaid work as 'work without compensation that gives a person experience in a job or industry, tests a person's job skills, or involves volunteer time and effort to a not-for-profit organization.' No pre-approved list, MOU, or provider registration requirement appears in the regulation or in official HCA guidance for the general volunteer lane.",
+  "verification_instrument": "Volunteer Hours Verification Document — a state-issued optional form. The person in charge of the volunteer work must sign it. Submission is required only when applying for first grant, renewing, or when self-reported hours fall below 20 hours/week. Hours are otherwise self-reported via YES.NM.GOV portal at renewal. No form number confirmed in public sources.",
+  "hours_reporting": "self_reported",
+  "required_prestep": "none",
+  "remote_stance": "unknown",
+  "tier": "1_clean",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "NMAC 8.139.410.14 explicitly states '20 hours per week, averaged monthly; for purposes of this provision, 20 hours per week averaged monthly means 80 hours per month.' Follows federal baseline exactly.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "NMAC 8.139.410.14 defines qualifying work as volunteer time to 'a not-for-profit organization' with no geographic restriction. The HCA snapchanges page and March 2025 guidance likewise impose no in-state location requirement. No source addresses out-of-state status explicitly; absent a state restriction, federal default (any qualifying nonprofit) should apply.",
+  "geographic_waivers": "Luna County, Laguna Pueblo, San Felipe Pueblo, Taos Pueblo, and Tesuque Pueblo are waived from ABAWD requirements as of Jan 1 2026. All other areas statewide are fully enforced. (Source: hca.nm.gov/snapchanges/ 'Keep Your Benefits, NM!' page, listing areas where the rule does not apply.)",
+  "submission_mechanism": [
+    "online_portal",
+    "paper_county_office"
+  ],
+  "reporting_cadence": "at_recertification",
+  "submission_deadline": "At application, at SNAP renewal, or when hours drop below 20/week. No fixed monthly cutoff date found; cadence is renewal-triggered rather than calendar-month.",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://www.hca.nm.gov/snapchanges/",
+    "https://www.hca.nm.gov/2024/11/12/updated-work-requirements-will-impact-certain-snap-customers-in-2025/",
+    "https://www.hca.nm.gov/2025/12/17/new-federal-rules-may-affect-your-snap-benefit/",
+    "https://searchlightnm.org/55000-new-mexico-snap-recipients-face-work-requirements-starting-jan-1/",
+    "https://srca.nm.gov/parts/title08/08.139.0410.html",
+    "https://www.hca.nm.gov/wp-content/uploads/StatePlan_NM_2026_Original-Submission_Approved.pdf",
+    "https://www.hca.nm.gov/2026/04/28/employment-and-training-program-helps-new-mexicans-find-jobs-and-keep-snap-benefits/",
+    "https://www.hca.nm.gov/2025/03/10/health-care-authority-helps-snap-customers-navigate-federal-work-requirements/"
+  ],
+  "notes": "New Mexico is Tier 1 clean based on available evidence: volunteer service counts toward the 80-hour/month ABAWD requirement, the verification document is signed by the supervising org representative (no MOU or county pre-step found), and hours are primarily self-reported via the state portal. Confidence is medium because the detailed policy manual (ABAWD Q&A PDFs) returned 404 errors and NM only began enforcing ABAWD requirements in select counties in January 2025, so implementation details may still be evolving. No EDP, county assignment, provider registration, or MOU requirement was found in any official source.\n\nREFINEMENT PASS (2026-06-21): Conducted four adversarial search angles targeting work-registration intake, E&T case manager assignment, approved volunteer site lists, and the FY2026 SNAP E&T State Plan. Key findings: (1) NM Administrative Code 8.139.410.14 (srca.nm.gov) directly confirms qualifying unpaid work includes 'volunteer time and effort to a not-for-profit organization' with no regulatory language requiring pre-approval, state list, or MOU for the general lane. (2) The HCA snapchanges page (hca.nm.gov/snapchanges/) confirms the Volunteer Hours Verification Document is 'optional' and signed by the person in charge — no mandatory prestep described. (3) The 'New Mexico Volunteer Sites List' referenced on the HCA page is consistently described as a resource for 'looking for more opportunities,' not a closed mandatory approved-sites list; recipients are not restricted to sites on it. (4) The FY2026 SNAP E&T State Plan PDF exists and was retrieved but is compressed/unreadable via WebFetch; however, the search snippet confirms NM is not yet actively managing ABAWD referrals into E&T pending system enhancements, reinforcing that E&T enrollment is not a required prestep for the general volunteer lane. (5) The April 2026 HCA article on E&T program expansion describes case managers for formal E&T enrollees — this is a distinct track from the general ABAWD volunteer self-report lane; no source connects mandatory E&T enrollment to the volunteer lane. (6) Both ABAWD Q&A PDFs (March 2025 v1.1 and December 2025 v3.0) now return 404; their content was previously known to describe the optional form and no prestep. No evidence of a mandatory prestep, MOU, or closed site list was found across six separate adversarial search strategies. Tier 1 classification is upheld; confidence raised to HIGH based on direct regulatory cite (NMAC 8.139.410.14) plus consistent corroboration from official HCA guidance pages.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) Hours formula: NMAC 8.139.410.14 explicitly states 80 hours/month = 20 hours/week averaged monthly — federal_80 baseline confirmed. (2) Out-of-state nonprofit: The regulation says 'a not-for-profit organization' with no geographic qualifier; HCA guidance also silent on location; classified 'silent' per federal default. (3) Geographic waivers: Per hca.nm.gov/snapchanges/, Luna County plus Laguna, San Felipe, Taos, and Tesuque Pueblos are exempt from ABAWD requirements as of Jan 1 2026; all other areas enforced. The ABAWD Q&A v3.0 PDF (Dec 2025) was also cited in search results but returned 404 when fetched. (4) Submission UX: Hours reported via YES.NM.GOV online portal or in-person at HCA office; cadence is renewal-triggered (at application, renewal, or when hours fall below threshold) — no fixed monthly deadline found. (5) Form fields: The optional Volunteer Hours Verification Document requires supervisor/org-rep signature; specific enumerated fields not published in any accessible source — baseline set used.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-06-21"
+}

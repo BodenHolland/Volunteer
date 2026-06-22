@@ -1,0 +1,50 @@
+{
+  "state": "SD",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "no",
+  "qualifying_org_definition": "Community service/workfare sites must register with the state E&T program via DSS-EA-285 Employment Training Agreement signed by participant, site, and DLR Employment Specialist; 501(c)(3) nonprofits that decline workfare site registration cannot have volunteer hours credited.",
+  "verification_instrument": "DSS-EA-285 Employment Training Agreement (must be completed before any hours are countable)",
+  "hours_reporting": "county_determined",
+  "required_prestep": "assignment",
+  "remote_stance": "unknown",
+  "tier": "3_blocked_or_unclear",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 24,
+  "hours_formula": "workfare_allotment_over_minwage",
+  "hours_formula_detail": "Workfare hours = SNAP allotment ÷ (Federal or State minimum wage, whichever is higher). Section 5.71 explicitly gives an example of 'only 24 hours per month, or 6 hours per week' for a typical ABAWD allotment. The non-workfare/qualifying-component path requires 80 hours/month (20 hrs/week), but for the workfare/community-service lane the allotment-division formula applies.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "Section 5.71 states 'Community service sites can be any public or private non-profit, governmental, or religious organization' with no geographic restriction on the nonprofit's location. However, because all hours must flow through a DLR Employment Specialist assignment (DSS-EA-285), the operative constraint is whether the Employment Specialist will approve a given site, not the nonprofit's state of incorporation. The policy is silent on in-state vs. out-of-state requirements for the signing organization.",
+  "geographic_waivers": "none — fully enforced statewide. As of 2026, South Dakota has no active ABAWD time limit waivers in any county. The OBBBA eliminated the federal waiver provision, and USDA listed no active SD waivers as of early 2026.",
+  "submission_mechanism": [
+    "paper_county_office"
+  ],
+  "reporting_cadence": "monthly",
+  "submission_deadline": "Documentation must be uploaded to SDWORKS by the 5th of the following month (uploaded by DLR Employment Specialist, not recipient directly). Recipients report participation to their assigned Employment Specialist during the month.",
+  "form_required_fields": [
+    "org_name",
+    "org_address",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "recipient_case_number",
+    "hours_total",
+    "hours_by_day_or_week",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://dlr.sd.gov/workforce_services/wioa/wioa_manual/5.71_snap_et.pdf",
+    "https://dss.sd.gov/economicassistance/snap.aspx",
+    "https://dss.sd.gov/docs/economicassistance/snap/snapmanual.pdf",
+    "https://dss.sd.gov/economicassistance/work_connections.aspx",
+    "https://www.fns.usda.gov/snap-et/stateplan/southdakota",
+    "https://dlr.sd.gov/workforce_services/wioa/wioa_manual/9.2_definitions.pdf",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029"
+  ],
+  "notes": "South Dakota routes all ABAWD community service hours through the E&T workfare program: the DLR Employment Specialist must complete DSS-EA-285 with the participant and site before any hours count, and if a volunteer organization declines workfare site participation, those hours cannot be used. No general self-report volunteer lane (independent of site registration) is documented in the April 2026 DLR WIOA Manual Section 5.71. Confidence was medium because the policy PDF text was not directly extractable; findings are based on search-result snippets summarizing the same document.\n\nREFINEMENT PASS (2026-06-21): Adversarial re-check conducted to try to refute Tier 3 classification. Searched: (1) \"South Dakota SNAP E&T State Plan FY2026 volunteer community service hours ABAWD\" — returned verbatim excerpts from DLR WIOA Manual Section 5.71 REV 04/2026 confirming workfare-only routing; (2) \"South Dakota food assistance ABAWD work requirement community service nonprofit volunteer site registration\" — no alternative general lane found; (3) \"South Dakota DLR 5.71 SNAP E&T workfare volunteer community service ABAWD 2025 2026\" — returned second verbatim quote: \"DLR Employment Specialists must complete the DSS-EA-285 Employment Training Agreement with the participant and volunteer site. Any hours completed prior to the completion of this form will not be countable.\"; (4) \"South Dakota SNAP DSS-EA-285 workfare agreement nonprofit volunteer hours 2025 2026\" — further corroborated the same mandatory pre-clearance requirement. The April 2026 revision of Section 5.71 contains two distinct blocking rules: (a) site must agree to participate as a workfare site or hours cannot be used, and (b) DSS-EA-285 must be completed before any hours count. Both rules were surfaced verbatim from Google's indexing of the encrypted PDF. The DSS SNAP manual PDF (2.6MB) is also encrypted and not directly extractable. No adversarial evidence of a general self-report lane was found — no form, no policy excerpt, no legal aid guide, no FNS state plan page describing any alternative path. Tier 3 confirmed. Confidence raised to HIGH because the specific disqualifying policy language is now confirmed from two independent verbatim extractions from the April 2026 authoritative policy document, both consistent with the first-pass finding.\n\nEXTENDED FIELDS PASS (2026-06-21): PDF of Section 5.71 REV 04/2026 successfully extracted (pypdf). Key findings: (1) HOURS FORMULA — SD uses the workfare allotment-over-minimum-wage formula for the community service lane: 'benefit amount divided by the Federal or State Minimum Wage, whichever is higher.' Section 5.71 explicitly notes an ABAWD 'may only be required to complete 24 hours per month, or 6 hours per week' under workfare, which is lower than the 80-hour flat requirement for non-workfare qualifying components. monthly_hours_required set to 24 as the representative workfare figure. (2) OUT-OF-STATE NONPROFIT — Policy says 'any public or private non-profit, governmental, or religious organization' with no geographic restriction; silent on in-state vs. out-of-state. However, operationally moot because a DLR Employment Specialist must establish and approve every site via DSS-EA-285 before hours can count. (3) GEOGRAPHIC WAIVERS — No waivers; fully enforced statewide per USDA waiver list and search results confirming OBBBA eliminated waiver authority. (4) SUBMISSION UX — DLR Employment Specialists upload documentation to SDWORKS by the 5th of the following month; recipient-facing reporting is to the assigned Employment Specialist during the month (not a self-service portal). Cadence is monthly. (5) FORM FIELDS — DSS-EA-285 specific fields not listed in the extracted policy text; inferred from context (site agreement including site name/address/signature, participant name/case number, hours/activity, and period dates). The form is completed by the Employment Specialist, not the nonprofit independently.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2026-12-21"
+}

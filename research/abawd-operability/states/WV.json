@@ -1,0 +1,50 @@
+{
+  "state": "WV",
+  "administration": "state",
+  "abawd_enforced_2026": "yes",
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Nonprofit organization, charity, or religious charity (501(c)(3)-equivalent). The official WV ABAWD Requirements document (bfa.wv.gov, Oct 2025) lists 'Volunteering or working in paid employment, including self-employment' as a countable work activity; Legal Aid WV specifies 'non-profit, charity, or religious charity.'",
+  "verification_instrument": "No state-assigned form number found in public sources. Legal Aid WV states the nonprofit representative must 'sign that you do 20 hours of community service a week'; the mechanism is a nonprofit-signed attestation of weekly hours. The E&T Work Activity component (for enrolled E&T participants only) uses a timesheet, but this is inapplicable to the general volunteer lane.",
+  "hours_reporting": "self_reported",
+  "required_prestep": "none",
+  "remote_stance": "unknown",
+  "tier": "1_clean",
+  "county_variation_flag": false,
+  "confidence": "high",
+  "monthly_hours_required": 80,
+  "hours_formula": "federal_80",
+  "hours_formula_detail": "WV ABAWD Requirements insert (Oct 2025) states explicitly 'Working 80 or more hours monthly' — the federal 7 CFR 273.24 baseline. Legal Aid WV corroborates '20 hours a week/80 hours a month'. No workfare allotment formula found.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "No WV-specific geographic restriction on certifying nonprofits was found in any publicly available source — not in the ABAWD Requirements insert, the FY26 E&T State Plan, Chapter 13 or Chapter 4 of the Income Maintenance Manual, or Legal Aid WV guidance. The qualifying organization is described only as 'non-profit, charity, or religious charity' with no in-state residency requirement stated. Under federal default (7 CFR 273.24(a)(2)(iii)), any qualifying nonprofit may certify hours; absent a state restriction, out-of-state acceptance is operationally expected.",
+  "geographic_waivers": "None — fully enforced statewide. All counties in WV were ineligible for ABAWD waivers as of October 1, 2022, and the state began fully implementing the post-OBBBA ABAWD requirements on November 1, 2025. The FY26 E&T State Plan references the federal waiver framework but does not indicate any pending or active county waivers.",
+  "submission_mechanism": [
+    "paper_county_office"
+  ],
+  "reporting_cadence": "at_recertification",
+  "submission_deadline": "unknown — no explicit deadline published in public-facing sources. Recipients must report when hours fall below 20/week (80/month). WV Chapter 4 IMM describes signed timesheets as the verification mechanism for participation hours; no online portal or mail-in deadline cited for the general volunteer ABAWD lane.",
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "source_urls": [
+    "https://bfa.wv.gov/media/1761/download?inline=",
+    "https://legalaidwv.org/legal-information/food-stamps-work-requirements-and-exemptions/",
+    "https://bfa.wv.gov/media/39871/download?inline=",
+    "https://dhhr.wv.gov/News/2025/Pages/West-Virginia-Announces-Changes-to-SNAP-Able-Bodied-Adults-without-Dependents-(ABAWD)-Policy-Effective-November-1,-2025.aspx",
+    "https://wvpolicy.org/federal-changes-to-snap-rules-will-require-more-adults-to-meet-work-requirements-to-remain-eligible/",
+    "https://dhhr.wv.gov/bcf/Services/familyassistance/IMMDocuments/784/DFA_ABAWD_1%20Rev%204_20%20--%20approved.pdf",
+    "https://legalaidwv.org/news/snap-benefits-abawd-changes/",
+    "https://bfa.wv.gov/page/snap-employment-and-training",
+    "https://dhhr.wv.gov/bcf/Services/familyassistance/PolicyManual/Documents/Chapter%2013/ch13_2.pdf",
+    "https://www.wvdhhr.org/bcf/policy/imm/new_manual/immanual/manual_pdf_files/chapter_04/ch4_2.pdf"
+  ],
+  "notes": "West Virginia's official ABAWD Requirements insert (Oct 2025) lists 'volunteering or working in paid employment' as a direct countable ABAWD work activity, with the nonprofit verifying hours; no form number is published on public-facing pages. However, Legal Aid WV frames nonprofit community service as accessed 'through the E&T program,' and the WV SNAP E&T FY26 State Plan describes E&T as voluntary but references an eligibility-system referral step when E&T is used — creating ambiguity about whether E&T enrollment is a de facto prestep for the nonprofit volunteer lane. No evidence of county assignment, MOU, or EDP requirement was found; required_prestep marked 'unknown' because the policy manual chapters are not publicly machine-readable and the E&T gateway question cannot be definitively resolved from available sources. Tiered as 2_hoops due to this ambiguity rather than confirmed clean self-direction.\n\nREFINEMENT PASS (2026-06-21): Conducted adversarial review targeting the E&T-as-gateway question. Directly extracted and read the full text of two key PDFs: (1) the WV SNAP E&T FY26 State Plan (bfa.wv.gov/media/39871, approved 09/04/2025, 115 pages) and (2) the ABAWD Requirements insert (bfa.wv.gov/media/1761, Oct 2025). Also read the DFA-ABAWD-1 informational notice (Rev 4/20) and the Legal Aid WV ABAWD explainer.\n\nKey findings that resolve the prior ambiguity: The FY26 E&T State Plan explicitly states WV operates a 'voluntary SNAP E&T program' with ZERO anticipated mandatory E&T participants. ABAWDs are informed about E&T at application/recertification and offered a voluntary referral, but accepting the referral is not required. The ABAWD Requirements insert (Oct 2025) lists four standalone countable ABAWD work activities: (1) Volunteering or working in paid employment including self-employment, (2) WIOA, (3) TAA, (4) SNAP E&T — these are listed as co-equal alternatives, not sequenced steps. Volunteering appears independently before SNAP E&T, confirming it is not gated by E&T enrollment.\n\nThe 'Work Activity' E&T component (which requires state-preapproved locations and timesheets) applies only to E&T-enrolled participants and is the workfare track — it is NOT the general volunteer lane. Legal Aid WV's phrasing 'through the E&T program' describes the E&T pathway as one option among several, not the mandatory gateway.\n\nWV does require all non-exempt adults to register with WorkForce WV (MACC system, CWN-1 notice) within 30 days of SNAP application — this is a standard federal general work registration step, not an ABAWD-specific volunteer-lane prestep, and does not require E&T enrollment.\n\nVerification instrument: No state form number was found in public sources for the general volunteer lane. Legal Aid WV specifies a nonprofit representative signs weekly hours. The DFA-ABAWD-1 (Rev 4/20) is an informational notice mailed to ABAWDs, not a verification form.\n\nConclusion: required_prestep revised to 'none'; tier revised to '1_clean'; confidence set to 'high' based on direct review of the official state E&T plan and ABAWD insert confirming the volunteer lane is independently countable and E&T is fully voluntary. The one remaining gap (no public form number for the verification instrument) does not materially affect operability — the mechanism is a nonprofit-signed hours attestation consistent with the general ABAWD self-report pathway.\n\nEXTENDED FIELDS PASS (2026-06-21): (1) Hours formula: ABAWD Requirements insert (Oct 2025) explicitly states '80 or more hours monthly' — confirmed federal_80 baseline; no workfare formula in use. (2) Out-of-state nonprofit: No WV source imposes any geographic restriction on certifying nonprofits; policy is silent, so federal default (any qualifying nonprofit) governs — marked 'silent'. (3) Geographic waivers: All WV counties ineligible for ABAWD waivers since Oct 1, 2022; OBBBA implementation Nov 1, 2025 did not create new geographic exemptions; fully enforced statewide. (4) Submission UX: No online portal found for the general volunteer ABAWD lane; Chapter 4 IMM describes signed timesheets as the verification mechanism; submission to county office (paper) is the operative path; no specific monthly deadline published; reporting cadence is at recertification unless a mid-period change occurs. (5) Form fields: No named WV form for the general volunteer lane; verified fields inferred from Legal Aid WV ('nonprofit representative signs that you do 20 hours/week') and Chapter 4 IMM (signed timesheet); using the standard baseline set of org_name, org_signature, supervisor_name, recipient_name, hours_total, activity_description, period_start_date, period_end_date.",
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-06-21"
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "last_verified": "2026-06-21",
+  "next_review_by": "2027-01-15",
+  "federal_default_hours": 80,
+  "federal_minimum_wage_usd": 7.25,
+  "doc": "Per-state ABAWD monthly hour requirement. States not listed default to federal_default_hours (80). For workfare-formula states, the calculator computes floor(snap_max_allotment[household_size] / minimum_wage_used). Only NY has sub-state regional variation (NYC/LI vs upstate). MI/SD/GA were removed from this list in schema v2: their workfare formula only applies when the volunteer site is registered as a state workfare provider — general nonprofit volunteering defaults to 80 hours. See workfare_if_registered for those cases.",
+  "workfare_if_registered": {
+    "doc": "States where the workfare formula yields lower required hours, BUT only when the volunteer site is registered as a state-approved workfare/comparable-workfare/SICS provider. Tended-style general 501(c)(3) volunteering at an unregistered nonprofit gets 80 hrs in these states.",
+    "MI": {
+      "alternative_path_name": "SICS (Self-Initiated Community Service)",
+      "requirement": "Site must be approved by MI DHHS as a workfare site",
+      "minimum_wage_usd": 13.73,
+      "policy_source_url": "https://dhhs.michigan.gov/OLMWEB/EX/BP/Public/BEM/620.pdf"
+    },
+    "SD": {
+      "alternative_path_name": "Workfare for ABAWDs",
+      "requirement": "Site must be a DLR-approved workfare site (per SD Manual §13232)",
+      "minimum_wage_usd": 11.50,
+      "policy_source_url": "https://dss.sd.gov/docs/economicassistance/snap/snapmanual.pdf"
+    },
+    "GA": {
+      "alternative_path_name": "Comparable Workfare",
+      "requirement": "Site must be a DFCS-registered Comparable Workfare provider (Form 805)",
+      "minimum_wage_usd": 7.25,
+      "policy_source_url": "https://pamms.dhs.ga.gov/dfcs/snap/3355/"
+    }
+  },
+  "states": {
+    "NY": {
+      "formula": "workfare_allotment_over_minwage",
+      "jurisdictions": [
+        { "key": "nyc", "label": "New York City", "minimum_wage_usd": 17.00, "source_url": "https://dol.ny.gov/minimum-wage-0" },
+        { "key": "long_island_westchester", "label": "Long Island & Westchester", "minimum_wage_usd": 17.00, "source_url": "https://dol.ny.gov/minimum-wage-0" },
+        { "key": "rest_of_state", "label": "Rest of state (upstate NY)", "minimum_wage_usd": 15.50, "source_url": "https://dol.ny.gov/minimum-wage-0" }
+      ],
+      "default_jurisdiction": "nyc",
+      "policy_source_url": "https://otda.ny.gov/policy/directives/2025/INF/25-INF-05.pdf",
+      "note": "NY divides minimum wage by jurisdiction. The Monroe County ABAWD Volunteer Participation Record formula uses 'SNAP benefit ÷ higher of federal or state minimum wage for the recipient's area.'"
+    },
+    "ME": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 15.10,
+      "minimum_wage_source_url": "https://www.maine.gov/labor/labor_laws/minwagefaq.html",
+      "policy_source_url": "https://www.maine.gov/dhhs/ofi/about-us/policy-rule-changes",
+      "note": "Maine 3SquaresVT-style formula uses state minimum wage indexed annually (Jan 1)."
+    },
+    "MA": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 15.00,
+      "minimum_wage_source_url": "https://www.mass.gov/info-details/massachusetts-law-about-minimum-wage",
+      "policy_source_url": "https://www.mass.gov/info-details/snap-work-program-policy",
+      "note": "Massachusetts Work Program Participation Record (WPPR) explicitly divides SNAP benefit by MA minimum wage."
+    },
+    "VT": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 14.42,
+      "minimum_wage_source_url": "https://labor.vermont.gov/wage-and-hour/minimum-wage",
+      "policy_source_url": "https://dcf.vermont.gov/benefits/3SquaresVT",
+      "note": "3SquaresVT calculates personalized hours target at approval using state min wage (auto-indexed each Jan 1)."
+    },
+    "VA": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 7.25,
+      "minimum_wage_source_url": "https://www.doli.virginia.gov/labor-law-resources/",
+      "policy_source_url": "https://www.dss.virginia.gov/files/division/bp/snap/manuals_forms/manual/Part_XV.pdf",
+      "note": "Virginia SNAP Manual Part XV.A.4 explicitly uses federal $7.25, NOT Virginia's higher state minimum wage ($12.41 in 2026)."
+    },
+    "PA": {
+      "formula": "workfare_allotment_over_minwage",
+      "minimum_wage_usd": 7.25,
+      "minimum_wage_source_url": "https://www.dli.pa.gov/Individuals/Labor-Management-Relations/llc/Pages/Minimum-Wage-Act.aspx",
+      "policy_source_url": "https://www.dhs.pa.gov/Services/Assistance/Pages/SNAP.aspx",
+      "note": "PA matches the federal minimum wage; CAO records the figure on the Employment Development Plan."
+    }
+  }
+}

@@ -1,0 +1,359 @@
+{
+  "AK": {
+    "abawd_enforced_2026": "partial",
+    "tier": "1_clean",
+    "geographic_waivers": "Good Faith Exemption waiver approved by FNS covers all Alaska census areas and boroughs except the Municipality of Anchorage, effective November 1, 2025 through October 31, 2026. OBBBA provisions additionally authorize the Secretary to grant new Alaska good faith exemptions expiring no later than December 31, 2028, and to waive areas with unemployment rates 150% above the national rate. Alaska Native and American Indian individuals are also categorically exempt per FSP 90.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "AL": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Alabama has no active ABAWD waivers in 2026. The FY2026 State Plan confirmed anticipated ABAWDs in waived areas = 0. Post-OBBBA (signed July 4, 2025), all prior waivers expired or were terminated by November 2025; Alabama had none previously either.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "AR": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Section 3501 of the AR SNAP Policy Manual states: 'The state of Arkansas is currently not under a waiver and RTW applies as of January 1, 2016.' No ABAWD waiver appears on the FNA ABAWD Waivers FY2025-2029 list. OBBBA (signed July 2025) further restricts future waiver availability.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "AZ": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None as of mid-2026. Prior to the One Big Beautiful Bill Act (OBBBA), Arizona held a partial geographic waiver covering tribal reservation areas and most non-Maricopa counties under the 'insufficient jobs' criteria. OBBBA terminated or superseded all existing ABAWD geographic waivers; as of early 2026 the FNA listed no active ABAWD time-limit waivers for any state. Arizona is now fully enforced statewide under the expanded OBBBA rules (ages 18–64).",
+    "county_variation_flag": true,
+    "administration": "state"
+  },
+  "CA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Seven counties waived November 1, 2025 – October 31, 2026: Colusa, Imperial, Tulare, Alpine, Merced, Monterey, and Plumas. All other 51 counties fully enforced starting June 1, 2026 (statewide waiver ended November 1, 2025; state chose June 1, 2026 as implementation date using a fixed 36-month clock beginning January 1, 2026).",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "CO": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. FNA ABAWD waivers page lists only a FY 2025 waiver for Colorado (approved 08/15/2024); no FY 2026 waiver is on file. OBBBA tightened waiver criteria statewide and Colorado did not obtain a new FY 2026 waiver.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "CT": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. CT's prior statewide ABAWD waiver ended and ABAWD enforcement resumed November 2, 2025 under H.R.1 (One Big Beautiful Bill Act). No county-level or sub-state waivers were identified for 2026. FNA/USDA waiver pages (fna.usda.gov/snap/abawd/waivers/2025-2029) were inaccessible during research but CT DSS materials confirm uniform statewide enforcement.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "DC": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide as of June 1, 2026. DC previously held a federal ABAWD waiver (insufficient-jobs basis) that was terminated by the One Big Beautiful Bill Act (OBBBA / H.R. 1), which eliminated that waiver authority for all states except those with unemployment above 10%. DC began enforcing ABAWD time limits on June 1, 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "DE": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Delaware previously held ABAWD waivers for Wilmington City, Kent County, and Sussex County through September 30, 2025 (statewide waiver as of Q2 FY2024 per FNS records). The OBBBA (July 2025) tightened waiver criteria to require 10% unemployment; Delaware's prior waivers were not renewed under those terms. As of November 2025, Delaware enforces ABAWD requirements statewide with no active area waivers. State is fully enforced statewide as of 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "FL": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "None — fully enforced statewide as of 2026. Florida had no active ABAWD time-limit waivers as of FY2026. The OBBBA (One Big Beautiful Bill Act) eliminated the prior waiver authority; waivers now require a 10% unemployment rate threshold. As of February 2026, USDA listed no active ABAWD waivers for Florida on the FNA waiver page (fna.usda.gov/snap/abawd/waivers/2025-2029).",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "GA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Georgia did not hold a statewide ABAWD waiver prior to OBBBA and has no county-level waivers as of 2026. All counties are time-limited ABAWD counties.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "HI": {
+    "abawd_enforced_2026": "partial",
+    "tier": "1_clean",
+    "geographic_waivers": "Hawaii has special noncontiguous-state status under OBBBA (P.L. 119-21): waivers available through 2028 if state unemployment rate is ≥1.5x the national average, rather than the standard 10% threshold that applies to other states. No county-level approved waivers were identified in public FNA listings as of June 2026, but the special eligibility criteria means partial waiver coverage remains possible depending on unemployment rates. State-level enforcement has been 'partial' since November 1, 2025.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "IA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Iowa does not hold any active ABAWD time limit waivers for FY2026. The OBBBA (signed July 4, 2025) tightened waiver criteria to require >10% unemployment, and Iowa's statewide unemployment has remained well below that threshold.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "ID": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "No statewide waiver. IDAPA 16.03.04.251.05 notes that ABAWDs in counties identified by the Department as having high unemployment or lack of jobs 'may not be subject to the three-month limitation' — but those residents remain subject to JSAP work requirements and no specific counties are named as waived in current public guidance. No FNA-approved ABAWD county waivers for Idaho found for FY 2025-2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "IL": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Illinois ended its prior statewide ABAWD waiver effective February 2026 (MR#26.03). The OBBBA (signed July 4, 2025) terminated all remaining FNA-approved ABAWD time-limit waivers no later than November 2, 2026; as of June 2026 the FNA lists no active ABAWD waivers for Illinois. Cook County and Chicago area historically had waivers, but those are no longer operative.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "IN": {
+    "abawd_enforced_2026": "yes",
+    "tier": "3_blocked_or_unclear",
+    "geographic_waivers": "none — fully enforced statewide. Indiana has not held a statewide or county-level ABAWD waiver. As of 2026, no Indiana counties appear on the FNA active-waiver list. OBBBA further tightened waiver criteria (10% unemployment threshold), making future waivers unlikely for Indiana's labor market.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "KS": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Kansas did not hold any statewide or county-level ABAWD waivers prior to the One Big Beautiful Bill Act (2025), and no Kansas waivers appear in the FNA FY2025-2029 waiver listings. All 105 Kansas counties are subject to the ABAWD work requirement.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "KY": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Five rural counties retain ABAWD waivers effective December 1, 2025 (through at least FY2026): Elliott, Lewis, Magoffin, Martin, and Wolfe counties. All remaining 115 counties are fully enforced as of November 1, 2025, when the prior statewide 117-county waiver expired.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "LA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None — fully enforced statewide. Louisiana Act 308 (2024 regular legislative session) prohibits DCFS from seeking or renewing ABAWD waivers unless required by federal law. All parish-level waivers expired October 1, 2024. No Louisiana waiver entries appear in the FNA ABAWD waivers table for FY 2025-2029.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "MA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Massachusetts held a statewide ABAWD waiver for many years but it expired/was terminated by 2026. As of the OBBBA era, no active waivers are listed for MA. USDA listed no active MA waivers as of early 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "MD": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "None as of 2026. Prior county-specific waivers (Baltimore City, Dorchester, Kent, Somerset, Worcester counties) expired June 30, 2025. OBBBA now restricts waivers to areas with >10% unemployment; no MD areas currently qualify. ABAWD requirements enforced statewide effective November 1, 2025.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "ME": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Maine had a geographic waiver covering 213 cities, towns, unorganized territories, townships, and reservations approved Sept 17, 2024, effective retroactive to Oct 1, 2024 through Sept 30, 2025 (Rule 234A). Under the One Big Beautiful Bill Act of 2025 (OBBBA), area-based waivers are now restricted to areas with unemployment exceeding 10%, a much narrower threshold. The prior waiver period ended Sept 30, 2025. As of 2026, Maine is enforcing ABAWD requirements statewide (consistent with abawd_enforced_2026=yes), though Maine DHHS may be pursuing a narrower OBBBA-compliant waiver for high-unemployment areas. No confirmed active 2026 waiver found.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "MI": {
+    "abawd_enforced_2026": "partial",
+    "tier": "2_hoops",
+    "geographic_waivers": "15 counties and 6 cities waived from TLFA effective December 1, 2025. Waived counties: Alcona, Alger, Arenac, Cheboygan, Iosco, Iron, Luce, Mackinac, Montmorency, Oceana, Ogemaw, Oscoda, Presque Isle, Roscommon, Schoolcraft. Waived cities: Bay City, Detroit, Eastpointe, Flint, Jackson, Saginaw. All other Michigan areas fully enforced. (OBBBA eliminated most prior statewide waivers; these area-specific exemptions were approved under the new post-OBBBA framework.)",
+    "county_variation_flag": true,
+    "administration": "state"
+  },
+  "MN": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Complex/contested as of mid-2026. Minnesota had a near-statewide ABAWD waiver historically. The One Big Beautiful Bill Act (signed July 4, 2025) eliminated the 'insufficient jobs' waiver authority; USDA terminated waivers in November 2025. Courts challenged the early termination and USDA reinstated 18 states' waivers in February 2026 pending litigation. Minnesota's 36-month clock reset on January 1, 2026 per DCYF, consistent with enforcement being in effect at that date. The existing record reflects 'abawd_enforced_2026: yes.' Waiver litigation status is unresolved — recommend monitoring FNA.usda.gov/snap/abawd/waivers for any Minnesota-specific reinstatement.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "MO": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Missouri did not hold any active ABAWD county waivers in FY2025 and the OBBBA (effective November 1, 2025) eliminated the broad waiver authority; no MO waivers listed in FNA records for 2025–2029.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "MS": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Mississippi did not hold any active ABAWD time-limit waivers as of FY2024 Q4 and has none in 2026. OBBBA eliminated the area-unemployment-rate waiver authority; no Mississippi counties are waived.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "MT": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "No active county-level ABAWD waivers found for 2026. SNAP 803-1 references SNAP 802-1 for geographically waived areas, but no current 802-1 source was publicly accessible. The OBBBA eliminated the historical 'lack of sufficient jobs' waiver authority; FNA directed termination of waivers approved under that criterion. Montana's ABAWD fixed 36-month span runs July 1, 2023 through June 30, 2026 (fully enforced). Status should be verified directly with MT DPHHS.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "NC": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. NC had no active ABAWD area waiver as of FY2024 Q4. The OBBBA (H.R.1, signed July 4, 2025) eliminated the ABAWD area waiver authority entirely; as of 2026 no county-level waivers exist or are possible under federal law.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "ND": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None — fully enforced statewide as of November 1, 2025. ND SNAP policy §403 (Release 25.7, effective 11/1/2025) explicitly lists 'Waived Reservations: None' and 'Waived Counties: None' for the period 7/1/2025 through 10/31/2025. The OBBBA further restricts waiver eligibility to areas with >10% unemployment; no ND county or reservation met that threshold for an approved 2026 waiver.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "NE": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "none — fully enforced statewide. Nebraska has no active ABAWD geographic waiver. The FNA waiver list as of 2026 shows no Nebraska entries. Nebraska DHHS OBBBA FAQ (Dec 2025) confirms statewide enforcement of ABAWD work requirements with no county exceptions.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "NH": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None as of FY2026. A partial waiver covering only the towns of Stratford and Hale's Location was approved for October 1, 2024 – September 30, 2025 (based on unemployment rates 20% above the national average). That waiver expired September 30, 2025. No FY2026 waiver was filed or approved; OBBBA eliminated broad waiver authority and no NH towns currently meet the new 10% unemployment threshold. NH is fully enforced statewide as of 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "NJ": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "As of February 1, 2026, only Camden City and Cape May County remain under an ABAWD time-limit waiver. All other NJ counties are fully enforced. The prior statewide waiver covering 20 counties expired January 31, 2026. OBBBA eliminated the waiver authority basis, so no new area waivers are expected.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "NM": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Luna County, Laguna Pueblo, San Felipe Pueblo, Taos Pueblo, and Tesuque Pueblo are waived from ABAWD requirements as of Jan 1 2026. All other areas statewide are fully enforced. (Source: hca.nm.gov/snapchanges/ 'Keep Your Benefits, NM!' page, listing areas where the rule does not apply.)",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "NV": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "No active statewide waiver as of 2026. Nevada held a statewide ABAWD time-limit waiver approved Feb 1, 2025 through Jan 31, 2026 (USDA FNS partial approval, Mar 14, 2025). That waiver expired Jan 31, 2026. Nevada's OBBBA-era abawd_enforced_2026 status is 'yes' — fully enforced statewide with no current county-level or statewide waiver in effect.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "NY": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "None — fully enforced statewide as of March 1, 2026. OTDA Facebook posts confirm 'SNAP ABAWD work rules changed on March 1, 2026 for all counties in New York State.' Previous statewide waivers expired. The Tuscarora Nation Reservation (Niagara County) was noted in one source as a limited geographic exemption but this pertains to individual exemptions (federal Indian tribal land provision), not a county-level administrative waiver.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "OH": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Ohio HB96 (signed June 30, 2025) prohibits ODJFS from seeking ABAWD waivers; the One Big Beautiful Bill Act (signed July 4, 2025) eliminated the waiver authority nationwide. No active Ohio county or regional waivers remain as of 2026.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "OK": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Oklahoma had no ABAWD geographic waiver as of Q4 FY2024 and does not appear on any FY2025-2026 waiver list. Oklahoma is not among states historically using geographic waivers.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "OR": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Under OBBBA, Oregon's prior broad county waivers (which had covered 30 of 36 counties) were eliminated effective February 1, 2026. ODHS now issues monthly discretionary exemptions for individual recipients in 7 counties that lack ABAWD support services: Crook, Gilliam, Jefferson, Lake, Morrow, Sherman, and Wheeler. All other counties are fully enforced. No statewide waiver remains.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "PA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "2_hoops",
+    "geographic_waivers": "None — fully enforced statewide. PA DHS states: 'Pennsylvania no longer qualifies for waivers of these rules by county or municipal jurisdiction because of a change in the federal law.' OBBBA raised the threshold for area waivers to 10% unemployment, which no PA county meets. One third-party source (benefitscope.com) noted Lancaster and Lebanon cities may have delayed implementation until September 2026, but this was not corroborated by the official PA DHS page and may reflect the pre-OBBBA waiver expiration timeline.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "RI": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "Partial waiver, expiration uncertain as of mid-2026. As of July 1, 2024, five towns were waived through June 30, 2025: Central Falls, Charlestown, New Shoreham (Block Island), Providence, and Woonsocket. The FY26 E&T State Plan (approved August 2025) projects 1,500 of 3,000 ABAWDs in waived areas, suggesting some waiver continued into FY2026. The prior (pre-July 2024) waiver covered 23 towns through June 30, 2024. No public document confirms the exact list or end date of waivers currently in effect in 2026; contact RI DHS for current status.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "SC": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. SC DSS confirmed no ABAWD waiver was in effect as of FY2024 Q4. Post-OBBBA (effective February 2, 2026), waivers require >10% county unemployment; no SC county meets that threshold. SC operates the requirement statewide across all 46 counties.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "SD": {
+    "abawd_enforced_2026": "yes",
+    "tier": "3_blocked_or_unclear",
+    "geographic_waivers": "none — fully enforced statewide. As of 2026, South Dakota has no active ABAWD time limit waivers in any county. The OBBBA eliminated the federal waiver provision, and USDA listed no active SD waivers as of early 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "TN": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Tennessee had no ABAWD time limit waivers in FY2025 or FY2026. All pre-OBBBA waivers nationally expired or were terminated by November 2, 2026; as of that date USDA listed no active ABAWD waivers for Tennessee.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "TX": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Texas HHS C-330 page shows no counties listed under the SNAP ABAWD work requirement waiver since October 1, 2022. The OBBBA tightened waiver criteria nationwide in 2025, and Texas has no active county waivers for 2026.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "UT": {
+    "abawd_enforced_2026": "yes",
+    "tier": "3_blocked_or_unclear",
+    "geographic_waivers": "none — fully enforced statewide. Utah has no active ABAWD waivers for FY2026. The FY26 E&T State Plan does not claim ABAWD pledge funds and no FNA waiver filings for Utah appear in the FY2025–2029 waiver database.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "VA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None — fully enforced statewide as of July 2025. Virginia SNAP Manual Transmittal 36 (Oct 2025), Part XV Appendix I lists 'No exempt areas' in the July 2025+ column. Prior waivers covering specific localities (e.g., Brunswick, Buchanan, Danville) expired June 2025 and were not renewed, consistent with OBBBA waiver restrictions effective Nov 2025.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "VT": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Vermont previously pledged broad ABAWD service but under post-OBBBA rules the old broad waivers are eliminated. No Vermont county or region appears on FNA's current ABAWD waiver list for FY2025-2029 at the tightened ≥10% unemployment threshold. The record's abawd_enforced_2026=yes reflects full statewide enforcement.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "WA": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None — fully enforced statewide. Washington's prior 38-county + one reservation area waiver expired January 31, 2026. As of February 1, 2026, all areas of the state are subject to ABAWD enforcement with no active geographic waivers.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "WI": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None as of 2026. Wisconsin previously had ABAWD time limit waivers covering 8 counties, Racine City, and 10 reservation areas through September 30, 2025. All waivers were terminated following the One Big Beautiful Bill Act (OBBBA, enacted July 2025), which eliminated the waiver authority. No active waivers as of June 2026.",
+    "county_variation_flag": true,
+    "administration": "county"
+  },
+  "WV": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "None — fully enforced statewide. All counties in WV were ineligible for ABAWD waivers as of October 1, 2022, and the state began fully implementing the post-OBBBA ABAWD requirements on November 1, 2025. The FY26 E&T State Plan references the federal waiver framework but does not indicate any pending or active county waivers.",
+    "county_variation_flag": false,
+    "administration": "state"
+  },
+  "WY": {
+    "abawd_enforced_2026": "yes",
+    "tier": "1_clean",
+    "geographic_waivers": "none — fully enforced statewide. Wyoming has never held an active ABAWD time limit waiver (confirmed in FNS State Options Report 16th Edition and corroborated by the OBBBA implementation guidance). As of 2026 all prior waivers nationally either expired or were terminated by November 2, 2026; Wyoming had none to begin with.",
+    "county_variation_flag": false,
+    "administration": "state"
+  }
+}
