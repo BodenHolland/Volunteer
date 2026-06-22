@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth";
 import { homeForUser } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
+import { rateLimit } from "@/lib/ratelimit";
 import type { User } from "@/lib/types";
 
 /**
@@ -17,6 +18,10 @@ import type { User } from "@/lib/types";
  * Firebase identity on first sign-in), else creates a new recipient.
  */
 export async function POST(req: Request) {
+  const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const limit = await rateLimit(`firebase-session:${ip}`, 30, 5 * 60 * 1000);
+  if (!limit.ok) return NextResponse.json({ ok: false, error: "Too many attempts" }, { status: 429 });
+
   let idToken: string | undefined;
   try {
     idToken = ((await req.json()) as { idToken?: string })?.idToken;

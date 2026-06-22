@@ -23,9 +23,9 @@ export default async function DashboardPage() {
   const canDownload = data.certified >= 1;
 
   return (
-    <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="space-y-7">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="min-w-0 space-y-7">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="service-heading text-3xl">
             {t.app.dashboard.greeting}, {user.full_name?.split(" ")[0] ?? t.app.dashboard.greetingFallback}

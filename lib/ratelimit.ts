@@ -1,28 +1,15 @@
 /**
- * Dependency-free, in-memory fixed-window rate limiter.
+ * D1-backed fixed-window rate limiter.
  *
  * Keyed by an arbitrary string (e.g. `login:ip:1.2.3.4` or `login:email:a@b.c`).
  * Each key tracks a window start + a hit count; once the window elapses the
  * counter resets.
  *
- * NOTE (production): this state lives in a module-level Map and is therefore
- * per-isolate — on Cloudflare Workers each isolate has its own copy and isolates
- * are ephemeral, so this is best-effort only and fine for a demo. A real
- * deployment should back this with a Durable Object or KV (atomic, shared across
- * isolates) so the window is globally consistent.
+ * The upsert is atomic in SQLite, so the counter is shared across Worker
+ * isolates. This deliberately favors correctness over a tiny amount of D1 work
+ * on protected endpoints.
  */
-
-interface Window {
-  /** Epoch ms when the current window started. */
-  start: number;
-  /** Hits recorded in the current window. */
-  count: number;
-}
-
-const buckets = new Map<string, Window>();
-
-// Opportunistic cleanup bound so the Map can't grow without limit under churn.
-const MAX_KEYS = 10_000;
+import { getDb } from "./cf";
 
 export interface RateLimitResult {
   ok: boolean;
@@ -38,25 +25,28 @@ export interface RateLimitResult {
  */
 export function rateLimit(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
   const now = Date.now();
-  let w = buckets.get(key);
+  const windowStart = Math.floor(now / windowMs) * windowMs;
+  const safeKey = key.slice(0, 256);
 
-  if (!w || now - w.start >= windowMs) {
-    // Fresh window.
-    w = { start: now, count: 0 };
-    buckets.set(key, w);
-  }
-
-  w.count += 1;
-
-  // Best-effort eviction of an arbitrary stale entry to cap memory.
-  if (buckets.size > MAX_KEYS) {
-    for (const [k, v] of buckets) {
-      if (now - v.start >= windowMs) buckets.delete(k);
-      if (buckets.size <= MAX_KEYS) break;
-    }
-  }
-
-  const ok = w.count <= limit;
-  const remaining = Math.max(0, limit - w.count);
-  return Promise.resolve({ ok, remaining });
+  return getDb()
+    .prepare(
+      `INSERT INTO rate_limits (key, window_started_at, count)
+       VALUES (?, ?, 1)
+       ON CONFLICT(key) DO UPDATE SET
+         window_started_at = CASE
+           WHEN rate_limits.window_started_at < excluded.window_started_at THEN excluded.window_started_at
+           ELSE rate_limits.window_started_at
+         END,
+         count = CASE
+           WHEN rate_limits.window_started_at < excluded.window_started_at THEN 1
+           ELSE rate_limits.count + 1
+         END
+       RETURNING count`
+    )
+    .bind(safeKey, windowStart)
+    .first<{ count: number }>()
+    .then((row) => {
+      const count = row?.count ?? limit + 1;
+      return { ok: count <= limit, remaining: Math.max(0, limit - count) };
+    });
 }

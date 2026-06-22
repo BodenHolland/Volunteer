@@ -96,7 +96,10 @@ export default async function TasksPage({
       <aside className="hidden space-y-4 lg:block">
         <div className="service-panel p-5">
           <p className="text-sm font-semibold text-ink">Your civic work</p>
-          <p className="mt-3 text-3xl font-semibold text-forest">Browse</p>
+          <div className="mt-3 flex items-baseline gap-2">
+            <p className="text-2xl font-semibold text-navy">{filtered.length}</p>
+            <p className="text-sm font-medium text-body">open {filtered.length === 1 ? tr.app.tasks.opportunity : tr.app.tasks.opportunities}</p>
+          </div>
           <p className="mt-1 text-sm text-body">Choose a task to begin a project.</p>
         </div>
         <div className="rounded-md border border-teal/20 bg-teal-subtle p-4">

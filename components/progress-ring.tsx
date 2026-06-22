@@ -30,8 +30,8 @@ export function ProgressRing({
   )} certified, ${formatHours(pending)} pending review.`;
 
   return (
-    <div className="flex items-center gap-5">
-      <div className="relative" style={{ width: size, height: size }} role="img" aria-label={summary}>
+    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5">
+      <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={summary}>
         <svg width={size} height={size} className="-rotate-90" aria-hidden="true" focusable="false">
           <circle cx={center} cy={center} r={r} fill="none" stroke="var(--color-line)" strokeWidth={stroke} />
           {/* pending arc (drawn first, underneath) */}
@@ -62,7 +62,7 @@ export function ProgressRing({
           <span className="text-sm text-meta">of {target}</span>
         </div>
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-base font-medium text-ink">{caption}</p>
         {sub && <p className="mt-1 text-sm text-body">{sub}</p>}
         <div className="mt-3 space-y-1.5 text-sm">

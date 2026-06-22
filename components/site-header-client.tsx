@@ -116,7 +116,7 @@ export function SiteHeaderClient({
           <Link href={viewer?.home ?? "/"} aria-label="Tended home" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             <Logo className="text-white" size={24} />
           </Link>
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
+          {!viewer && <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
             <div className="relative" onMouseEnter={() => setMega(true)} onMouseLeave={() => setMega(false)}>
               <button className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white" aria-expanded={mega}>
                 {t.howItWorks} <ChevronDown className="size-4" />
@@ -146,7 +146,7 @@ export function SiteHeaderClient({
             </div>
             <Link href="/about" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.about}</Link>
             <Link href="/for-organizations" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.forOrgs}</Link>
-          </nav>
+          </nav>}
         </div>
 
         <div className="flex items-center gap-2">
@@ -187,14 +187,20 @@ export function SiteHeaderClient({
       {open && (
         <div className="border-t border-white/15 bg-navy px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-            <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
-            <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
-            <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
-            <div className="my-1 h-px bg-white/15" />
+            {!viewer && <>
+              <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
+              <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
+              <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
+              <div className="my-1 h-px bg-white/15" />
+            </>}
             {viewer ? (
               <>
                 <Link href={viewer.home} onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10"><LayoutDashboard className="size-[18px]" /> {workspaceLabel}</Link>
                 <AccountLinks viewer={viewer} onNavigate={() => setOpen(false)} />
+                <div className="my-1 h-px bg-white/15" />
+                <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
+                <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
+                <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
                 <Link href="/signout" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10"><LogOut className="size-[18px]" /> Sign out</Link>
               </>
             ) : (
