@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Download, FolderKanban, ArrowRight, Sparkles, ClipboardList, CircleHelp, Settings } from "lucide-react";
+import { Download, FolderKanban, ArrowRight, Sparkles } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getRecipientDashboard, workHref, workStatus } from "@/lib/queries";
 import { ProgressRing } from "@/components/progress-ring";
@@ -23,18 +23,12 @@ export default async function DashboardPage() {
   const canDownload = data.certified >= 1;
 
   return (
-    <div className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="min-w-0 space-y-7">
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="service-heading text-3xl">
-            {t.app.dashboard.greeting}, {user.full_name?.split(" ")[0] ?? t.app.dashboard.greetingFallback}
-          </h1>
-          <p className="mt-1 text-body">{t.app.dashboard.subhead}</p>
-        </div>
-        <Button asChild variant="secondary">
-          <Link href="/app/tasks">{t.app.dashboard.browseTasks} <ArrowRight /></Link>
-        </Button>
+    <div className="mx-auto min-w-0 max-w-3xl space-y-7">
+      <div>
+        <h1 className="service-heading text-3xl">
+          {t.app.dashboard.greeting}, {user.full_name?.split(" ")[0] ?? t.app.dashboard.greetingFallback}
+        </h1>
+        <p className="mt-1 text-body">{t.app.dashboard.subhead}</p>
       </div>
 
       {/* Hours summary */}
@@ -117,31 +111,6 @@ export default async function DashboardPage() {
           </ul>
         )}
       </section>
-      </div>
-
-      <aside className="space-y-4 xl:pt-[75px]">
-        <section className="service-panel overflow-hidden">
-          <div className="border-b border-line bg-section px-5 py-4">
-            <p className="font-semibold text-ink">{t.app.dashboard.nextSteps}</p>
-          </div>
-          <div className="divide-y divide-line">
-            <Link href="/app/tasks" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <Sparkles className="size-5 text-forest" /> {t.app.dashboard.browseAvailable} <ArrowRight className="ml-auto size-4 text-meta" />
-            </Link>
-            <Link href="/app/projects" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <ClipboardList className="size-5 text-forest" /> {t.app.dashboard.myWork} <ArrowRight className="ml-auto size-4 text-meta" />
-            </Link>
-            <Link href="/app/settings" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <Settings className="size-5 text-forest" /> {t.app.dashboard.accountSettings} <ArrowRight className="ml-auto size-4 text-meta" />
-            </Link>
-          </div>
-        </section>
-        <section className="rounded-lg border border-teal/20 bg-teal-subtle p-5">
-          <div className="flex items-center gap-2 text-ink"><CircleHelp className="size-5 text-forest" /><p className="font-semibold">{t.app.dashboard.helpfulResources}</p></div>
-          <p className="mt-2 text-sm leading-relaxed text-body">{t.app.dashboard.resourcesBody}</p>
-          <Link href="/how-it-works" className="mt-3 inline-flex text-sm font-medium text-forest hover:underline">{t.app.dashboard.howTendedWorks} <ArrowRight className="ml-1 size-4" /></Link>
-        </section>
-      </aside>
     </div>
   );
 }

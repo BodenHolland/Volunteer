@@ -151,7 +151,7 @@ export default async function StartPage({
       <Shell>
         <StepHint index={1} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Your SNAP details</h1>
-        <p className="mt-2 text-body">This appears on your CF 888 exactly as entered.</p>
+        <p className="mt-2 text-body">This appears on your work-hours certification exactly as entered.</p>
         <form action={submitPii} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>

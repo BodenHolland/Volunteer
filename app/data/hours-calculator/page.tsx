@@ -90,7 +90,7 @@ export default async function HoursCalculatorPage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
-                <Link href="/how-it-works#calfresh">How CF 888 certification works</Link>
+                <Link href="/how-it-works">How SNAP hour certification works</Link>
               </Button>
             </div>
           </div>

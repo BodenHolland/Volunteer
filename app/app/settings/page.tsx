@@ -1,4 +1,5 @@
-import { CheckCircle2, LogOut, Bell, Download } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, LogOut, Bell, Download, ArrowRight, FileText } from "lucide-react";
 import { signOut } from "@/app/auth-actions";
 import { requireRecipient } from "@/lib/session";
 import { getDb } from "@/lib/cf";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { updateAccount, updateIntent, updateNotifyPrefs, deleteAccount } from "./actions";
 import { parseNotifyPrefs } from "./notify-prefs";
 import { getLocale } from "@/lib/i18n";
+import { monthLabel } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Settings — Tended" };
@@ -27,8 +29,14 @@ const COPY = {
     saveAccount: "Save account",
     howYouUse: "How you use Tended",
     intent: "Intent",
-    intentHint: "Choosing “Certify SNAP hours” unlocks your CF 888 profile.",
+    intentHint: "Choosing “Certify SNAP hours” adds a SNAP profile step so we can prepare your work-hours certification.",
     saveIntent: "Save intent",
+    completeSnapProfile: "Complete your SNAP profile",
+    completeSnapProfileBody: "Add the details we need to prepare your work-hours certification.",
+    openSnapProfile: "Open SNAP profile",
+    previousReports: "Previous reports",
+    previousReportsEmpty: "Downloaded work certifications will appear here.",
+    download: "Download",
     emailNotifications: "Email notifications",
     savePreferences: "Save preferences",
     yourData: "Your data",
@@ -52,7 +60,7 @@ const COPY = {
         description: "Get an email when work is approved, rejected, or needs changes.",
       },
       cf888_ready: {
-        label: "When a CF 888 is ready",
+        label: "When your hours certification is ready",
         description: "Get an email when this month's certified hours can be downloaded.",
       },
     },
@@ -68,8 +76,14 @@ const COPY = {
     saveAccount: "Guardar cuenta",
     howYouUse: "Cómo usas Tended",
     intent: "Propósito",
-    intentHint: "Elegir “Certificar horas de SNAP” desbloquea tu perfil de CF 888.",
+    intentHint: "Elegir “Certificar horas de SNAP” añade un paso de perfil de SNAP para preparar tu certificación de horas.",
     saveIntent: "Guardar propósito",
+    completeSnapProfile: "Completa tu perfil de SNAP",
+    completeSnapProfileBody: "Agrega los datos que necesitamos para preparar tu certificación de horas.",
+    openSnapProfile: "Abrir perfil de SNAP",
+    previousReports: "Reportes anteriores",
+    previousReportsEmpty: "Las certificaciones de horas descargadas aparecerán aquí.",
+    download: "Descargar",
     emailNotifications: "Notificaciones por correo",
     savePreferences: "Guardar preferencias",
     yourData: "Tus datos",
@@ -93,7 +107,7 @@ const COPY = {
         description: "Recibe un correo cuando un trabajo sea aprobado, rechazado o necesite cambios.",
       },
       cf888_ready: {
-        label: "Cuando un CF 888 esté listo",
+        label: "Cuando tu certificación de horas esté lista",
         description: "Recibe un correo cuando las horas certificadas de este mes se puedan descargar.",
       },
     },
@@ -118,12 +132,25 @@ export default async function SettingsPage({
   const locale = await getLocale();
   const c = COPY[locale];
 
+  const db = getDb();
   // notify_prefs_json isn't on the User type yet (migration 0003); read directly.
-  const prefsRow = await getDb()
+  const prefsRow = await db
     .prepare("SELECT notify_prefs_json FROM users WHERE id = ?")
     .bind(user.id)
     .first<{ notify_prefs_json: string | null }>();
   const prefs = parseNotifyPrefs(prefsRow?.notify_prefs_json);
+
+  const isSnap = user.intent === "snap_cert";
+  const previousReports = isSnap
+    ? (
+        await db
+          .prepare(
+            "SELECT month, r2_key, generated_at FROM cf888_forms WHERE user_id = ? ORDER BY generated_at DESC LIMIT 24"
+          )
+          .bind(user.id)
+          .all<{ month: string; r2_key: string; generated_at: number }>()
+      ).results ?? []
+    : [];
 
   return (
     <div className="max-w-[900px] space-y-5">
@@ -174,7 +201,48 @@ export default async function SettingsPage({
           </div>
           <Button type="submit" size="sm">{c.saveIntent}</Button>
         </form>
+        {isSnap && (
+          <Link
+            href="/app/profile"
+            className="-mx-5 flex items-center gap-3 border-t border-line px-5 py-4 transition-colors hover:bg-teal-subtle/60 md:-mx-6 md:px-6"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-forest-subtle text-forest">
+              <FileText className="size-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-ink">{c.completeSnapProfile}</p>
+              <p className="text-sm text-body">{c.completeSnapProfileBody}</p>
+            </div>
+            <ArrowRight className="size-4 shrink-0 text-meta" aria-label={c.openSnapProfile} />
+          </Link>
+        )}
       </section>
+
+      {/* Previous reports (snap_cert only) */}
+      {isSnap && (
+        <section className="service-panel space-y-3 p-5 md:p-6">
+          <h2 className="text-base font-semibold text-ink">{c.previousReports}</h2>
+          {previousReports.length === 0 ? (
+            <p className="text-sm text-body">{c.previousReportsEmpty}</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {previousReports.map((r) => (
+                <li key={`${r.month}-${r.generated_at}`} className="flex items-center gap-3 py-3">
+                  <FileText className="size-5 shrink-0 text-meta" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-ink">{monthLabel(r.month)}</p>
+                  </div>
+                  <Button asChild variant="secondary" size="sm">
+                    <a href={`/api/files?key=${encodeURIComponent(r.r2_key)}`} target="_blank" rel="noreferrer">
+                      <Download /> {c.download}
+                    </a>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {/* Notifications */}
       <section className="service-panel space-y-4 p-5 md:p-6">

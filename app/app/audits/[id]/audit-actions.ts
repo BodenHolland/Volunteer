@@ -401,6 +401,30 @@ function validateAndStore(cap: CaptureInput, itemId: string): string | null {
   return null;
 }
 
+/**
+ * Cancel a claimed-but-unsubmitted audit — "I picked this up by accident."
+ * Deletes the audit, its captured items/photos/flags, and the still-open
+ * submission row so the task fully leaves the recipient's queue. No hours were
+ * ever credited (nothing is submitted), so there is nothing to claw back.
+ * Once an audit has been submitted for review, cancelling is disallowed.
+ */
+export async function cancelAuditAction(formData: FormData) {
+  const auditId = String(formData.get("audit_id") ?? "");
+  const a = await loadOwnedAudit(auditId);
+  if (!a) redirect("/app");
+  if (a.submitted_at) redirect(`/app/audits/${auditId}`);
+
+  const db = getDb();
+  await db.prepare("DELETE FROM audit_photos WHERE audit_id = ?").bind(auditId).run();
+  await db.prepare("DELETE FROM audit_item_captures WHERE audit_id = ?").bind(auditId).run();
+  await db.prepare("DELETE FROM audit_validation_flags WHERE audit_id = ?").bind(auditId).run();
+  await db.prepare("DELETE FROM audits WHERE id = ?").bind(auditId).run();
+  await db.prepare("DELETE FROM submissions WHERE id = ?").bind(a.submission_id).run();
+
+  revalidatePath("/app");
+  redirect("/app");
+}
+
 export async function submitAuditAction(formData: FormData) {
   const auditId = String(formData.get("audit_id") ?? "");
   const sessionSeconds = Math.max(0, Math.floor(Number(formData.get("session_seconds") ?? 0)));

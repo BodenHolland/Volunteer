@@ -74,7 +74,7 @@ export const en = {
       emptyTitle: "No tasks committed yet. Browse the catalog to find one to start.",
       progress: "Civic work progress",
       activitySummary: "activity summary",
-      downloadCf888: "Download this month's CF 888",
+      downloadCf888: "Download your work certification",
       cf888Ready: "Pre-filled with your details. Upload it to your benefits portal yourself.",
       cf888Locked: "Available once at least one hour is certified.",
       hoursVolunteered: "volunteered with us",
@@ -107,14 +107,14 @@ export const en = {
       realHours: "Your real hours, never inflated",
       phone: "Do it from your phone",
       snap: "SNAP-certifiable",
-      snapCA: "SNAP-certifiable (CF 888)",
+      snapCA: "SNAP-certifiable",
     },
     preview: {
       badge: "Civic data",
       remote: "Remote",
       org: "SF Civic Data Coalition",
       certified: "8 hours certified",
-      certifiedSub: "Added to your CF 888 this month",
+      certifiedSub: "Added to your work certification this month",
     },
     steps: {
       overline: "How it works",
@@ -129,7 +129,7 @@ export const en = {
       s3Body:
         "A nonprofit reviews your work for quality. If you get SNAP, approved hours are certified on the work-hours form your state accepts — you upload it yourself.",
       s3BodyCA:
-        "A nonprofit reviews your work for quality. If you get SNAP, approved hours land on a CF 888 you upload yourself.",
+        "A nonprofit reviews your work for quality. If you get SNAP, approved hours are certified on the work-hours form your state accepts — you upload it yourself.",
     },
     work: {
       overline: "Real work, never busywork",
@@ -151,7 +151,7 @@ export const en = {
       body:
         "Your reviewed hours can be certified on your state's SNAP work-hours verification form — pre-filled with your details, downloaded by you, and uploaded by you. You stay in control of your information the whole way.",
       bodyCA:
-        "Your reviewed hours can be certified on California's Form CF 888 — pre-filled with your details, downloaded by you, and uploaded by you to BenefitsCal. You stay in control of your information the whole way.",
+        "Your reviewed hours can be certified on your state's SNAP work-hours verification form — pre-filled with your details, downloaded by you, and uploaded by you. You stay in control of your information the whole way.",
       link: "See how certification works →",
     },
     finalCta: {

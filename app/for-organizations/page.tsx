@@ -32,7 +32,7 @@ const STEPS = {
     {
       icon: Stamp,
       title: "Certify hours",
-      body: "When you approve a submission, the credited hours are recorded. For recipients certifying SNAP hours, your approval becomes Section 2 of their CF 888 — the certification that makes it valid.",
+      body: "When you approve a submission, the credited hours are recorded. For recipients certifying SNAP hours, your approval becomes the organization section of their work-hours certification — the part that makes it valid.",
     },
   ],
   es: [
@@ -49,7 +49,7 @@ const STEPS = {
     {
       icon: Stamp,
       title: "Certifica las horas",
-      body: "Cuando apruebas un envío, las horas acreditadas quedan registradas. Para los beneficiarios que certifican horas de SNAP, tu aprobación se convierte en la Sección 2 de su CF 888 — la certificación que lo hace válido.",
+      body: "Cuando apruebas un envío, las horas acreditadas quedan registradas. Para los beneficiarios que certifican horas de SNAP, tu aprobación se convierte en la sección de la organización en su certificación de horas — la parte que la hace válida.",
     },
   ],
 } as const;

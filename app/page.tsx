@@ -26,7 +26,6 @@ export const dynamic = "force-dynamic";
 export default async function LandingPage() {
   const { t } = await getDict();
   const L = t.landing;
-  // The CF 888 is California's CalFresh form — only surface it to CA viewers.
   const isCA = await viewerInCalifornia();
   const viewer = await getCurrentUser();
   const featuredTasks = (await listActiveTasks()).slice(0, 4);
@@ -72,7 +71,7 @@ export default async function LandingPage() {
                 <Button asChild size="lg" variant="secondary"><Link href="/how-it-works">{L.secondaryCta}</Link></Button>
               </div>
               <p className="mt-6 text-[15px]">
-                <Link href="/how-it-works#calfresh" className="font-medium text-forest hover:underline">{t.hero.calfresh}</Link>
+                <Link href="/how-it-works" className="font-medium text-forest hover:underline">{t.hero.calfresh}</Link>
               </p>
             </div>
           </div>
@@ -134,7 +133,7 @@ export default async function LandingPage() {
               <h2 className="max-w-[680px] text-[26px] font-semibold leading-tight text-ink md:text-[30px]">{L.snap.title}</h2>
               <p className="mt-4 max-w-[680px] text-body">{isCA ? L.snap.bodyCA : L.snap.body}</p>
               <p className="mt-6">
-                <Link href="/how-it-works#calfresh" className="font-medium text-forest hover:underline">{L.snap.link}</Link>
+                <Link href="/how-it-works" className="font-medium text-forest hover:underline">{L.snap.link}</Link>
               </p>
             </div>
           </div>

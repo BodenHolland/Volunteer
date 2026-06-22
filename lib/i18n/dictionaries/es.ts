@@ -76,7 +76,7 @@ export const es: typeof en = {
       emptyTitle: "Aún no te has comprometido con ninguna tarea. Explora el catálogo para encontrar una.",
       progress: "Progreso del trabajo cívico",
       activitySummary: "resumen de actividad",
-      downloadCf888: "Descargar el CF 888 de este mes",
+      downloadCf888: "Descargar tu certificación de horas",
       cf888Ready: "Pre-llenado con tus datos. Súbelo tú mismo a tu portal de beneficios.",
       cf888Locked: "Disponible cuando se certifique al menos una hora.",
       hoursVolunteered: "como voluntario con nosotros",
@@ -109,14 +109,14 @@ export const es: typeof en = {
       realHours: "Tus horas reales, nunca infladas",
       phone: "Hazlo desde tu teléfono",
       snap: "Certificable para SNAP",
-      snapCA: "Certificable para SNAP (CF 888)",
+      snapCA: "Certificable para SNAP",
     },
     preview: {
       badge: "Datos cívicos",
       remote: "En línea",
       org: "SF Civic Data Coalition",
       certified: "8 horas certificadas",
-      certifiedSub: "Añadidas a tu CF 888 este mes",
+      certifiedSub: "Añadidas a tu certificación de horas este mes",
     },
     steps: {
       overline: "Cómo funciona",
@@ -131,7 +131,7 @@ export const es: typeof en = {
       s3Body:
         "Una organización revisa la calidad de tu trabajo. Si recibes SNAP, las horas aprobadas se certifican en el formulario de horas de trabajo que acepta tu estado — tú mismo lo subes.",
       s3BodyCA:
-        "Una organización revisa la calidad de tu trabajo. Si recibes SNAP, las horas aprobadas se añaden a un CF 888 que tú mismo subes.",
+        "Una organización revisa la calidad de tu trabajo. Si recibes SNAP, las horas aprobadas se certifican en el formulario de horas de trabajo que acepta tu estado — tú mismo lo subes.",
     },
     work: {
       overline: "Trabajo real, nunca relleno",
@@ -153,7 +153,7 @@ export const es: typeof en = {
       body:
         "Tus horas revisadas pueden certificarse en el formulario de verificación de horas de trabajo de SNAP de tu estado: pre-llenado con tus datos, descargado por ti y subido por ti. Mantienes el control de tu información en todo momento.",
       bodyCA:
-        "Tus horas revisadas pueden certificarse en el Formulario CF 888 de California: pre-llenado con tus datos, descargado por ti y subido por ti a BenefitsCal. Mantienes el control de tu información en todo momento.",
+        "Tus horas revisadas pueden certificarse en el formulario de verificación de horas de trabajo de SNAP de tu estado: pre-llenado con tus datos, descargado por ti y subido por ti. Mantienes el control de tu información en todo momento.",
       link: "Mira cómo funciona la certificación →",
     },
     finalCta: {

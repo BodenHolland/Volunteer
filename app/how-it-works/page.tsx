@@ -1,8 +1,5 @@
 import Link from "next/link";
 import {
-  Trees,
-  FileCheck2,
-  ShieldCheck,
   Building2,
   ArrowRight,
   CheckCircle2,
@@ -18,13 +15,13 @@ export const metadata = { title: "How it works — Tended" };
 const SECTIONS = {
   en: [
     { id: "civic-work", label: "Online volunteering" },
-    { id: "calfresh", label: "SNAP & CF 888" },
+    { id: "snap", label: "SNAP (EBT)" },
     { id: "identity", label: "Identity & privacy" },
     { id: "for-organizations", label: "For organizations" },
   ],
   es: [
     { id: "civic-work", label: "Voluntariado en línea" },
-    { id: "calfresh", label: "SNAP y el CF 888" },
+    { id: "snap", label: "SNAP (EBT)" },
     { id: "identity", label: "Identidad y privacidad" },
     { id: "for-organizations", label: "Para organizaciones" },
   ],
@@ -54,12 +51,12 @@ const TIERS = {
       body: "At signup you confirm an email and verify a phone number with a one-time code. Each person gets a single account, so logged hours always tie to one identified beneficiary and no one can farm multiple case numbers.",
     },
     {
-      title: "Section 1 details",
-      body: "Before your first task you enter the same information the CF 888 asks for — legal name, case number, address, date of birth.",
+      title: "Your form details",
+      body: "Before your first task you enter the same information your state's verification form asks for — legal name, case number, address, date of birth.",
     },
     {
       title: "Benefits screenshot",
-      body: "Before your first CF 888, a screenshot from your benefits account confirms you have an open SNAP case.",
+      body: "Before your first certification, a screenshot from your benefits account confirms you have an open SNAP case.",
     },
     {
       title: "Always-on signals",
@@ -72,12 +69,12 @@ const TIERS = {
       body: "Al registrarte confirmas un correo y verificas un número de teléfono con un código de un solo uso. Cada persona tiene una sola cuenta, así las horas registradas siempre se vinculan a un beneficiario identificado y nadie puede acumular varios números de caso.",
     },
     {
-      title: "Datos de la Sección 1",
-      body: "Antes de tu primera tarea ingresas la misma información que pide el CF 888 — nombre legal, número de caso, dirección, fecha de nacimiento.",
+      title: "Tus datos del formulario",
+      body: "Antes de tu primera tarea ingresas la misma información que pide el formulario de verificación de tu estado — nombre legal, número de caso, dirección, fecha de nacimiento.",
     },
     {
       title: "Captura de pantalla de beneficios",
-      body: "Antes de tu primer CF 888, una captura de pantalla de tu cuenta de beneficios confirma que tienes un caso de SNAP abierto.",
+      body: "Antes de tu primera certificación, una captura de pantalla de tu cuenta de beneficios confirma que tienes un caso de SNAP abierto.",
     },
     {
       title: "Señales siempre activas",
@@ -98,10 +95,10 @@ const COPY = {
       "Your active time is measured while you work, and credited up to a per-task cap.",
       "A real person reviews your work and credits your measured hours — never more.",
     ],
-    snapHeading: "SNAP & the CF 888",
-    section1Label: "Section 1",
-    section1Rest: " is completed by you, the recipient — your name, case number, and the details of the activity.",
-    section2Label: "Section 2",
+    snapHeading: "SNAP (EBT) certification",
+    section1Label: "Your part",
+    section1Rest: " — your name, SNAP case number, and the details of the activity — is completed by you, the recipient.",
+    section2Label: "The organization's part",
     section2Rest: " is completed by the sponsoring nonprofit, which confirms the hours and signs.",
     identityHeading: "Identity & privacy",
     neverUseTitle: "We never use",
@@ -120,10 +117,10 @@ const COPY = {
       "Tu tiempo activo se mide mientras trabajas, y se acredita hasta un límite por tarea.",
       "Una persona real revisa tu trabajo y acredita tus horas medidas — nunca más.",
     ],
-    snapHeading: "SNAP y el CF 888",
-    section1Label: "La Sección 1",
-    section1Rest: " la completas tú, el beneficiario — tu nombre, número de caso y los detalles de la actividad.",
-    section2Label: "La Sección 2",
+    snapHeading: "Certificación de SNAP (EBT)",
+    section1Label: "Tu parte",
+    section1Rest: " — tu nombre, número de caso de SNAP y los detalles de la actividad — la completas tú, el beneficiario.",
+    section2Label: "La parte de la organización",
     section2Rest: " la completa la organización sin fines de lucro patrocinadora, que confirma las horas y firma.",
     identityHeading: "Identidad y privacidad",
     neverUseTitle: "Nunca usamos",
@@ -182,10 +179,7 @@ export default async function HowItWorksPage() {
             <div className="min-w-0 max-w-[760px] space-y-5">
               {/* Civic work */}
               <section id="civic-work" className="service-panel scroll-mt-24 p-6 md:p-8">
-                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
-                  <Trees className="size-6" strokeWidth={1.5} />
-                </div>
-                <h2 className="service-heading mt-4 text-[28px]">{c.civicHeading}</h2>
+                <h2 className="service-heading text-[28px]">{c.civicHeading}</h2>
                 {locale === "es" ? (
                   <>
                     <p className="mt-3 leading-relaxed text-body">
@@ -235,43 +229,38 @@ export default async function HowItWorksPage() {
               </section>
 
               {/* SNAP */}
-              <section id="calfresh" className="service-panel scroll-mt-24 p-6 md:p-8">
-                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
-                  <FileCheck2 className="size-6" strokeWidth={1.5} />
-                </div>
-                <h2 className="service-heading mt-4 text-[28px]">{c.snapHeading}</h2>
+              <section id="snap" className="service-panel scroll-mt-24 p-6 md:p-8">
+                <h2 className="service-heading text-[28px]">{c.snapHeading}</h2>
                 {locale === "es" ? (
                   <>
                     <p className="mt-3 leading-relaxed text-body">
-                      Cambios recientes ampliaron las reglas de trabajo que se aplican a muchos adultos
-                      que reciben SNAP — conocido en California como CalFresh — y California comienza a
-                      aplicarlas el{" "}
-                      <strong className="font-semibold text-ink">1 de junio de 2026</strong>. Las horas
+                      Cambios federales recientes ampliaron las reglas de trabajo que se aplican a muchos
+                      adultos que reciben SNAP (EBT), y los estados están empezando a aplicarlas. Las horas
                       de voluntariado no remunerado cuentan para ese requisito según la norma federal{" "}
-                      <strong className="font-semibold text-ink">7 CFR §273.24(a)(2)(iii)</strong>,
-                      implementada en California por CDSS (ACL 25-34). Hacer voluntariado a través de una
-                      organización sin fines de lucro patrocinadora — en persona o, con Tended, en línea —
-                      es una manera de cumplir las horas.
+                      <strong className="font-semibold text-ink">7 CFR §273.24(a)(2)(iii)</strong>. Hacer
+                      voluntariado a través de una organización sin fines de lucro patrocinadora — en
+                      persona o, con Tended, en línea — es una manera de cumplir las horas.
                     </p>
                     <p className="mt-3 leading-relaxed text-body">
-                      California verifica esas horas con un formulario llamado{" "}
-                      <strong className="font-semibold text-ink">CF 888</strong>. Tiene dos partes:
+                      Tu estado verifica esas horas con un{" "}
+                      <strong className="font-semibold text-ink">formulario de verificación de horas de
+                      voluntariado</strong>. Tiene dos partes:
                     </p>
                   </>
                 ) : (
                   <>
                     <p className="mt-3 leading-relaxed text-body">
-                      Recent changes expanded the work rules that apply to many adults who receive SNAP —
-                      known in California as CalFresh — and California begins enforcing them on{" "}
-                      <strong className="font-semibold text-ink">June 1, 2026</strong>. Unpaid volunteer
-                      hours count toward that requirement under federal rule{" "}
-                      <strong className="font-semibold text-ink">7 CFR §273.24(a)(2)(iii)</strong>, as
-                      implemented in California by CDSS (ACL 25-34). Volunteering through a sponsoring
-                      nonprofit — in person or, with Tended, remotely — is one way to meet the hours.
+                      Recent federal changes expanded the work rules that apply to many adults who receive
+                      SNAP (EBT), and states are beginning to enforce them. Unpaid volunteer hours count
+                      toward that requirement under federal rule{" "}
+                      <strong className="font-semibold text-ink">7 CFR §273.24(a)(2)(iii)</strong>.
+                      Volunteering through a sponsoring nonprofit — in person or, with Tended, remotely —
+                      is one way to meet the hours.
                     </p>
                     <p className="mt-3 leading-relaxed text-body">
-                      California verifies those hours with a form called the{" "}
-                      <strong className="font-semibold text-ink">CF 888</strong>. It has two parts:
+                      Your state verifies those hours with a{" "}
+                      <strong className="font-semibold text-ink">volunteer-hours verification form</strong>.
+                      It has two parts:
                     </p>
                   </>
                 )}
@@ -288,14 +277,14 @@ export default async function HowItWorksPage() {
                 {locale === "es" ? (
                   <>
                     <p className="mt-4 leading-relaxed text-body">
-                      Cuando tus horas se aprueban, Tended genera un CF 888 pre-llenado con ambas
-                      secciones ya tomadas de tu cuenta y de la certificación de la organización. Tú lo
-                      descargas y lo subes tú mismo a tu portal de beneficios.
+                      Cuando tus horas se aprueban, Tended genera un formulario de verificación pre-llenado
+                      con ambas partes ya tomadas de tu cuenta y de la certificación de la organización. Tú
+                      lo descargas y lo subes tú mismo a tu portal de beneficios.
                     </p>
                     <div className="mt-5 rounded-lg border border-line bg-amber-subtle p-4">
                       <p className="text-sm leading-relaxed text-amber">
                         <strong className="font-semibold">Tended nunca envía nada al estado.</strong>{" "}
-                        Tú mantienes el control: tú mismo subes tu CF 888 a tu portal de beneficios, igual
+                        Tú mantienes el control: tú mismo subes tu formulario a tu portal de beneficios, igual
                         que manejas el resto de tu caso.
                       </p>
                     </div>
@@ -313,14 +302,14 @@ export default async function HowItWorksPage() {
                 ) : (
                   <>
                     <p className="mt-4 leading-relaxed text-body">
-                      When your hours are approved, Tended generates a pre-filled CF 888 with both
-                      sections already drawn from your account and the organization&apos;s certification.
+                      When your hours are approved, Tended generates a pre-filled verification form with
+                      both parts already drawn from your account and the organization&apos;s certification.
                       You download it and upload it to your benefits portal yourself.
                     </p>
                     <div className="mt-5 rounded-lg border border-line bg-amber-subtle p-4">
                       <p className="text-sm leading-relaxed text-amber">
                         <strong className="font-semibold">Tended never submits anything to the state.</strong>{" "}
-                        You stay in control: you upload your own CF 888 to your benefits portal, the same way you
+                        You stay in control: you upload your own form to your benefits portal, the same way you
                         handle the rest of your case.
                       </p>
                     </div>
@@ -339,16 +328,13 @@ export default async function HowItWorksPage() {
 
               {/* Identity & privacy */}
               <section id="identity" className="service-panel scroll-mt-24 p-6 md:p-8">
-                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
-                  <ShieldCheck className="size-6" strokeWidth={1.5} />
-                </div>
-                <h2 className="service-heading mt-4 text-[28px]">{c.identityHeading}</h2>
+                <h2 className="service-heading text-[28px]">{c.identityHeading}</h2>
                 {locale === "es" ? (
                   <>
                     <p className="mt-3 leading-relaxed text-body">
                       El estado ya verificó a todos los inscritos en SNAP. Nuestro trabajo no es volver
                       a demostrar quién eres — es mantener tu cuenta consistente y capturar los datos de
-                      la Sección 1 con precisión. El número de caso del CF 888 es el puente con tu
+                      tu caso con precisión. Tu número de caso de SNAP es el puente con tu
                       identidad; no necesitamos reconstruirla desde cero.
                     </p>
                     <p className="mt-3 leading-relaxed text-body">
@@ -361,8 +347,8 @@ export default async function HowItWorksPage() {
                   <>
                     <p className="mt-3 leading-relaxed text-body">
                       The state already verified everyone enrolled in SNAP. Our job is not to
-                      re-prove who you are — it is to keep your account consistent and capture the
-                      Section 1 details accurately. The CF 888 case number is the bridge to your
+                      re-prove who you are — it is to keep your account consistent and capture your
+                      case details accurately. Your SNAP case number is the bridge to your
                       identity; we don&apos;t need to rebuild it from scratch.
                     </p>
                     <p className="mt-3 leading-relaxed text-body">
@@ -422,7 +408,7 @@ export default async function HowItWorksPage() {
                       Los patrocinadores publican tareas, revisan los envíos para verificar la calidad y
                       acreditan las horas que el voluntario realmente trabajó (puedes reducirlas, nunca
                       aumentarlas por encima del tiempo medido). Cuando las horas se aprueban, tu
-                      certificación de la Sección 2 es lo que hace válido el CF 888.
+                      certificación es lo que hace válida la verificación.
                     </p>
                   </>
                 ) : (
@@ -442,8 +428,8 @@ export default async function HowItWorksPage() {
                     <p className="mt-3 leading-relaxed text-body">
                       Sponsors post tasks, review submissions for quality, and credit the hours the
                       volunteer actually worked (you can lower them, never raise them above measured
-                      time). When hours are approved, your Section 2 certification is what makes the
-                      CF 888 valid.
+                      time). When hours are approved, your certification is what makes the
+                      verification valid.
                     </p>
                   </>
                 )}

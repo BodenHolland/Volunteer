@@ -77,6 +77,10 @@ const COPY = {
       submitting: "Submitting…",
       submitBtn: "Submit audit",
       finishSteps: "Finish all 4 steps above before submitting.",
+      cancelTask: "Cancel task",
+      cancelConfirm: "Remove this task from your work? Your progress on it will be deleted.",
+      cancelYes: "Yes, cancel",
+      cancelNo: "Keep it",
     },
   },
   es: {
@@ -139,6 +143,10 @@ const COPY = {
       submitting: "Enviando…",
       submitBtn: "Enviar auditoría",
       finishSteps: "Completa los 4 pasos de arriba antes de enviar.",
+      cancelTask: "Cancelar tarea",
+      cancelConfirm: "¿Quitar esta tarea de tu trabajo? Se borrará tu progreso en ella.",
+      cancelYes: "Sí, cancelar",
+      cancelNo: "Conservarla",
     },
   },
 } as const;

@@ -21,6 +21,7 @@ import type {
 import type { NearbyStore } from "@/lib/places";
 import {
   captureItemAction,
+  cancelAuditAction,
   createStoreAction,
   nearbyStoresAction,
   selectNearbyStoreAction,
@@ -91,6 +92,10 @@ export interface AuditCopy {
   submitting: string;
   submitBtn: string;
   finishSteps: string;
+  cancelTask: string;
+  cancelConfirm: string;
+  cancelYes: string;
+  cancelNo: string;
 }
 
 export interface CreditPreview {
@@ -877,23 +882,59 @@ function SubmitStep({
     .replace("{commute}", commuteFragment);
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-xl border border-line bg-white p-5 flex flex-col gap-3"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
-          <p className="text-sm text-body">{creditLine}</p>
+    <div className="flex flex-col gap-3">
+      <form
+        onSubmit={onSubmit}
+        className="rounded-xl border border-line bg-white p-5 flex flex-col gap-3"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
+            <p className="text-sm text-body">{creditLine}</p>
+          </div>
+          <Button type="submit" disabled={!canSubmit || submitting} size="lg">
+            {submitting ? copy.submitting : copy.submitBtn}
+          </Button>
         </div>
-        <Button type="submit" disabled={!canSubmit || submitting} size="lg">
-          {submitting ? copy.submitting : copy.submitBtn}
-        </Button>
+        {!canSubmit ? (
+          <p className="text-sm text-body">{copy.finishSteps}</p>
+        ) : null}
+        {error ? <p className="text-sm text-brick">{error}</p> : null}
+      </form>
+      <CancelTask auditId={auditId} copy={copy} />
+    </div>
+  );
+}
+
+function CancelTask({ auditId, copy }: { auditId: string; copy: AuditCopy }) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (!confirming) {
+    return (
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="text-sm font-medium text-brick hover:underline"
+        >
+          {copy.cancelTask}
+        </button>
       </div>
-      {!canSubmit ? (
-        <p className="text-sm text-body">{copy.finishSteps}</p>
-      ) : null}
-      {error ? <p className="text-sm text-brick">{error}</p> : null}
+    );
+  }
+
+  return (
+    <form action={cancelAuditAction} className="flex flex-col items-center gap-2 rounded-xl border border-brick/30 bg-brick-subtle p-4 text-center">
+      <input type="hidden" name="audit_id" value={auditId} />
+      <p className="text-sm text-body">{copy.cancelConfirm}</p>
+      <div className="flex items-center gap-4">
+        <button type="submit" className="text-sm font-semibold text-brick hover:underline">
+          {copy.cancelYes}
+        </button>
+        <button type="button" onClick={() => setConfirming(false)} className="text-sm font-medium text-body hover:underline">
+          {copy.cancelNo}
+        </button>
+      </div>
     </form>
   );
 }
