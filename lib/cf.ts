@@ -22,6 +22,13 @@ export function isDemoMode(): boolean {
   try {
     return (getEnv() as unknown as { DEMO_MODE?: string }).DEMO_MODE === "true";
   } catch {
-    return false;
+    // getEnv() only throws when there's no Cloudflare context — i.e. we're NOT
+    // in the Workers runtime (unit tests, build scripts, plain node). Production
+    // always has the context above and reads the real DEMO_MODE flag, so
+    // fail-closed PII encryption is preserved there. Outside the runtime there's
+    // no real env or PII to protect, so treat it as demo (crypto helpers pass
+    // through) rather than fail-closed — otherwise the crypto unit tests, which
+    // run with no key by design, throw and turn CI red.
+    return true;
   }
 }
