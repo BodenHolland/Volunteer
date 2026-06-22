@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cancelWork } from "@/app/app/projects/[id]/submit-actions";
+import { cancelWork } from "@/app/app/projects/cancel-actions";
 
 /**
  * Two-step "Cancel task" control for an active (un-submitted) project task.

@@ -15,28 +15,6 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/**
- * Cancel an un-submitted task — "I claimed this by accident, take it off my
- * dashboard." Deletes the submission and any files/flags attached to it. Only
- * allowed while the work is still in the recipient's court (committed /
- * in_progress / needs_changes); once submitted it lives under completed work.
- */
-export async function cancelWork(formData: FormData) {
-  const user = await getCurrentUser();
-  if (!user) redirect("/start");
-  const id = String(formData.get("submission_id") ?? "");
-  const db = getDb();
-  const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
-  if (!sub || sub.user_id !== user.id) redirect("/app");
-  if (!["committed", "in_progress", "needs_changes"].includes(sub.status)) {
-    redirect(`/app/submissions/${id}`);
-  }
-  await db.prepare("DELETE FROM submission_flags WHERE submission_id = ?").bind(id).run();
-  await db.prepare("DELETE FROM submission_files WHERE submission_id = ?").bind(id).run();
-  await db.prepare("DELETE FROM submissions WHERE id = ?").bind(id).run();
-  redirect("/app");
-}
-
 export async function submitWork(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
