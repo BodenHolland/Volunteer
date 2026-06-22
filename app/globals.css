@@ -76,7 +76,7 @@ body {
   letter-spacing: -0.025em;
 }
 
-/* Visible focus ring everywhere: 2px forest at 2px offset */
+/* Visible focus ring everywhere: 2px teal at 2px offset */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--color-forest);
   outline-offset: 2px;
@@ -122,18 +122,29 @@ body {
 
 /* Skip link */
 .skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
   z-index: 100;
-}
-.skip-link:focus {
-  left: 1rem;
-  top: 1rem;
-  background: #fff;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-line);
+  transform: translate(-50%, -160%);
+  border: 1px solid var(--color-navy);
   border-radius: var(--radius-md);
+  background: var(--color-navy);
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 120ms ease-out, opacity 120ms ease-out;
+}
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
