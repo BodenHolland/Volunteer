@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Check, ChevronDown, Globe } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -65,7 +65,6 @@ function LocaleSwitcherMenu({
           className
         )}
       >
-        <Globe className="size-4 opacity-80" aria-hidden />
         <span>{current.short}</span>
         <ChevronDown className="size-3.5 opacity-70" aria-hidden />
       </DropdownMenuTrigger>
