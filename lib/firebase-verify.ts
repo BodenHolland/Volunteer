@@ -25,7 +25,11 @@ async function getCerts(): Promise<Record<string, string>> {
 
 function projectId(): string | undefined {
   const env = getEnv() as unknown as { FIREBASE_PROJECT_ID?: string; NEXT_PUBLIC_FIREBASE_PROJECT_ID?: string };
-  return env.FIREBASE_PROJECT_ID || env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  // Runtime bindings are the source of truth on Workers. The build-time public
+  // value is a safe fallback for route handlers where OpenNext has not yet
+  // initialized the request context (otherwise Firebase signs in successfully
+  // but the server rejects its token and never creates a Tended session).
+  return env.FIREBASE_PROJECT_ID || env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 }
 
 export interface FirebaseIdentity {
@@ -57,7 +61,10 @@ export async function verifyFirebaseToken(token: string | null | undefined): Pro
       emailVerified: payload.email_verified === true,
       phone: (payload.phone_number as string) ?? null,
     };
-  } catch {
+  } catch (error) {
+    // Keep the token private, but surface the verification failure in Workers
+    // logs. Without this, an auth loop is indistinguishable from a bad login.
+    console.warn("[firebase_token_verification_failed]", error instanceof Error ? error.message : String(error));
     return null;
   }
 }
