@@ -12,7 +12,7 @@ export interface AiVerdict {
   suspected_ai_content: boolean;
 }
 
-/** Routed to pending_review; demo works with no API key. */
+/** Routed to pending_review; used when no API key is set. */
 export const AI_FALLBACK: AiVerdict = {
   verdict: "flag",
   confidence: 0,
@@ -99,7 +99,7 @@ export async function validateSubmission(input: AiInput): Promise<AiVerdict> {
         Authorization: `Bearer ${input.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": input.siteUrl ?? "http://localhost:3000",
-        "X-Title": input.appName ?? "Tended Demo",
+        "X-Title": input.appName ?? "Tended",
       },
       body: JSON.stringify({
         model: input.model ?? "google/gemini-2.0-flash-exp:free",

@@ -2,14 +2,15 @@
  * Field-level encryption for sensitive PII (legal name, case number, DOB,
  * address, phone). AES-256-GCM via Web Crypto.
  *
- * Key-gated like the other integrations: with no `PII_ENCRYPTION_KEY`, encrypt is
- * a no-op passthrough so the demo runs; set a 32-byte base64 key in production to
- * actually encrypt. `decryptField` is tolerant — it returns plaintext as-is, so
- * legacy/seed rows and a later key rollout both read correctly.
+ * Requires `PII_ENCRYPTION_KEY` (32-byte base64). In production, encrypting with
+ * no key configured throws (fail-closed) so PII is never written in cleartext;
+ * only in DEMO_MODE does it fall back to passthrough. `decryptField` is tolerant —
+ * it returns plaintext as-is, so legacy/sample rows and a later key rollout both
+ * read correctly.
  *
  * Format: `enc:v1:<ivBase64>:<ciphertextBase64>`.
  */
-import { getEnv } from "./cf";
+import { getEnv, isDemoMode } from "./cf";
 
 const PREFIX = "enc:v1:";
 
@@ -43,7 +44,10 @@ export async function encryptField(plaintext: string | null | undefined): Promis
   if (plaintext == null || plaintext === "") return plaintext ?? null;
   if (plaintext.startsWith(PREFIX)) return plaintext; // already encrypted
   const key = await getKey();
-  if (!key) return plaintext; // no key configured → passthrough (demo)
+  if (!key) {
+    if (isDemoMode()) return plaintext; // local/dev: no key configured → passthrough
+    throw new Error("PII_ENCRYPTION_KEY is required to store PII.");
+  }
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const enc = new TextEncoder().encode(plaintext);
   const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv as BufferSource }, key, enc as BufferSource);

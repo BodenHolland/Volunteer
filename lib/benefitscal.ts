@@ -6,7 +6,7 @@
  * Pure module: the caller passes credentials (so it is testable outside the
  * Worker) and the already-decrypted expected name/case number. Key-gated like
  * the other integrations: with no `apiKey` (dev default) it returns a graceful
- * "manual review" result and never throws — the onboarding demo keeps working.
+ * "manual review" result and never throws — onboarding keeps working.
  *
  * Mirrors lib/ai.ts's OpenRouter call pattern (headers, json_object
  * response_format, max_tokens, fence-stripping, try/catch). Replicated, not
@@ -48,7 +48,7 @@ const SYSTEM_PROMPT =
   "Set verified true only when the image is plausibly a BenefitsCal/CalFresh screenshot AND at least " +
   "one of name or case_number matches the reported value. No prose outside JSON.";
 
-/** Routed to manual review; demo works with no API key or on any error. */
+/** Routed to manual review; used when no API key is set or on any error. */
 function manualReview(reasoning: string): BenefitsCalResult {
   return {
     verified: false,
@@ -138,7 +138,7 @@ export async function verifyBenefitsCalScreenshot(
         Authorization: `Bearer ${input.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": input.siteUrl ?? "http://localhost:3000",
-        "X-Title": input.appName ?? "Tended Demo",
+        "X-Title": input.appName ?? "Tended",
       },
       body: JSON.stringify({
         model: input.model ?? "google/gemini-2.0-flash-exp:free",

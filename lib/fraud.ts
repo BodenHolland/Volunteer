@@ -31,7 +31,7 @@ export interface LatLng {
   lng: number;
 }
 
-/** Approximate city centroids for the demo's geotag check. */
+/** Approximate city centroids for the geotag check. */
 export const CITY_CENTROIDS: Record<string, LatLng> = {
   Sacramento: { lat: 38.5816, lng: -121.4944 },
   "Los Angeles": { lat: 34.0522, lng: -118.2437 },

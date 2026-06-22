@@ -90,7 +90,7 @@ export async function GET(req: Request) {
       .bind(newId("cf888"), user.id, month, key, Date.now())
       .run();
   } catch {
-    /* non-fatal for the demo download */
+    /* non-fatal for the download */
   }
 
   // CF 888 is a legal attestation document — audit every generation.

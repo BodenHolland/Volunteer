@@ -40,7 +40,7 @@ export default async function AdminAuditsPage() {
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Food audits — spot review</h1>
-        <p className="text-muted mt-1">
+        <p className="text-body mt-1">
           Audits awaiting verification or human review. Approving credits the volunteer&apos;s measured
           time as hours.
         </p>
@@ -70,11 +70,11 @@ export default async function AdminAuditsPage() {
                         </span>
                       ) : null}
                     </div>
-                    <div className="text-sm text-muted">
+                    <div className="text-sm text-body">
                       {r.full_name ?? "—"} · {r.store_address ?? "—"}
                     </div>
                   </div>
-                  <div className="text-right text-sm text-muted">
+                  <div className="text-right text-sm text-body">
                     <div>{relativeTime(r.submitted_at)}</div>
                     <div>
                       {Math.floor(r.session_time_seconds / 60)}m {r.session_time_seconds % 60}s

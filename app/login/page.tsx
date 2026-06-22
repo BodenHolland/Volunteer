@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/app/auth-actions";
-import { getDb } from "@/lib/cf";
+import { getDb, isDemoMode } from "@/lib/cf";
 import { ensureSeeded } from "@/lib/seed";
 import { getDict } from "@/lib/i18n";
 import { FirebaseAuthForm } from "@/components/firebase-auth-form";
@@ -20,7 +20,7 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; reset?: string; verified?: string; next?: string }>;
 }) {
   const sp = await searchParams;
-  await ensureSeeded(getDb());
+  if (isDemoMode()) await ensureSeeded(getDb());
   const { t } = await getDict();
   const a = t.auth;
   const useFirebase = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;

@@ -67,7 +67,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
     <main className="mx-auto max-w-3xl px-4 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Spot review · audit {audit.id.slice(0, 12)}…</h1>
-        <p className="text-muted mt-1">
+        <p className="text-body mt-1">
           {volunteer?.full_name ?? "—"} ({volunteer?.email}) ·{" "}
           {Math.floor(audit.session_time_seconds / 60)}m {audit.session_time_seconds % 60}s measured
         </p>
@@ -78,10 +78,10 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
         <p>
           {store?.name ?? "—"} · {store?.address ?? "—"}
         </p>
-        <p className="text-sm text-muted mt-1">
+        <p className="text-sm text-body mt-1">
           GPS: {store?.geocode_lat?.toFixed(4) ?? "—"}, {store?.geocode_lng?.toFixed(4) ?? "—"}
         </p>
-        <p className="text-sm text-muted mt-1">
+        <p className="text-sm text-body mt-1">
           Type: {STORE_TYPES.find((t) => t.value === audit.store_type_observed)?.label ?? "—"} · EBT:{" "}
           {EBT_OBSERVATIONS.find((e) => e.value === audit.ebt_observation)?.label ?? "—"}
         </p>
@@ -98,7 +98,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
                 <div className="flex justify-between items-start gap-4">
                   <div>
                     <div className="font-medium">{item.display_name}</div>
-                    <div className="text-sm text-muted">{item.spec}</div>
+                    <div className="text-sm text-body">{item.spec}</div>
                     {cap ? (
                       cap.stock_status === "in-stock" ? (
                         <div className="mt-1 text-sm">
@@ -106,7 +106,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
                           {cap.produce_pricing_mode ? ` · ${cap.produce_pricing_mode}` : ""}
                         </div>
                       ) : (
-                        <div className="mt-1 text-sm text-muted">
+                        <div className="mt-1 text-sm text-body">
                           {cap.stock_status === "out-of-stock" ? "Out of stock" : "Not sold here"}
                         </div>
                       )
@@ -173,7 +173,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
 
       <section className="rounded-lg border border-line bg-white p-5 flex flex-col gap-3">
         <h2 className="font-semibold">Resolve</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-body">
           Approving credits <strong>{(credited * 60).toFixed(0)} minutes</strong> ({credited} hours) to
           this volunteer for the current month, certified by Tended Food Access.
         </p>

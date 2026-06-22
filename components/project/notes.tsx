@@ -5,7 +5,23 @@ import { Check } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { saveNotes } from "@/app/app/project-actions";
 
-export function Notes({ submissionId, initial, locked }: { submissionId: string; initial: string; locked?: boolean }) {
+export function Notes({
+  submissionId,
+  initial,
+  locked,
+  copy,
+}: {
+  submissionId: string;
+  initial: string;
+  locked?: boolean;
+  copy?: { placeholder: string; saving: string; saved: string; autosaves: string };
+}) {
+  const c = copy ?? {
+    placeholder: "Jot notes as you work — what you found, where you are, anything to remember.",
+    saving: "Saving…",
+    saved: "Saved",
+    autosaves: "Autosaves when you click away.",
+  };
   const [value, setValue] = useState(initial);
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
@@ -29,10 +45,10 @@ export function Notes({ submissionId, initial, locked }: { submissionId: string;
         onChange={(e) => setValue(e.target.value)}
         onBlur={persist}
         disabled={locked}
-        placeholder="Jot notes as you work — what you found, where you are, anything to remember."
+        placeholder={c.placeholder}
       />
       <p className="mt-1 h-4 text-xs text-meta" aria-live="polite">
-        {pending ? "Saving…" : saved ? <span className="inline-flex items-center gap-1 text-forest"><Check className="size-3" /> Saved</span> : "Autosaves when you click away."}
+        {pending ? c.saving : saved ? <span className="inline-flex items-center gap-1 text-forest"><Check className="size-3" /> {c.saved}</span> : c.autosaves}
       </p>
     </div>
   );

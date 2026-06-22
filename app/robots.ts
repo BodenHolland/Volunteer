@@ -1,8 +1,11 @@
 import type { MetadataRoute } from "next";
+import { isDemoMode } from "@/lib/cf";
 
-/** Unlisted demo — keep it out of search indexes. */
+/** Indexable in production; kept out of search indexes in DEMO_MODE. */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", disallow: "/" },
+    rules: isDemoMode()
+      ? { userAgent: "*", disallow: "/" }
+      : { userAgent: "*", allow: "/" },
   };
 }

@@ -11,12 +11,15 @@ export function Checklist({
   items,
   progress,
   locked,
+  copy,
 }: {
   submissionId: string;
   items: ChecklistItem[];
   progress: ChecklistProgress;
   locked?: boolean;
+  copy?: { required: string; optional: string };
 }) {
+  const c = copy ?? { required: "required", optional: "optional" };
   const [state, setState] = useState<ChecklistProgress>(progress);
   const [, start] = useTransition();
 
@@ -58,9 +61,9 @@ export function Checklist({
               <span className={cn("text-sm", checked ? "text-ink" : "text-body")}>
                 {item.label}
                 {item.required ? (
-                  <span className="ml-1.5 text-xs text-meta">required</span>
+                  <span className="ml-1.5 text-xs text-meta">{c.required}</span>
                 ) : (
-                  <span className="ml-1.5 text-xs text-meta">optional</span>
+                  <span className="ml-1.5 text-xs text-meta">{c.optional}</span>
                 )}
               </span>
             </button>

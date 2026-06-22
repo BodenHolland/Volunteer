@@ -14,7 +14,7 @@ export function ResetButton() {
   async function handleReset() {
     if (state === "working") return;
     const ok = window.confirm(
-      "This wipes ALL data and reseeds the demo dataset. Any changes made during this session will be lost. Continue?"
+      "This wipes ALL data and reseeds the dataset. Any changes made during this session will be lost. Continue?"
     );
     if (!ok) return;
     setState("working");
@@ -38,7 +38,7 @@ export function ResetButton() {
     return (
       <div className="rounded-lg border border-line bg-forest-subtle p-4">
         <p className="flex items-center gap-2 font-medium text-forest">
-          <CheckCircle2 className="size-5" /> Demo data reset.
+          <CheckCircle2 className="size-5" /> Data reset.
         </p>
         <p className="mt-1 text-sm text-body">The database has been wiped and reseeded.</p>
         <Button asChild variant="secondary" className="mt-3">
@@ -52,7 +52,7 @@ export function ResetButton() {
     <div className="space-y-2">
       <Button variant="destructive" onClick={handleReset} disabled={state === "working"}>
         {state === "working" ? <Loader2 className="animate-spin" /> : <RotateCcw />}
-        {state === "working" ? "Resetting…" : "Wipe and reseed demo data"}
+        {state === "working" ? "Resetting…" : "Wipe and reseed data"}
       </Button>
       {state === "error" && error && (
         <p className="text-sm text-brick">Could not reset: {error}</p>

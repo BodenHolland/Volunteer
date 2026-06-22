@@ -12,7 +12,21 @@ interface Pic {
   captured_at?: number;
 }
 
-export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?: number }) {
+export function PhotoUpload({
+  name = "photos",
+  min = 1,
+  copy,
+}: {
+  name?: string;
+  min?: number;
+  copy?: { add: string; atLeast: string; noGeotag: string; addAtLeast: string };
+}) {
+  const c = copy ?? {
+    add: "Add photos",
+    atLeast: "At least {n}. We read location from the photo when available.",
+    noGeotag: "no geotag",
+    addAtLeast: "Add at least {n} photos.",
+  };
   const [pics, setPics] = useState<Pic[]>([]);
   const [meta, setMeta] = useState<string>("[]");
 
@@ -47,8 +61,8 @@ export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?:
       <input type="hidden" name="photo_meta" value={meta} />
       <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-8 text-center hover:bg-forest-subtle focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
         <ImagePlus className="size-6 text-meta" aria-hidden="true" />
-        <span className="text-sm font-medium text-ink">Add photos</span>
-        <span className="text-xs text-meta">At least {min}. We read location from the photo when available.</span>
+        <span className="text-sm font-medium text-ink">{c.add}</span>
+        <span className="text-xs text-meta">{c.atLeast.replace("{n}", String(min))}</span>
         <input type="file" name={name} accept="image/*" multiple className="sr-only" onChange={onChange} />
       </label>
 
@@ -60,14 +74,14 @@ export function PhotoUpload({ name = "photos", min = 1 }: { name?: string; min?:
               <img src={p.url} alt={p.name} className="aspect-square w-full object-cover" />
               <div className="flex items-center gap-1 px-1.5 py-1 text-[11px] text-meta">
                 <MapPin className="size-3" aria-hidden="true" />
-                {p.lat != null ? `${p.lat.toFixed(3)}, ${p.lng?.toFixed(3)}` : "no geotag"}
+                {p.lat != null ? `${p.lat.toFixed(3)}, ${p.lng?.toFixed(3)}` : c.noGeotag}
               </div>
             </li>
           ))}
         </ul>
       )}
       {pics.length > 0 && pics.length < min && (
-        <p className="mt-2 flex items-center gap-1 text-xs text-amber"><X className="size-3" aria-hidden="true" /> Add at least {min} photos.</p>
+        <p className="mt-2 flex items-center gap-1 text-xs text-amber"><X className="size-3" aria-hidden="true" /> {c.addAtLeast.replace("{n}", String(min))}</p>
       )}
     </div>
   );

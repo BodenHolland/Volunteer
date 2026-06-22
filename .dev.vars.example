@@ -1,15 +1,22 @@
 # Copy to .dev.vars and fill in. These power local `next dev`.
 NEXTJS_ENV=development
-# Legacy demo gate (no longer used now that auth is real). Safe to leave.
+# Legacy site gate (no longer used now that auth is real). Safe to leave.
 SITE_PASSWORD=tended-pilot
 # OpenRouter API key. Without it, AI validation falls back to "needs a human look".
 OPENROUTER_API_KEY=sk-or-...
 # Default model. Free tier vision-capable model.
 OPENROUTER_MODEL=google/gemini-2.0-flash-exp:free
 OPENROUTER_SITE_URL=http://localhost:3000
-OPENROUTER_APP_NAME=Tended Demo
-# 32-byte base64 key to actually encrypt PII at rest (no-op passthrough if unset).
+OPENROUTER_APP_NAME=Tended
+# 32-byte base64 key to encrypt PII at rest (generate: openssl rand -base64 32).
+# Required outside DEMO_MODE — storing PII throws without it (fail-closed). In
+# DEMO_MODE, unset falls back to passthrough.
 PII_ENCRYPTION_KEY=
+# Transactional email for org team invites (auth emails go via Firebase). Unset → logged.
+RESEND_API_KEY=
+EMAIL_FROM=Tended <noreply@yourdomain>
+# Public origin for links built in emails (falls back to the request host).
+APP_ORIGIN=
 
 # --- Firebase Auth (paste from Firebase console → Project settings → Your apps → Web app) ---
 # When NEXT_PUBLIC_FIREBASE_API_KEY + PROJECT_ID are set, the app uses Firebase
@@ -22,3 +29,7 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 # Server-side: same value as NEXT_PUBLIC_FIREBASE_PROJECT_ID (used to verify tokens).
 FIREBASE_PROJECT_ID=
+
+# Set DEMO_MODE=true for local dev to enable sample-data seeding, /admin/reset, and
+# onboarding skips. Leave unset in production (no seeding, PII encryption required).
+DEMO_MODE=true

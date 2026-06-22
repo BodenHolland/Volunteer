@@ -6,6 +6,7 @@ import {
   BookOpen,
   Building2,
   ChevronDown,
+  CircleHelp,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -33,6 +34,7 @@ export interface PublicNavStrings {
   forOrgs: string;
   signIn: string;
   seeTasks: string;
+  help: string;
 }
 
 const EN: PublicNavStrings = {
@@ -41,6 +43,7 @@ const EN: PublicNavStrings = {
   forOrgs: "For organizations",
   signIn: "Sign in",
   seeTasks: "See tasks",
+  help: "Help center",
 };
 
 type Viewer = {
@@ -139,6 +142,10 @@ export function SiteHeaderClient({
                         <Building2 className="mt-0.5 size-[18px] text-teal" />
                         <span><span className="block text-sm font-semibold">For organizations</span><span className="block text-xs text-body">Host tasks and review work.</span></span>
                       </Link>
+                      <Link href="/help" className="flex gap-2.5 rounded-md p-2 hover:bg-section">
+                        <CircleHelp className="mt-0.5 size-[18px] text-teal" />
+                        <span><span className="block text-sm font-semibold">{t.help}</span><span className="block text-xs text-body">Methodology &amp; the law behind it.</span></span>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -167,6 +174,7 @@ export function SiteHeaderClient({
                   {viewer.role === "org_member" && <DropdownMenuItem asChild><Link href="/org/profile"><Settings /> Organization profile</Link></DropdownMenuItem>}
                   {viewer.role === "org_member" && viewer.isOrgAdmin && <DropdownMenuItem asChild><Link href="/org/team"><Users2 /> Team</Link></DropdownMenuItem>}
                   {viewer.role === "admin" && <DropdownMenuItem asChild><Link href="/admin"><Settings /> Admin workspace</Link></DropdownMenuItem>}
+                  <DropdownMenuItem asChild><Link href="/help"><CircleHelp /> {t.help}</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem destructive asChild><Link href="/signout"><LogOut /> Sign out</Link></DropdownMenuItem>
                 </DropdownMenuContent>
@@ -191,6 +199,7 @@ export function SiteHeaderClient({
               <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
               <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
               <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
+              <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
               <div className="my-1 h-px bg-white/15" />
             </>}
             {viewer ? (
@@ -201,6 +210,7 @@ export function SiteHeaderClient({
                 <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
                 <Link href="/about" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.about}</Link>
                 <Link href="/for-organizations" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.forOrgs}</Link>
+                <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>
                 <Link href="/signout" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10"><LogOut className="size-[18px]" /> Sign out</Link>
               </>
             ) : (

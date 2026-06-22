@@ -3,7 +3,6 @@ import { ArrowRight, AlertCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { getDict } from "@/lib/i18n";
 import { HoursCalculator } from "./calculator";
 
 export const metadata = {
@@ -15,12 +14,10 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function HoursCalculatorPage() {
-  const { locale, t } = await getDict();
-
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <SiteHeader locale={locale} t={t.nav} />
+      <SiteHeader />
       <main id="main" className="flex-1">
         <section className="border-b border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">

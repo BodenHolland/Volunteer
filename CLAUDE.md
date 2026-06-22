@@ -95,7 +95,7 @@ Real **email + password** accounts. No demo gate, no identity-swap.
 - `middleware.ts` redirects unauthenticated `/app|/org|/admin` to `/login`; role is
   enforced in layouts/pages via `require*` (`lib/session.ts`).
 
-**Demo accounts** (seeded, all share password `tended-demo-2026`):
+**Sample accounts** (seeded in `DEMO_MODE`, all share password `tended-sample-2026`):
 `marisol.reyes@example.com` (recipient, snap_cert), `trevor.nakamura@example.com`
 (recipient, casual), `priya.venkatesan@example.com` (SFCDC org_admin),
 `daniel.okafor@example.com` (FUF reviewer), `alex.mercado@example.com` (admin).
@@ -128,11 +128,10 @@ org); the CF 888 reads the ledger. Enforced in `app/org/org-actions.ts`.
 2. **Location + intent** (recipient only) — City (SF, CA only; others greyed
    "Coming soon"); intent picker (snap_cert / casual_volunteer / other).
 3. **CalFresh setup** (snap_cert only):
-   - 3a. Phone + OTP — **demo accepts `123456`** (any 6-digit actually); stores
-     `phone`, `phone_verified_at`.
-   - 3b. Section 1 PII — legal name, case #, address, DOB. "This appears on your
-     CF 888 exactly as entered."
-   - 3c. BenefitsCal screenshot → R2 `verification/{user_id}/benefitscal.png`;
+   - 3a. Section 1 PII — legal name, case #, **mobile number** (collected for
+     contact, no verification), address, DOB. "This appears on your CF 888 exactly
+     as entered." (Phone is not on the CF 888; it's contact info only.)
+   - 3b. BenefitsCal screenshot → R2 `verification/{user_id}/benefitscal.png`;
      OCR skipped; sets `benefitscal_verified_at`.
 4. **Welcome → /app**
 
@@ -217,7 +216,7 @@ review required", ...}` → `pending_review`. Demo works with no API key.
 
 ## Demo script (the thing we optimize for)
 
-Land `/` → sign in `/start` (recipient) → PII wizard (OTP `123456`) → `/app`
+Land `/` → sign in `/start` (recipient) → PII wizard (no OTP) → `/app`
 dashboard (progress ring "12 of 80 hours") → `/app/tasks` catalog → tree census
 detail → "Commit" → project hub (Start/Stop sessions, checklist) → submit 3
 photos → "AI reviewing…" verdict → **Switch identity** to FUF reviewer →

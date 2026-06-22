@@ -36,7 +36,7 @@ export default async function AdminUsersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-[28px] font-semibold text-ink">Users</h1>
-        <p className="mt-1 text-body">{rows.length} accounts in the demo dataset.</p>
+        <p className="mt-1 text-body">{rows.length} accounts in the dataset.</p>
       </div>
 
       {rows.length === 0 ? (

@@ -16,7 +16,30 @@ import { currentMonth } from "./time";
 export interface SubmissionWithTask extends Submission {
   task: TaskTemplate;
   org: Org;
+  /** Present when this committed task is a food audit (parallel `audits` row). */
+  auditId?: string | null;
+  /** The audit's own validation status (`draft|submitted|validating|verified|flagged|rejected`). */
+  auditStatus?: string | null;
 }
+
+/**
+ * The correct detail route for a committed work item. Food audits live in their
+ * own flow (`/app/audits/[id]`); generic tasks use the project hub while active
+ * and the read-only submission view once submitted.
+ */
+export function workHref(s: SubmissionWithTask): string {
+  if (s.auditId) return `/app/audits/${s.auditId}`;
+  if (["committed", "in_progress", "needs_changes"].includes(s.status)) return `/app/projects/${s.id}`;
+  return `/app/submissions/${s.id}`;
+}
+
+/** Status to display for a work item — the audit's validation status when present. */
+export function workStatus(s: SubmissionWithTask): string {
+  return s.auditStatus ?? s.status;
+}
+
+/** Effective-status values that mean the work is finished and no longer "active". */
+const TERMINAL_WORK_STATUSES = new Set(["approved", "verified", "rejected"]);
 
 export async function getUserById(id: string): Promise<User | null> {
   return (await getDb().prepare("SELECT * FROM users WHERE id = ?").bind(id).first<User>()) ?? null;
@@ -69,11 +92,25 @@ async function hydrate(subs: Submission[]): Promise<SubmissionWithTask[]> {
   const orgs = await listOrgs();
   const taskById = new Map(tasks.map((t) => [t.id, t]));
   const orgById = new Map(orgs.map((o) => [o.id, o]));
+
+  // Food-audit tasks carry a parallel `audits` row keyed by submission_id; attach
+  // it so callers can route to the audit flow and show the audit's real status.
+  const ids = subs.map((s) => s.id);
+  const placeholders = ids.map(() => "?").join(",");
+  const auditRows =
+    (await getDb()
+      .prepare(`SELECT id, submission_id, validation_status FROM audits WHERE submission_id IN (${placeholders})`)
+      .bind(...ids)
+      .all<{ id: string; submission_id: string; validation_status: string }>()).results ?? [];
+  const auditBySub = new Map(auditRows.map((a) => [a.submission_id, a]));
+
   return subs
     .map((s) => {
       const task = taskById.get(s.task_template_id);
       const org = task ? orgById.get(task.org_id) : undefined;
-      return task && org ? { ...s, task, org } : null;
+      if (!task || !org) return null;
+      const audit = auditBySub.get(s.id);
+      return { ...s, task, org, auditId: audit?.id ?? null, auditStatus: audit?.validation_status ?? null };
     })
     .filter(Boolean) as SubmissionWithTask[];
 }
@@ -190,6 +227,12 @@ export async function getRecipientDashboard(userId: string, now: number = Date.n
       pending += Math.min(s.hours_credited ?? measured, s.task.max_hours);
     }
   }
-  const active = subs.filter((s) => ACTIVE_STATUSES.has(s.status));
+  // A food-audit's submission row stays "committed" while its audit progresses,
+  // so fall back to the audit's own status to decide whether it's still active.
+  const active = subs.filter((s) => {
+    const eff = s.auditStatus ?? s.status;
+    if (TERMINAL_WORK_STATUSES.has(eff)) return false;
+    return s.auditId ? true : ACTIVE_STATUSES.has(s.status);
+  });
   return { certified, pending, active, recent: subs.slice(0, 5), month };
 }

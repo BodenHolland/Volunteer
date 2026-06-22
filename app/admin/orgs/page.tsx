@@ -31,7 +31,7 @@ export default async function AdminOrgsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-[28px] font-semibold text-ink">Organizations</h1>
-        <p className="mt-1 text-body">{rows.length} organizations in the demo dataset.</p>
+        <p className="mt-1 text-body">{rows.length} organizations in the dataset.</p>
       </div>
 
       {rows.length === 0 ? (

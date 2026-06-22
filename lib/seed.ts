@@ -1,20 +1,20 @@
 /**
- * Idempotent seed: wipes every table and reinserts the demo dataset.
- * Used by /admin/reset and the first-run bootstrap.
+ * Idempotent seed: wipes every table and reinserts the sample dataset.
+ * Used by /admin/reset and the first-run bootstrap (DEMO_MODE only).
  *
- * Demo-data notes:
+ * Sample-data notes:
  * - Two task orgs: Civic Data Collective and Canopy Commons (both illustrative).
- * - The live demo commits to the tree census (Canopy Commons's task), so the
+ * - A sample recipient commits to the tree census (Canopy Commons's task), so the
  *   reviewer who closes the loop is its reviewer (Daniel Okafor). That queue is
  *   seeded with 2 other pending submissions so it reads "3 awaiting" once the
- *   demo recipient submits. (An org can only review its own tasks, so the demo
+ *   recipient submits. (An org can only review its own tasks, so it
  *   uses the task's org — see README.)
  */
 import { parseJson, totalLoggedHours, type ChecklistItem, type DeliverableSpec, type TimeLogSession } from "./types";
 import { hashPassword } from "./auth";
 
-/** All seeded demo accounts share this password so the demo is loginnable. */
-export const DEMO_PASSWORD = "tended-demo-2026";
+/** All seeded sample accounts share this password so they are loginnable. */
+export const SEED_PASSWORD = "tended-sample-2026";
 
 export interface Persona {
   user_id: string;
@@ -438,7 +438,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   for (const t of TASKS) {
     const createdBy = t.org_id === ORG_SFCDC ? USER_PRIYA : USER_DANIEL;
     // Only the food-audit task is live in the catalog. Older seeded tasks stay
-    // archived so their demo submissions / hours rows still reference a valid
+    // archived so their sample submissions / hours rows still reference a valid
     // task_template row but they don't surface in /app/tasks.
     const status = t.id === TASK_FOOD_AUDIT ? "active" : "archived";
     stmts.push(
@@ -559,11 +559,11 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   );
   stmts.push(ledgerIns.bind("ledger_m_sfcdc", USER_MARISOL, month, 8, ORG_SFCDC));
 
-  // ---- counties (per-county pre-clearance): Sacramento cleared (demo) ----
+  // ---- counties (per-county pre-clearance): Sacramento cleared (sample) ----
   const countyIns = db.prepare(
     `INSERT INTO counties (id, name, state, cert_enabled, cleared_at, clearance_note) VALUES (?,?,?,?,?,?)`
   );
-  stmts.push(countyIns.bind("county_sacramento", "Sacramento", "CA", 1, now - 30 * DAY, "Written CDSS/county confirmation on file (demo)."));
+  stmts.push(countyIns.bind("county_sacramento", "Sacramento", "CA", 1, now - 30 * DAY, "Written CDSS/county confirmation on file."));
   stmts.push(countyIns.bind("county_losangeles", "Los Angeles", "CA", 0, null, null));
   stmts.push(countyIns.bind("county_fresno", "Fresno", "CA", 0, null, null));
 
@@ -593,11 +593,11 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   await db.batch(stmts);
 
   // Give every seeded account a real (hashed) password + verified email so the
-  // demo is loginnable with DEMO_PASSWORD. Production accounts set their own.
-  const demoHash = await hashPassword(DEMO_PASSWORD);
+  // sample accounts are loginnable with SEED_PASSWORD. Production accounts set their own.
+  const seedHash = await hashPassword(SEED_PASSWORD);
   await db
     .prepare("UPDATE users SET password_hash = ?, email_verified_at = ? WHERE password_hash IS NULL")
-    .bind(demoHash, now)
+    .bind(seedHash, now)
     .run();
 
   // Backfill measured active engagement from seeded wall-clock sessions (treat

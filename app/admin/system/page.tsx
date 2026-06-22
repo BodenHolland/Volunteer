@@ -91,7 +91,7 @@ export default async function AdminSystemPage() {
           icon={<Sparkles />}
           value={aiKeyPresent ? "Configured" : "Not set"}
           label="AI validator"
-          hint={aiKeyPresent ? "OPENROUTER_API_KEY present" : "Demo falls back to manual review"}
+          hint={aiKeyPresent ? "OPENROUTER_API_KEY present" : "Falls back to manual review"}
         />
         <Stat
           icon={<Inbox />}

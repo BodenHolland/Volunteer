@@ -25,6 +25,50 @@ import {
   submitAuditAction,
 } from "./audit-actions";
 
+export interface AuditCopy {
+  step1Title: string;
+  step2Title: string;
+  step3Title: string;
+  step4Title: string;
+  capturedSummary: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  searching: string;
+  cancel: string;
+  addStore: string;
+  storeName: string;
+  storeNamePlaceholder: string;
+  address: string;
+  addressPlaceholder: string;
+  useLocation: string;
+  locationUnavailable: string;
+  locationError: string;
+  locationNote: string;
+  addStoreBtn: string;
+  inStock: string;
+  outOfStock: string;
+  notSoldHere: string;
+  notSoldAtStore: string;
+  photoLabel: string;
+  shelfPrice: string;
+  size: string;
+  unit: string;
+  pricedBy: string;
+  perPound: string;
+  perUnit: string;
+  expected: string;
+  markingOos: string;
+  markingNotSold: string;
+  couldntSave: string;
+  saving: string;
+  save: string;
+  submitTitle: string;
+  measuredEngagement: string;
+  submitting: string;
+  submitBtn: string;
+  finishSteps: string;
+}
+
 interface Props {
   audit: AuditRow;
   store: Store | null;
@@ -32,9 +76,10 @@ interface Props {
   basketItems: BasketItem[];
   storeTypes: { value: StoreType; label: string; help: string }[];
   ebtOptions: { value: EbtObservation; label: string }[];
+  copy: AuditCopy;
 }
 
-export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions }: Props) {
+export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, copy }: Props) {
   const sessionSeconds = useSessionTimer(audit.id);
   const allCaptured = captures.length === basketItems.length;
   const canSubmit =
@@ -44,16 +89,16 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
     <div className="flex flex-col gap-8">
       <Step
         n={1}
-        title="Confirm the store you're at"
+        title={copy.step1Title}
         done={!!audit.store_id}
         summary={store ? `${store.name} · ${store.address}` : undefined}
       >
-        <StoreStep auditId={audit.id} currentStoreId={audit.store_id} />
+        <StoreStep auditId={audit.id} currentStoreId={audit.store_id} copy={copy} />
       </Step>
 
       <Step
         n={2}
-        title="What kind of store is it?"
+        title={copy.step2Title}
         done={!!audit.store_type_observed}
         summary={
           audit.store_type_observed
@@ -66,7 +111,7 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
 
       <Step
         n={3}
-        title="Does the store accept EBT?"
+        title={copy.step3Title}
         done={!!audit.ebt_observation}
         summary={
           audit.ebt_observation
@@ -77,11 +122,11 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
         <EbtStep auditId={audit.id} current={audit.ebt_observation} options={ebtOptions} />
       </Step>
 
-      <Step n={4} title="Capture the 6 basket items" done={allCaptured} summary={`${captures.length} of ${basketItems.length} captured`}>
-        <BasketStep auditId={audit.id} items={basketItems} captures={captures} />
+      <Step n={4} title={copy.step4Title} done={allCaptured} summary={copy.capturedSummary.replace("{n}", String(captures.length)).replace("{total}", String(basketItems.length))}>
+        <BasketStep auditId={audit.id} items={basketItems} captures={captures} copy={copy} />
       </Step>
 
-      <SubmitStep auditId={audit.id} canSubmit={canSubmit} sessionSeconds={sessionSeconds} />
+      <SubmitStep auditId={audit.id} canSubmit={canSubmit} sessionSeconds={sessionSeconds} copy={copy} />
     </div>
   );
 }
@@ -140,14 +185,14 @@ function Step({
           className={
             done
               ? "shrink-0 h-7 w-7 rounded-full bg-forest text-white grid place-items-center text-sm font-medium"
-              : "shrink-0 h-7 w-7 rounded-full border border-line grid place-items-center text-sm font-medium text-muted"
+              : "shrink-0 h-7 w-7 rounded-full border border-line grid place-items-center text-sm font-medium text-body"
           }
         >
           {done ? "✓" : n}
         </span>
         <div>
           <h2 className="font-semibold text-ink">{title}</h2>
-          {summary ? <p className="text-sm text-muted mt-0.5">{summary}</p> : null}
+          {summary ? <p className="text-sm text-body mt-0.5">{summary}</p> : null}
         </div>
       </header>
       <div className="p-5">{children}</div>
@@ -157,7 +202,7 @@ function Step({
 
 // ---------- Step 1: store ----------
 
-function StoreStep({ auditId, currentStoreId }: { auditId: string; currentStoreId: string | null }) {
+function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; currentStoreId: string | null; copy: AuditCopy }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Store[]>([]);
   const [showNew, setShowNew] = useState(false);
@@ -185,13 +230,13 @@ function StoreStep({ auditId, currentStoreId }: { auditId: string; currentStoreI
 
   return (
     <div className="flex flex-col gap-3">
-      <Label>Search a store by name or address</Label>
+      <Label>{copy.searchLabel}</Label>
       <Input
-        placeholder="e.g. Safeway 2020 Market"
+        placeholder={copy.searchPlaceholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      {loading ? <p className="text-sm text-muted">Searching…</p> : null}
+      {loading ? <p className="text-sm text-body">{copy.searching}</p> : null}
       <ul className="flex flex-col gap-1">
         {results.map((s) => (
           <li key={s.id}>
@@ -207,7 +252,7 @@ function StoreStep({ auditId, currentStoreId }: { auditId: string; currentStoreI
                 }
               >
                 <div className="font-medium text-ink">{s.name}</div>
-                <div className="text-sm text-muted">{s.address}</div>
+                <div className="text-sm text-body">{s.address}</div>
               </button>
             </form>
           </li>
@@ -219,27 +264,27 @@ function StoreStep({ auditId, currentStoreId }: { auditId: string; currentStoreI
         className="text-sm text-forest underline-offset-2 hover:underline self-start"
         onClick={() => setShowNew((x) => !x)}
       >
-        {showNew ? "Cancel" : "Store not listed — add it"}
+        {showNew ? copy.cancel : copy.addStore}
       </button>
 
-      {showNew ? <NewStoreForm auditId={auditId} /> : null}
+      {showNew ? <NewStoreForm auditId={auditId} copy={copy} /> : null}
     </div>
   );
 }
 
-function NewStoreForm({ auditId }: { auditId: string }) {
+function NewStoreForm({ auditId, copy }: { auditId: string; copy: AuditCopy }) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
 
   function useDeviceLocation() {
     setGeoError(null);
     if (!navigator.geolocation) {
-      setGeoError("Device location unavailable.");
+      setGeoError(copy.locationUnavailable);
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => setGeoError(err.message || "Couldn't read location.")
+      (err) => setGeoError(err.message || copy.locationError)
     );
   }
 
@@ -247,19 +292,19 @@ function NewStoreForm({ auditId }: { auditId: string }) {
     <form action={createStoreAction} className="rounded-md border border-line p-4 flex flex-col gap-3">
       <input type="hidden" name="audit_id" value={auditId} />
       <div>
-        <Label htmlFor="store-name">Store name</Label>
-        <Input id="store-name" name="name" required placeholder="Mi Tierra Market" />
+        <Label htmlFor="store-name">{copy.storeName}</Label>
+        <Input id="store-name" name="name" required placeholder={copy.storeNamePlaceholder} />
       </div>
       <div>
-        <Label htmlFor="store-address">Address</Label>
-        <Input id="store-address" name="address" required placeholder="2840 J St, Sacramento, CA 95816" />
+        <Label htmlFor="store-address">{copy.address}</Label>
+        <Input id="store-address" name="address" required placeholder={copy.addressPlaceholder} />
       </div>
       <div className="flex items-center gap-2">
         <Button type="button" variant="secondary" size="sm" onClick={useDeviceLocation}>
-          Use my current location
+          {copy.useLocation}
         </Button>
         {coords ? (
-          <span className="text-sm text-muted">
+          <span className="text-sm text-body">
             {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
           </span>
         ) : null}
@@ -267,11 +312,9 @@ function NewStoreForm({ auditId }: { auditId: string }) {
       </div>
       <input type="hidden" name="lat" value={coords?.lat ?? ""} />
       <input type="hidden" name="lng" value={coords?.lng ?? ""} />
-      <p className="text-xs text-muted">
-        We use device location to validate the audit and prevent duplicate submissions.
-      </p>
+      <p className="text-xs text-body">{copy.locationNote}</p>
       <Button type="submit" disabled={!coords}>
-        Add store
+        {copy.addStoreBtn}
       </Button>
     </form>
   );
@@ -303,7 +346,7 @@ function StoreTypeStep({
             }
           >
             <div className="font-medium text-ink">{o.label}</div>
-            {o.help ? <div className="text-sm text-muted">{o.help}</div> : null}
+            {o.help ? <div className="text-sm text-body">{o.help}</div> : null}
           </button>
         </form>
       ))}
@@ -350,10 +393,12 @@ function BasketStep({
   auditId,
   items,
   captures,
+  copy,
 }: {
   auditId: string;
   items: BasketItem[];
   captures: AuditItemCaptureRow[];
+  copy: AuditCopy;
 }) {
   const byId = new Map(captures.map((c) => [c.basket_item_id, c]));
   const rgItems: RepeatGroupItem[] = items.map((item) => {
@@ -363,9 +408,9 @@ function BasketStep({
       if (cap.stock_status === "in-stock" && cap.price_usd != null) {
         summary = `$${cap.price_usd.toFixed(2)} / ${cap.size_value} ${cap.size_unit}`;
       } else if (cap.stock_status === "out-of-stock") {
-        summary = "Out of stock";
+        summary = copy.outOfStock;
       } else if (cap.stock_status === "not-sold-at-this-store") {
-        summary = "Not sold at this store";
+        summary = copy.notSoldAtStore;
       }
     }
     return {
@@ -383,7 +428,7 @@ function BasketStep({
       renderForm={(rgItem, close) => {
         const item = items.find((i) => i.id === rgItem.id)!;
         const cap = byId.get(item.id);
-        return <CaptureForm auditId={auditId} item={item} current={cap} onDone={close} />;
+        return <CaptureForm auditId={auditId} item={item} current={cap} onDone={close} copy={copy} />;
       }}
     />
   );
@@ -394,11 +439,13 @@ function CaptureForm({
   item,
   current,
   onDone,
+  copy,
 }: {
   auditId: string;
   item: BasketItem;
   current?: AuditItemCaptureRow;
   onDone: () => void;
+  copy: AuditCopy;
 }) {
   const [status, setStatus] = useState<StockStatus>(current?.stock_status ?? "in-stock");
   const [error, setError] = useState<string | null>(null);
@@ -431,7 +478,7 @@ function CaptureForm({
     const r = await captureItemAction(fd);
     setSubmitting(false);
     if (!r.ok) {
-      setError(r.error ?? "Couldn't save.");
+      setError(r.error ?? copy.couldntSave);
       return;
     }
     onDone();
@@ -454,7 +501,7 @@ function CaptureForm({
                 : "rounded-md border border-line hover:bg-section px-3 py-1.5 text-sm"
             }
           >
-            {s === "in-stock" ? "In stock" : s === "out-of-stock" ? "Out of stock" : "Not sold here"}
+            {s === "in-stock" ? copy.inStock : s === "out-of-stock" ? copy.outOfStock : copy.notSoldHere}
           </button>
         ))}
       </div>
@@ -462,7 +509,7 @@ function CaptureForm({
       {status === "in-stock" ? (
         <>
           <div>
-            <Label htmlFor={`photo-${item.id}`}>Photo of the item + its shelf tag</Label>
+            <Label htmlFor={`photo-${item.id}`}>{copy.photoLabel}</Label>
             <Input
               id={`photo-${item.id}`}
               name="photo"
@@ -474,7 +521,7 @@ function CaptureForm({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor={`price-${item.id}`}>Shelf price (USD)</Label>
+              <Label htmlFor={`price-${item.id}`}>{copy.shelfPrice}</Label>
               <Input
                 id={`price-${item.id}`}
                 name="price_usd"
@@ -487,7 +534,7 @@ function CaptureForm({
               />
             </div>
             <div>
-              <Label htmlFor={`size-${item.id}`}>Size</Label>
+              <Label htmlFor={`size-${item.id}`}>{copy.size}</Label>
               <Input
                 id={`size-${item.id}`}
                 name="size_value"
@@ -501,7 +548,7 @@ function CaptureForm({
             </div>
           </div>
           <div>
-            <Label htmlFor={`unit-${item.id}`}>Unit</Label>
+            <Label htmlFor={`unit-${item.id}`}>{copy.unit}</Label>
             <select
               id={`unit-${item.id}`}
               name="size_unit"
@@ -518,7 +565,7 @@ function CaptureForm({
           </div>
           {item.category === "produce" ? (
             <div>
-              <Label htmlFor={`mode-${item.id}`}>Priced by</Label>
+              <Label htmlFor={`mode-${item.id}`}>{copy.pricedBy}</Label>
               <select
                 id={`mode-${item.id}`}
                 name="produce_pricing_mode"
@@ -526,17 +573,16 @@ function CaptureForm({
                 defaultValue={current?.produce_pricing_mode ?? "per-pound"}
                 className="block w-full rounded-md border border-line bg-white px-3 py-2 text-sm"
               >
-                <option value="per-pound">Per pound</option>
-                <option value="per-unit">Per unit</option>
+                <option value="per-pound">{copy.perPound}</option>
+                <option value="per-unit">{copy.perUnit}</option>
               </select>
             </div>
           ) : null}
-          <p className="text-xs text-muted">Expected: {item.spec}</p>
+          <p className="text-xs text-body">{copy.expected} {item.spec}</p>
         </>
       ) : (
-        <p className="text-sm text-muted">
-          Marking this item as &quot;{status === "out-of-stock" ? "out of stock" : "not sold here"}&quot;.
-          No photo needed.
+        <p className="text-sm text-body">
+          {status === "out-of-stock" ? copy.markingOos : copy.markingNotSold}
         </p>
       )}
 
@@ -544,10 +590,10 @@ function CaptureForm({
 
       <div className="flex gap-2">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Saving…" : "Save"}
+          {submitting ? copy.saving : copy.save}
         </Button>
         <Button type="button" variant="secondary" onClick={onDone}>
-          Cancel
+          {copy.cancel}
         </Button>
       </div>
     </form>
@@ -560,10 +606,12 @@ function SubmitStep({
   auditId,
   canSubmit,
   sessionSeconds,
+  copy,
 }: {
   auditId: string;
   canSubmit: boolean;
   sessionSeconds: number;
+  copy: AuditCopy;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -587,17 +635,17 @@ function SubmitStep({
     >
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-ink">Submit audit</h2>
-          <p className="text-sm text-muted">
-            {Math.floor(sessionSeconds / 60)}m {sessionSeconds % 60}s of measured engagement so far.
+          <h2 className="font-semibold text-ink">{copy.submitTitle}</h2>
+          <p className="text-sm text-body">
+            {copy.measuredEngagement.replace("{m}", String(Math.floor(sessionSeconds / 60))).replace("{s}", String(sessionSeconds % 60))}
           </p>
         </div>
         <Button type="submit" disabled={!canSubmit || submitting} size="lg">
-          {submitting ? "Submitting…" : "Submit audit"}
+          {submitting ? copy.submitting : copy.submitBtn}
         </Button>
       </div>
       {!canSubmit ? (
-        <p className="text-sm text-muted">Finish all 4 steps above before submitting.</p>
+        <p className="text-sm text-body">{copy.finishSteps}</p>
       ) : null}
       {error ? <p className="text-sm text-brick">{error}</p> : null}
     </form>

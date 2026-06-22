@@ -50,7 +50,7 @@ export function RepeatGroup({
                   className={
                     item.complete
                       ? "shrink-0 h-6 w-6 rounded-full bg-forest text-white grid place-items-center"
-                      : "shrink-0 h-6 w-6 rounded-full border border-line grid place-items-center text-muted"
+                      : "shrink-0 h-6 w-6 rounded-full border border-line grid place-items-center text-body"
                   }
                 >
                   {item.complete ? <Check size={14} /> : <span className="text-xs">·</span>}
@@ -58,13 +58,13 @@ export function RepeatGroup({
                 <div className="min-w-0">
                   <div className="font-medium text-ink truncate">{item.label}</div>
                   {item.summary ? (
-                    <div className="text-sm text-muted truncate">{item.summary}</div>
+                    <div className="text-sm text-body truncate">{item.summary}</div>
                   ) : item.sublabel ? (
-                    <div className="text-sm text-muted truncate">{item.sublabel}</div>
+                    <div className="text-sm text-body truncate">{item.sublabel}</div>
                   ) : null}
                 </div>
               </div>
-              {open ? <ChevronDown size={18} className="text-muted" /> : <ChevronRight size={18} className="text-muted" />}
+              {open ? <ChevronDown size={18} className="text-body" /> : <ChevronRight size={18} className="text-body" />}
             </button>
             {open ? (
               <div className="border-t border-line bg-section/30 px-4 py-4">

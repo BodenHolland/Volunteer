@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw, ListChecks, ScrollText, Activity } from "lucide-react";
+import { ChevronDown, Menu, X, Users, LogOut, LayoutDashboard, UsersRound, Building2, Inbox, MessageSquare, RotateCcw, ListChecks, ScrollText, Activity, CircleHelp } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import {
@@ -77,6 +77,7 @@ export function AdminHeader({ user }: { user: AdminHeaderUser }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+              <DropdownMenuItem asChild><Link href="/help"><CircleHelp /> Help center</Link></DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem destructive asChild><Link href="/signout"><LogOut /> Sign out</Link></DropdownMenuItem>
             </DropdownMenuContent>

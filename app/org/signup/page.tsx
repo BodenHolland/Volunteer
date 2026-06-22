@@ -6,10 +6,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getLocale } from "@/lib/i18n";
 import { createOrgSignup } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Become a partner — Tended" };
+
+const COPY = {
+  en: {
+    onListTitle: "You're on the list",
+    onListBody:
+      "Your organization has been created with a pending status. We'll email a magic link to your contact address to finish setting up your workspace and verify your details.",
+    backToOrgs: "Back to organizations",
+    howCertWorks: "How certification works",
+    becomePartner: "Become a partner",
+    intro:
+      "Tell us about your organization. Any 501(c)(3) nonprofit, government agency, public school, or food bank can host civic tasks and certify hours. We'll create your workspace right away and follow up with a magic link.",
+    formError:
+      "Something looked off in the form. Please check the organization name, contact name, and email, then try again.",
+    orgName: "Organization name",
+    optional: "(optional)",
+    yourName: "Your name",
+    contactEmail: "Contact email",
+    about: "About your organization",
+    aboutPlaceholder: "A sentence or two on what you do and the kind of civic work you'd host.",
+    confirmEligible: "By submitting you confirm your organization is eligible to certify hours.",
+    createWorkspace: "Create workspace",
+    bullet1: "Your workspace is created instantly.",
+    bullet2: "We follow up with a magic-link email to verify your details.",
+    bullet3: "No state pre-approval is required to host tasks.",
+  },
+  es: {
+    onListTitle: "Estás en la lista",
+    onListBody:
+      "Tu organización se ha creado con estado pendiente. Te enviaremos un enlace mágico por correo electrónico a tu dirección de contacto para terminar de configurar tu espacio de trabajo y verificar tus datos.",
+    backToOrgs: "Volver a organizaciones",
+    howCertWorks: "Cómo funciona la certificación",
+    becomePartner: "Conviértete en socio",
+    intro:
+      "Cuéntanos sobre tu organización. Cualquier organización sin fines de lucro 501(c)(3), agencia gubernamental, escuela pública o banco de alimentos puede ofrecer tareas cívicas y certificar horas. Crearemos tu espacio de trabajo de inmediato y te daremos seguimiento con un enlace mágico.",
+    formError:
+      "Algo no se ve bien en el formulario. Por favor revisa el nombre de la organización, el nombre de contacto y el correo electrónico, y vuelve a intentarlo.",
+    orgName: "Nombre de la organización",
+    optional: "(opcional)",
+    yourName: "Tu nombre",
+    contactEmail: "Correo electrónico de contacto",
+    about: "Sobre tu organización",
+    aboutPlaceholder: "Una o dos frases sobre lo que haces y el tipo de trabajo cívico que ofrecerías.",
+    confirmEligible: "Al enviar este formulario confirmas que tu organización es elegible para certificar horas.",
+    createWorkspace: "Crear espacio de trabajo",
+    bullet1: "Tu espacio de trabajo se crea al instante.",
+    bullet2: "Te damos seguimiento con un correo de enlace mágico para verificar tus datos.",
+    bullet3: "No se requiere aprobación previa del estado para ofrecer tareas.",
+  },
+} as const;
 
 export default async function OrgSignupPage({
   searchParams,
@@ -19,6 +69,8 @@ export default async function OrgSignupPage({
   const sp = await searchParams;
   const submitted = sp.submitted === "1";
   const error = sp.error === "1";
+  const locale = await getLocale();
+  const c = COPY[locale];
 
   return (
     <>
@@ -31,24 +83,16 @@ export default async function OrgSignupPage({
               <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-forest-subtle text-forest">
                 <MailCheck className="size-6" strokeWidth={1.5} />
               </div>
-              <h1 className="mt-5 text-[28px] font-semibold text-ink">You&apos;re on the list</h1>
+              <h1 className="mt-5 text-[28px] font-semibold text-ink">{c.onListTitle}</h1>
               <p className="mx-auto mt-3 max-w-md leading-relaxed text-body">
-                Your organization has been created with a pending status. In the live program
-                we&apos;d email a magic link to the contact address to finish setting up your
-                workspace and verify your details.
+                {c.onListBody}
               </p>
-              <div className="mx-auto mt-6 max-w-md rounded-lg border border-line bg-amber-subtle p-4 text-left">
-                <p className="text-sm leading-relaxed text-amber">
-                  This is a demo, so no email is actually sent and no review happens. Your
-                  entry was saved so you can see the flow end to end.
-                </p>
-              </div>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Button asChild variant="secondary">
-                  <Link href="/for-organizations">Back to organizations</Link>
+                  <Link href="/for-organizations">{c.backToOrgs}</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/how-it-works#for-organizations">How certification works <ArrowRight /></Link>
+                  <Link href="/how-it-works#for-organizations">{c.howCertWorks} <ArrowRight /></Link>
                 </Button>
               </div>
             </div>
@@ -57,62 +101,59 @@ export default async function OrgSignupPage({
               <div className="flex size-12 items-center justify-center rounded-lg bg-forest-subtle text-forest">
                 <Building2 className="size-6" strokeWidth={1.5} />
               </div>
-              <h1 className="mt-4 text-[34px] font-semibold leading-tight text-ink">Become a partner</h1>
+              <h1 className="mt-4 text-[34px] font-semibold leading-tight text-ink">{c.becomePartner}</h1>
               <p className="mt-3 max-w-[560px] leading-relaxed text-body">
-                Tell us about your organization. Any 501(c)(3) nonprofit, government agency, public
-                school, or food bank can host civic tasks and certify hours. We&apos;ll create your
-                workspace right away and follow up with a magic link.
+                {c.intro}
               </p>
 
               {error && (
                 <div className="mt-6 rounded-lg border border-line bg-brick-subtle p-4">
                   <p className="text-sm font-medium text-brick">
-                    Something looked off in the form. Please check the organization name, contact
-                    name, and email, then try again.
+                    {c.formError}
                   </p>
                 </div>
               )}
 
               <form action={createOrgSignup} className="mt-8 space-y-5 rounded-lg border border-line bg-white p-6 md:p-8">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name">Organization name</Label>
+                  <Label htmlFor="name">{c.orgName}</Label>
                   <Input id="name" name="name" required placeholder="Community Tree Project" />
                 </div>
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label htmlFor="ein">EIN <span className="font-normal text-meta">(optional)</span></Label>
+                    <Label htmlFor="ein">EIN <span className="font-normal text-meta">{c.optional}</span></Label>
                     <Input id="ein" name="ein" placeholder="94-2698044" inputMode="numeric" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="contact_name">Your name</Label>
+                    <Label htmlFor="contact_name">{c.yourName}</Label>
                     <Input id="contact_name" name="contact_name" required placeholder="Daniel Okafor" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="contact_email">Contact email</Label>
+                  <Label htmlFor="contact_email">{c.contactEmail}</Label>
                   <Input id="contact_email" name="contact_email" type="email" required placeholder="you@yourorg.org" />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="about">About your organization <span className="font-normal text-meta">(optional)</span></Label>
-                  <Textarea id="about" name="about" rows={4} placeholder="A sentence or two on what you do and the kind of civic work you'd host." />
+                  <Label htmlFor="about">{c.about} <span className="font-normal text-meta">{c.optional}</span></Label>
+                  <Textarea id="about" name="about" rows={4} placeholder={c.aboutPlaceholder} />
                 </div>
 
                 <div className="flex items-center justify-between gap-4 pt-1">
                   <p className="text-xs leading-relaxed text-meta">
-                    By submitting you confirm your organization is eligible to certify hours.
+                    {c.confirmEligible}
                   </p>
-                  <Button type="submit">Create workspace <ArrowRight /></Button>
+                  <Button type="submit">{c.createWorkspace} <ArrowRight /></Button>
                 </div>
               </form>
 
               <ul className="mt-6 space-y-2 text-sm text-body">
                 {[
-                  "Your workspace is created instantly.",
-                  "We follow up with a magic-link email to verify your details.",
-                  "No state pre-approval is required to host tasks.",
+                  c.bullet1,
+                  c.bullet2,
+                  c.bullet3,
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-2.5">
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { getLocale } from "@/lib/i18n";
 
-export function ArticleShell({
+export async function ArticleShell({
   number,
   title,
   starred,
@@ -17,6 +18,23 @@ export function ArticleShell({
   next?: { href: string; title: string };
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const labels =
+    locale === "es"
+      ? {
+          helpCenter: "Centro de ayuda",
+          article: "Artículo",
+          keyArticle: " · ★ Artículo clave",
+          previous: "Anterior",
+          next: "Siguiente",
+        }
+      : {
+          helpCenter: "Help Center",
+          article: "Article",
+          keyArticle: " · ★ Key article",
+          previous: "Previous",
+          next: "Next",
+        };
   return (
     <>
       <a href="#main" className="skip-link">
@@ -27,10 +45,10 @@ export function ArticleShell({
         <article className="mx-auto max-w-[720px] px-4 py-12 md:px-6 md:py-16">
           <p className="overline mb-3">
             <Link href="/help" className="hover:underline">
-              Help Center
+              {labels.helpCenter}
             </Link>{" "}
-            · Article {number}
-            {starred ? " · ★ Key article" : ""}
+            · {labels.article} {number}
+            {starred ? labels.keyArticle : ""}
           </p>
           <h1 className="text-[34px] font-semibold leading-[1.15] text-ink md:text-[40px]">
             {title}
@@ -38,14 +56,14 @@ export function ArticleShell({
           <div className="prose-tended mt-8">{children}</div>
 
           {(prev || next) && (
-            <nav className="mt-12 grid gap-3 border-t border-gray-200 pt-6 sm:grid-cols-2">
+            <nav className="mt-12 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">
               {prev ? (
                 <Link
                   href={prev.href}
-                  className="rounded-md border border-gray-200 p-4 hover:border-forest"
+                  className="rounded-md border border-line p-4 hover:border-forest"
                 >
-                  <p className="text-xs uppercase tracking-wide text-gray-500">
-                    Previous
+                  <p className="text-xs uppercase tracking-wide text-meta">
+                    {labels.previous}
                   </p>
                   <p className="mt-1 font-medium text-ink">{prev.title}</p>
                 </Link>
@@ -55,10 +73,10 @@ export function ArticleShell({
               {next ? (
                 <Link
                   href={next.href}
-                  className="rounded-md border border-gray-200 p-4 text-right hover:border-forest"
+                  className="rounded-md border border-line p-4 text-right hover:border-forest"
                 >
-                  <p className="text-xs uppercase tracking-wide text-gray-500">
-                    Next
+                  <p className="text-xs uppercase tracking-wide text-meta">
+                    {labels.next}
                   </p>
                   <p className="mt-1 font-medium text-ink">{next.title}</p>
                 </Link>

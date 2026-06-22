@@ -7,14 +7,28 @@ interface Status {
   credited_hours: number | null;
 }
 
+export interface DoneCopy {
+  verified: string;
+  minutesCredited: string;
+  hoursCredited: string;
+  pricesFlowingLead: string;
+  pricesFlowingTail: string;
+  rejected: string;
+  rejectedBody: string;
+  flagged: string;
+  verifying: string;
+}
+
 export function DonePolling({
   auditId,
   initialStatus,
   creditedHours,
+  copy,
 }: {
   auditId: string;
   initialStatus: string;
   creditedHours: number | null;
+  copy: DoneCopy;
 }) {
   const [status, setStatus] = useState<Status>({ validation_status: initialStatus, credited_hours: creditedHours });
 
@@ -39,14 +53,14 @@ export function DonePolling({
   if (status.validation_status === "verified") {
     return (
       <div className="mt-6 rounded-lg border border-forest bg-forest-subtle px-5 py-4 inline-block">
-        <p className="font-semibold text-forest">Verified</p>
+        <p className="font-semibold text-forest">{copy.verified}</p>
         <p className="text-sm text-ink mt-1">
           {status.credited_hours != null
-            ? `${(status.credited_hours * 60).toFixed(0)} minutes credited to your SNAP hours.`
-            : "Hours credited."}
+            ? copy.minutesCredited.replace("{mins}", (status.credited_hours * 60).toFixed(0))
+            : copy.hoursCredited}
         </p>
-        <p className="text-xs text-muted mt-3">
-          Your shelf prices are also flowing into{" "}
+        <p className="text-xs text-body mt-3">
+          {copy.pricesFlowingLead}{" "}
           <a
             href="https://prices.openfoodfacts.org/?project=tended-ca-food-access"
             target="_blank"
@@ -55,7 +69,7 @@ export function DonePolling({
           >
             Open Prices
           </a>
-          , the global open-data food price dataset.
+          {copy.pricesFlowingTail}
         </p>
       </div>
     );
@@ -63,8 +77,8 @@ export function DonePolling({
   if (status.validation_status === "rejected") {
     return (
       <div className="mt-6 rounded-lg border border-brick bg-brick-subtle px-5 py-4 inline-block">
-        <p className="font-semibold text-brick">Rejected</p>
-        <p className="text-sm text-ink mt-1">See your audit history for details.</p>
+        <p className="font-semibold text-brick">{copy.rejected}</p>
+        <p className="text-sm text-ink mt-1">{copy.rejectedBody}</p>
       </div>
     );
   }
@@ -72,9 +86,7 @@ export function DonePolling({
     <div className="mt-6 rounded-lg border border-line bg-section px-5 py-4 inline-flex items-center gap-2">
       <span className="inline-block h-2 w-2 rounded-full bg-forest animate-pulse" />
       <p className="text-sm text-ink">
-        {status.validation_status === "flagged"
-          ? "Flagged — your audit is in the human spot-review queue (1–2 business days)."
-          : "Verifying…"}
+        {status.validation_status === "flagged" ? copy.flagged : copy.verifying}
       </p>
     </div>
   );

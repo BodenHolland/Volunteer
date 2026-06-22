@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, User as UserIcon, Settings, LogOut, LayoutDashboard, ListChecks, FolderKanban } from "lucide-react";
+import { ChevronDown, Menu, X, User as UserIcon, Settings, LogOut, LayoutDashboard, ListChecks, FolderKanban, CircleHelp } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { cn } from "@/lib/utils";
@@ -30,15 +30,17 @@ interface NavLabels {
   calfreshProfile: string;
   settings: string;
   signOut: string;
+  help: string;
 }
 
 const EN_LABELS: NavLabels = {
   dashboard: "Dashboard",
   tasks: "Tasks",
-  projects: "Projects",
+  projects: "My work",
   calfreshProfile: "SNAP profile",
   settings: "Settings",
   signOut: "Sign out",
+  help: "Help center",
 };
 
 export function AppHeader({
@@ -101,6 +103,9 @@ export function AppHeader({
               <DropdownMenuItem asChild>
                 <Link href="/app/settings"><Settings /> {labels.settings}</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/help"><CircleHelp /> {labels.help}</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem destructive asChild>
                 <Link href="/signout"><LogOut /> {labels.signOut}</Link>
@@ -140,6 +145,7 @@ export function AppHeader({
               <Link href="/app/profile" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><UserIcon /> {labels.calfreshProfile}</Link>
             )}
             <Link href="/app/settings" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><Settings /> {labels.settings}</Link>
+            <Link href="/help" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white [&_svg]:size-[18px]"><CircleHelp /> {labels.help}</Link>
             <Link href="/signout" className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]"><LogOut /> {labels.signOut}</Link>
             <div className="my-1 h-px bg-white/15" />
             <div className="px-3 py-1"><LocaleSwitcher locale={locale} /></div>

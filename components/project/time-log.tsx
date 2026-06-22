@@ -20,12 +20,31 @@ export function TimeLog({
   sessions,
   measuredActiveSeconds,
   locked,
+  copy,
 }: {
   submissionId: string;
   sessions: TimeLogSession[];
   measuredActiveSeconds: number;
   locked?: boolean;
+  copy?: {
+    activeTime: string;
+    session: string;
+    sessions: string;
+    stop: string;
+    start: string;
+    measuring: string;
+    onlyActive: string;
+  };
 }) {
+  const c = copy ?? {
+    activeTime: "active time",
+    session: "session",
+    sessions: "sessions",
+    stop: "Stop session",
+    start: "Start session",
+    measuring: "Measuring active time — only counts while this tab is open and you're working.",
+    onlyActive: "Only active time is credited — never idle time or estimates.",
+  };
   const open = sessions.find((s) => s.end === null);
   const [pending, start] = useTransition();
 
@@ -85,28 +104,28 @@ export function TimeLog({
           <Activity className="size-5 text-meta" />
           <div>
             <p className="text-2xl font-semibold tabular-nums text-ink">{fmt(totalActive)}</p>
-            <p className="text-xs text-meta">active time · {sessions.length} session{sessions.length === 1 ? "" : "s"}</p>
+            <p className="text-xs text-meta">{c.activeTime} · {sessions.length} {sessions.length === 1 ? c.session : c.sessions}</p>
           </div>
         </div>
         {!locked &&
           (open ? (
             <Button variant="secondary" disabled={pending} onClick={doStop}>
-              <Square className="fill-current" /> Stop session
+              <Square className="fill-current" /> {c.stop}
             </Button>
           ) : (
             <Button disabled={pending} onClick={doStart}>
-              <Play className="fill-current" /> Start session
+              <Play className="fill-current" /> {c.start}
             </Button>
           ))}
       </div>
       {open && (
         <p className="mt-2 flex items-center gap-1.5 text-sm text-amber" aria-live="polite">
           <span className="inline-block size-2 animate-tended-pulse rounded-full bg-amber" />
-          Measuring active time — only counts while this tab is open and you&apos;re working.
+          {c.measuring}
         </p>
       )}
       <p className="mt-1 flex items-center gap-1 text-xs text-meta">
-        <Clock className="size-3" /> Only active time is credited — never idle time or estimates.
+        <Clock className="size-3" /> {c.onlyActive}
       </p>
     </div>
   );

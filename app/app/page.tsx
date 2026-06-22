@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Download, FolderKanban, ArrowRight, Sparkles, ClipboardList, CircleHelp, Settings } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
-import { getRecipientDashboard } from "@/lib/queries";
+import { getRecipientDashboard, workHref, workStatus } from "@/lib/queries";
 import { ProgressRing } from "@/components/progress-ring";
 import { StatusPill } from "@/components/status-pill";
 import { EmptyState } from "@/components/empty-state";
@@ -40,8 +40,8 @@ export default async function DashboardPage() {
       {/* Hours summary */}
       <section className="service-panel overflow-hidden">
         <div className="border-b border-line bg-teal-subtle px-6 py-4">
-          <p className="font-semibold text-ink">Civic work progress</p>
-          <p className="mt-0.5 text-sm text-body">{monthLabel(data.month)} activity summary</p>
+          <p className="font-semibold text-ink">{t.app.dashboard.progress}</p>
+          <p className="mt-0.5 text-sm text-body">{monthLabel(data.month)} {t.app.dashboard.activitySummary}</p>
         </div>
         <div className="p-6">
         {isSnap ? (
@@ -57,16 +57,16 @@ export default async function DashboardPage() {
               <Button asChild disabled={!canDownload} variant="accent" className="data-[disabled]:opacity-50">
                 {canDownload ? (
                   <a href={`/api/cf888?month=${data.month}`} target="_blank" rel="noreferrer">
-                    <Download /> Download this month&apos;s CF 888
+                    <Download /> {t.app.dashboard.downloadCf888}
                   </a>
                 ) : (
-                  <span aria-disabled className="cursor-not-allowed opacity-50"><Download /> Download this month&apos;s CF 888</span>
+                  <span aria-disabled className="cursor-not-allowed opacity-50"><Download /> {t.app.dashboard.downloadCf888}</span>
                 )}
               </Button>
               <p className="mt-2 max-w-[260px] text-xs text-meta md:ml-auto">
                 {canDownload
-                  ? "Pre-filled with your details. Upload it to your benefits portal yourself."
-                  : "Available once at least one hour is certified."}
+                  ? t.app.dashboard.cf888Ready
+                  : t.app.dashboard.cf888Locked}
               </p>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-3xl font-semibold text-ink">{formatHours(data.certified)} hours</p>
-              <p className="text-body">volunteered with us</p>
+              <p className="text-body">{t.app.dashboard.hoursVolunteered}</p>
             </div>
           </div>
         )}
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
             {data.active.map((s) => (
               <li key={s.id}>
                 <Link
-                  href={`/app/projects/${s.id}`}
+                  href={workHref(s)}
                   className="flex items-center gap-4 p-4 transition-colors hover:bg-teal-subtle/60"
                 >
                   <OrgThumb name={s.org.name} slug={s.org.slug} size={56} className="h-14 w-14" />
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
                     <p className="truncate font-semibold text-ink">{s.task.title}</p>
                     <p className="truncate text-sm text-body">{s.org.name}</p>
                   </div>
-                  <StatusPill status={s.status} />
+                  <StatusPill status={workStatus(s)} />
                   <ArrowRight className="size-4 shrink-0 text-meta" />
                 </Link>
               </li>
@@ -122,24 +122,24 @@ export default async function DashboardPage() {
       <aside className="space-y-4 xl:pt-[75px]">
         <section className="service-panel overflow-hidden">
           <div className="border-b border-line bg-section px-5 py-4">
-            <p className="font-semibold text-ink">Next steps</p>
+            <p className="font-semibold text-ink">{t.app.dashboard.nextSteps}</p>
           </div>
           <div className="divide-y divide-line">
             <Link href="/app/tasks" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <Sparkles className="size-5 text-forest" /> Browse available tasks <ArrowRight className="ml-auto size-4 text-meta" />
+              <Sparkles className="size-5 text-forest" /> {t.app.dashboard.browseAvailable} <ArrowRight className="ml-auto size-4 text-meta" />
             </Link>
             <Link href="/app/projects" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <ClipboardList className="size-5 text-forest" /> View your projects <ArrowRight className="ml-auto size-4 text-meta" />
+              <ClipboardList className="size-5 text-forest" /> {t.app.dashboard.myWork} <ArrowRight className="ml-auto size-4 text-meta" />
             </Link>
             <Link href="/app/settings" className="flex items-center gap-3 px-5 py-4 text-sm font-medium text-ink hover:bg-section">
-              <Settings className="size-5 text-forest" /> Account settings <ArrowRight className="ml-auto size-4 text-meta" />
+              <Settings className="size-5 text-forest" /> {t.app.dashboard.accountSettings} <ArrowRight className="ml-auto size-4 text-meta" />
             </Link>
           </div>
         </section>
         <section className="rounded-lg border border-teal/20 bg-teal-subtle p-5">
-          <div className="flex items-center gap-2 text-ink"><CircleHelp className="size-5 text-forest" /><p className="font-semibold">Helpful resources</p></div>
-          <p className="mt-2 text-sm leading-relaxed text-body">Review a task&apos;s checklist before you commit so you know exactly what to submit.</p>
-          <Link href="/how-it-works" className="mt-3 inline-flex text-sm font-medium text-forest hover:underline">How Tended works <ArrowRight className="ml-1 size-4" /></Link>
+          <div className="flex items-center gap-2 text-ink"><CircleHelp className="size-5 text-forest" /><p className="font-semibold">{t.app.dashboard.helpfulResources}</p></div>
+          <p className="mt-2 text-sm leading-relaxed text-body">{t.app.dashboard.resourcesBody}</p>
+          <Link href="/how-it-works" className="mt-3 inline-flex text-sm font-medium text-forest hover:underline">{t.app.dashboard.howTendedWorks} <ArrowRight className="ml-1 size-4" /></Link>
         </section>
       </aside>
     </div>

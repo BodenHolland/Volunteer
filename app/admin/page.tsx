@@ -77,7 +77,7 @@ export default async function AdminOverviewPage() {
       <div>
         <p className="overline mb-1">Tended admin</p>
         <h1 className="text-[28px] font-semibold text-ink">Overview</h1>
-        <p className="mt-1 text-body">A read-only snapshot of the demo dataset.</p>
+        <p className="mt-1 text-body">A read-only snapshot of the dataset.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

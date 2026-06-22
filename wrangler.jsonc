@@ -31,8 +31,13 @@
   ],
   "vars": {
     "OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free",
-    "OPENROUTER_SITE_URL": "https://tended.pages.dev",
-    "OPENROUTER_APP_NAME": "Tended Demo",
-    "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9"
+    "OPENROUTER_SITE_URL": "https://tended.xkbtrjm2bm.workers.dev",
+    "OPENROUTER_APP_NAME": "Tended",
+    "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9",
+    "APP_ORIGIN": "https://tended.xkbtrjm2bm.workers.dev"
   }
+  // Secrets (NOT here — set with `wrangler secret put`): PII_ENCRYPTION_KEY (required —
+  // PII storage throws without it), OPENROUTER_API_KEY (AI review; falls back to manual),
+  // RESEND_API_KEY + EMAIL_FROM (org team-invite email). DEMO_MODE is intentionally unset
+  // so production has no seeding, no /admin/reset, and no onboarding skips. See docs/DEPLOYMENT.md.
 }

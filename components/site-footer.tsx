@@ -19,11 +19,9 @@ export async function SiteFooter() {
             <Link href="/deliverables" className="text-blue-100 hover:text-white">{t.footer.deliverables}</Link>
             <Link href="/how-it-works#calfresh" className="text-blue-100 hover:text-white">SNAP/EBT &amp; CF 888</Link>
             <Link href="/how-it-works#identity" className="text-blue-100 hover:text-white">{t.footer.privacy}</Link>
+            <Link href="/help" className="text-blue-100 hover:text-white">{t.footer.help}</Link>
             <Link href="/contact" className="text-blue-100 hover:text-white">{t.footer.contact}</Link>
           </div>
-        </div>
-        <div className="mt-8 border-t border-white/15 pt-6 text-xs text-blue-100">
-          <p>{t.footer.disclaimer}</p>
         </div>
       </div>
     </footer>

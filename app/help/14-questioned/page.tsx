@@ -1,10 +1,55 @@
 import { ArticleShell } from "../_components/article-shell";
 import { neighbors } from "../_components/articles";
+import { getLocale } from "@/lib/i18n";
 
 export const metadata = { title: "What happens if a county questions your hours — Help Center" };
-const { prev, next } = neighbors(14);
 
-export default function Page() {
+export default async function Page() {
+  const locale = await getLocale();
+  const { prev, next } = neighbors(14);
+
+  if (locale === "es") {
+    const prevEs = prev ? { ...prev, title: "Registro de auditoría y metodología" } : undefined;
+    const nextEs = next ? { ...next, title: "Dónde conseguir ayuda legal" } : undefined;
+    return (
+      <ArticleShell number={14} title="Qué pasa si un condado cuestiona tus horas" prev={prevEs} next={nextEs}>
+        <p>Si un condado rechaza un CF 888 (o el formulario estatal equivalente) que Tended firmó, esto es lo que establece la ley. Es información objetiva, no asesoría ni orientación legal. Si tus beneficios están en juego, contacta a un abogado de asistencia legal especializado en SNAP.</p>
+
+        <h2>Los beneficios de SNAP tienen protección de debido proceso</h2>
+        <p>Los beneficios de SNAP son un derecho protegido bajo <em>Goldberg v. Kelly</em>, 397 U.S. 254 (1970). Un condado no puede reducir ni terminar tus beneficios sin un proceso formal.</p>
+
+        <h2>1. Aviso de Acción</h2>
+        <p>Si un condado toma una acción adversa en tu caso, tienes derecho a un Aviso de Acción por escrito que indique el motivo y tus derechos de apelación (7 CFR §273.13).</p>
+
+        <h2>2. Audiencia imparcial estatal</h2>
+        <p>Puedes solicitar una audiencia imparcial estatal ante un Juez de Derecho Administrativo (ALJ, por sus siglas en inglés). El ALJ no es un empleado del condado. Revisa el rechazo de forma independiente.</p>
+        <ul>
+          <li>Federal: 7 U.S.C. §2020(e)(10); 7 CFR §273.15.</li>
+          <li>California: Cal. Welf. &amp; Inst. Code §10950 et seq.</li>
+          <li>New York: solicita una audiencia imparcial a través de OTDA.</li>
+        </ul>
+        <p>En la audiencia, el ALJ examina si la verificación que respalda las horas fue adecuada. Los registros de Tended (registros de validación, datos de participación medida, la metodología publicada) son evidencia que respalda la audiencia.</p>
+
+        <h2>3. Ayuda pagada mientras está pendiente</h2>
+        <p>Si solicitas la audiencia imparcial antes de la fecha de entrada en vigor de la acción, tus beneficios generalmente continúan durante la apelación (7 CFR §273.15(k)). El momento importa. No te demores.</p>
+
+        <h2>4. Revisión judicial</h2>
+        <p>Si no prevaleces en la audiencia imparcial, puedes solicitar una revisión judicial. En California, es un mandato administrativo (writ of administrative mandamus) bajo Cal. Code Civ. Proc. §1094.5. Por lo general, primero debes agotar la audiencia imparcial.</p>
+
+        <h2>Lo que Tended puede hacer</h2>
+        <p>A petición, Tended puede proporcionar los registros que respaldan la certificación que firmamos: registros de validación, la metodología publicada y tus datos de participación medida. Esta es la evidencia en la que se basa una audiencia.</p>
+
+        <h2>Lo que tú debes hacer</h2>
+        <p>Lee el Aviso de Acción con atención. Anota cualquier plazo.</p>
+        <p>Contacta de inmediato a un abogado de asistencia legal especializado en SNAP. (Consulta Dónde conseguir ayuda legal.)</p>
+        <p>Guarda copias de todas las comunicaciones con el condado.</p>
+        <p>Solicita la audiencia imparcial antes de la fecha de entrada en vigor de la acción si puedes, para que los beneficios sigan pagándose mientras está pendiente.</p>
+        <hr />
+        <p><em>No es asesoría legal. Tended no es un bufete de abogados.</em></p>
+      </ArticleShell>
+    );
+  }
+
   return (
     <ArticleShell number={14} title="What happens if a county questions your hours" prev={prev} next={next}>
       <p>If a county rejects a CF 888 (or the equivalent state form) that Tended signed, here is what the law provides. This is factual information, not legal advice or coaching. If your benefits are at stake, contact a SNAP legal-aid attorney.</p>

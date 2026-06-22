@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/** Visual-only save toggle (no persistence in the demo). */
+/** Visual-only save toggle (no persistence yet). */
 export function BookmarkButton({ initial = false, label }: { initial?: boolean; label?: string }) {
   const [saved, setSaved] = useState(initial);
   return (

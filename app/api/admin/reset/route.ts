@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/cf";
+import { getDb, isDemoMode } from "@/lib/cf";
 import { seedDatabase } from "@/lib/seed";
 import { getCurrentUser } from "@/lib/session";
 
 /**
- * Wipes and reseeds the demo dataset. Allowed only for an admin — except when the
- * database is empty (first-run bootstrap), so a fresh deploy can be seeded once.
+ * Wipes and reseeds the sample dataset. Available only in DEMO_MODE; in production
+ * this route does not exist. Within DEMO_MODE it still requires an admin unless the
+ * database is empty (first-run bootstrap).
  */
 export async function POST() {
   try {
+    if (!isDemoMode()) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
     const db = getDb();
     const count = await db.prepare("SELECT COUNT(*) AS n FROM users").first<{ n: number }>();
     const empty = !count || count.n === 0;

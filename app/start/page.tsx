@@ -5,12 +5,11 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getDb } from "@/lib/cf";
+import { getDb, isDemoMode } from "@/lib/cf";
 import { homeForUser, requireUser } from "@/lib/session";
 import { parseJson, type Address, type Org } from "@/lib/types";
 import {
   submitLocation,
-  submitPhone,
   submitPii,
   submitBenefitsCal,
   submitOrgPick,
@@ -18,7 +17,7 @@ import {
 
 export const metadata = { title: "Finish setting up — Tended" };
 
-const ROLE_STEPS = ["Location", "Verify", "Details", "Benefits", "Done"];
+const ROLE_STEPS = ["Location", "Details", "Benefits", "Done"];
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -112,7 +111,7 @@ export default async function StartPage({
                 />
                 <span className="text-sm text-ink">
                   {o.t}
-                  {o.hint ? <span className="block text-xs text-muted mt-0.5">{o.hint}</span> : null}
+                  {o.hint ? <span className="block text-xs text-body mt-0.5">{o.hint}</span> : null}
                 </span>
               </label>
             ))}
@@ -125,46 +124,22 @@ export default async function StartPage({
     );
   }
 
-  // ---- PHONE / OTP ----
-  if (step === "phone") {
-    return (
-      <Shell>
-        <StepHint index={1} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Verify your phone</h1>
-        <p className="mt-2 text-body">
-          We use this only to fill out your CF 888 when you certify hours. We don&apos;t share it with
-          the state — you upload the form to your benefits portal yourself.
-        </p>
-        <form action={submitPhone} className="mt-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">Mobile number</Label>
-            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} defaultValue={user.phone ?? ""} placeholder="(916) 555-0142" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="code">6-digit code</Label>
-            <Input id="code" name="code" inputMode="numeric" pattern="\d{6}" maxLength={6} required placeholder="123456" />
-            <p className="text-xs text-meta">Demo: use 123456.</p>
-            {sp.error === "code" && <p className="text-sm text-brick">Enter a 6-digit code.</p>}
-          </div>
-          <Button type="submit" className="w-full">
-            Verify <ArrowRight />
-          </Button>
-        </form>
-      </Shell>
-    );
-  }
-
-  // ---- PII (Section 1) ----
+  // ---- PII (Section 1) + contact ----
   if (step === "pii") {
     return (
       <Shell>
-        <StepHint index={2} />
+        <StepHint index={1} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Your SNAP details</h1>
         <p className="mt-2 text-body">This appears on your CF 888 exactly as entered.</p>
         <form action={submitPii} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="legal_name">Legal name</Label>
             <Input id="legal_name" name="legal_name" required defaultValue={user.legal_name ?? ""} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="phone">Mobile number</Label>
+            <Input id="phone" name="phone" type="tel" leadingIcon={<Phone />} required defaultValue={user.phone ?? ""} placeholder="(916) 555-0142" />
+            <p className="text-xs text-meta">For updates about your hours. We never share it with the state.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -207,11 +182,10 @@ export default async function StartPage({
   if (step === "benefitscal") {
     return (
       <Shell>
-        <StepHint index={3} />
+        <StepHint index={2} />
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload a benefits screenshot</h1>
         <p className="mt-2 text-body">
-          A screenshot of your SNAP benefits account confirms your enrollment. We don&apos;t run OCR in
-          this demo — any image works.
+          A screenshot of your SNAP benefits account confirms your enrollment. Any image works.
         </p>
         <form action={submitBenefitsCal} className="mt-6 space-y-4" encType="multipart/form-data">
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-10 text-center hover:bg-forest-subtle">
@@ -224,9 +198,11 @@ export default async function StartPage({
             <Button type="submit" className="flex-1">
               Upload and continue <ArrowRight />
             </Button>
-            <Button type="submit" variant="secondary" name="screenshot" value="">
-              Skip
-            </Button>
+            {isDemoMode() && (
+              <Button type="submit" variant="secondary" name="screenshot" value="">
+                Skip
+              </Button>
+            )}
           </div>
         </form>
       </Shell>

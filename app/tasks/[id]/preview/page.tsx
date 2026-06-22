@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock, ListChecks, Gift, CheckCircle2, Info, LogIn } from "lucide-react";
+import { Clock, ListChecks, Gift, CheckCircle2, LogIn } from "lucide-react";
 import { getTask } from "@/lib/queries";
 import { Markdown } from "@/components/markdown";
 import { OrgThumb } from "@/components/org-thumb";
@@ -10,8 +10,34 @@ import { Button } from "@/components/ui/button";
 import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
 import { formatHours } from "@/lib/time";
+import { getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+const COPY = {
+  en: {
+    hrs: "hrs",
+    aboutTask: "About this task",
+    whatYoullDo: "What you'll do",
+    optional: "(optional)",
+    estimated: "Estimated",
+    hoursCap: "Hours cap",
+    hours: "hours",
+    signInCallout: "Sign in to commit to this task, log your time, and submit your work for review.",
+    signInToCommit: "Sign in to commit",
+  },
+  es: {
+    hrs: "h",
+    aboutTask: "Sobre esta tarea",
+    whatYoullDo: "Lo que harás",
+    optional: "(opcional)",
+    estimated: "Estimado",
+    hoursCap: "Límite de horas",
+    hours: "horas",
+    signInCallout: "Inicia sesión para comprometerte con esta tarea, registrar tu tiempo y enviar tu trabajo para revisión.",
+    signInToCommit: "Inicia sesión para comprometerte",
+  },
+} as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,6 +51,8 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
   if (!task) notFound();
 
   const checklist = parseJson<ChecklistItem[]>(task.checklist_json, []);
+  const locale = await getLocale();
+  const c = COPY[locale];
 
   return (
     <>
@@ -43,34 +71,31 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
                       {task.org.name}
                     </Link>
                   </p>
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-meta">
-                    <Info className="size-3" /> Demo — partnerships shown are illustrative
-                  </p>
                 </div>
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
                 <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
-                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} hrs</SecondaryTag>
+                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} {c.hrs}</SecondaryTag>
               </div>
 
               <section className="mt-8">
-                <h2 className="mb-2 text-[22px] font-semibold text-ink">About this task</h2>
+                <h2 className="mb-2 text-[22px] font-semibold text-ink">{c.aboutTask}</h2>
                 <Markdown>{task.instructions_md}</Markdown>
               </section>
 
               <section className="mt-8">
                 <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-                  <ListChecks className="size-5 text-forest" /> What you&apos;ll do
+                  <ListChecks className="size-5 text-forest" /> {c.whatYoullDo}
                 </h2>
                 <ul className="space-y-2">
-                  {checklist.map((c) => (
-                    <li key={c.id} className="flex items-start gap-2.5 text-body">
+                  {checklist.map((item) => (
+                    <li key={item.id} className="flex items-start gap-2.5 text-body">
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />
                       <span>
-                        {c.label}
-                        {!c.required && <span className="ml-1.5 text-xs text-meta">(optional)</span>}
+                        {item.label}
+                        {!item.required && <span className="ml-1.5 text-xs text-meta">{c.optional}</span>}
                       </span>
                     </li>
                   ))}
@@ -83,19 +108,19 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
               <div className="rounded-lg border border-line bg-white p-5">
                 <dl className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> Estimated</dt>
-                    <dd className="font-medium text-ink">{formatHours(task.est_hours)} hours</dd>
+                    <dt className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> {c.estimated}</dt>
+                    <dd className="font-medium text-ink">{formatHours(task.est_hours)} {c.hours}</dd>
                   </div>
                   <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-1.5 text-body"><Gift className="size-4 text-meta" /> Hours cap</dt>
-                    <dd className="font-medium text-ink">{formatHours(task.max_hours)} hours</dd>
+                    <dt className="flex items-center gap-1.5 text-body"><Gift className="size-4 text-meta" /> {c.hoursCap}</dt>
+                    <dd className="font-medium text-ink">{formatHours(task.max_hours)} {c.hours}</dd>
                   </div>
                 </dl>
                 <p className="mt-3 rounded-md bg-section p-3 text-xs text-body">
-                  Sign in to commit to this task, log your time, and submit your work for review.
+                  {c.signInCallout}
                 </p>
                 <Button asChild className="mt-4 w-full">
-                  <Link href="/start"><LogIn /> Sign in to commit</Link>
+                  <Link href="/start"><LogIn /> {c.signInToCommit}</Link>
                 </Button>
               </div>
             </aside>

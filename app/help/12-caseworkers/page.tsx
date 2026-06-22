@@ -1,11 +1,56 @@
 import { ArticleShell } from "../_components/article-shell";
 import { Placeholder } from "../_components/draft-banner";
 import { neighbors } from "../_components/articles";
+import { getLocale } from "@/lib/i18n";
 
 export const metadata = { title: "For caseworkers — a one-page methodology — Help Center" };
-const { prev, next } = neighbors(12);
 
-export default function Page() {
+export default async function Page() {
+  const locale = await getLocale();
+  const { prev, next } = neighbors(12);
+
+  if (locale === "es") {
+    const prevEs = prev ? { ...prev, title: "Privacidad, datos personales y lo que publicamos" } : undefined;
+    const nextEs = next ? { ...next, title: "Registro de auditoría y metodología" } : undefined;
+    return (
+      <ArticleShell number={12} starred title="Para trabajadores sociales: una metodología en una página" prev={prevEs} next={nextEs}>
+        <p><em>Escrito para los trabajadores sociales de bienestar del condado y el personal de programas de beneficios que revisan un CF 888 (o el formulario estatal equivalente) firmado por Tended.</em></p>
+
+        <h2>Quiénes somos</h2>
+        <p>Tended es una entidad benéfica pública 501(c)(3). Operamos un programa de voluntariado cívico en línea. Los voluntarios contribuyen a trabajo de beneficio público, que incluye mapeo de acceso a alimentos, revisión de traducciones, transcripción de archivos y auditorías de accesibilidad. Para los voluntarios sujetos al requisito de trabajo ABAWD, Tended verifica sus horas en el formulario estatal estándar como el representante autorizado de la organización donde se realizó el voluntariado.</p>
+
+        <h2>Autoridad</h2>
+        <ul>
+          <li>Federal: 7 CFR §273.24(a)(2)(iii). El trabajo no remunerado verificado bajo el estándar del estado satisface el requisito de trabajo ABAWD.</li>
+          <li>California: ACL 25-34 (14 de mayo de 2025) y el CF 888 (rev. 5/25). Tended firma la Sección 2 como la organización sin fines de lucro que califica.</li>
+          <li>New York: OTDA Monthly ABAWD Volunteer Participation Record, firmado por la organización sin fines de lucro anfitriona. La documentación de NYC se tramita a través de ACCESS HRA.</li>
+          <li>Estatus de Tended: organización sin fines de lucro 501(c)(3) con una carta de determinación del IRS. No existe una lista estatal de preaprobación para organizaciones sin fines de lucro que califican. La determinación del IRS es la credencial que califica.</li>
+        </ul>
+
+        <h2>Cómo verificamos las horas</h2>
+        <p>La plataforma registra la participación activa durante cada sesión de tarea, usando un temporizador con detección de inactividad, mínimos de participación, antiduplicación y detección de datos personales (PII). Las horas acreditadas equivalen a <code>mín(participación medida, límite calibrado)</code>, solo cuando el entregable pasa la validación por envío. El límite se calibra según la mediana observada de sesiones reales que pasaron el control de calidad y se recalibra trimestralmente. El representante autorizado certifica con base en esos registros.</p>
+
+        <h2>Voluntariado remoto y en línea</h2>
+        <p>Ninguna guía publicada de FNS, CDSS u OTDA aborda específicamente las horas de voluntariado remotas o en línea. Ninguna exige trabajo presencial. La posición de Tended es que el voluntariado remoto no está abordado, no prohibido. Esta posición se sustenta en:</p>
+        <ul>
+          <li>El texto de 7 CFR §273.24(a)(2)(iii), que no distingue entre trabajo presencial y remoto.</li>
+          <li>Programas de voluntariado remoto de larga trayectoria en organizaciones sin fines de lucro (Smithsonian Transcription Center, Library of Congress &ldquo;By the People,&rdquo; Zooniverse, Tarjimly).</li>
+          <li>El respaldo federal a la contribución remota de datos en ciencia ciudadana (Crowdsourcing and Citizen Science Act of 2016; EPA Participatory Science; USDA Forest Service).</li>
+        </ul>
+
+        <h2>Verificar un formulario</h2>
+        <p>Damos la bienvenida al contacto directo de trabajadores sociales y personal del condado. Si un formulario que recibiste parece cuestionable, por favor contáctanos antes de rechazarlo. Podemos confirmar los registros que respaldan la certificación.</p>
+        <p>Contacto: <Placeholder>[correo de contacto]</Placeholder> / <Placeholder>[teléfono]</Placeholder>.</p>
+
+        <h2>Acceso a auditoría</h2>
+        <p>Tended publica un registro de metodología abierto que cubre la metodología de verificación, los límites actuales por tarea, el registro de cambios de calibración y los criterios de validación aplicados a cada envío. Acceso directo: <Placeholder>[Registro de auditoría y metodología]</Placeholder>.</p>
+
+        <h2>Lo que no hacemos</h2>
+        <p>No certificamos horas que excedan la participación medida. No acreditamos tiempo pasivo. No inflamos las horas. No certificamos trabajo que el voluntario no realizó. No comprobamos si se usó IA, y no creemos que hacerlo sea apropiado.</p>
+      </ArticleShell>
+    );
+  }
+
   return (
     <ArticleShell number={12} starred title="For caseworkers — a one-page methodology" prev={prev} next={next}>
       <p><em>Written for county welfare caseworkers and benefits-program staff reviewing a CF 888 (or equivalent state form) signed by Tended.</em></p>

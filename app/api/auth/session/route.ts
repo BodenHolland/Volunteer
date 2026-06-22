@@ -14,7 +14,7 @@ import type { User } from "@/lib/types";
 
 /**
  * Exchanges a verified Firebase ID token for one of our D1 sessions.
- * Links by firebase_uid, then by email (so seeded/demo accounts adopt their
+ * Links by firebase_uid, then by email (so seeded accounts adopt their
  * Firebase identity on first sign-in), else creates a new recipient.
  */
 export async function POST(req: Request) {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     (await db.prepare("SELECT * FROM users WHERE firebase_uid = ? AND deleted_at IS NULL").bind(identity.uid).first<User>()) ?? null;
 
   if (!user && identity.email) {
-    // Adopt an existing account with this email (e.g., a seeded demo user).
+    // Adopt an existing account with this email (e.g., a seeded account).
     const byEmail = await db.prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NULL").bind(identity.email).first<User>();
     if (byEmail) {
       await db

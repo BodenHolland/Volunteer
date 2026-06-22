@@ -14,6 +14,28 @@ import { parseJson } from "@/lib/types";
 import type { AiVerdict } from "@/lib/ai";
 import type { FlagKind } from "@/lib/fraud";
 import { formatHours } from "@/lib/time";
+import { getLocale } from "@/lib/i18n";
+
+const COPY = {
+  en: {
+    allProjects: "All projects",
+    certifiedPre: "Certified —",
+    certifiedPost: "hours credited toward this month.",
+    reviewerAsked: "The reviewer asked for changes",
+    tryAgain: "Try again",
+    whatYouSubmitted: "What you submitted",
+    integrityChecks: "Integrity checks",
+  },
+  es: {
+    allProjects: "Todos los proyectos",
+    certifiedPre: "Certificado —",
+    certifiedPost: "horas acreditadas para este mes.",
+    reviewerAsked: "El revisor pidió cambios",
+    tryAgain: "Inténtalo de nuevo",
+    whatYouSubmitted: "Lo que enviaste",
+    integrityChecks: "Verificaciones de integridad",
+  },
+} as const;
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Submission — Tended" };
@@ -29,11 +51,13 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
   const verdict = sub.ai_verdict_json ? (parseJson<AiVerdict>(sub.ai_verdict_json, null as never) as AiVerdict) : null;
   const reviewing = sub.status === "ai_reviewing" || sub.status === "submitted";
   const failed = sub.status === "needs_changes" || sub.status === "rejected";
+  const locale = await getLocale();
+  const c = COPY[locale];
 
   return (
     <div className="mx-auto max-w-[760px]">
       <Link href="/app/projects" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
-        <ArrowLeft className="size-4" /> All projects
+        <ArrowLeft className="size-4" /> {c.allProjects}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -54,23 +78,23 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
           <div className="flex items-center gap-3 rounded-lg border border-forest/30 bg-forest-subtle p-4">
             <CheckCircle2 className="size-5 text-forest" />
             <p className="text-sm font-medium text-forest">
-              Certified — {formatHours(sub.hours_credited ?? sub.task.est_hours)} hours credited toward this month.
+              {c.certifiedPre} {formatHours(sub.hours_credited ?? sub.task.est_hours)} {c.certifiedPost}
             </p>
           </div>
         )}
 
         {failed && sub.reviewer_notes && (
           <div className="rounded-lg border border-brick/30 bg-brick-subtle p-4">
-            <p className="text-sm font-medium text-brick">The reviewer asked for changes</p>
+            <p className="text-sm font-medium text-brick">{c.reviewerAsked}</p>
             <p className="mt-1 text-sm text-ink">{sub.reviewer_notes}</p>
             <Button asChild variant="secondary" className="mt-3">
-              <Link href={`/app/projects/${sub.id}`}><RotateCcw /> Try again</Link>
+              <Link href={`/app/projects/${sub.id}`}><RotateCcw /> {c.tryAgain}</Link>
             </Button>
           </div>
         )}
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-ink">What you submitted</h2>
+          <h2 className="mb-3 text-lg font-semibold text-ink">{c.whatYouSubmitted}</h2>
           <SubmissionContent submission={sub} task={sub.task} files={files} />
         </section>
 
@@ -78,7 +102,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
           <section className="space-y-3">
             <AiVerdictBox verdict={verdict} />
             <div>
-              <p className="overline mb-1.5">Integrity checks</p>
+              <p className="overline mb-1.5">{c.integrityChecks}</p>
               <FlagChips flags={flags as { kind: FlagKind }[]} />
             </div>
           </section>

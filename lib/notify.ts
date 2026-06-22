@@ -1,31 +1,46 @@
 /**
- * Outbound notifications. The flows are real; the actual delivery is stubbed
- * until a provider is wired (you chose "build flows, no real sends yet").
- *
- * TODO(provider): implement sendEmail via your chosen HTTP email API and sendSms
- * via Twilio Verify. Both are gated here so nothing else needs to change when the
- * provider lands — set the env keys and replace the stub bodies.
+ * Outbound email. Auth emails (signup verification, password reset) are sent by
+ * Firebase client-side; this server path covers org team invites and the legacy
+ * D1 password fallback. It sends via Resend when `RESEND_API_KEY` + `EMAIL_FROM`
+ * are configured, and otherwise logs the message so flows stay testable locally.
  */
 import { headers } from "next/headers";
+import { getEnv } from "./cf";
 
 export interface OutboundEmail {
   to: string;
   subject: string;
   text: string;
 }
-export interface OutboundSms {
-  to: string;
-  text: string;
-}
 
 export async function sendEmail(msg: OutboundEmail): Promise<void> {
-  // TODO(provider): POST to email API. For now, log so flows are testable.
-  console.log(`[email:stub] to=${msg.to} subject="${msg.subject}"\n${msg.text}`);
-}
+  let apiKey: string | undefined;
+  let from: string | undefined;
+  try {
+    const env = getEnv() as unknown as { RESEND_API_KEY?: string; EMAIL_FROM?: string };
+    apiKey = env.RESEND_API_KEY;
+    from = env.EMAIL_FROM;
+  } catch {
+    /* not in a request context */
+  }
 
-export async function sendSms(msg: OutboundSms): Promise<void> {
-  // TODO(provider): Twilio Verify. For now, log so OTP flows are testable.
-  console.log(`[sms:stub] to=${msg.to} ${msg.text}`);
+  if (!apiKey || !from) {
+    console.log(`[email:unsent — set RESEND_API_KEY + EMAIL_FROM] to=${msg.to} subject="${msg.subject}"`);
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: msg.to, subject: msg.subject, text: msg.text }),
+    });
+    if (!res.ok) {
+      console.error(`[email:failed] ${res.status} ${await res.text().catch(() => "")}`);
+    }
+  } catch (e) {
+    console.error(`[email:error] ${String(e)}`);
+  }
 }
 
 /** Best-effort app origin for building links inside server actions. */
@@ -40,7 +55,13 @@ export async function appOrigin(): Promise<string> {
   } catch {
     /* ignore */
   }
-  return process.env.NODE_ENV === "production" ? "https://tended.xkbtrjm2bm.workers.dev" : "http://localhost:3000";
+  try {
+    const configured = (getEnv() as unknown as { APP_ORIGIN?: string }).APP_ORIGIN;
+    if (configured) return configured;
+  } catch {
+    /* not in request context */
+  }
+  return "http://localhost:3000";
 }
 
 export function verifyEmailMessage(to: string, link: string): OutboundEmail {

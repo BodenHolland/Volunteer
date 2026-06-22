@@ -25,7 +25,7 @@ import type { Role, User } from "@/lib/types";
 const emailSchema = z.string().trim().toLowerCase().email();
 const passwordSchema = z.string().min(10, "Use at least 10 characters.");
 
-// Rate-limit windows (fixed window). Deliberately generous so the demo flows
+// Rate-limit windows (fixed window). Deliberately generous so normal flows
 // work but abusive hammering is throttled.
 const RL = {
   loginIp: { limit: 20, windowMs: 5 * 60 * 1000 },
