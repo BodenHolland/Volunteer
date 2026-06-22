@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X, User as UserIcon, Settings, LayoutDashboard, ListChecks, FolderKanban, CircleHelp } from "lucide-react";
+import { ChevronDown, Menu, X, User as UserIcon, Settings, LayoutDashboard, ListChecks, CircleHelp } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { SignOutMenuItem, SignOutButton } from "@/components/sign-out";
@@ -55,10 +55,12 @@ export function AppHeader({
   locale?: "en" | "es";
   labels?: NavLabels;
 }) {
+  // "My work" (/app/projects) is intentionally NOT a top-nav tab: the dashboard
+  // already surfaces active work, and its sidebar keeps a "My work" shortcut to
+  // the full history. Keeping it as a peer tab next to Dashboard was redundant.
   const nav = [
     { href: "/app", label: labels.dashboard, icon: LayoutDashboard },
     { href: "/app/tasks", label: labels.tasks, icon: ListChecks },
-    { href: "/app/projects", label: labels.projects, icon: FolderKanban },
   ];
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
