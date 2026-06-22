@@ -21,7 +21,6 @@ import type {
 import type { NearbyStore } from "@/lib/places";
 import {
   captureItemAction,
-  cancelAuditAction,
   createStoreAction,
   nearbyStoresAction,
   selectNearbyStoreAction,
@@ -901,40 +900,6 @@ function SubmitStep({
         ) : null}
         {error ? <p className="text-sm text-brick">{error}</p> : null}
       </form>
-      <CancelTask auditId={auditId} copy={copy} />
     </div>
-  );
-}
-
-function CancelTask({ auditId, copy }: { auditId: string; copy: AuditCopy }) {
-  const [confirming, setConfirming] = useState(false);
-
-  if (!confirming) {
-    return (
-      <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="text-sm font-medium text-brick hover:underline"
-        >
-          {copy.cancelTask}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <form action={cancelAuditAction} className="flex flex-col items-center gap-2 rounded-xl border border-brick/30 bg-brick-subtle p-4 text-center">
-      <input type="hidden" name="audit_id" value={auditId} />
-      <p className="text-sm text-body">{copy.cancelConfirm}</p>
-      <div className="flex items-center gap-4">
-        <button type="submit" className="text-sm font-semibold text-brick hover:underline">
-          {copy.cancelYes}
-        </button>
-        <button type="button" onClick={() => setConfirming(false)} className="text-sm font-medium text-body hover:underline">
-          {copy.cancelNo}
-        </button>
-      </div>
-    </form>
   );
 }

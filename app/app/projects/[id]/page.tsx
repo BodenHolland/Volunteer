@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { TimeLog } from "@/components/project/time-log";
 import { Checklist } from "@/components/project/checklist";
 import { Notes } from "@/components/project/notes";
-import { CancelTaskButton } from "@/components/project/cancel-task";
 import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession } from "@/lib/types";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
@@ -213,12 +212,6 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                     </p>
                   </>
                 )}
-                <div className="mt-3 flex justify-center">
-                  <CancelTaskButton
-                    submissionId={sub.id}
-                    labels={{ cancel: c.cancelTask, confirm: c.cancelConfirm, yes: c.cancelYes, no: c.cancelNo }}
-                  />
-                </div>
               </div>
             )}
           </div>
