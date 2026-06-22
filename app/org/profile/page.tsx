@@ -25,7 +25,7 @@ export default async function OrgProfilePage({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-[28px] font-semibold text-ink">Organization profile</h1>
-        <p className="mt-1 text-body">This information appears on your public page and Section 2 of the CF 888.</p>
+        <p className="mt-1 text-body">This information appears on your public page and the organization section of each work-hours certification.</p>
       </div>
 
       {sp.saved && (
@@ -55,7 +55,7 @@ export default async function OrgProfilePage({ searchParams }: { searchParams: P
         <section className="space-y-4 rounded-lg border border-line bg-white p-5">
           <div>
             <h2 className="text-lg font-semibold text-ink">Signing authority</h2>
-            <p className="text-sm text-body">The person who certifies volunteer hours on the CF 888.</p>
+            <p className="text-sm text-body">The person who certifies volunteer hours on the work-hours certification.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">

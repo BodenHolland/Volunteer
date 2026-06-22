@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "./actions";
 import { getLocale } from "@/lib/i18n";
-import { PhoneInput } from "@/app/start/pii-fields";
+import { AddressFields, DobInput, PhoneInput } from "@/app/start/pii-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SNAP profile — Tended" };
@@ -138,7 +138,7 @@ export default async function ProfilePage({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dob">{c.dob}</Label>
-              <Input id="dob" name="dob" type="date" defaultValue={dob ?? ""} />
+              <DobInput defaultValue={dob ?? ""} />
             </div>
           </div>
           <div className="space-y-1.5">
@@ -149,28 +149,14 @@ export default async function ProfilePage({
 
         <section className="service-panel space-y-4 p-5 md:p-6">
           <h2 className="text-base font-semibold text-ink">{c.address}</h2>
-          <div className="space-y-1.5">
-            <Label htmlFor="line1">{c.street}</Label>
-            <Input id="line1" name="line1" defaultValue={addr.line1} autoComplete="address-line1" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="line2">{c.line2}</Label>
-            <Input id="line2" name="line2" defaultValue={addr.line2 ?? ""} autoComplete="address-line2" />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-[1fr_5rem_7rem]">
-            <div className="space-y-1.5">
-              <Label htmlFor="city">{c.city}</Label>
-              <Input id="city" name="city" defaultValue={addr.city} autoComplete="address-level2" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="state">{c.state}</Label>
-              <Input id="state" name="state" defaultValue={addr.state} maxLength={2} autoComplete="address-level1" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="zip">{c.zip}</Label>
-              <Input id="zip" name="zip" defaultValue={addr.zip} inputMode="numeric" autoComplete="postal-code" />
-            </div>
-          </div>
+          <AddressFields
+            defaultLine1={addr.line1}
+            defaultLine2={addr.line2 ?? ""}
+            defaultCity={addr.city}
+            defaultState={addr.state}
+            defaultZip={addr.zip}
+            showStateField
+          />
         </section>
 
         <div className="flex items-center gap-3">

@@ -19,7 +19,7 @@ const FILTERS: { value: string; label: string }[] = [
   { value: "password_reset", label: "Password reset" },
   { value: "submission_approved", label: "Submission approved" },
   { value: "task_gate_approved", label: "Task gate approved" },
-  { value: "cf888_generated", label: "CF 888 generated" },
+  { value: "cf888_generated", label: "Work certification generated" },
   { value: "account_deleted", label: "Account deleted" },
   { value: "caps_calibrated", label: "Caps calibrated" },
 ];

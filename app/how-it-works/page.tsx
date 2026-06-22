@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  Building2,
-  ArrowRight,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -385,10 +380,7 @@ export default async function HowItWorksPage() {
 
               {/* For organizations */}
               <section id="for-organizations" className="service-panel scroll-mt-24 p-6 md:p-8">
-                <div className="flex size-12 items-center justify-center rounded-md bg-teal-subtle text-teal">
-                  <Building2 className="size-6" strokeWidth={1.5} />
-                </div>
-                <h2 className="service-heading mt-4 text-[28px]">{c.orgHeading}</h2>
+                <h2 className="service-heading text-[28px]">{c.orgHeading}</h2>
                 {locale === "es" ? (
                   <>
                     <p className="mt-3 leading-relaxed text-body">

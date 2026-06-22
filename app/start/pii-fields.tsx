@@ -40,6 +40,36 @@ export function PhoneInput({ defaultValue = "" }: { defaultValue?: string }) {
 }
 
 /**
+ * Date-of-birth input. `<input type="date">` quietly lets users type 5+ digit
+ * years (Chrome especially) — the value parses fine but no human has a year
+ * "12345". We clip the year segment to 4 digits on every change, and enforce a
+ * reasonable date range via `min` / `max` for HTML form validation as a belt.
+ */
+export function DobInput({ defaultValue = "" }: { defaultValue?: string }) {
+  const [value, setValue] = useState(defaultValue);
+  return (
+    <Input
+      id="dob"
+      name="dob"
+      type="date"
+      required
+      min="1900-01-01"
+      max="2099-12-31"
+      value={value}
+      onChange={(e) => {
+        const v = e.target.value;
+        const match = v.match(/^(\d+)-(\d{2})-(\d{2})$/);
+        if (match && match[1].length > 4) {
+          setValue(`${match[1].slice(0, 4)}-${match[2]}-${match[3]}`);
+        } else {
+          setValue(v);
+        }
+      }}
+    />
+  );
+}
+
+/**
  * Street address with autocomplete suggestions powered by OpenStreetMap
  * Nominatim (free, US-scoped). The user types in `line1`; after 350ms of idle
  * we fetch up to 5 matches and render a dropdown. Clicking a suggestion fills
@@ -55,12 +85,17 @@ export function AddressFields({
   defaultCity,
   defaultState,
   defaultZip,
+  showStateField = false,
 }: {
   defaultLine1: string;
   defaultLine2: string;
   defaultCity: string;
   defaultState: string;
   defaultZip: string;
+  /** When true, state renders as a visible 2-char editable input alongside
+   *  city/zip. When false (onboarding default), state is a hidden input — the
+   *  user already picked it on a prior step. */
+  showStateField?: boolean;
 }) {
   const [line1, setLine1] = useState(defaultLine1);
   const [line2, setLine2] = useState(defaultLine2);
@@ -77,7 +112,10 @@ export function AddressFields({
     const q = line1.trim();
     // Only autocomplete once the user has typed something with a number + a
     // word in it — avoids burning Nominatim quota on "1" or "main".
-    if (q.length < 6 || q === lastFetchedRef.current) {
+    // Trigger once the input looks like the start of a street address. 4 chars
+    // is permissive enough to fire on "123 m" mid-type without blasting
+    // Nominatim on every single character.
+    if (q.length < 4 || q === lastFetchedRef.current) {
       return;
     }
     let cancelled = false;
@@ -149,17 +187,17 @@ export function AddressFields({
           ) : null}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="line2">Apt / unit</Label>
-          <Input
-            id="line2"
-            name="line2"
-            value={line2}
-            autoComplete="address-line2"
-            onChange={(e) => setLine2(e.target.value)}
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="line2">Apt / unit (optional)</Label>
+        <Input
+          id="line2"
+          name="line2"
+          value={line2}
+          autoComplete="address-line2"
+          onChange={(e) => setLine2(e.target.value)}
+        />
+      </div>
+      <div className={showStateField ? "grid grid-cols-[1fr_5rem_7rem] gap-3" : "grid grid-cols-2 gap-3"}>
         <div className="space-y-1.5">
           <Label htmlFor="city2">City</Label>
           <Input
@@ -170,6 +208,21 @@ export function AddressFields({
             onChange={(e) => setCity(e.target.value)}
           />
         </div>
+        {showStateField ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="state2">State</Label>
+            <Input
+              id="state2"
+              name="state"
+              value={stateCode}
+              maxLength={2}
+              autoComplete="address-level1"
+              onChange={(e) => setStateCode(e.target.value.toUpperCase())}
+            />
+          </div>
+        ) : (
+          <input type="hidden" name="state" value={stateCode} />
+        )}
         <div className="space-y-1.5">
           <Label htmlFor="zip">ZIP</Label>
           <Input
@@ -183,7 +236,6 @@ export function AddressFields({
           />
         </div>
       </div>
-      <input type="hidden" name="state" value={stateCode} />
     </>
   );
 }

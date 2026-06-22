@@ -32,7 +32,7 @@ export default async function Page() {
         <p>La transparencia es la defensa ante una auditoría. Un revisor que pregunte cómo certificó Tended un conjunto de horas obtiene una respuesta completa sin presentar una solicitud.</p>
 
         <h2>Acceso</h2>
-        <p>El registro está disponible en <Placeholder>[URL del registro]</Placeholder> y está enlazado desde el código QR en el certificado de participante que Tended emite junto con cada CF 888.</p>
+        <p>El registro está disponible en <Placeholder>[URL del registro]</Placeholder> y está enlazado desde el código QR en el certificado de participante que Tended emite junto con cada certificación de horas.</p>
 
         <h2>Para revisiones formales</h2>
         <p>Los revisores estatales (CDSS, OTDA) y federales (FNS) pueden solicitar una extracción formal de registros, que incluye los registros de validación subyacentes y la base de certificación por beneficiario, sujeto a las salvaguardas aplicables. Contacto: <Placeholder>[correo de contacto]</Placeholder>.</p>
@@ -60,7 +60,7 @@ export default async function Page() {
       <p>Transparency is the audit defense. A reviewer asking how Tended certified a set of hours gets a complete answer without filing a request.</p>
 
       <h2>Access</h2>
-      <p>The ledger is available at <Placeholder>[ledger URL]</Placeholder> and is linked from the QR code on the participant certificate Tended issues alongside each CF 888.</p>
+      <p>The ledger is available at <Placeholder>[ledger URL]</Placeholder> and is linked from the QR code on the participant certificate Tended issues alongside each work-hours certification.</p>
 
       <h2>For formal reviews</h2>
       <p>State (CDSS, OTDA) and federal (FNS) reviewers can request a formal records pull, including the underlying validation logs and the per-recipient certification basis, subject to applicable safeguards. Contact: <Placeholder>[contact email]</Placeholder>.</p>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { TimeLog } from "@/components/project/time-log";
 import { Checklist } from "@/components/project/checklist";
 import { Notes } from "@/components/project/notes";
+import { CancelTaskButton } from "@/components/project/cancel-task";
 import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession } from "@/lib/types";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
@@ -48,6 +49,10 @@ const COPY = {
     startSession: "Start session",
     measuring: "Measuring active time — only counts while this tab is open and you're working.",
     onlyActive: "Only active time is credited — never idle time or estimates.",
+    cancelTask: "Cancel task",
+    cancelConfirm: "Remove this task from your work? Your progress on it will be deleted.",
+    cancelYes: "Yes, cancel",
+    cancelNo: "Keep it",
   },
   es: {
     allProjects: "Todos los proyectos",
@@ -81,6 +86,10 @@ const COPY = {
     startSession: "Iniciar sesión",
     measuring: "Midiendo el tiempo activo — solo cuenta mientras esta pestaña está abierta y estás trabajando.",
     onlyActive: "Solo se acredita el tiempo activo — nunca el tiempo inactivo ni las estimaciones.",
+    cancelTask: "Cancelar tarea",
+    cancelConfirm: "¿Quitar esta tarea de tu trabajo? Se borrará tu progreso en ella.",
+    cancelYes: "Sí, cancelar",
+    cancelNo: "Conservarla",
   },
 } as const;
 
@@ -204,6 +213,12 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                     </p>
                   </>
                 )}
+                <div className="mt-3 flex justify-center">
+                  <CancelTaskButton
+                    submissionId={sub.id}
+                    labels={{ cancel: c.cancelTask, confirm: c.cancelConfirm, yes: c.cancelYes, no: c.cancelNo }}
+                  />
+                </div>
               </div>
             )}
           </div>

@@ -16,6 +16,13 @@ export function formatHours(h: number): string {
   return Number.isInteger(r) ? `${r}` : r.toFixed(1);
 }
 
+/** Unix ms → "Jun 22, 2026" */
+export function formatDate(ts: number): string {
+  const d = new Date(ts);
+  const names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${names[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
 /** "2026-06" → "June 2026" */
 export function monthLabel(ym: string): string {
   const [y, m] = ym.split("-").map(Number);

@@ -71,6 +71,8 @@ export const en = {
       subhead: "Here's where your hours stand this month.",
       browseTasks: "Browse tasks",
       activeProjects: "Active work",
+      completedWork: "Completed work",
+      submittedPrefix: "Submitted",
       emptyTitle: "No tasks committed yet. Browse the catalog to find one to start.",
       progress: "Civic work progress",
       activitySummary: "activity summary",

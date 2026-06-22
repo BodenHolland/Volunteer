@@ -45,7 +45,7 @@ export default async function Page() {
         <p>Revisar tu Aviso de Acción y evaluar tu caso. Ayudarte a solicitar a tiempo una audiencia imparcial estatal. Representarte en la audiencia, generalmente gratis. Asesorarte sobre si aplica la ayuda pagada mientras está pendiente y cómo preservarla. Asesorarte sobre la revisión judicial si es necesario.</p>
 
         <h2>Lo que Tended puede hacer</h2>
-        <p>Proporcionar los registros de verificación que respaldan cualquier CF 888 que firmamos. Tu abogado puede solicitarlos directamente. Contacto: <Placeholder>[correo de contacto]</Placeholder>.</p>
+        <p>Proporcionar los registros de verificación que respaldan cualquier certificación de horas que firmamos. Tu abogado puede solicitarlos directamente. Contacto: <Placeholder>[correo de contacto]</Placeholder>.</p>
         <hr />
         <p><em>Tended no es un bufete de abogados. Esta lista es informativa. Puede no estar completa ni actualizada. Por favor verifica directamente los servicios y los horarios de admisión de cada organización.</em></p>
       </ArticleShell>
@@ -86,7 +86,7 @@ export default async function Page() {
       <p>Review your Notice of Action and assess your case. Help you request a state fair hearing on time. Represent you at the hearing, usually free. Advise on whether aid paid pending applies and how to preserve it. Advise on judicial review if needed.</p>
 
       <h2>What Tended can do</h2>
-      <p>Provide the verification records supporting any CF 888 we signed. Your attorney can request them directly. Contact: <Placeholder>[contact email]</Placeholder>.</p>
+      <p>Provide the verification records supporting any work-hours certification we signed. Your attorney can request them directly. Contact: <Placeholder>[contact email]</Placeholder>.</p>
       <hr />
       <p><em>Tended is not a law firm. This list is informational. It may not be complete or current. Please verify each organization&apos;s services and intake hours directly.</em></p>
     </ArticleShell>

@@ -14,7 +14,7 @@ export default async function HelpIndex() {
           overline: "Centro de ayuda",
           heroTitle: "Cómo funciona Tended, y la autoridad que lo respalda.",
           intro:
-            "Artículos de metodología en lenguaje claro para voluntarios, trabajadores sociales y cualquier persona que revise un CF 888 que firmamos. Las citas a la ley principal están en cada artículo. Los marcados con ★ son los fundamentales.",
+            "Artículos de metodología en lenguaje claro para voluntarios, trabajadores sociales y cualquier persona que revise una certificación de horas que firmamos. Las citas a la ley principal están en cada artículo. Los marcados con ★ son los fundamentales.",
           keyArticle: "★ Artículo clave",
           article: "Artículo",
         }
@@ -22,7 +22,7 @@ export default async function HelpIndex() {
           overline: "Help Center",
           heroTitle: "How Tended works, and the authority behind it.",
           intro:
-            "Plain-language methodology articles for volunteers, caseworkers, and anyone reviewing a CF 888 we signed. Citations to the primary law are in every article. Items marked ★ are the load-bearing ones.",
+            "Plain-language methodology articles for volunteers, caseworkers, and anyone reviewing a work-hours certification we signed. Citations to the primary law are in every article. Items marked ★ are the load-bearing ones.",
           keyArticle: "★ Key article",
           article: "Article",
         };

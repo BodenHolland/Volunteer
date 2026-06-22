@@ -13,7 +13,7 @@ export default async function Page() {
     const nextEs = next ? { ...next, title: "Dónde conseguir ayuda legal" } : undefined;
     return (
       <ArticleShell number={14} title="Qué pasa si un condado cuestiona tus horas" prev={prevEs} next={nextEs}>
-        <p>Si un condado rechaza un CF 888 (o el formulario estatal equivalente) que Tended firmó, esto es lo que establece la ley. Es información objetiva, no asesoría ni orientación legal. Si tus beneficios están en juego, contacta a un abogado de asistencia legal especializado en SNAP.</p>
+        <p>Si un condado rechaza una certificación de horas que Tended firmó, esto es lo que establece la ley. Es información objetiva, no asesoría ni orientación legal. Si tus beneficios están en juego, contacta a un abogado de asistencia legal especializado en SNAP.</p>
 
         <h2>Los beneficios de SNAP tienen protección de debido proceso</h2>
         <p>Los beneficios de SNAP son un derecho protegido bajo <em>Goldberg v. Kelly</em>, 397 U.S. 254 (1970). Un condado no puede reducir ni terminar tus beneficios sin un proceso formal.</p>
@@ -52,7 +52,7 @@ export default async function Page() {
 
   return (
     <ArticleShell number={14} title="What happens if a county questions your hours" prev={prev} next={next}>
-      <p>If a county rejects a CF 888 (or the equivalent state form) that Tended signed, here is what the law provides. This is factual information, not legal advice or coaching. If your benefits are at stake, contact a SNAP legal-aid attorney.</p>
+      <p>If a county rejects a work-hours certification that Tended signed, here is what the law provides. This is factual information, not legal advice or coaching. If your benefits are at stake, contact a SNAP legal-aid attorney.</p>
 
       <h2>SNAP benefits have due-process protection</h2>
       <p>SNAP benefits are a protected entitlement under <em>Goldberg v. Kelly</em>, 397 U.S. 254 (1970). A county cannot reduce or terminate your benefits without a formal process.</p>

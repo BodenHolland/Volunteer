@@ -26,7 +26,7 @@ export default async function Page() {
           </ul>
 
           <h2>La base honesta</h2>
-          <p><AuthorityBadge level="unaddressed" /> Hemos buscado en la orientación publicada de FNS, CDSS de California y OTDA de Nueva York. Ninguna aborda específicamente las horas de voluntariado remoto, virtual o validado por IA. Ninguna exige trabajo presencial. El formulario aplicable de California (CF 888) y la carta de política (ACL 25-34) describen &ldquo;la organización donde la persona hace voluntariado&rdquo; sin distinguir entre presencial y remoto.</p>
+          <p><AuthorityBadge level="unaddressed" /> Hemos buscado en la orientación publicada de FNS, CDSS de California y OTDA de Nueva York. Ninguna aborda específicamente las horas de voluntariado remoto, virtual o validado por IA. Ninguna exige trabajo presencial. El formulario aplicable de California y la carta de política (ACL 25-34) describen &ldquo;la organización donde la persona hace voluntariado&rdquo; sin distinguir entre presencial y remoto.</p>
           <p>Es un genuino vacío regulatorio. No afirmamos que sea silencio a nuestro favor, y no fingimos que sea silencio en nuestra contra.</p>
 
           <h2>Por qué la autoridad federal cubre el trabajo remoto</h2>
@@ -55,7 +55,7 @@ export default async function Page() {
             <li>Metodología pública. (Ver Registro de auditoría y metodología.)</li>
             <li>Conversaciones de pre-autorización con los departamentos de bienestar estatales y del condado, en lugar de esperar a ser descubiertos en una auditoría.</li>
           </ul>
-          <p>Si un condado cuestiona un CF 888 que Tended firmó, el beneficiario tiene derecho a una audiencia imparcial del estado. (Ver Qué pasa si un condado cuestiona tus horas.) Los registros de Tended son la evidencia que respalda la certificación.</p>
+          <p>Si un condado cuestiona una certificación de horas que Tended firmó, el beneficiario tiene derecho a una audiencia imparcial del estado. (Ver Qué pasa si un condado cuestiona tus horas.) Los registros de Tended son la evidencia que respalda la certificación.</p>
 
           <h2>Lo que no afirmamos</h2>
           <p>No afirmamos que ninguna agencia federal haya aprobado específicamente las horas de voluntariado remoto/en línea bajo SNAP. No existe tal orientación.</p>
@@ -75,7 +75,7 @@ export default async function Page() {
           </ul>
 
           <h2>The honest baseline</h2>
-          <p><AuthorityBadge level="unaddressed" /> We have searched FNS, California CDSS, and New York OTDA published guidance. None of it specifically addresses remote, virtual, or AI-validated volunteer hours. None of it requires in-person work. The applicable California form (CF 888) and policy letter (ACL 25-34) describe &ldquo;the organization where the person volunteers&rdquo; without distinguishing in-person from remote.</p>
+          <p><AuthorityBadge level="unaddressed" /> We have searched FNS, California CDSS, and New York OTDA published guidance. None of it specifically addresses remote, virtual, or AI-validated volunteer hours. None of it requires in-person work. The applicable California verification form and policy letter (ACL 25-34) describe &ldquo;the organization where the person volunteers&rdquo; without distinguishing in-person from remote.</p>
           <p>This is a genuine regulatory gap. We do not claim it is silence in our favor, and we do not pretend it is silence against us.</p>
 
           <h2>Why the federal authority covers remote work</h2>
@@ -104,7 +104,7 @@ export default async function Page() {
             <li>Public methodology. (See Audit &amp; methodology ledger.)</li>
             <li>Pre-clearance conversations with state and county welfare departments, rather than waiting to be discovered in an audit.</li>
           </ul>
-          <p>If a county questions a CF 888 Tended signed, the recipient is entitled to a state fair hearing. (See What happens if a county questions your hours.) Tended&apos;s records are the evidence supporting the certification.</p>
+          <p>If a county questions a work-hours certification Tended signed, the recipient is entitled to a state fair hearing. (See What happens if a county questions your hours.) Tended&apos;s records are the evidence supporting the certification.</p>
 
           <h2>What we don&apos;t claim</h2>
           <p>We do not claim any federal agency has specifically blessed remote/online volunteer hours under SNAP. No such guidance exists.</p>

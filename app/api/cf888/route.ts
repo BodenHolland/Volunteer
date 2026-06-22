@@ -93,7 +93,7 @@ export async function GET(req: Request) {
     /* non-fatal for the download */
   }
 
-  // CF 888 is a legal attestation document — audit every generation.
+  // Work-hours certification is a legal attestation document — audit every generation.
   await writeAudit({
     actorUserId: user.id,
     action: "cf888_generated",
@@ -105,7 +105,7 @@ export async function GET(req: Request) {
   return new NextResponse(pdf as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="CF888-${month}.pdf"`,
+      "Content-Disposition": `inline; filename="work-hours-certification-${month}.pdf"`,
     },
   });
 }

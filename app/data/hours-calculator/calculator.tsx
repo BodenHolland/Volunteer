@@ -508,7 +508,7 @@ function ExemptResult({ reason, stateName }: { reason: string; stateName: string
           <p className="mt-3 text-sm leading-relaxed text-body">{reason}</p>
           <p className="mt-3 text-xs text-meta">
             You may still benefit from volunteering — Tended welcomes anyone, exempt or not. But
-            you don't need a CF 888-style verification form to keep your SNAP benefits.
+            you don't need a work-hours verification form to keep your SNAP benefits.
           </p>
         </div>
       </div>

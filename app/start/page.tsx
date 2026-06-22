@@ -15,7 +15,7 @@ import {
   submitBenefitsCal,
   submitOrgPick,
 } from "./actions";
-import { AddressFields, PhoneInput } from "./pii-fields";
+import { AddressFields, DobInput, PhoneInput } from "./pii-fields";
 
 export const metadata = { title: "Finish setting up — Tended" };
 
@@ -169,7 +169,7 @@ export default async function StartPage({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dob">Date of birth</Label>
-              <Input id="dob" name="dob" type="date" required defaultValue={dob ?? ""} />
+              <DobInput defaultValue={dob ?? ""} />
             </div>
           </div>
           <AddressFields

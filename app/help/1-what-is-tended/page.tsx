@@ -24,7 +24,7 @@ export default async function Page() {
           <p>Tended es una organización benéfica pública 501(c)(3), financiada con subvenciones y donaciones.</p>
           <p>Tended no vende el trabajo que producen los voluntarios. Los resultados se distribuyen gratis a la agencia socia, a las organizaciones sin fines de lucro socias o a la comunidad.</p>
           <p>A los voluntarios no se les paga. El beneficio de SNAP que recibe un participante es un derecho del estado, no un pago de Tended.</p>
-          <p>Tended firma la Sección 2 del CF 888 (en California) o el formulario estatal equivalente como representante autorizado de la organización donde se realizó el voluntariado. La firma se basa en los registros de la plataforma de Tended.</p>
+          <p>Tended firma la sección de la organización del formulario de verificación de horas que acepta tu estado, como representante autorizado de la organización donde se realizó el voluntariado. La firma se basa en los registros de la plataforma de Tended.</p>
           <p>Tended no es un bufete de abogados, y nada en este sitio constituye asesoría legal. Si tus beneficios están en duda, comunícate con un abogado de asistencia legal de SNAP.</p>
 
           <h2>Por qué existe esto</h2>
@@ -50,7 +50,7 @@ export default async function Page() {
           <p>Tended is a 501(c)(3) public charity, funded by grants and donations.</p>
           <p>Tended does not sell the work volunteers produce. Outputs are distributed free to the partner agency, partner nonprofits, or the community.</p>
           <p>Volunteers are not paid. The SNAP benefit a participant receives is a state entitlement, not payment from Tended.</p>
-          <p>Tended signs CF 888 Section 2 (in California) or the equivalent state form as the authorized representative of the organization where the volunteering happened. The signature is based on Tended&apos;s platform records.</p>
+          <p>Tended signs the organization section of the work-hours verification form your state accepts, as the authorized representative of the organization where the volunteering happened. The signature is based on Tended&apos;s platform records.</p>
           <p>Tended is not a law firm, and nothing on this site is legal advice. If your benefits are in question, contact a SNAP legal-aid attorney.</p>
 
           <h2>Why this exists</h2>

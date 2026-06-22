@@ -40,7 +40,7 @@ export default async function Page() {
           <p>Indicaciones genéricas de &ldquo;cuéntanos sobre ti&rdquo; sin un entregable nombrado. Estas incumplen las barreras de las tareas de encuesta. (Ver Encuestas y contribuciones de investigación comunitaria.)</p>
 
           <h2>Afirmaciones deliberadamente no verificables</h2>
-          <p>Tareas diseñadas para que la afirmación no se pueda comprobar. Una tarea que no podemos verificar es un CF 888 que no podemos firmar de buena fe.</p>
+          <p>Tareas diseñadas para que la afirmación no se pueda comprobar. Una tarea que no podemos verificar es una certificación de horas que no podemos firmar de buena fe.</p>
 
           <h2>Trabajo comercial disfrazado</h2>
           <p>Etiquetar datos para una startup con fines de lucro. Hacer tareas para un proveedor comercial. No es servicio benéfico a una organización que califica.</p>
@@ -76,7 +76,7 @@ export default async function Page() {
           <p>General &ldquo;tell us about yourself&rdquo; prompts with no named deliverable. These fail the survey-task gates. (See Surveys &amp; community-research contributions.)</p>
 
           <h2>Deliberately unverifiable claims</h2>
-          <p>Tasks designed so the claim can&apos;t be checked. A task we can&apos;t verify is a CF 888 we can&apos;t sign for in good faith.</p>
+          <p>Tasks designed so the claim can&apos;t be checked. A task we can&apos;t verify is a work-hours certification we can&apos;t sign for in good faith.</p>
 
           <h2>Commercial labor in disguise</h2>
           <p>Labeling data for a for-profit startup. Doing tasks for a commercial vendor. Not charitable service to a qualifying organization.</p>

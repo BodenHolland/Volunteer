@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
 import { MONTHLY_HOURS_TARGET } from "@/lib/types";
-import { formatHours, monthLabel } from "@/lib/time";
+import { formatHours, formatDate, monthLabel } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -111,6 +111,37 @@ export default async function DashboardPage() {
           </ul>
         )}
       </section>
+
+      {/* Completed work */}
+      {data.completed.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="service-heading text-xl">{t.app.dashboard.completedWork}</h2>
+          </div>
+          <ul className="service-panel divide-y divide-line overflow-hidden">
+            {data.completed.map((s) => (
+              <li key={s.id}>
+                <Link
+                  href={workHref(s)}
+                  className="flex items-center gap-4 p-4 transition-colors hover:bg-teal-subtle/60"
+                >
+                  <OrgThumb name={s.org.name} slug={s.org.slug} size={56} className="h-14 w-14" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-ink">{s.task.title}</p>
+                    <p className="truncate text-sm text-body">
+                      {s.submitted_at
+                        ? `${t.app.dashboard.submittedPrefix} ${formatDate(s.submitted_at)}`
+                        : s.org.name}
+                    </p>
+                  </div>
+                  <StatusPill status={workStatus(s)} />
+                  <ArrowRight className="size-4 shrink-0 text-meta" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

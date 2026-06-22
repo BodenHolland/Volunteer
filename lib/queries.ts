@@ -173,6 +173,7 @@ export interface DashboardData {
   certified: number;
   pending: number;
   active: SubmissionWithTask[];
+  completed: SubmissionWithTask[];
   recent: SubmissionWithTask[];
   month: string;
 }
@@ -227,12 +228,21 @@ export async function getRecipientDashboard(userId: string, now: number = Date.n
       pending += Math.min(s.hours_credited ?? measured, s.task.max_hours);
     }
   }
+  // Once work is submitted it leaves "active" and shows under "completed" — even
+  // while in review or after approval/rejection. `needs_changes` bounces it back
+  // to the recipient, so it counts as active again despite having a submit time.
+  const isSubmitted = (s: SubmissionWithTask) =>
+    s.submitted_at != null && s.status !== "needs_changes";
   // A food-audit's submission row stays "committed" while its audit progresses,
   // so fall back to the audit's own status to decide whether it's still active.
   const active = subs.filter((s) => {
+    if (isSubmitted(s)) return false;
     const eff = s.auditStatus ?? s.status;
     if (TERMINAL_WORK_STATUSES.has(eff)) return false;
     return s.auditId ? true : ACTIVE_STATUSES.has(s.status);
   });
-  return { certified, pending, active, recent: subs.slice(0, 5), month };
+  const completed = subs
+    .filter(isSubmitted)
+    .sort((a, b) => (b.submitted_at ?? 0) - (a.submitted_at ?? 0));
+  return { certified, pending, active, completed, recent: subs.slice(0, 5), month };
 }

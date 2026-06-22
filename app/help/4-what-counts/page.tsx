@@ -32,16 +32,16 @@ export default async function Page() {
           <p>Fuente: <a href="https://www.law.cornell.edu/cfr/text/7/273.24" target="_blank" rel="noopener noreferrer">7 CFR §273.24 (Cornell LII)</a>.</p>
           <p>Ese es el fundamento federal. El trabajo voluntario no remunerado cuenta cuando el estado tiene un estándar de verificación para ello. California y Nueva York lo tienen.</p>
 
-          <h2>California: CF 888</h2>
-          <p><AuthorityBadge level="direct" /> El estándar de California está en la <strong>All-County Letter (ACL) 25-34</strong> (14 de mayo de 2025) y el <strong>CF 888 — CalFresh ABAWD Volunteer Work Hours Verification Form</strong> (rev. 5/25).</p>
-          <p>Datos clave sobre el CF 888:</p>
+          <h2>California: the CalFresh work-hours verification form</h2>
+          <p><AuthorityBadge level="direct" /> El estándar de California está en la <strong>All-County Letter (ACL) 25-34</strong> (14 de mayo de 2025) y el <strong>formulario CalFresh ABAWD Volunteer Work Hours Verification</strong> (rev. 5/25).</p>
+          <p>Datos clave sobre el formulario:</p>
           <ul>
             <li>La Sección 2 la firma &ldquo;un representante de la organización donde la persona hace voluntariado.&rdquo;</li>
             <li>El formulario no tiene una declaración bajo pena de perjurio.</li>
             <li>No se exige que el firmante haya observado el trabajo.</li>
             <li>El condado puede, como alternativa, aceptar la declaración verbal de un representante autorizado.</li>
           </ul>
-          <p>Fuentes: <a href="https://cdss.ca.gov/Portals/9/Additional-Resources/Forms-and-Brochures/2020/A-D/CF888.pdf" target="_blank" rel="noopener noreferrer">CF 888 (CDSS)</a>; <a href="https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/ABAWDs/StsfygABAWDWkReq.htm" target="_blank" rel="noopener noreferrer">Santa Clara County handbook</a>.</p>
+          <p>Fuentes: <a href="https://cdss.ca.gov/Portals/9/Additional-Resources/Forms-and-Brochures/2020/A-D/CF888.pdf" target="_blank" rel="noopener noreferrer">California verification form (CDSS)</a>; <a href="https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/ABAWDs/StsfygABAWDWkReq.htm" target="_blank" rel="noopener noreferrer">Santa Clara County handbook</a>.</p>
 
           <h2>Nueva York: Monthly ABAWD Volunteer Participation Record</h2>
           <p><AuthorityBadge level="direct" /> Nueva York cuenta el servicio voluntario/comunitario para el requisito de trabajo, con las horas documentadas en el <strong>Monthly ABAWD Volunteer Participation Record</strong> y firmadas por la organización sin fines de lucro anfitriona. A diferencia del estándar fijo de 80 horas de California, Nueva York valora las horas de voluntariado en <em>asignación de SNAP ÷ salario mínimo</em>, lo que normalmente da un número mensual mucho menor. En la ciudad de Nueva York, la documentación se gestiona a través de <strong>ACCESS HRA</strong>.</p>
@@ -74,16 +74,16 @@ export default async function Page() {
           <p>Source: <a href="https://www.law.cornell.edu/cfr/text/7/273.24" target="_blank" rel="noopener noreferrer">7 CFR §273.24 (Cornell LII)</a>.</p>
           <p>That is the federal foundation. Unpaid volunteer work counts when the state has a verification standard for it. California and New York both do.</p>
 
-          <h2>California: CF 888</h2>
-          <p><AuthorityBadge level="direct" /> California&apos;s standard is in <strong>All-County Letter (ACL) 25-34</strong> (May 14, 2025) and the <strong>CF 888 — CalFresh ABAWD Volunteer Work Hours Verification Form</strong> (rev. 5/25).</p>
-          <p>Key facts about CF 888:</p>
+          <h2>California: the CalFresh work-hours verification form</h2>
+          <p><AuthorityBadge level="direct" /> California&apos;s standard is in <strong>All-County Letter (ACL) 25-34</strong> (May 14, 2025) and the <strong>CalFresh ABAWD Volunteer Work Hours Verification Form</strong> (rev. 5/25).</p>
+          <p>Key facts about the form:</p>
           <ul>
             <li>Section 2 is signed by &ldquo;a representative of the organization where the person volunteers.&rdquo;</li>
             <li>The form has no penalty-of-perjury jurat.</li>
             <li>The signer is not required to have observed the work.</li>
             <li>The county may, as an alternative, accept the verbal statement of an authorized representative.</li>
           </ul>
-          <p>Sources: <a href="https://cdss.ca.gov/Portals/9/Additional-Resources/Forms-and-Brochures/2020/A-D/CF888.pdf" target="_blank" rel="noopener noreferrer">CF 888 (CDSS)</a>; <a href="https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/ABAWDs/StsfygABAWDWkReq.htm" target="_blank" rel="noopener noreferrer">Santa Clara County handbook</a>.</p>
+          <p>Sources: <a href="https://cdss.ca.gov/Portals/9/Additional-Resources/Forms-and-Brochures/2020/A-D/CF888.pdf" target="_blank" rel="noopener noreferrer">California verification form (CDSS)</a>; <a href="https://stgenssa.sccgov.org/debs/program_handbooks/calfresh/assets/CalFresh/ABAWDs/StsfygABAWDWkReq.htm" target="_blank" rel="noopener noreferrer">Santa Clara County handbook</a>.</p>
 
           <h2>New York: Monthly ABAWD Volunteer Participation Record</h2>
           <p><AuthorityBadge level="direct" /> New York counts volunteer/community service toward the work requirement, with hours documented on the <strong>Monthly ABAWD Volunteer Participation Record</strong> and signed by the host nonprofit. Unlike California&apos;s flat 80-hour standard, New York values volunteer hours at <em>SNAP allotment ÷ minimum wage</em>, which is typically a much smaller monthly number. In NYC, documentation flows through <strong>ACCESS HRA</strong>.</p>

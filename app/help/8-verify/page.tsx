@@ -50,7 +50,7 @@ export default async function Page() {
         <p>No certificamos horas que excedan la participación medida.</p>
 
         <h2>El certificador</h2>
-        <p>Un representante autorizado real, con nombre propio, designado por la junta, firma la Sección 2 del CF 888 con base en los registros anteriores. El representante supervisa la metodología y es independiente de las métricas de crecimiento y recaudación de fondos de la plataforma. (Consulta Quién certifica tus horas, y cómo.)</p>
+        <p>Un representante autorizado real, con nombre propio, designado por la junta, firma la sección de la organización de la certificación de horas con base en los registros anteriores. El representante supervisa la metodología y es independiente de las métricas de crecimiento y recaudación de fondos de la plataforma. (Consulta Quién certifica tus horas, y cómo.)</p>
 
         <h2>Metodología abierta</h2>
         <p>Esta metodología, los límites actuales por tarea y el registro de cambios de calibración están publicados. Cualquiera puede leerlos. (Consulta el Registro de auditoría y metodología.)</p>
@@ -99,7 +99,7 @@ export default async function Page() {
       <p>We don&apos;t certify hours that exceed measured engagement.</p>
 
       <h2>The certifier</h2>
-      <p>A real, named authorized representative designated by the board signs CF 888 Section 2 based on the records above. The representative oversees the methodology and is independent of the platform&apos;s growth and fundraising metrics. (See Who certifies your hours, and how.)</p>
+      <p>A real, named authorized representative designated by the board signs the organization section of the work-hours certification based on the records above. The representative oversees the methodology and is independent of the platform&apos;s growth and fundraising metrics. (See Who certifies your hours, and how.)</p>
 
       <h2>Open methodology</h2>
       <p>This methodology, current per-task caps, and the calibration changelog are published. Anyone can read them. (See Audit &amp; methodology ledger.)</p>

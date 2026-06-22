@@ -73,6 +73,8 @@ export const es: typeof en = {
       subhead: "Aquí está el estado de tus horas este mes.",
       browseTasks: "Explorar tareas",
       activeProjects: "Trabajo activo",
+      completedWork: "Trabajo completado",
+      submittedPrefix: "Enviado",
       emptyTitle: "Aún no te has comprometido con ninguna tarea. Explora el catálogo para encontrar una.",
       progress: "Progreso del trabajo cívico",
       activitySummary: "resumen de actividad",

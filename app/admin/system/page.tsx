@@ -108,7 +108,7 @@ export default async function AdminSystemPage() {
         <MonitorPanel
           ok={invariantViolations.length === 0}
           okTitle="No violations — credited never exceeds measured"
-          okBody="Every approved submission credits hours at or below the volunteer's measured active time. The CF 888 attestation holds."
+          okBody="Every approved submission credits hours at or below the volunteer's measured active time. The work-hours attestation holds."
           failTitle={`${invariantViolations.length} violation${invariantViolations.length === 1 ? "" : "s"} — credited exceeds measured time`}
         >
           <p className="mt-1 text-sm text-body">
