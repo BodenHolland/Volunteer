@@ -6,7 +6,7 @@ import { commitToTask } from "@/app/app/project-actions";
 import { Markdown } from "@/components/markdown";
 import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
-import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
+import { HeadlineTag, SecondaryTag, DeviceTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { parseJson, type ChecklistItem } from "@/lib/types";
@@ -80,6 +80,7 @@ export default async function PublicTaskDetailPage({ params }: { params: Promise
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
                 <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
+                <DeviceTag category={task.category} />
               </div>
 
               <section className="mt-8">

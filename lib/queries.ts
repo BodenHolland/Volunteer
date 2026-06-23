@@ -20,22 +20,31 @@ export interface SubmissionWithTask extends Submission {
   auditId?: string | null;
   /** The audit's own validation status (`draft|submitted|validating|verified|flagged|rejected`). */
   auditStatus?: string | null;
+  /** Present when this committed task is a gov-website audit (parallel `gov_audit_sessions` row). */
+  govAuditId?: string | null;
+  /** The gov-audit session's status (`in_progress|submitted|finalized|flagged`). */
+  govAuditStatus?: string | null;
 }
 
 /**
- * The correct detail route for a committed work item. Food audits live in their
- * own flow (`/app/audits/[id]`); generic tasks use the project hub while active
- * and the read-only submission view once submitted.
+ * The correct detail route for a committed work item. Food audits and
+ * gov-website audits each live in their own flow; generic tasks use the project
+ * hub while active and the read-only submission view once submitted.
  */
 export function workHref(s: SubmissionWithTask): string {
   if (s.auditId) return `/app/audits/${s.auditId}`;
+  if (s.govAuditId) {
+    return s.govAuditStatus === "in_progress"
+      ? `/app/gov-audits/${s.govAuditId}`
+      : `/app/gov-audits/${s.govAuditId}/done`;
+  }
   if (["committed", "in_progress", "needs_changes"].includes(s.status)) return `/app/projects/${s.id}`;
   return `/app/submissions/${s.id}`;
 }
 
 /** Status to display for a work item — the audit's validation status when present. */
 export function workStatus(s: SubmissionWithTask): string {
-  return s.auditStatus ?? s.status;
+  return s.auditStatus ?? s.govAuditStatus ?? s.status;
 }
 
 /** Effective-status values that mean the work is finished and no longer "active". */
@@ -93,16 +102,24 @@ async function hydrate(subs: Submission[]): Promise<SubmissionWithTask[]> {
   const taskById = new Map(tasks.map((t) => [t.id, t]));
   const orgById = new Map(orgs.map((o) => [o.id, o]));
 
-  // Food-audit tasks carry a parallel `audits` row keyed by submission_id; attach
-  // it so callers can route to the audit flow and show the audit's real status.
+  // Food-audit + gov-audit tasks each carry a parallel row keyed by
+  // submission_id; attach it so callers can route to the correct flow and show
+  // the audit's own status (the submissions.status alone is misleading — e.g. a
+  // food-audit's submission stays "committed" while the audit progresses).
   const ids = subs.map((s) => s.id);
   const placeholders = ids.map(() => "?").join(",");
-  const auditRows =
-    (await getDb()
+  const [auditRows, govAuditRows] = await Promise.all([
+    getDb()
       .prepare(`SELECT id, submission_id, validation_status FROM audits WHERE submission_id IN (${placeholders})`)
       .bind(...ids)
-      .all<{ id: string; submission_id: string; validation_status: string }>()).results ?? [];
-  const auditBySub = new Map(auditRows.map((a) => [a.submission_id, a]));
+      .all<{ id: string; submission_id: string; validation_status: string }>(),
+    getDb()
+      .prepare(`SELECT id, submission_id, status FROM gov_audit_sessions WHERE submission_id IN (${placeholders})`)
+      .bind(...ids)
+      .all<{ id: string; submission_id: string; status: string }>(),
+  ]);
+  const auditBySub = new Map((auditRows.results ?? []).map((a) => [a.submission_id, a]));
+  const govAuditBySub = new Map((govAuditRows.results ?? []).map((a) => [a.submission_id, a]));
 
   return subs
     .map((s) => {
@@ -110,7 +127,16 @@ async function hydrate(subs: Submission[]): Promise<SubmissionWithTask[]> {
       const org = task ? orgById.get(task.org_id) : undefined;
       if (!task || !org) return null;
       const audit = auditBySub.get(s.id);
-      return { ...s, task, org, auditId: audit?.id ?? null, auditStatus: audit?.validation_status ?? null };
+      const gov = govAuditBySub.get(s.id);
+      return {
+        ...s,
+        task,
+        org,
+        auditId: audit?.id ?? null,
+        auditStatus: audit?.validation_status ?? null,
+        govAuditId: gov?.id ?? null,
+        govAuditStatus: gov?.status ?? null,
+      };
     })
     .filter(Boolean) as SubmissionWithTask[];
 }
@@ -233,16 +259,27 @@ export async function getRecipientDashboard(userId: string, now: number = Date.n
   // to the recipient, so it counts as active again despite having a submit time.
   const isSubmitted = (s: SubmissionWithTask) =>
     s.submitted_at != null && s.status !== "needs_changes";
-  // A food-audit's submission row stays "committed" while its audit progresses,
-  // so fall back to the audit's own status to decide whether it's still active.
+  // A food-audit's or gov-audit's submission row stays "committed" while its
+  // audit progresses, so fall back to the parallel audit's own status to decide
+  // whether it's still active.
+  const isFinalGovStatus = (st: string | null | undefined) =>
+    st === "finalized" || st === "flagged" || st === "submitted";
   const active = subs.filter((s) => {
     if (isSubmitted(s)) return false;
-    const eff = s.auditStatus ?? s.status;
+    const eff = s.auditStatus ?? s.govAuditStatus ?? s.status;
     if (TERMINAL_WORK_STATUSES.has(eff)) return false;
+    if (s.govAuditId) return s.govAuditStatus === "in_progress";
     return s.auditId ? true : ACTIVE_STATUSES.has(s.status);
   });
   const completed = subs
-    .filter(isSubmitted)
+    .filter((s) => {
+      if (isSubmitted(s)) return true;
+      // gov-audit's submission row may stay "committed" with a non-null
+      // submitted_at on its session; treat any non-in_progress gov session as
+      // completed for dashboard purposes.
+      if (s.govAuditId && isFinalGovStatus(s.govAuditStatus)) return true;
+      return false;
+    })
     .sort((a, b) => (b.submitted_at ?? 0) - (a.submitted_at ?? 0));
   return { certified, pending, active, completed, recent: subs.slice(0, 5), month };
 }

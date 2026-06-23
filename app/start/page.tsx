@@ -1,25 +1,20 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Upload, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getDb, isDemoMode } from "@/lib/cf";
+import { getDb } from "@/lib/cf";
 import { homeForUser, requireUser } from "@/lib/session";
 import { decryptField } from "@/lib/crypto";
 import { parseJson, type Address, type Org } from "@/lib/types";
-import {
-  submitLocation,
-  submitPii,
-  submitBenefitsCal,
-  submitOrgPick,
-} from "./actions";
-import { AddressFields, DobInput, PhoneInput } from "./pii-fields";
+import { submitLocation, submitPii, submitOrgPick } from "./actions";
+import { AddressFields, DobInput, NameFields, PhoneInput } from "./pii-fields";
 
 export const metadata = { title: "Finish setting up — Tended" };
 
-const ROLE_STEPS = ["Location", "Details", "Benefits", "Done"];
+const ROLE_STEPS = ["Location", "Details", "Done"];
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -83,6 +78,11 @@ export default async function StartPage({
     state: "",
     zip: "",
   });
+
+  // Split "First Last" → two fields; last name gets everything after the first space.
+  const firstSpace = (legalName ?? "").indexOf(" ");
+  const firstName = firstSpace === -1 ? (legalName ?? "") : (legalName ?? "").slice(0, firstSpace);
+  const lastName = firstSpace === -1 ? "" : (legalName ?? "").slice(firstSpace + 1);
 
   // ---- LOCATION + INTENT ----
   if (step === "location") {
@@ -153,10 +153,7 @@ export default async function StartPage({
         <h1 className="text-[28px] font-semibold leading-tight text-ink">Your SNAP details</h1>
         <p className="mt-2 text-body">This appears on your work-hours certification exactly as entered.</p>
         <form action={submitPii} className="mt-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="legal_name">Legal name</Label>
-            <Input id="legal_name" name="legal_name" required defaultValue={legalName ?? ""} autoComplete="name" />
-          </div>
+          <NameFields defaultFirst={firstName} defaultLast={lastName} />
           <div className="space-y-1.5">
             <Label htmlFor="phone">Mobile number</Label>
             <PhoneInput defaultValue={phone ?? ""} />
@@ -182,37 +179,6 @@ export default async function StartPage({
           <Button type="submit" className="w-full">
             Continue <ArrowRight />
           </Button>
-        </form>
-      </Shell>
-    );
-  }
-
-  // ---- BENEFITSCAL SCREENSHOT ----
-  if (step === "benefitscal") {
-    return (
-      <Shell>
-        <StepHint index={2} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload a benefits screenshot</h1>
-        <p className="mt-2 text-body">
-          A screenshot of your SNAP benefits account confirms your enrollment. Any image works.
-        </p>
-        <form action={submitBenefitsCal} className="mt-6 space-y-4" encType="multipart/form-data">
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-10 text-center hover:bg-forest-subtle">
-            <Upload className="size-6 text-meta" />
-            <span className="text-sm font-medium text-ink">Choose an image</span>
-            <span className="text-xs text-meta">PNG or JPG</span>
-            <input type="file" name="screenshot" accept="image/*" className="sr-only" />
-          </label>
-          <div className="flex gap-3">
-            <Button type="submit" className="flex-1">
-              Upload and continue <ArrowRight />
-            </Button>
-            {isDemoMode() && (
-              <Button type="submit" variant="secondary" name="screenshot" value="">
-                Skip
-              </Button>
-            )}
-          </div>
         </form>
       </Shell>
     );

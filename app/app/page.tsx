@@ -50,7 +50,7 @@ export default async function DashboardPage() {
             <div className="md:text-right">
               <Button asChild disabled={!canDownload} variant="accent" className="data-[disabled]:opacity-50">
                 {canDownload ? (
-                  <a href={`/api/cf888?month=${data.month}`} target="_blank" rel="noreferrer">
+                  <a href={`/api/work-cert?month=${data.month}`} target="_blank" rel="noreferrer">
                     <Download /> {t.app.dashboard.downloadCf888}
                   </a>
                 ) : (

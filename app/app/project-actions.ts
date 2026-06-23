@@ -20,9 +20,9 @@ export async function commitToTask(formData: FormData) {
   if (!user) redirect("/start");
   const taskId = String(formData.get("task_id") ?? "");
   const task = await getDb()
-    .prepare("SELECT id, category FROM task_templates WHERE id = ?")
+    .prepare("SELECT id, category, deliverable_spec_json, short_description FROM task_templates WHERE id = ?")
     .bind(taskId)
-    .first<{ id: string; category: string }>();
+    .first<{ id: string; category: string; deliverable_spec_json: string; short_description: string }>();
   if (!task) redirect("/app/tasks");
 
   const db = getDb();
@@ -42,6 +42,16 @@ export async function commitToTask(formData: FormData) {
       .bind(user.id, taskId)
       .first<{ id: string }>();
     if (draft) redirect(`/app/audits/${draft.id}`);
+  } else if (task.category === "gov-audit") {
+    const draft = await db
+      .prepare(
+        `SELECT id FROM gov_audit_sessions
+         WHERE user_id = ? AND task_template_id = ? AND status = 'in_progress'
+         ORDER BY started_at DESC LIMIT 1`
+      )
+      .bind(user.id, taskId)
+      .first<{ id: string }>();
+    if (draft) redirect(`/app/gov-audits/${draft.id}`);
   } else {
     const draft = await db
       .prepare(
@@ -74,6 +84,31 @@ export async function commitToTask(formData: FormData) {
       .bind(auditId, id, user.id, BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION, now)
       .run();
     redirect(`/app/audits/${auditId}`);
+  }
+
+  if (task.category === "gov-audit") {
+    const { classifyDevice } = await import("@/lib/gov-audit");
+    const { parseJson } = await import("@/lib/types");
+    const { headers } = await import("next/headers");
+    const ua = (await headers()).get("user-agent");
+    const spec = parseJson<{ target_descriptor?: string }>(task.deliverable_spec_json, {});
+    const generic = spec.target_descriptor ?? task.short_description;
+    // If we know the user's city, point the task at their city specifically —
+    // local government, nonprofit, and public-service sites are the audit
+    // surface most likely to be neglected and most useful to publish on.
+    const target = user.city
+      ? `Audit ${user.city}'s government, nonprofit, or public-service websites`
+      : generic;
+    const sessionId = newId("gaudit");
+    await db
+      .prepare(
+        `INSERT INTO gov_audit_sessions
+         (id, user_id, submission_id, task_template_id, device, public_session_ref, status, started_at, target_descriptor)
+         VALUES (?,?,?,?,?,?, 'in_progress', ?, ?)`
+      )
+      .bind(sessionId, user.id, id, taskId, classifyDevice(ua), crypto.randomUUID(), now, target)
+      .run();
+    redirect(`/app/gov-audits/${sessionId}`);
   }
   redirect(`/app/projects/${id}`);
 }

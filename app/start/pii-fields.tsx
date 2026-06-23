@@ -69,6 +69,39 @@ export function DobInput({ defaultValue = "" }: { defaultValue?: string }) {
   );
 }
 
+export function NameFields({
+  defaultFirst = "",
+  defaultLast = "",
+}: {
+  defaultFirst?: string;
+  defaultLast?: string;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-1.5">
+        <Label htmlFor="first_name">First name</Label>
+        <Input
+          id="first_name"
+          name="first_name"
+          required
+          defaultValue={defaultFirst}
+          autoComplete="given-name"
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="last_name">Last name</Label>
+        <Input
+          id="last_name"
+          name="last_name"
+          required
+          defaultValue={defaultLast}
+          autoComplete="family-name"
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
  * Street address with autocomplete suggestions powered by OpenStreetMap
  * Nominatim (free, US-scoped). The user types in `line1`; after 350ms of idle

@@ -4,6 +4,15 @@ import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { TaskFilters } from "@/components/task-filters";
 import { EmptyState } from "@/components/empty-state";
 import { getDict } from "@/lib/i18n";
+import { getCurrentUser } from "@/lib/session";
+
+/** Show "Audit a {city} ..." on the catalog card once we know the volunteer's
+ *  city — keeps the broad framing but lands the prompt close to home. */
+function personalizeTitle(title: string, category: string, city: string | null | undefined): string {
+  if (!city) return title;
+  if (category === "gov-audit") return `Audit a ${city} government, nonprofit, or public-service website`;
+  return title;
+}
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Tasks — Tended" };
@@ -16,6 +25,8 @@ export default async function TasksPage({
   const sp = await searchParams;
   const { t: tr } = await getDict();
   const all = await listActiveTasks();
+  const me = await getCurrentUser();
+  const city = me?.city ?? null;
 
   const counts = { location: {} as Record<string, number>, category: {} as Record<string, number> };
   for (const t of all) {
@@ -37,7 +48,7 @@ export default async function TasksPage({
   const cards: ListingCardData[] = filtered.map((t, i) => ({
     id: t.id,
     href: `/app/tasks/${t.id}`,
-    title: t.title,
+    title: personalizeTitle(t.title, t.category, city),
     orgName: t.org.name,
     orgSlug: t.org.slug,
     category: t.category,

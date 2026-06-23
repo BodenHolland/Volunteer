@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import exifr from "exifr";
-import { ImagePlus, MapPin, X } from "lucide-react";
+import { AlertCircle, ImagePlus, MapPin, X } from "lucide-react";
 
 interface Pic {
   name: string;
@@ -16,10 +16,12 @@ export function PhotoUpload({
   name = "photos",
   min = 1,
   copy,
+  error,
 }: {
   name?: string;
   min?: number;
   copy?: { add: string; atLeast: string; noGeotag: string; addAtLeast: string };
+  error?: string;
 }) {
   const c = copy ?? {
     add: "Add photos",
@@ -58,8 +60,14 @@ export function PhotoUpload({
 
   return (
     <div>
+      {error && (
+        <div className="mb-2 flex items-start gap-2 rounded-md border border-brick/40 bg-brick-subtle px-3 py-2 text-sm text-brick">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <span>{error}</span>
+        </div>
+      )}
       <input type="hidden" name="photo_meta" value={meta} />
-      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-section py-8 text-center hover:bg-forest-subtle focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+      <label className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-8 text-center focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest ${error ? "border-brick bg-brick-subtle hover:bg-brick-subtle/70" : "border-line bg-section hover:bg-forest-subtle"}`}>
         <ImagePlus className="size-6 text-meta" aria-hidden="true" />
         <span className="text-sm font-medium text-ink">{c.add}</span>
         <span className="text-xs text-meta">{c.atLeast.replace("{n}", String(min))}</span>

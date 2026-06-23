@@ -150,8 +150,8 @@ export function routeStatus(
   flags: FraudFlag[]
 ): "pending_review" | "rejected" | "needs_changes" {
   if (flags.some((f) => f.severity === "block")) return "needs_changes";
-  if (verdict.verdict === "reject") return "rejected";
-  // approve + high confidence + no flags → pending_review (human still confirms)
-  // any flag/warn → pending_review with flags visible
+  // AI reject → needs_changes so the user sees field-level feedback and can fix + resubmit.
+  // "rejected" (terminal) is reserved for human reviewers after deliberate review.
+  if (verdict.verdict === "reject") return "needs_changes";
   return "pending_review";
 }

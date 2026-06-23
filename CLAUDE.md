@@ -10,6 +10,24 @@ uploaded by the user to BenefitsCal.
 certification is one supported path, not the framing. This broadens the
 audience, reduces stigma, and sets up expansion.
 
+**Data principle (architectural, not aspirational):** every dataset generated
+by volunteer work ships with a free public download. This is what makes the
+work qualify as community service — the output has to be a public good, not
+a Tended-internal asset. Concretely, when you design a new feature that
+captures user behavior:
+
+- Split the schema into a **private cluster** (PII, auth, certification
+  source-of-truth) and a **public cluster** (the work product) with a single
+  opaque per-session reference as the only cross-boundary key.
+- The public cluster must physically exclude PII columns so the export is
+  safe by construction, not by a filter step that can be forgotten.
+- Every such feature owns a free public CSV+JSON export endpoint built only
+  from its public cluster.
+- Erasure deletes the private row and orphans (does not delete) the public
+  rows — the work product stays, the link to a person is gone.
+
+If a feature can't ship its dataset publicly, it doesn't ship.
+
 This is an **unlisted pilot demo** on Cloudflare. No real auth, no real
 recipients, no real state submissions.
 

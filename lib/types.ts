@@ -10,7 +10,8 @@ export type TaskCategory =
   | "civic-input"
   | "neighborhood-writing"
   | "seminar"
-  | "food-audit";
+  | "food-audit"
+  | "gov-audit";
 
 export type SubmissionStatus =
   | "committed"
@@ -53,6 +54,12 @@ export interface DeliverableSpec {
   require_postwork?: boolean;
   require_video?: boolean;
   basket_template_id?: string;
+  /** gov-audit: plain-language description of the page the volunteer must find
+   *  and audit (e.g. "the page where residents apply for SNAP"). */
+  target_descriptor?: string;
+  /** gov-audit: optional canonical URL hint for the assigned target. The
+   *  volunteer still navigates freely to reach it; this only seeds the embed. */
+  target_url?: string;
 }
 
 export interface TimeLogSession {

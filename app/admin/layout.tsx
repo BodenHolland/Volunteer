@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: "/admin/tasks", label: "Tasks" },
   { href: "/admin/submissions", label: "Submissions" },
   { href: "/admin/audits", label: "Food audits" },
+  { href: "/admin/gov-audits", label: "Website audits" },
   { href: "/admin/audit", label: "Audit log" },
   { href: "/admin/system", label: "System" },
   { href: "/admin/feedback", label: "Feedback" },

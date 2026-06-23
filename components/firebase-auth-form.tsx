@@ -19,7 +19,8 @@ import { getFirebaseAuth } from "@/lib/firebase-client";
 export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [googleError, setGoogleError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -44,12 +45,13 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setFormError(null);
+    setGoogleError(null);
     setInfo(null);
     setBusy(true);
     const auth = getFirebaseAuth();
     if (!auth) {
-      setError("Sign-in is not configured.");
+      setFormError("Sign-in is not configured.");
       setBusy(false);
       return;
     }
@@ -66,38 +68,45 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
       }
       await exchange();
     } catch (err) {
-      setError(friendly(err));
+      console.error("[auth] email/password sign-in failed", err);
+      setFormError(friendly(err));
       setBusy(false);
     }
   }
 
   async function onGoogle() {
-    setError(null);
+    setFormError(null);
+    setGoogleError(null);
     setBusy(true);
     const auth = getFirebaseAuth();
-    if (!auth) return;
+    if (!auth) {
+      setGoogleError("Sign-in is not configured.");
+      setBusy(false);
+      return;
+    }
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
       await exchange();
     } catch (err) {
-      setError(friendly(err));
+      console.error("[auth] Google sign-in failed", err);
+      setGoogleError(friendly(err));
       setBusy(false);
     }
   }
 
   async function onReset() {
-    setError(null);
+    setFormError(null);
     setInfo(null);
     const auth = getFirebaseAuth();
     if (!auth || !email) {
-      setError("Enter your email first.");
+      setFormError("Enter your email first.");
       return;
     }
     try {
       await sendPasswordResetEmail(auth, email);
       setInfo("Password reset email sent. Check your inbox.");
     } catch (err) {
-      setError(friendly(err));
+      setFormError(friendly(err));
     }
   }
 
@@ -118,7 +127,7 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
           </div>
           <Input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 6 : undefined} value={password} onChange={(e) => setPassword(e.target.value)} leadingIcon={<Lock />} />
         </div>
-        {error && <p className="text-sm text-brick" role="alert">{error}</p>}
+        {formError && <p className="text-sm text-brick" role="alert">{formError}</p>}
         <Button type="submit" className="w-full" disabled={busy}>
           {busy ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
         </Button>
@@ -129,6 +138,7 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
       <Button type="button" variant="secondary" className="w-full" onClick={onGoogle} disabled={busy}>
         Continue with Google
       </Button>
+      {googleError && <p className="text-sm text-brick" role="alert">{googleError}</p>}
     </div>
   );
 }
@@ -140,6 +150,15 @@ function friendly(err: unknown): string {
   if (code.includes("email-already-in-use")) return "An account with that email already exists.";
   if (code.includes("weak-password")) return "Choose a stronger password (at least 6 characters).";
   if (code.includes("too-many-requests")) return "Too many attempts. Try again in a few minutes.";
-  if (code.includes("popup-closed")) return "Sign-in was cancelled.";
+  if (code.includes("popup-closed") || code.includes("cancelled-popup-request") || code.includes("user-cancelled"))
+    return "Sign-in was cancelled.";
+  if (code.includes("popup-blocked")) return "Your browser blocked the sign-in popup. Allow popups for this site and try again.";
+  if (code.includes("unauthorized-domain"))
+    return "This site isn't authorized for Google sign-in yet. (Add the domain in Firebase → Auth → Settings.)";
+  if (code.includes("account-exists-with-different-credential"))
+    return "An account with that email already exists with a different sign-in method.";
+  if (code.includes("network-request-failed")) return "Network error. Check your connection and try again.";
+  if (code.includes("operation-not-allowed"))
+    return "This sign-in method isn't enabled. (Enable Google in Firebase → Auth → Sign-in method.)";
   return "Something went wrong. Please try again.";
 }

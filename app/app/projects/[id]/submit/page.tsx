@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { AlertCircle, ArrowLeft, AlertTriangle } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getSubmission } from "@/lib/queries";
 import { submitWork } from "@/app/app/projects/[id]/submit-actions";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { parseJson, totalLoggedHours, type DeliverableSpec, type TimeLogSession } from "@/lib/types";
 import { formatHours } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
+import type { AiVerdict } from "@/lib/ai";
 
 const COPY = {
   en: {
@@ -105,6 +106,14 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
   const locale = await getLocale();
   const c = COPY[locale];
 
+  const aiVerdict = sub.status === "needs_changes" && sub.ai_verdict_json
+    ? parseJson<AiVerdict>(sub.ai_verdict_json, null as never) as AiVerdict | null
+    : null;
+  const photoError = aiVerdict?.field_issues?.find((fi) => fi.field === "photos")?.message;
+  const notesError = aiVerdict?.field_issues?.find((fi) => fi.field === "notes")?.message;
+  const overallError = aiVerdict?.field_issues?.find((fi) => fi.field === "overall")?.message
+    ?? (aiVerdict && aiVerdict.verdict !== "approve" && !photoError && !notesError ? aiVerdict.reasoning : undefined);
+
   return (
     <div className="mx-auto max-w-[720px]">
       <Link href={`/app/projects/${id}`} className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
@@ -113,6 +122,24 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
       <h1 className="text-[28px] font-semibold text-ink">{c.submitYourWork}</h1>
       <p className="mt-1 text-body">{sub.task.title} · {sub.org.name}</p>
+
+      {aiVerdict && (
+        <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4 text-brick" aria-hidden="true" />
+            <p className="text-sm font-semibold text-brick">Your submission needs a few fixes</p>
+          </div>
+          <p className="mt-1 text-sm text-ink">{aiVerdict.reasoning}</p>
+          {aiVerdict.issues.length > 0 && (
+            <ul className="mt-2 ml-4 list-disc text-sm text-body">
+              {aiVerdict.issues.map((issue, i) => <li key={i}>{issue}</li>)}
+            </ul>
+          )}
+          {overallError && !aiVerdict.issues.length && (
+            <p className="mt-1 text-sm text-body">{overallError}</p>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 flex items-center gap-4 rounded-lg border border-line bg-section p-4 text-sm">
         <span className="text-body">{c.estimated} <strong className="text-ink">{formatHours(sub.task.est_hours)}h</strong></span>
@@ -131,10 +158,11 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
         {(cat === "data-collection") && (
           <div className="space-y-2">
             <Label>{c.photos} {c.atLeast(spec.min_photos)}</Label>
-            <PhotoUpload min={spec.min_photos ?? 1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} />
+            <PhotoUpload min={spec.min_photos ?? 1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} error={photoError} />
             <div className="space-y-1.5 pt-2">
-              <Label htmlFor="content">{c.notes}</Label>
-              <Textarea id="content" name="content" defaultValue={sub.user_notes ?? ""} placeholder={c.dataNotesPlaceholder} />
+              <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{c.notes}</Label>
+              <Textarea id="content" name="content" defaultValue={sub.user_notes ?? ""} placeholder={c.dataNotesPlaceholder} className={notesError ? "border-brick focus-visible:ring-brick" : undefined} />
+              {notesError && <p className="flex items-center gap-1.5 text-sm text-brick"><AlertCircle className="size-4 shrink-0" />{notesError}</p>}
             </div>
           </div>
         )}
@@ -146,8 +174,9 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
               <p>{c.sourceText}</p>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="content">{c.yourSpanish}</Label>
-              <Textarea id="content" name="content" className="min-h-[180px]" defaultValue={sub.user_notes ?? ""} placeholder={c.spanishPlaceholder} />
+              <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{c.yourSpanish}</Label>
+              <Textarea id="content" name="content" className={`min-h-[180px]${notesError ? " border-brick focus-visible:ring-brick" : ""}`} defaultValue={sub.user_notes ?? ""} placeholder={c.spanishPlaceholder} />
+              {notesError && <p className="flex items-center gap-1.5 text-sm text-brick"><AlertCircle className="size-4 shrink-0" />{notesError}</p>}
             </div>
           </div>
         )}
@@ -155,12 +184,13 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
         {cat === "neighborhood-writing" && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="content">{c.yourWriteup} {c.atLeastWords(spec.min_words)}</Label>
-              <Textarea id="content" name="content" className="min-h-[200px]" defaultValue={sub.user_notes ?? ""} placeholder={c.writeupPlaceholder} />
+              <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{c.yourWriteup} {c.atLeastWords(spec.min_words)}</Label>
+              <Textarea id="content" name="content" className={`min-h-[200px]${notesError ? " border-brick focus-visible:ring-brick" : ""}`} defaultValue={sub.user_notes ?? ""} placeholder={c.writeupPlaceholder} />
+              {notesError && <p className="flex items-center gap-1.5 text-sm text-brick"><AlertCircle className="size-4 shrink-0" />{notesError}</p>}
             </div>
             <div className="space-y-2">
               <Label>{c.photo}</Label>
-              <PhotoUpload min={spec.min_photos ?? 1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} />
+              <PhotoUpload min={spec.min_photos ?? 1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} error={photoError} />
             </div>
           </div>
         )}
@@ -176,8 +206,9 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
               </div>
             ))}
             <div className="space-y-1.5">
-              <Label htmlFor="content">{c.yourRanking}</Label>
-              <Textarea id="content" name="content" className="min-h-[140px]" defaultValue={sub.user_notes ?? ""} placeholder={c.rankingPlaceholder} />
+              <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{c.yourRanking}</Label>
+              <Textarea id="content" name="content" className={`min-h-[140px]${notesError ? " border-brick focus-visible:ring-brick" : ""}`} defaultValue={sub.user_notes ?? ""} placeholder={c.rankingPlaceholder} />
+              {notesError && <p className="flex items-center gap-1.5 text-sm text-brick"><AlertCircle className="size-4 shrink-0" />{notesError}</p>}
             </div>
           </div>
         )}
@@ -189,11 +220,12 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
             </label>
             <div className="space-y-2">
               <Label>{c.completedWorkbook}</Label>
-              <PhotoUpload min={1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} />
+              <PhotoUpload min={1} copy={{ add: c.addPhotos, atLeast: c.atLeastN, noGeotag: c.noGeotag, addAtLeast: c.addAtLeast }} error={photoError} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="content">{c.postSeminar}</Label>
-              <Textarea id="content" name="content" className="min-h-[140px]" defaultValue={sub.user_notes ?? ""} placeholder={c.seminarPlaceholder} />
+              <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{c.postSeminar}</Label>
+              <Textarea id="content" name="content" className={`min-h-[140px]${notesError ? " border-brick focus-visible:ring-brick" : ""}`} defaultValue={sub.user_notes ?? ""} placeholder={c.seminarPlaceholder} />
+              {notesError && <p className="flex items-center gap-1.5 text-sm text-brick"><AlertCircle className="size-4 shrink-0" />{notesError}</p>}
             </div>
           </div>
         )}

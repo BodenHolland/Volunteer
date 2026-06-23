@@ -29,6 +29,12 @@
       "bucket_name": "tended-files"
     }
   ],
+  // Browser Rendering — server-side headless auto-check for the gov-audit
+  // feature (lib/gov-audit-browser.ts). Absent in local dev / opennextjs, where
+  // the module degrades to a plain-fetch fallback.
+  "browser": {
+    "binding": "BROWSER"
+  },
   "vars": {
     "OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free",
     "OPENROUTER_SITE_URL": "https://tended.xkbtrjm2bm.workers.dev",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookmarkButton } from "@/components/bookmark-button";
-import { LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
+import { LOCATION_LABEL, CATEGORY_LABEL, deviceTagFor } from "@/components/ui/tag";
 import { relativeTime } from "@/lib/time";
 import type { LocationKind, TaskCategory } from "@/lib/types";
 
@@ -35,6 +35,15 @@ export function ListingCard({ task, showBookmark = false }: { task: ListingCardD
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-meta">
               <span>{LOCATION_LABEL[task.location]}</span>
               <span>{CATEGORY_LABEL[task.category]}</span>
+              {(() => {
+                const d = deviceTagFor(task.category);
+                return d ? (
+                  <span className="inline-flex items-center gap-1">
+                    {d.icon}
+                    {d.label}
+                  </span>
+                ) : null;
+              })()}
               {task.featured && <span className="font-medium text-amber">Featured</span>}
             </div>
           </div>

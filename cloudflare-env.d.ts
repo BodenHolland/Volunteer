@@ -21,4 +21,8 @@ interface CloudflareEnv {
 	DB: D1Database;
 	WORKER_SELF_REFERENCE: Fetcher;
 	ASSETS: Fetcher;
+	// Browser Rendering binding (wrangler.jsonc "browser"). Present only in the
+	// Workers runtime; lib/gov-audit-browser.ts reads it optionally and falls
+	// back to fetch when absent (local dev / opennextjs).
+	BROWSER?: BrowserRun;
 }

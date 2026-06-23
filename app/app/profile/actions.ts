@@ -30,13 +30,17 @@ export async function updateProfile(formData: FormData) {
     // Phone stored as digits only — see submitPii for the rationale.
     const phoneDigits = String(formData.get("phone") ?? "").replace(/\D/g, "").slice(0, 10);
 
+    const firstName = s("first_name");
+    const lastName = s("last_name");
+    const legalName = [firstName, lastName].filter(Boolean).join(" ");
+
     const db = getDb();
     await db
       .prepare(
         `UPDATE users SET legal_name = ?, case_number = ?, dob = ?, phone = ?, address_json = ? WHERE id = ?`
       )
       .bind(
-        await encryptField(s("legal_name") || null),
+        await encryptField(legalName || null),
         await encryptField(s("case_number") || null),
         await encryptField(s("dob") || null),
         await encryptField(phoneDigits || null),

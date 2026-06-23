@@ -22,7 +22,9 @@ const COPY = {
     certifiedPre: "Certified —",
     certifiedPost: "hours credited toward this month.",
     reviewerAsked: "The reviewer asked for changes",
+    aiAsked: "Your submission needs a few fixes",
     tryAgain: "Try again",
+    fixAndResubmit: "Fix and resubmit",
     whatYouSubmitted: "What you submitted",
     integrityChecks: "Integrity checks",
   },
@@ -31,7 +33,9 @@ const COPY = {
     certifiedPre: "Certificado —",
     certifiedPost: "horas acreditadas para este mes.",
     reviewerAsked: "El revisor pidió cambios",
+    aiAsked: "Tu envío necesita algunos ajustes",
     tryAgain: "Inténtalo de nuevo",
+    fixAndResubmit: "Corregir y reenviar",
     whatYouSubmitted: "Lo que enviaste",
     integrityChecks: "Verificaciones de integridad",
   },
@@ -46,6 +50,16 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
   const sub = await getSubmission(id);
   if (!sub) notFound();
   if (sub.user_id !== user.id) redirect("/unauthorized");
+
+  // Audit-typed tasks have their own detail/done routes — bounce stale links.
+  if (sub.auditId) redirect(`/app/audits/${sub.auditId}`);
+  if (sub.govAuditId) {
+    redirect(
+      sub.govAuditStatus === "in_progress"
+        ? `/app/gov-audits/${sub.govAuditId}`
+        : `/app/gov-audits/${sub.govAuditId}/done`
+    );
+  }
 
   const [files, flags] = await Promise.all([getSubmissionFiles(id), getSubmissionFlags(id)]);
   const verdict = sub.ai_verdict_json ? (parseJson<AiVerdict>(sub.ai_verdict_json, null as never) as AiVerdict) : null;
@@ -88,7 +102,21 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
             <p className="text-sm font-medium text-brick">{c.reviewerAsked}</p>
             <p className="mt-1 text-sm text-ink">{sub.reviewer_notes}</p>
             <Button asChild variant="secondary" className="mt-3">
-              <Link href={`/app/projects/${sub.id}`}><RotateCcw /> {c.tryAgain}</Link>
+              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {c.tryAgain}</Link>
+            </Button>
+          </div>
+        )}
+        {failed && !sub.reviewer_notes && verdict && (
+          <div className="rounded-lg border border-brick/30 bg-brick-subtle p-4">
+            <p className="text-sm font-medium text-brick">{c.aiAsked}</p>
+            <p className="mt-1 text-sm text-ink">{verdict.reasoning}</p>
+            {verdict.issues.length > 0 && (
+              <ul className="mt-2 ml-4 list-disc text-sm text-body">
+                {verdict.issues.map((issue, i) => <li key={i}>{issue}</li>)}
+              </ul>
+            )}
+            <Button asChild variant="secondary" className="mt-3">
+              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {c.fixAndResubmit}</Link>
             </Button>
           </div>
         )}

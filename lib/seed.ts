@@ -27,6 +27,7 @@ export interface Persona {
 export const ORG_SFCDC = "org_sfcdc";
 export const ORG_FUF = "org_fuf";
 export const ORG_FOOD = "org_food_access";
+export const ORG_GOV = "org_gov_digital";
 
 export const USER_MARISOL = "user_marisol";
 export const USER_TREVOR = "user_trevor";
@@ -43,6 +44,7 @@ export const TASK_SPACE = "task_space";
 export const TASK_INPUT = "task_input";
 export const TASK_SEMINAR = "task_seminar";
 export const TASK_FOOD_AUDIT = "task_food_audit";
+export const TASK_GOV_AUDIT = "task_gov_audit";
 
 export const PERSONAS: Persona[] = [
   { user_id: USER_MARISOL, label: "Marisol Reyes", sublabel: "Recipient · certifies SNAP hours", role: "recipient" },
@@ -247,6 +249,31 @@ const TASKS: SeedTask[] = [
     max: 0.25,
     location: "in_person",
   },
+  {
+    id: TASK_GOV_AUDIT,
+    org_id: ORG_GOV,
+    title: "Audit a government, nonprofit, or public website",
+    category: "gov-audit",
+    short_description:
+      "From your computer, pick any government, nonprofit, or public-service website — your city's, your state's, a public library, a community clinic — and run a short, guided usability and accessibility audit inside the browser. No prior training needed; each check has a one-line instruction. Your findings publish to a free public dataset.",
+    instructions_md:
+      "## What you'll do\nThis is a **desktop task** — accessibility checks like keyboard navigation and 200% zoom need a real keyboard and screen.\n\n1. **Pick any page worth auditing** — your city or county site, a state agency, a public library or transit agency, a 501(c)(3) nonprofit, a community clinic, or any other public-facing site that residents in your area rely on.\n2. Browse to it inside the embedded browser, then **lock it as your anchor**. You can explore the whole site freely; the page you're rating stays pinned and one click away.\n3. Answer a short **site-level** check once, then a **page-level** rubric for the anchor: a few pass/fail accessibility items (each with a one-line how-to), four 1–5 ratings, and (optionally) three short questions — what you were trying to do, what got in the way, and one concrete fix.\n4. Submit. The server runs automated accessibility checks (axe-core) on the same page to corroborate your findings.\n5. When you're done, you can **audit another URL** — each audit adds another row of public usability data.\n\n## What you get out of it\nYour audit joins a **free public dataset** of website usability findings — actionable feedback for the people who run these pages, and a public good. Your time is credited toward your SNAP work-requirement hours once the audit is reviewed.",
+    checklist: [
+      { id: "find", label: "Pick a page worth auditing and lock it as your anchor", required: true },
+      { id: "site", label: "Answer the site-level checks once", required: true },
+      { id: "page", label: "Complete the page-level rubric (observables + 1–5 ratings)", required: true },
+    ],
+    spec: {
+      kind: "gov-audit",
+      target_descriptor: "any government, nonprofit, or public-service website worth auditing",
+      target_url: "",
+    },
+    rubric:
+      "A complete audit locks a chosen page as the anchor, answers every observable accessibility sub-check (alt text, keyboard nav, contrast, 200% zoom) plus task-completion and maintained, and gives all four 1–5 ratings. Free-text answers are optional. Corroborate the self-reported accessibility rating against the server-side axe-core result: a 'pass' rating against many automated violations lowers integrity and flags for review. Reject straight-lined batteries (identical ratings with empty/garbage text), sessions on non-desktop devices, and any anchor that points to a site outside the gov / nonprofit / public-service scope (e.g. social media profiles, blogs, e-commerce pages).",
+    est: 0.25,
+    max: 0.33,
+    location: "online",
+  },
 ];
 
 function addr(o: { line1: string; line2?: string; city: string; state: string; zip: string }) {
@@ -261,6 +288,10 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   // ---- wipe (children before parents; remote D1 enforces foreign keys) ----
   const wipeTables = [
     "open_prices_contributions",
+    "gov_audit_auto_checks",
+    "gov_audit_page_evaluations",
+    "gov_audit_site_evaluations",
+    "gov_audit_sessions",
     "audit_validation_flags",
     "audit_photos",
     "audit_item_captures",
@@ -345,6 +376,23 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       "active",
       1,
       now - 60 * DAY
+    )
+  );
+  stmts.push(
+    orgIns.bind(
+      ORG_GOV,
+      "tended-digital-access",
+      "Tended Digital Access",
+      "87-9999002",
+      "digital@tended.org",
+      null,
+      "Tended Digital Access publishes an open, volunteer-collected dataset of usability and accessibility audits of government websites. The data is free, public (CC0), and shared back with the public offices that run these pages so residents can actually complete the tasks that benefits depend on.",
+      addr({ line1: "1 Capitol Mall", city: "Sacramento", state: "CA", zip: "95814" }),
+      "Alex Mercado",
+      "Program Director",
+      "active",
+      1,
+      now - 45 * DAY
     )
   );
 
@@ -440,7 +488,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
     // Only the food-audit task is live in the catalog. Older seeded tasks stay
     // archived so their sample submissions / hours rows still reference a valid
     // task_template row but they don't surface in /app/tasks.
-    const status = t.id === TASK_FOOD_AUDIT ? "active" : "archived";
+    const status = t.id === TASK_FOOD_AUDIT || t.id === TASK_GOV_AUDIT ? "active" : "archived";
     stmts.push(
       taskIns.bind(
         t.id, t.org_id, createdBy, t.title, t.category, t.short_description,

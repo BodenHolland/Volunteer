@@ -7,7 +7,7 @@ import { OrgThumb } from "@/components/org-thumb";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
+import { HeadlineTag, SecondaryTag, DeviceTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
 import { formatHours } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
@@ -77,6 +77,7 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
                 <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
+                <DeviceTag category={task.category} />
                 <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} {c.hrs}</SecondaryTag>
               </div>
 

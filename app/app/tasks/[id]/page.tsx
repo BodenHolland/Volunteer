@@ -6,9 +6,10 @@ import { commitToTask } from "@/app/app/project-actions";
 import { Markdown } from "@/components/markdown";
 import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
-import { HeadlineTag, SecondaryTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
+import { HeadlineTag, SecondaryTag, DeviceTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
 import { getLocale } from "@/lib/i18n";
+import { getCurrentUser } from "@/lib/session";
 
 const COPY = {
   en: {
@@ -47,6 +48,11 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
   const checklist = parseJson<ChecklistItem[]>(task.checklist_json, []);
   const locale = await getLocale();
   const c = COPY[locale];
+  const me = await getCurrentUser();
+  const displayTitle =
+    task.category === "gov-audit" && me?.city
+      ? `Audit a ${me.city} government, nonprofit, or public-service website`
+      : task.title;
 
   return (
     <div>
@@ -59,7 +65,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           <div className="flex items-start gap-4">
             <OrgThumb name={task.org.name} slug={task.org.slug} size={72} className="h-[72px] w-[72px]" />
             <div>
-              <h1 className="text-[28px] font-semibold leading-tight text-ink">{task.title}</h1>
+              <h1 className="text-[28px] font-semibold leading-tight text-ink">{displayTitle}</h1>
               <p className="mt-1 text-[15px] font-medium text-ink">{task.org.name}</p>
             </div>
           </div>
@@ -67,6 +73,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
             <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
+            <DeviceTag category={task.category} />
           </div>
 
           <section className="mt-8">

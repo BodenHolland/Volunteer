@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "./actions";
 import { getLocale } from "@/lib/i18n";
-import { AddressFields, DobInput, PhoneInput } from "@/app/start/pii-fields";
+import { AddressFields, DobInput, NameFields, PhoneInput } from "@/app/start/pii-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SNAP profile — Tended" };
@@ -26,7 +26,6 @@ const COPY = {
     appearsExactly: "This appears on your work-hours certification exactly as entered.",
     profileSaved: "Profile saved.",
     identity: "Identity",
-    legalName: "Legal name",
     caseNumber: "SNAP case number",
     dob: "Date of birth",
     phone: "Phone",
@@ -50,7 +49,6 @@ const COPY = {
     appearsExactly: "Esto aparece en tu certificación de horas exactamente como lo ingreses.",
     profileSaved: "Perfil guardado.",
     identity: "Identidad",
-    legalName: "Nombre legal",
     caseNumber: "Número de caso de SNAP",
     dob: "Fecha de nacimiento",
     phone: "Teléfono",
@@ -110,6 +108,9 @@ export default async function ProfilePage({
     decryptField(user.address_json),
   ]);
   const addr = parseJson<Address>(addressJson, { line1: "", city: "", state: "", zip: "" });
+  const firstSpace = (legalName ?? "").indexOf(" ");
+  const firstName = firstSpace === -1 ? (legalName ?? "") : (legalName ?? "").slice(0, firstSpace);
+  const lastName = firstSpace === -1 ? "" : (legalName ?? "").slice(firstSpace + 1);
 
   return (
     <div className="max-w-[900px] space-y-5">
@@ -127,10 +128,7 @@ export default async function ProfilePage({
       <form action={updateProfile} className="space-y-6">
         <section className="service-panel space-y-4 p-5 md:p-6">
           <h2 className="text-base font-semibold text-ink">{c.identity}</h2>
-          <div className="space-y-1.5">
-            <Label htmlFor="legal_name">{c.legalName}</Label>
-            <Input id="legal_name" name="legal_name" defaultValue={legalName ?? ""} autoComplete="name" />
-          </div>
+          <NameFields defaultFirst={firstName} defaultLast={lastName} />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="case_number">{c.caseNumber}</Label>

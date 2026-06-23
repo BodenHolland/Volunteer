@@ -3,6 +3,11 @@
  * Pure module: callers pass credentials so it is testable outside the Worker.
  */
 
+export interface AiFieldIssue {
+  field: "photos" | "notes" | "overall";
+  message: string;
+}
+
 export interface AiVerdict {
   verdict: "approve" | "flag" | "reject";
   confidence: number;
@@ -10,6 +15,7 @@ export interface AiVerdict {
   issues: string[];
   estimated_actual_hours: number;
   suspected_ai_content: boolean;
+  field_issues?: AiFieldIssue[];
 }
 
 /** Routed to pending_review; used when no API key is set. */
@@ -42,7 +48,12 @@ const SYSTEM_PROMPT =
   "Evaluate whether the submission meets the rubric. Return ONLY valid JSON " +
   "matching: { verdict: 'approve'|'flag'|'reject', confidence: number 0-1, " +
   "reasoning: string, issues: string[], estimated_actual_hours: number, " +
-  "suspected_ai_content: boolean }. No prose outside JSON.";
+  "suspected_ai_content: boolean, " +
+  "field_issues: [{field: 'photos'|'notes'|'overall', message: string}] }. " +
+  "field_issues must list every fixable problem tied to a specific field — " +
+  "'photos' for image quality/count/content issues, 'notes' for written-content issues, " +
+  "'overall' for anything else. Be specific and actionable: tell the volunteer exactly what to fix. " +
+  "Omit field_issues entirely (empty array) when verdict is 'approve'. No prose outside JSON.";
 
 const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -64,6 +75,15 @@ function coerceVerdict(raw: unknown): AiVerdict {
     o.verdict === "approve" || o.verdict === "reject" ? o.verdict : "flag";
   const confidence =
     typeof o.confidence === "number" ? Math.max(0, Math.min(1, o.confidence)) : 0;
+  const rawFieldIssues = Array.isArray(o.field_issues) ? o.field_issues : [];
+  const field_issues = rawFieldIssues
+    .filter((fi): fi is { field: string; message: string } =>
+      typeof fi === "object" && fi !== null && typeof fi.message === "string"
+    )
+    .map((fi) => ({
+      field: (["photos", "notes", "overall"].includes(fi.field) ? fi.field : "overall") as AiFieldIssue["field"],
+      message: fi.message,
+    }));
   return {
     verdict,
     confidence,
@@ -72,6 +92,7 @@ function coerceVerdict(raw: unknown): AiVerdict {
     estimated_actual_hours:
       typeof o.estimated_actual_hours === "number" ? o.estimated_actual_hours : 0,
     suspected_ai_content: o.suspected_ai_content === true,
+    field_issues: field_issues.length > 0 ? field_issues : undefined,
   };
 }
 

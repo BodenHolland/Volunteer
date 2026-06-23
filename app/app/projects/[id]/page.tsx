@@ -101,6 +101,18 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
   if (!sub) notFound();
   if (sub.user_id !== user.id) redirect("/unauthorized");
 
+  // Audit-typed tasks each have their own flow — the generic project hub has
+  // no audit UI. Bounce to the right place so a back-button or stale link
+  // doesn't trap the volunteer on a page that can't progress the work.
+  if (sub.auditId) redirect(`/app/audits/${sub.auditId}`);
+  if (sub.govAuditId) {
+    redirect(
+      sub.govAuditStatus === "in_progress"
+        ? `/app/gov-audits/${sub.govAuditId}`
+        : `/app/gov-audits/${sub.govAuditId}/done`
+    );
+  }
+
   const checklist = parseJson<ChecklistItem[]>(sub.task.checklist_json, []);
   const progress = parseJson<ChecklistProgress>(sub.checklist_progress_json, {});
   const sessions = parseJson<TimeLogSession[]>(sub.time_log_json, []);
