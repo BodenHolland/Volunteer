@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     (await db.prepare("SELECT * FROM users WHERE firebase_uid = ? AND deleted_at IS NULL").bind(identity.uid).first<User>()) ?? null;
 
   if (!user && identity.email) {
-    // Adopt an existing account with this email (e.g., a seeded account).
+    // Adopt an existing active account with this email (e.g., a seeded account).
     const byEmail = await db.prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NULL").bind(identity.email).first<User>();
     if (byEmail) {
       await db
@@ -45,6 +45,22 @@ export async function POST(req: Request) {
         .bind(identity.uid, identity.emailVerified ? now : null, byEmail.id)
         .run();
       user = byEmail;
+    }
+  }
+
+  if (!user && identity.email) {
+    // Re-signup after soft-delete: reactivate the deleted row rather than
+    // hitting the UNIQUE constraint on email with a fresh INSERT.
+    const deleted = await db.prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NOT NULL").bind(identity.email).first<User>();
+    if (deleted) {
+      await db
+        .prepare(
+          "UPDATE users SET deleted_at = NULL, firebase_uid = ?, email_verified_at = ?, role = 'recipient', intent = 'n/a', full_name = NULL WHERE id = ?"
+        )
+        .bind(identity.uid, identity.emailVerified ? now : null, deleted.id)
+        .run();
+      user = (await db.prepare("SELECT * FROM users WHERE id = ?").bind(deleted.id).first<User>())!;
+      await writeAudit({ actorUserId: deleted.id, action: "signup", entityType: "user", entityId: deleted.id, detail: { via: "firebase", email: identity.email, reactivated: true } });
     }
   }
 
