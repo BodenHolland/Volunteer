@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -390,7 +391,7 @@ export function GovAuditClient({
           )}
           <div className="flex items-center gap-3">
             <Button type="button" onClick={submit} disabled={!rubricComplete || submitting}>
-              {submitting ? "Submitting…" : "Submit audit"}
+              {submitting ? <><Loader2 className="size-4 animate-spin" /> Submitting…</> : "Submit audit"}
             </Button>
             <form action={cancelGovAuditAction}>
               <input type="hidden" name="session_id" value={sessionId} />
