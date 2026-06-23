@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/cf";
+import { encryptField } from "@/lib/crypto";
 import { getCurrentUser } from "@/lib/session";
 import { destroyAllUserSessions } from "@/lib/auth";
 import { writeAudit } from "@/lib/audit";
@@ -20,10 +21,18 @@ async function requireRecipientUser() {
 export async function updateAccount(formData: FormData) {
   const user = await requireRecipientUser();
   const email = String(formData.get("email") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").replace(/\D/g, "").slice(0, 10);
+  const city = String(formData.get("city") ?? "").trim();
+  const state = String(formData.get("state") ?? "").trim().toUpperCase().slice(0, 2);
   await getDb()
-    .prepare("UPDATE users SET email = ?, phone = ? WHERE id = ?")
-    .bind(email || user.email, phone || null, user.id)
+    .prepare("UPDATE users SET email = ?, phone = ?, city = ?, state = ? WHERE id = ?")
+    .bind(
+      email || user.email,
+      await encryptField(phone || null),
+      city || user.city,
+      state || user.state,
+      user.id
+    )
     .run();
   redirect("/app/settings?saved=account");
 }

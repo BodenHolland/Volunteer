@@ -23,8 +23,8 @@ import {
   setAnchorAction,
   submitGovAuditAction,
 } from "./gov-audit-actions";
-import { EmbedBrowser } from "./gov-embed";
 import { GovAuditChooser } from "./gov-audit-chooser";
+import { AuditPanel } from "./gov-audit-panel";
 import { pickLocalSite } from "@/lib/gov-sites";
 
 const SITE_PPF = ["pass", "partial", "fail", "cant_tell"] as const;
@@ -57,46 +57,40 @@ export function GovAuditClient({
   const anchorId = anchorIds[0] ?? null; // v1: single assigned target
   const anchor = anchorId ? draft.anchors?.[anchorId] ?? null : null;
 
-  // Live embed reports the page it's currently showing; used to lock the anchor.
-  const [embedView, setEmbedView] = useState<{ url: string; title: string | null }>({
-    url: anchor?.url ?? targetUrlHint ?? "",
-    title: anchor?.page_title ?? null,
-  });
-  // Bump nonce to drive the embed to a URL (Return to anchor).
-  const [navTo, setNavTo] = useState<{ url: string; nonce: number } | undefined>(undefined);
+  // The URL the volunteer is currently auditing. They drive the real page in a
+  // new tab (no in-app browser); we just hold the URL, fetch a server-side
+  // snapshot for visual reference, and let them lock it as their anchor.
+  const [auditUrl, setAuditUrl] = useState<string>(anchor?.url ?? "");
+  const [auditTitle, setAuditTitle] = useState<string | null>(anchor?.page_title ?? null);
   const [, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [locking, setLocking] = useState(false);
 
-  // When no anchor yet: show the chooser FIRST and don't auto-launch the embed
-  // at a placeholder URL. The volunteer's first pick from the chooser starts
-  // the live browser. Once an anchor exists, the embed always boots at it.
+  // Show the chooser first; once a URL is picked (or an anchor already exists),
+  // the audit panel takes over.
   const [pickedUrl, setPickedUrl] = useState<string | null>(anchor?.url ?? null);
-  const initialUrl =
-    anchor?.url ||
-    pickedUrl ||
-    targetUrlHint ||
-    pickLocalSite(viewerCity, viewerState).url;
 
   function pickSiteToAudit(url: string) {
     setPickedUrl(url);
-    setEmbedView({ url, title: null });
-    setNavTo({ url, nonce: Date.now() });
+    setAuditUrl(url);
+    setAuditTitle(null);
   }
 
   const isDesktop = device === "desktop";
 
-  // ---- per-anchor active-time tracking (20-min soft certification cap) ----
+  // ---- per-anchor time tracking (20-min soft certification cap) ----
+  // The clock runs regardless of whether our tab is focused — auditing requires
+  // looking at the live page in another tab, so penalizing tab-switches would
+  // be hostile and dishonest. The 20-min cap + integrity score (rubric
+  // completeness × axe-core corroboration) are the floor on integrity.
   const [elapsed, setElapsed] = useState(anchor?.time_on_anchor_sec ?? 0);
   const accumulatedRef = useRef(0); // unsaved seconds since last flush
   useEffect(() => {
     if (!anchorId) return;
     const t = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        setElapsed((e) => e + 1);
-        accumulatedRef.current += 1;
-      }
+      setElapsed((e) => e + 1);
+      accumulatedRef.current += 1;
     }, 1000);
     return () => clearInterval(t);
   }, [anchorId]);
@@ -122,23 +116,23 @@ export function GovAuditClient({
     });
   }
 
-  // ---- anchor lock (uses the page the live embed is currently showing) ----
+  // ---- anchor lock (uses the URL the volunteer entered / picked) ----
   const [lockError, setLockError] = useState<string | null>(null);
   async function lockAnchor() {
-    const url = embedView.url;
+    const url = auditUrl.trim();
     if (!url) return;
     setLocking(true);
     setLockError(null);
     const fd = new FormData();
     fd.set("session_id", sessionId);
     fd.set("url", url);
-    if (embedView.title) fd.set("page_title", embedView.title);
+    if (auditTitle) fd.set("page_title", auditTitle);
     const res = await setAnchorAction(fd);
     setLocking(false);
     if (res.ok && res.anchorId) {
       const newAnchor: AnchorDraft = {
         url: stripForDisplay(url),
-        page_title: embedView.title ?? undefined,
+        page_title: auditTitle ?? undefined,
         anchor_set_at: Date.now(),
         time_on_anchor_sec: 0,
         nav_trail: [],
@@ -151,10 +145,6 @@ export function GovAuditClient({
     } else if (res.error) {
       setLockError(res.error);
     }
-  }
-
-  function returnToAnchor() {
-    if (anchor) setNavTo({ url: anchor.url, nonce: Date.now() });
   }
 
   // ---- rubric autosave ----
@@ -211,8 +201,9 @@ export function GovAuditClient({
         <h1 className="text-[28px] font-semibold leading-tight text-ink">{targetDescriptor}</h1>
         <p className="text-body">
           Pick any government, nonprofit, or public-service page worth auditing — your city site, a state agency, a
-          public library, a community clinic. Browse to it inside the embedded browser, lock it as your anchor, and run
-          the short audit. You can explore the whole site freely; the page you&apos;re rating stays pinned.
+          public library, a community clinic. Open the page in a new tab and explore it in your real browser
+          (you&apos;ll need native Tab and zoom for the accessibility checks), then come back here and answer the short
+          rubric. Your timer keeps running while you switch between tabs.
         </p>
       </header>
 
@@ -237,8 +228,10 @@ export function GovAuditClient({
               <span className={`text-sm tabular-nums ${overCap ? "text-terracotta" : "text-body"}`}>
                 {fmt(elapsed)}
               </span>
-              <Button type="button" size="sm" variant="secondary" onClick={returnToAnchor}>
-                Return to anchor
+              <Button asChild type="button" size="sm" variant="secondary">
+                <a href={anchor.url} target="_blank" rel="noopener noreferrer">
+                  Open in new tab ↗
+                </a>
               </Button>
             </div>
           </div>
@@ -261,33 +254,18 @@ export function GovAuditClient({
         />
       )}
 
-      {/* Embed panel — live interactive remote browser (loads once a pick exists) */}
+      {/* Audit panel — server-side snapshot + open in new tab + lock-as-anchor. */}
       {(anchor || pickedUrl) && (
-        <section className="rounded-lg border border-line bg-white p-4">
-          <h2 className="text-base font-semibold text-ink">{anchor ? "Explore the page" : "Browse and pick your anchor"}</h2>
-          <p className="mt-1 text-sm text-body">
-            {anchor
-              ? "Interact with the live page below to evaluate it — click, scroll, and type. Your anchor stays pinned above."
-              : "Browse the site below. When you're on the page you want to rate, lock it as your anchor and the rubric appears."}
-          </p>
-
-          <div className="mt-3">
-            <EmbedBrowser
-              sessionId={sessionId}
-              anchorId={anchorId}
-              initialUrl={initialUrl}
-              navTo={navTo}
-              onFrame={(info) => setEmbedView(info)}
-            />
-          </div>
-          {lockError && <p className="mt-2 text-sm text-brick">{lockError}</p>}
-
-          {!anchor && (
-            <Button type="button" className="mt-3" onClick={lockAnchor} disabled={!embedView.url || locking}>
-              {locking ? "Locking…" : "Lock this page as my anchor"}
-            </Button>
-          )}
-        </section>
+        <AuditPanel
+          sessionId={sessionId}
+          anchor={anchor}
+          auditUrl={auditUrl}
+          onAuditUrl={(u) => setAuditUrl(u)}
+          onTitle={(t) => setAuditTitle(t)}
+          onLock={lockAnchor}
+          locking={locking}
+          lockError={lockError}
+        />
       )}
 
       {/* Site-level rubric (once per session) */}

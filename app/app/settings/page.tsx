@@ -10,6 +10,7 @@ import { updateAccount, updateIntent, updateNotifyPrefs, deleteAccount } from ".
 import { parseNotifyPrefs } from "./notify-prefs";
 import { getLocale } from "@/lib/i18n";
 import { monthLabel } from "@/lib/time";
+import { decryptField } from "@/lib/crypto";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Settings — Tended" };
@@ -26,6 +27,8 @@ const COPY = {
     accountSection: "Account",
     email: "Email",
     phone: "Phone",
+    city: "City",
+    state: "State",
     saveAccount: "Save account",
     howYouUse: "How you use Tended",
     intent: "Intent",
@@ -73,6 +76,8 @@ const COPY = {
     accountSection: "Cuenta",
     email: "Correo electrónico",
     phone: "Teléfono",
+    city: "Ciudad",
+    state: "Estado",
     saveAccount: "Guardar cuenta",
     howYouUse: "Cómo usas Tended",
     intent: "Propósito",
@@ -140,6 +145,7 @@ export default async function SettingsPage({
     .first<{ notify_prefs_json: string | null }>();
   const prefs = parseNotifyPrefs(prefsRow?.notify_prefs_json);
 
+  const phone = await decryptField(user.phone);
   const isSnap = user.intent === "snap_cert";
   const previousReports = isSnap
     ? (
@@ -172,7 +178,17 @@ export default async function SettingsPage({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">{c.phone}</Label>
-            <Input id="phone" name="phone" type="tel" defaultValue={user.phone ?? ""} autoComplete="tel" />
+            <Input id="phone" name="phone" type="tel" defaultValue={phone ?? ""} autoComplete="tel" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="city">{c.city}</Label>
+              <Input id="city" name="city" defaultValue={user.city ?? ""} placeholder="San Francisco" autoComplete="address-level2" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="state">{c.state}</Label>
+              <Input id="state" name="state" defaultValue={user.state ?? ""} placeholder="CA" maxLength={2} autoComplete="address-level1" />
+            </div>
           </div>
           <Button type="submit" size="sm">{c.saveAccount}</Button>
         </form>

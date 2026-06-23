@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "./actions";
 import { getLocale } from "@/lib/i18n";
-import { AddressFields, DobInput, NameFields, PhoneInput } from "@/app/start/pii-fields";
+import { AddressFields, DobInput, NameFields } from "@/app/start/pii-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SNAP profile — Tended" };
@@ -28,7 +28,6 @@ const COPY = {
     identity: "Identity",
     caseNumber: "SNAP case number",
     dob: "Date of birth",
-    phone: "Phone",
     address: "Address",
     street: "Street address",
     line2: "Apartment, suite, etc. (optional)",
@@ -51,7 +50,6 @@ const COPY = {
     identity: "Identidad",
     caseNumber: "Número de caso de SNAP",
     dob: "Fecha de nacimiento",
-    phone: "Teléfono",
     address: "Dirección",
     street: "Dirección postal",
     line2: "Apartamento, suite, etc. (opcional)",
@@ -100,11 +98,10 @@ export default async function ProfilePage({
     );
   }
 
-  const [legalName, caseNumber, dob, phone, addressJson] = await Promise.all([
+  const [legalName, caseNumber, dob, addressJson] = await Promise.all([
     decryptField(user.legal_name),
     decryptField(user.case_number),
     decryptField(user.dob),
-    decryptField(user.phone),
     decryptField(user.address_json),
   ]);
   const addr = parseJson<Address>(addressJson, { line1: "", city: "", state: "", zip: "" });
@@ -138,10 +135,6 @@ export default async function ProfilePage({
               <Label htmlFor="dob">{c.dob}</Label>
               <DobInput defaultValue={dob ?? ""} />
             </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">{c.phone}</Label>
-            <PhoneInput defaultValue={phone ?? ""} />
           </div>
         </section>
 

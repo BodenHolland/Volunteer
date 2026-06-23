@@ -127,6 +127,11 @@ const LOCAL: GovSite[] = [
   { id: "loc-houston", state: "tx", city: "houston", name: "HoustonTX.gov", url: "https://www.houstontx.gov", kind: "local", description: "Houston city services." },
   { id: "loc-austin", state: "tx", city: "austin", name: "AustinTexas.gov", url: "https://www.austintexas.gov", kind: "local", description: "Austin city services." },
   { id: "loc-denver", state: "co", city: "denver", name: "DenverGov.org", url: "https://www.denvergov.org", kind: "local", description: "Denver city services." },
+  { id: "loc-phoenix", state: "az", city: "phoenix", name: "Phoenix.gov", url: "https://www.phoenix.gov", kind: "local", description: "Phoenix city services, permits, and benefits." },
+  { id: "loc-sanantonio", state: "tx", city: "san antonio", name: "SanAntonio.gov", url: "https://www.sanantonio.gov", kind: "local", description: "San Antonio city services." },
+  { id: "loc-dallas", state: "tx", city: "dallas", name: "DallasTexas.gov", url: "https://www.dallastexas.gov", kind: "local", description: "Dallas city services." },
+  { id: "loc-jacksonville", state: "fl", city: "jacksonville", name: "JaxReady.com / COJ.net", url: "https://www.coj.net", kind: "local", description: "Jacksonville-Duval consolidated city-county services." },
+  { id: "loc-columbus", state: "oh", city: "columbus", name: "Columbus.gov", url: "https://www.columbus.gov", kind: "local", description: "Columbus city services." },
 ];
 
 // ---------- Nonprofits acting as public-service intake ----------

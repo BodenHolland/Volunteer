@@ -10,11 +10,7 @@ import { logError } from "@/lib/audit";
 import {
   runAutoCheck,
   renderPagePreview,
-  startEmbed,
-  interactEmbed,
   type PagePreviewResult,
-  type EmbedAction,
-  type EmbedFrame,
 } from "@/lib/gov-audit-browser";
 import {
   ANCHOR_CAP_SECONDS,
@@ -200,87 +196,6 @@ export async function previewPageAction(formData: FormData): Promise<PagePreview
     }
   }
   return preview;
-}
-
-/**
- * Start (or restart) the interactive remote-browser session at a URL and return
- * the first frame. Persists the issued browser session id on the draft so
- * interactions can be validated, and logs the visit to the active anchor's trail.
- */
-export async function startEmbedAction(formData: FormData): Promise<EmbedFrame> {
-  const sessionId = String(formData.get("session_id") ?? "");
-  const rawUrl = String(formData.get("url") ?? "");
-  const anchorId = String(formData.get("anchor_id") ?? "");
-  const row = await loadOwnedRaw(sessionId);
-  if (!row || row.status !== "in_progress") {
-    return {
-      ok: false,
-      session_id: null,
-      screenshot_b64: null,
-      resolved_url: "",
-      page_title: null,
-      viewport: { width: 1280, height: 800 },
-      mode: "unavailable",
-      error: "Session not editable.",
-    };
-  }
-  const frame = await startEmbed(rawUrl);
-  if (frame.ok && frame.session_id) {
-    const draft = parseDraft(row);
-    draft.embed_session_id = frame.session_id;
-    logTrail(draft, anchorId, frame.resolved_url);
-    await saveDraft(sessionId, draft);
-  }
-  return frame;
-}
-
-/**
- * Forward one interaction (click/scroll/type/key/nav) to the live session and
- * return the next frame. Validates the browser session id against the one we
- * issued for this audit. Logs navigation (URL changes) to the anchor trail.
- */
-export async function interactEmbedAction(formData: FormData): Promise<EmbedFrame> {
-  const sessionId = String(formData.get("session_id") ?? "");
-  const browserSessionId = String(formData.get("browser_session_id") ?? "");
-  const anchorId = String(formData.get("anchor_id") ?? "");
-  let action: EmbedAction;
-  try {
-    action = JSON.parse(String(formData.get("action") ?? "{}")) as EmbedAction;
-  } catch {
-    action = { type: "refresh" };
-  }
-  const row = await loadOwnedRaw(sessionId);
-  if (!row || row.status !== "in_progress") {
-    return {
-      ok: false,
-      session_id: null,
-      screenshot_b64: null,
-      resolved_url: "",
-      page_title: null,
-      viewport: { width: 1280, height: 800 },
-      mode: "unavailable",
-      error: "Session not editable.",
-    };
-  }
-  const draft = parseDraft(row);
-  // Only drive a session we opened for this audit.
-  if (draft.embed_session_id && browserSessionId && browserSessionId !== draft.embed_session_id) {
-    return {
-      ok: false,
-      session_id: browserSessionId,
-      screenshot_b64: null,
-      resolved_url: "",
-      page_title: null,
-      viewport: { width: 1280, height: 800 },
-      dead: true,
-      mode: "browser_rendering",
-    };
-  }
-  const frame = await interactEmbed(browserSessionId, action);
-  if (frame.ok && frame.resolved_url) {
-    if (logTrail(draft, anchorId, frame.resolved_url)) await saveDraft(sessionId, draft);
-  }
-  return frame;
 }
 
 /** Append a stripped domain+path entry to an anchor's nav-trail if it changed.

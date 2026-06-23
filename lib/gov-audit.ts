@@ -229,10 +229,6 @@ export interface GovAuditDraft {
   site?: SiteEvalDraft;
   anchors?: Record<string, AnchorDraft>;
   anchor_order?: string[];
-  /** Active Cloudflare Browser Rendering session id for the interactive embed.
-   *  Issued by startEmbed; validated on each interaction so a client can't drive
-   *  a session we didn't open for this audit. */
-  embed_session_id?: string;
 }
 
 // ---------- URL hygiene (PRD §4.2, §9) ----------
