@@ -1,0 +1,73 @@
+{
+  "state": "MD",
+  "administration": "state_with_local_offices",
+  "classification": "federal_80",
+  "hours_formula": "federal_80",
+  "monthly_hours_required": 80,
+  "monthly_hours_at_max_allotment": 80,
+  "hours_formula_detail": "Maryland uses the flat federal baseline of 80 hours/month (averaging 20 hours/week) for ALL qualifying ABAWD work activities, including general nonprofit volunteering. The MD SNAP Manual Section 106.6 (Sept 2025) explicitly lists 'Volunteering at a non-profit organization' as item D in the list of acceptable activities that count toward the 20 hrs/week / 80 hrs/month threshold. The accompanying Action Transmittal AT 26-09 (effective Nov 1, 2025) reiterates that 'Acceptable work activities include paid employment or self-employment (as explained below), in-kind work (receiving goods or services for work), unpaid work, volunteer work, or a combination of these' to meet 'at least 20 hours per week or an average of 80 hours per month.' There is NO SNAP-allotment-divided-by-minimum-wage formula applied to general nonprofit volunteering in Maryland — that formula exists only in the separate federal workfare lane (7 CFR 273.7(m)), which is not the path described in MD's manual for ABAWD compliance via volunteering. A recipient may self-initiate volunteering at any nonprofit; no MOU, site registration, or county pre-approval is required.",
+  "abawd_enforced_2026": "yes",
+  "enforced_2026_detail": "Maryland enforces the ABAWD 3-month time limit statewide effective November 1, 2025 (per AT 26-09 and §106.2). The current 36-month period runs July 1, 2023 through June 30, 2026, with a new 36-month period beginning July 1, 2026. The Maryland DHS Quick Reference Guide for LDSS (Sept 2025) states explicitly 'Waivers: NONE' and 'Maryland can no longer broadly waive the ABAWD time limit.' Under H.R. 1 of 2025 (Public Law 119-21 §10102), the ABAWD age range is expanded to 18-64 (from 18-54), the parent/caregiver exemption now applies only when the youngest child in the SNAP household is 13 or younger (previously under 18), and the prior exceptions for veterans, individuals experiencing homelessness, and former foster youth (aged 24 and younger) were removed. New exceptions were added for individuals recognized as Indian, Urban Indian, or California Indian under the Indian Health Care Improvement Act. For FY2026, 'no Discretionary Exemptions are being applied due to uncertainty of the number available for the 2026 Federal Fiscal Year (FFY) that began on October 1, 2025.'",
+  "minimum_wage_used_in_formula_usd": 0,
+  "minimum_wage_note": "Set to 0 because Maryland's general volunteer lane is federal_80 and does not use a wage-based divisor. For reference only: the Maryland state minimum wage in 2026 is $15.00/hour statewide (with limited exceptions for very small employers). The federal minimum wage of $7.25 appears in MD's manual only as a threshold for the separate Work Registration exemption (working 30 hrs/week or earning at least $217.50/week = $7.25 x 30), not as a divisor against SNAP allotments for volunteer hour computation.",
+  "regional_wages": [
+    {
+      "label": "Maryland statewide minimum wage 2026 (reference only; NOT used in the volunteer-hour calculation)",
+      "minimumWageUsd": 15.00
+    }
+  ],
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Any non-profit organization. MD SNAP Manual §106.6.D states the activity as 'Volunteering at a non-profit organization' with no further qualification — no statewide approved-site list, no MOU with the LDSS, and no county pre-approval requirement. The ABAWD Screening Tool (Office of Nutrition Assistance Programs, 10/8/2025) asks 'Engaged in community service or volunteering with a local agency? If yes, where? (company name)' and collects hours per week, treating the org as an attestation field rather than a registration gate.",
+  "verification_instrument": "FIA 500-B — Verification of Participation in an Activity form. Per MD SNAP Manual §106.9.A, the form 'contains two sections that require both the customer and the customer's supervisor to complete. The supervisor's signature is also required in each section.' The form serves as Maryland's equivalent of CA's CF 888 for verifying ABAWD volunteer/work-activity hours. A companion form FIA 500-A (Verification of Disability) covers the medical-unfitness exemption. Per §106.4 and §106.9, verification is only required when information is 'questionable' — the volunteer-hour verification itself is a one-time confirmation per certification period unless hours drop below the 20/80 threshold.",
+  "verification_form_name": "FIA 500-B (Verification of Participation in an Activity)",
+  "hours_reporting": "self_reported",
+  "submission_mechanism": [
+    "online_portal",
+    "mail",
+    "fax",
+    "paper_county_office"
+  ],
+  "submission_mechanism_detail": "Per MD SNAP Manual §106.9, completed FIA 500-B forms 'must be returned to the LDSS and are accepted by mail, fax, in-person, or by uploading them directly into the Maryland Benefits Consumer Portal.' The portal is reachable at mymdthink.maryland.gov. LDSS = Local Department of Social Services (the customer's county office).",
+  "reporting_cadence": "at_recertification",
+  "submission_deadline": "No fixed monthly filing deadline. Per §106.9, 'Once an employer or vendor verifies that the ABAWD is meeting the ABAWD work requirements, ongoing verification throughout the certification period is not required.' ABAWDs follow simplified reporting (verification submitted at certification, redetermination, or interim change including the Maryland Benefit Review). There is, however, a 10-day mid-period reporting trigger: ABAWDs 'must report if their work activity hours drop below 20 hours per week or 80 hours per month' (§106.6 NOTE). The Quick Reference Guide adds: 'When to Report: At recertification and/or within 10 days of the change.'",
+  "remote_stance": "silent",
+  "remote_stance_detail": "No Maryland DHS source (SNAP Manual §106, AT 26-09, the Quick Reference Guide, or the ABAWD Screening Tool) addresses whether remote / online / virtual volunteer hours qualify toward the ABAWD requirement. Federal rule 7 CFR §273.24 does not categorically exclude remote volunteering. Coded 'silent' because MD policy is neither affirmative nor restrictive on this point. This is a product-guidance gap, not a classification factor.",
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "No MD DHS source reviewed restricts the host nonprofit to Maryland-based entities. The manual describes qualifying orgs only by type ('a non-profit organization'), with no in-state-location requirement, and the ABAWD Screening Tool collects only 'where? (company name)' as a free-text field. Federal default under 7 CFR 273.24 accepts any qualifying nonprofit regardless of location; absent an explicit MD restriction, out-of-state 501(c)(3)s should be operationally acceptable. Coded 'silent' because no source affirmatively permits or forbids it.",
+  "required_prestep": "none",
+  "required_prestep_detail": "No EDP (Employment Development Plan), work-registration gate for the volunteer lane, county case-manager assignment, MOU, or LDSS site pre-approval is required for general nonprofit volunteering. Work Registration and the ABAWD work participation requirement are separate rule sets in the manual (§106 vs §130); a recipient may self-initiate volunteering and submit the FIA 500-B at certification/redetermination/interim change. Eligibility workers may make E&T referrals when the ABAWD requests one, but no referral is required to begin counting volunteer hours.",
+  "geographic_waivers": "None. The MD DHS Quick Reference Guide for LDSS (Sept 2025) states explicitly 'Waivers: NONE' under 'A7. Does Maryland DHS still have an ABAWD waiver? No. Maryland can no longer broadly waive the ABAWD time limit.' AT 26-09 (Oct 16, 2025) supersedes the prior AT 24-17 (Waived Jurisdictions) and AT 21-11 (Waiver Extension and Referral Guidance) without naming any successor waiver. Maryland has no Labor Surplus Area or county-level ABAWD waivers active for FY2026.",
+  "county_variation_flag": false,
+  "county_variation_detail": "Although SNAP intake/eligibility work is performed locally by the 24 Local Departments of Social Services (LDSS) — Maryland's 23 counties plus Baltimore City — policy is uniform statewide. The Family Investment Administration (FIA) at MD DHS issues policy via Action Transmittals binding on all LDSS, and the Eligibility & Enrollment (E&E) system and WORKS tracking system are statewide. No LDSS holds an independent ABAWD waiver or imposes locally-defined volunteer requirements. (Montgomery County is administered locally but follows the same state SNAP policy.)",
+  "tier": "1_clean",
+  "confidence": "high",
+  "form_required_fields": [
+    "recipient_name",
+    "case_id",
+    "org_name",
+    "supervisor_name",
+    "supervisor_signature",
+    "hours_per_week_or_total",
+    "activity_description",
+    "period_dates",
+    "customer_signature"
+  ],
+  "conflicts_with_prior": [],
+  "unresolved": [
+    "FIA 500-B exact field list was not confirmed from the rendered PDF form itself; fields are reconstructed from the manual's description in §106.9.A ('two sections that require both the customer and the customer's supervisor to complete; supervisor's signature is also required in each section') and the parallel ABAWD Screening Tool's collection of company name and weekly hours.",
+    "remote_stance: no MD source confirms whether remote/online/virtual volunteer hours count.",
+    "accepts_outofstate_nonprofit: no MD source affirmatively permits or forbids an out-of-state 501(c)(3) signing the FIA 500-B; coded 'silent' on federal-default reasoning only.",
+    "Discretionary Exemption volume for FFY2026 is unsettled as of AT 26-09 issuance (Oct 16, 2025): 'no Discretionary Exemptions are being applied due to uncertainty of the number available.' This may shift downstream once FNS allocates."
+  ],
+  "source_urls": [
+    "https://dhs.maryland.gov/documents/FIA/Manuals/Supplemental%20Nutrition%20Assistance%20Program%20(SNAP)/106%20ABAWDS/106-ABAWDS-SEPT-2025.docx.pdf",
+    "https://dhs.maryland.gov/documents/FIA/Action%20Transmittals-AT%20-%20Information%20Memo-IM/AT-IM2026/26-09%20AT%20H.R.%201%202025%20Modifications%20to%20SNAP%20Work%20Requirements%20for%20ABAWD%20combined%20new.pdf",
+    "https://dhs.maryland.gov/supplemental-nutrition-assistance-program/able-bodied-adults-without-dependents-abawds/",
+    "https://dhs.maryland.gov/important-changes-snap-benefits/",
+    "https://mymdthink.maryland.gov"
+  ],
+  "notes": "VERIFICATION (2026-06-22, FY2026 / OBBBA-HR1): Maryland is a clean federal_80 state. The decisive primary source is MD SNAP Manual Section 106.6 (revised September 2025), which lists four qualifying ABAWD activities at the 20 hrs/week (80 hrs/month) threshold: (A) Working at a job or self-employed; (B) Participating in WIOA / Trade Adjustment Assistance / SNAP E&T; (C) FLSA-covered work experience program; (D) 'Volunteering at a non-profit organization.' No MOU, no site registration, no county pre-approval. AT 26-09 (effective Nov 1, 2025) implements HR1: ABAWD age range expanded to 18-64; parent/caregiver exemption now only for youngest child age 13 or younger; veterans/homeless/former-foster-youth exceptions removed; new exceptions added for Indian / Urban Indian / California Indian. The Maryland DHS Quick Reference Guide explicitly states 'Waivers: NONE' — Maryland has no geographic waivers in effect for FY2026 and 'can no longer broadly waive the ABAWD time limit.' Statewide enforcement applies to all 24 LDSS jurisdictions. The verification instrument is the FIA 500-B (Verification of Participation in an Activity), signed by both customer and supervisor; FIA 500-A covers disability. Submission mechanisms: mail, fax, in-person at LDSS, or upload to the Maryland Benefits Consumer Portal (mymdthink.maryland.gov). Cadence: at certification/redetermination/interim change, with a mid-period 10-day report only if hours drop below 20/week. Remote-volunteer stance and out-of-state-nonprofit acceptance are both silent in MD sources — coded 'silent' rather than guessed.",
+  "key_primary_source_quote": "An ABAWD is compliant with work requirements when they have documented that they participate in any combination of the following work activities for a total of 20 hours per week or an average of 80 hours per month. A. Working (at a job or self-employed) ... B. Participating in and complying with a Workforce Innovation and Opportunity Act (WIOA) program, Trade Adjustment Assistance Act program, or SNAP Employment and Training program ... C. Participating in a work experience program governed by the Fair Labor Standards Act (FLSA) requirements, or D. Volunteering at a non-profit organization. (MD SNAP Manual Section 106.6, Revised September 2025)",
+  "last_verified": "2026-06-22",
+  "next_review_by": "2027-06-22"
+}

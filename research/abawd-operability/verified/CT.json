@@ -1,0 +1,102 @@
+{
+  "state": "CT",
+  "administration": "state",
+  "classification": "federal_80",
+  "hours_formula": "federal_80",
+  "monthly_hours_required": 80,
+  "monthly_hours_at_max_allotment": 80,
+  "hours_formula_detail": "General nonprofit / community-service VOLUNTEERING in Connecticut uses the flat federal baseline of 80 hours/month (about 20 hours/week). Connecticut's own recipient-facing materials state the volunteer lane as a flat 80: the CT DSS H.R.1 ABAWD page lists 'Volunteer for at least 80 hours' as one option, and the official 'ALL ABOUT ABAWDS' notice lists four DISTINCT ways to meet the requirement — 'Working at least 80 hours a month; or Participating in a work program at least 80 hours a month; or Working and participating in a work program for a combination of at least 80 hours a month; or Participating in a workfare program.' The allotment-divided-by-minimum-wage formula applies ONLY to the separate, fourth 'workfare program' lane — a state/political-subdivision-administered program where the participant is assigned to a site and hours = SNAP allotment / (higher of state or federal minimum wage). Because a recipient can self-initiate general community-service volunteering at any qualifying nonprofit at the flat 80-hour standard WITHOUT the site being a registered/approved workfare provider, the general volunteer lane is classified federal_80 (not workfare_formula and not workfare_if_registered). This mirrors the verified California analysis: two cleanly separated lanes, general volunteer = flat 80, workfare = formula.",
+
+  "abawd_enforced_2026": "yes",
+  "enforced_2026_detail": "ABAWD time limits are actively enforced statewide in FY2026. Connecticut's prior area-based (town) waivers expired November 2, 2025, and DSS materials state 'Starting November 2, 2025, all towns in Connecticut will now have special SNAP work rules.' Practitioner reporting notes households began to be impacted Dec 2025 - Feb 2026 (after the 3-month clock). Under H.R.1/OBBBA (2025) the affected age range expanded; the federal floor is 18-64, and CT DSS H.R.1 materials reflect the expanded range (the older 'ALL ABOUT ABAWDS' notice still shows the pre-OBBBA 18-49 / age-50 exemption and is being updated). OBBBA also narrowed exemptions (e.g., children under 14 rather than under 18; removal of certain prior exemptions). Coded 'yes' (not 'partial') because enforcement is statewide for essentially all of FY2026 with no sub-state geographic carve-outs surviving.",
+
+  "minimum_wage_used_in_formula_usd": 0,
+  "minimum_wage_note": "Set to 0 because the GENERAL volunteer lane is federal_80 and does NOT use a wage-based formula. For reference only: Connecticut's statewide minimum wage rose to $16.94/hour effective January 1, 2026 (up from $16.35 in 2025), indexed to the federal employment cost index under Public Act 19-4 (announced by Gov. Lamont, Sept 2025). This $16.94 figure is what WOULD be used as the divisor for the separate WORKFARE lane (allotment / higher of state-or-federal minimum wage). Connecticut has a single statewide minimum wage — no sub-state regional minimum wages.",
+  "regional_wages": [
+    {
+      "label": "Connecticut statewide minimum wage (effective Jan 1, 2026; relevant only to the separate workfare lane, not the general 80-hour volunteer lane)",
+      "minimumWageUsd": 16.94
+    }
+  ],
+
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Any public or private nonprofit, governmental, or religious organization where the ABAWD performs volunteer / community-service work; Connecticut imposes no statewide approved-site list, no MOU, and no DSS pre-approval for the general community-service (flat 80-hour) lane. DSS references United Way / 2-1-1 as a resource to find volunteer opportunities but does not restrict the volunteer lane to specific organization types. (Site assignment and a formal agreement apply only to the separate workfare lane.)",
+
+  "verification_instrument": "No dedicated, named Connecticut volunteer-hours verification FORM was identified. The standard instrument is a supervisor-signed monthly log maintained by the volunteer site (hours with totals and supervisor signature), uploaded by the participant via MyDSS; DSS may also request a generic 'DSS verification page' at reporting and may phone the site to confirm totals (per the somedoing.com practitioner survey). W-1460 is a CT exemption-request form, NOT an hours-verification form. Reporting is self-reported with post-hoc verification, not pre-clearance.",
+  "verification_form_name": "unknown",
+
+  "hours_reporting": "self_reported",
+  "submission_mechanism": [
+    "online_portal",
+    "mail",
+    "paper_county_office"
+  ],
+  "submission_mechanism_detail": "Report at application, renewal, or when reporting a change. Online upload via MyDSS (mydss.ct.gov) is the standard channel ('You can upload proof online with MyDSS'). Also accepted: mail to DSS Scanning Center, PO Box 1320, Manchester, CT 06045-1320; phone 1-855-626-6632; and in person at a local DSS Resource Center. Connecticut administers SNAP at the STATE level (DSS), so 'paper_county_office' here means a DSS regional/resource center, not a county welfare office.",
+  "reporting_cadence": "monthly",
+  "submission_deadline": "Changes must be reported 'by the 10th day of the month after the month the changes happen,' per CT DSS 'Changes you need to report.' Specifically, an ABAWD must report if they work/participate less than 80 hours in a month. Practically, hours are reported at application, renewal, periodic report, or upon a change, with the 10th-of-following-month deadline governing change reporting.",
+
+  "remote_stance": "silent",
+  "remote_stance_detail": "No Connecticut DSS or legal-aid source reviewed addresses whether remote / online / virtual volunteer hours qualify toward the ABAWD requirement. Federal rules do not categorically exclude remote volunteering, but CT guidance is silent. Coded 'silent' — a product-guidance gap, not a classification factor.",
+
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "No Connecticut DSS source imposes an in-state-only restriction on volunteer host organizations for the general community-service lane; qualifying orgs are described only by TYPE (public/private nonprofit, governmental, religious). No in-state requirement and no out-of-state exclusion was found across CT DSS pages, the H.R.1 materials, or the somedoing.com practitioner survey. Federal default (any qualifying nonprofit regardless of state of incorporation) is presumed to apply, but no CT source affirmatively permits or forbids it — coded 'silent'.",
+
+  "required_prestep": "none",
+  "required_prestep_detail": "No EDP (Employment Development Plan), work-registration gate, DSS case-manager assignment, MOU, or site pre-approval is required for the general volunteer / community-service (flat 80-hour) lane. CT SNAP E&T (CTPathways, run with CT State Community College) is explicitly VOLUNTARY and non-gating — the policy states SNAP participants are not disqualified for failure to cooperate with E&T because participation is voluntary. (A formal agreement and DSS/DLR assignment apply only to the separate workfare lane, which a recipient does not need in order to satisfy the requirement via general volunteering.)",
+
+  "geographic_waivers": "None in FY2026 — fully enforced statewide. Connecticut's prior area-based town waivers (a partial waiver covering ~50/68 high-unemployment towns, approved through November 2025) expired November 2, 2025. Under OBBBA/H.R.1, area waivers are now limited to areas with an unemployment rate above 10%, and Connecticut reportedly has no town meeting that threshold; consequently the ~20,000 previously exempt residents are now subject to the requirement. Consistent with this, as of February 2026 the USDA/FNS website listed no active ABAWD time-limit waivers nationwide. No county/sub-state ABAWD waiver applies to CT in FY2026.",
+  "county_variation_flag": false,
+  "county_variation_detail": "Connecticut administers SNAP at the STATE level through DSS (no county welfare administration). Policy, the 80-hour standard, MyDSS reporting, and the 10th-of-month deadline are uniform statewide. With town waivers expired, there is no material sub-state variation in FY2026.",
+
+  "tier": "1_clean",
+  "confidence": "high",
+
+  "form_required_fields": [
+    "org_name",
+    "org_signature",
+    "supervisor_name",
+    "recipient_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+
+  "conflicts_with_prior": [
+    "hours_formula_detail / classification framing: prior file left hours_formula_detail blank and did not document Connecticut's separate 'workfare program' lane. This verified record keeps classification 'federal_80' (CORRECT for the general self-initiated volunteer lane) but adds the two-lane structure: general volunteer = flat 80; the separate, assigned 'workfare program' lane uses allotment / minimum wage. No change to the operative classification, only fuller documentation.",
+    "geographic_waivers: prior file cited a November 2, 2025 resumption and 'enforcement began December 1, 2025' (REFINEMENT PASS). Clarified/reconciled: town waivers EXPIRED Nov 2, 2025 ('all towns ... special SNAP work rules' from that date); the 3-month clock means household impacts land Dec 2025-Feb 2026. Substance unchanged (statewide enforcement, no surviving waivers); date framing tightened and corroborated by the FNS 'no active waivers as of Feb 2026' finding.",
+    "minimum_wage_used_in_formula_usd / regional_wages: prior file had no explicit minimum-wage field. This verified record sets it to 0 for the federal_80 general lane and records CT's 2026 statewide minimum wage ($16.94, eff. Jan 1, 2026) as workfare-lane reference only.",
+    "age range: prior 'ALL ABOUT ABAWDS' PDF still shows pre-OBBBA 18-49 / age-50 exemption; OBBBA expanded the federal range toward 18-64. Noted as a CT-materials update lag, not a substantive conflict in the volunteer-lane hours figure."
+  ],
+
+  "unresolved": [
+    "verification_form_name: no named Connecticut volunteer-hours verification form was found. The instrument is a supervisor-signed monthly log uploaded via MyDSS plus an optional generic 'DSS verification page'; form remains 'unknown'.",
+    "remote_stance: no CT source confirms whether remote/online/virtual volunteer hours count toward the 80-hour requirement.",
+    "accepts_outofstate_nonprofit: no CT source affirmatively permits or forbids an out-of-state 501(c)(3) certifying hours; coded 'silent' on federal-default reasoning only.",
+    "Whether Connecticut operates an ACTIVE general workfare program in FY2026 (and the exact mechanics/assignment for that separate lane) was not confirmed from a rendered policy-manual page; the workfare lane is referenced in the 'ALL ABOUT ABAWDS' notice and policy-manual summaries but its current operational status is not load-bearing for the federal_80 classification of the general volunteer lane.",
+    "Exact post-OBBBA CT age range and updated exemption list as reflected in fully-updated CT DSS materials (the public 'ALL ABOUT ABAWDS' PDF lags the OBBBA changes)."
+  ],
+
+  "source_urls": [
+    "https://portal.ct.gov/dss/snap/able-bodied-adults-without-dependents-or-abawds/abawd-work-rules",
+    "https://portal.ct.gov/dss/knowledge-base/articles/snap/abawd-work-requirement-changes-hr1",
+    "https://portal.ct.gov/dss/all-programs/dss-benefits-and-hr1/hr1-for-members",
+    "https://portal.ct.gov/dss/snap/able-bodied-adults-without-dependents-or-abawds/general-work-requirements",
+    "https://portal.ct.gov/-/media/Departments-and-Agencies/DSS/SNAP/ABAWDNoticeEnglish.pdf",
+    "https://portal.ct.gov/dss/snap/supplemental-nutrition-assistance-program---snap/changes-you-need-to-report",
+    "https://portal.ct.gov/dss/snap/snap-policy-manual",
+    "https://portaldir.ct.gov/dss/SNAP/WorkRequirements.html",
+    "https://uwc.211ct.org/h-r-1-one-big-beautiful-bill-act-2025-and-changes-to-connecticuts-social-service-programs/",
+    "https://somedoing.com/how-your-state-may-verify-snap-volunteer-hours/",
+    "https://www.fns.usda.gov/snap/obbb-ABAWD-Waivers-Implementation-Memo",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029",
+    "https://fns-prod.azureedge.us/sites/default/files/resource-files/ct-abawd-response-fy2025.pdf",
+    "https://portal.ct.gov/governor/news/press-releases/2025/09-2025/governor-lamont-announces-minimum-wage-will-increase",
+    "https://insideinvestigator.org/dss-expects-36000-ct-residents-to-lose-snap-benefits/"
+  ],
+
+  "notes": "VERIFICATION PASS (2026-06-22, FY2026 / OBBBA-HR1): Confirmed the prior file's federal_80 classification is CORRECT for the general, self-initiated nonprofit volunteer lane, and added documentation of Connecticut's separate workfare lane. DECISIVE EVIDENCE: (1) CT DSS H.R.1 ABAWD page frames the volunteer lane as a flat 'Volunteer for at least 80 hours'; (2) the official 'ALL ABOUT ABAWDS' notice lists FOUR distinct options — work 80 hrs; work program 80 hrs; combination 80 hrs; OR 'Participating in a workfare program' (the workfare option carries NO hours figure, the hallmark of the allotment/min-wage formula lane). General volunteering is therefore flat 80 and self-initiable at any qualifying nonprofit with no registration/MOU; the formula applies only to the separate, assigned workfare program. This is the same two-lane structure as the verified CA record (also federal_80). ENFORCEMENT: statewide and active for FY2026 — town waivers expired Nov 2, 2025 ('all towns ... special SNAP work rules'), household impacts Dec 2025-Feb 2026; under OBBBA, area waivers now require >10% unemployment and CT has no qualifying town, so ~20,000 previously exempt residents are now subject; FNS listed no active ABAWD waivers as of Feb 2026. REPORTING: self-reported via MyDSS upload (also mail/phone/in-person DSS resource center), monthly cadence, deadline by the 10th of the month after the change; ABAWDs must report dropping below 80 hours. VERIFICATION INSTRUMENT: supervisor-signed monthly log + optional generic 'DSS verification page'; NO named CT volunteer-verification form exists (W-1460 is exemption-only) — verification_form_name = 'unknown'. MINIMUM WAGE: CT statewide $16.94/hr eff. Jan 1, 2026 (single statewide rate, no regional wages), relevant only to the workfare lane. GAPS: remote_stance and out-of-state-nonprofit acceptance both silent; CT operational workfare-program status not confirmed (not load-bearing). Confidence 'high' because classification + flat-80 hours + statewide FY2026 enforcement are confirmed by primary CT DSS sources; the only soft spots (no named form, remote/out-of-state silence) do not affect the federal_80 classification.",
+
+  "last_verified": "2026-06-22",
+  "next_review_by": "2027-06-22"
+}

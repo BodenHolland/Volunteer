@@ -1,0 +1,102 @@
+{
+  "state": "DC",
+  "administration": "state",
+  "classification": "federal_80",
+  "hours_formula": "federal_80",
+  "monthly_hours_required": 80,
+  "monthly_hours_at_max_allotment": 80,
+  "hours_formula_detail": "General nonprofit / community-service VOLUNTEERING counts toward the ABAWD requirement at the flat federal baseline of 80 hours/month (20 hours/week average), self-initiated. The decisive primary source is the DC DHS SNAP Work Requirements page's official 'How to meet work requirements' activities table, which lists under the category 'Unpaid Work' the qualifying activity 'Volunteer work or barter arrangements' — counted toward the same 80-hours-per-month threshold as paid employment, with no approved-site or SNAP E&T enrollment requirement. The page's lead-in states: 'You can participate in any of the following work activities or a combination of these activities for at least 80 hours per month to meet the ABAWD work requirements,' immediately followed by 'Note: you can also meet work requirements by completing a smaller number of hours through the SNAP Volunteer Program.' The SNAP-benefit-divided-by-minimum-wage formula applies ONLY to the SEPARATE, OPTIONAL SNAP Volunteer Program (Workfare): 'SNAP E&T will calculate your required participation hours by using your SNAP benefit amount and dividing it by DC's minimum wage of $17.95 (required participation hours are often less than 30 hours per month). You will then be matched with a volunteering opportunity at an approved non-profit, faith-based organization, or government agency.' Because a recipient can self-initiate general volunteer work at any nonprofit and have it count at the 80-hour standard WITHOUT the site being a registered/approved Volunteer Program (Workfare) host site, this is classified federal_80, not workfare_formula and not workfare_if_registered. The benefit/min-wage formula is a lower-burden ALTERNATIVE lane, not the price of general volunteering.",
+
+  "abawd_enforced_2026": "partial",
+  "enforced_2026_detail": "ABAWD time limits returned to DC on June 1, 2026 — mid-FY2026, not at the FY2026 start of Oct 1, 2025. DC DHS banner: 'SNAP ABAWD work requirements implementation started on June 1, 2026.' DC operates a single fixed 36-month clock for all customers (June 1, 2026 - May 31, 2029). Coded 'partial' rather than 'yes' because enforcement covers only the back two-thirds of FY2026; for Oct 2025 - May 2026 DC was not yet imposing ABAWD time limits. Enforcement is District-wide (DC is a single jurisdiction) with no geographic sub-areas waived. Under HR1/OBBBA (2025) the ABAWD age range in DC is 18-64 and the dependent-child exemption is tightened to a child under 14.",
+
+  "minimum_wage_used_in_formula_usd": 0,
+  "minimum_wage_note": "Set to 0 because the GENERAL volunteer lane that Tended uses is federal_80 and does NOT use a wage-based formula. For reference: DC's minimum wage is $17.95/hour, and that figure is used ONLY in the separate, optional SNAP Volunteer Program (Workfare) lane, where required hours = SNAP benefit amount / $17.95 (typically <=30 hrs/month; e.g. $298 benefit -> ~16 hrs). DC has no statutory automatic increase published distinctly for the formula beyond $17.95 as cited across DHS, FRAC, and Legal Aid DC materials current to June 2026.",
+  "regional_wages": [
+    {
+      "label": "DC minimum wage (used only for the separate SNAP Volunteer Program / Workfare formula, NOT the general 80-hour volunteer lane)",
+      "minimumWageUsd": 17.95
+    }
+  ],
+
+  "general_volunteer_lane": "yes",
+  "qualifying_org_definition": "Any non-profit, faith-based organization, or government agency where the ABAWD performs unpaid volunteer work; for the general 80-hour lane no approved-site list, MOU, or pre-approval is required (the approved-host-site requirement applies only to the separate SNAP Volunteer Program / Workfare lane).",
+
+  "verification_instrument": "Verification of Employment or Qualifying Work Activity Form (DC DHS; launched June 1, 2026; available in English, Spanish, and Amharic). Filled out by the customer and signed by an employer or organization representative to verify work/qualifying-activity hours. Two companion reporting tools exist: the Work Requirements Screening Form (screens for exemptions/good cause) and the Medical Report Form (medical exemption).",
+  "verification_form_name": "Verification of Employment or Qualifying Work Activity Form",
+
+  "hours_reporting": "self_reported",
+  "submission_mechanism": [
+    "online_portal",
+    "paper_county_office",
+    "mail",
+    "fax",
+    "mobile_upload"
+  ],
+  "submission_mechanism_detail": "Forms can be accessed and submitted via District Direct (online portal + mobile app, districtdirect.dc.gov), in person at a DHS service center, or by mail/fax. The Verification of Employment or Qualifying Work Activity Form is the instrument used to document completed work/volunteer hours.",
+  "reporting_cadence": "at_recertification",
+  "submission_deadline": "No fixed monthly filing deadline for the general lane. DC DHS guidance: a recipient is 'not required to report proof of exemptions or work activity (paid and/or volunteer) until your next certification or recertification of SNAP,' but MAY report as early as June 1, 2026. Separately, an ABAWD meeting the requirement through work must report (within DC's standard change-reporting window, ~10 days) any reduction in hours that brings them below 20 hours/week / 80 hours/month averaged. Practical cadence for the volunteer lane is therefore at recertification, with optional earlier submission.",
+
+  "remote_stance": "silent",
+  "remote_stance_detail": "No DC DHS, SNAP E&T, FRAC, Legal Aid DC, or DC Hunger Solutions source reviewed addresses whether remote / online / virtual volunteer work counts toward the 80-hour ABAWD requirement. Federal rules do not categorically exclude remote volunteering, but DC guidance is silent. Coded 'silent'.",
+
+  "accepts_outofstate_nonprofit": "silent",
+  "accepts_outofstate_detail": "No DC source addresses whether an out-of-state (non-DC) 501(c)(3) may certify general-lane volunteer hours. The DHS activities table describes qualifying unpaid work only by TYPE ('Volunteer work or barter arrangements') with no geographic restriction on the organization. The federal default under 7 CFR 273.24 imposes no in-state requirement; absent a DC-specific restriction (none found), out-of-state nonprofits should be operationally acceptable for the general 80-hour lane. NOTE: the separate SNAP Volunteer Program (Workfare) lane DOES require placement at a DHS-approved host site (in practice local DC organizations apply to become host sites), but that is a distinct lane and irrelevant to the general volunteer lane. Coded 'silent' because no source affirmatively permits or forbids out-of-state certification for the general lane.",
+
+  "required_prestep": "none",
+  "required_prestep_detail": "No EDP (employment development plan), case-manager assignment, SNAP E&T enrollment, or approved-site selection is required for the GENERAL 80-hour volunteer lane ('Unpaid Work -> Volunteer work or barter arrangements'). DHS screens for exemptions and qualifying work activities at application/recertification, but that is an agency-side screening step, not a recipient-initiated intake gate before self-arranged volunteer hours can count. By contrast, the OPTIONAL SNAP Volunteer Program (Workfare) lane DOES require a pre-step sequence: (1) contact SNAP E&T to confirm eligibility, (2) get a case manager and pick from an approved-site list, (3) volunteer monthly. That pre-step applies only to the lower-hours workfare lane, not to general volunteering.",
+
+  "geographic_waivers": "none. DC previously held a federal ABAWD waiver (the District qualified District-wide on an insufficient-jobs / labor-market basis). Under HR1 / the One Big Beautiful Bill Act (2025) DC no longer qualifies for that waiver, and DC began enforcing ABAWD time limits District-wide on June 1, 2026. No geographic sub-area waivers exist (DC is a single jurisdiction). No active FY2026 DC waiver.",
+  "county_variation_flag": false,
+  "county_variation_detail": "DC is a single, state-administered jurisdiction with no counties; SNAP is administered uniformly by DC DHS. No sub-jurisdictional variation in ABAWD rules.",
+
+  "tier": "1_clean",
+  "confidence": "high",
+
+  "form_required_fields": [
+    "recipient_name",
+    "org_name",
+    "org_representative_signature",
+    "supervisor_or_representative_name",
+    "hours_total",
+    "activity_description",
+    "period_start_date",
+    "period_end_date"
+  ],
+  "form_required_fields_note": "Field list is a reconstructed baseline. DC describes the Verification of Employment or Qualifying Work Activity Form only as 'filled out by the customer and signed by an employer or organization representative'; the rendered form's exact field schema was not parsed in this pass.",
+
+  "conflicts_with_prior": [
+    "abawd_enforced_2026: changed from 'yes' to 'partial'. FY2026 enforcement does not begin until June 1, 2026 (mid-FY2026); for Oct 2025-May 2026 DC imposed no ABAWD time limits. 'partial' is the accurate FY2026 coding.",
+    "OVERSTATED PRIOR EVIDENCE (corrected, not a substance change): the prior file's notes claimed the customer-facing SNAP Volunteer Program one-pager confirmed 'Option A is the general work lane (paid, unpaid, volunteer, barter - 80 hrs/month).' That is INACCURATE. The one-pager (Updated May 6, 2026) actually frames 'OPTION A: Work or do training for 80 hours per month' and 'OPTION B: Volunteer at an approved volunteer site,' presenting VOLUNTEERING only as the approved-site Workfare program. The general volunteer-at-80-hours lane is confirmed instead by the MAIN DHS web page's activities table ('Unpaid Work -> Volunteer work or barter arrangements') and by the Legal Aid DC and DC Hunger Solutions explainers ('Work (paid, unpaid, volunteer, or work done in exchange for goods and services) ... 80 hours a month'). Net classification (federal_80) is unchanged, but the supporting citation is corrected and the residual ambiguity is now flagged.",
+    "minimum_wage / formula source field: prior file embedded $17.95 in narrative only; this verified record adds the explicit minimum_wage_used_in_formula_usd=0 (general lane) and records $17.95 as the workfare-lane reference in regional_wages.",
+    "verification_form_name: normalized to 'Verification of Employment or Qualifying Work Activity Form' (DHS's exact label on the live page), matching the prior file's longer descriptive name."
+  ],
+
+  "unresolved": [
+    "RESIDUAL CLASSIFICATION RISK: DC's customer-facing one-pager presents volunteering ONLY as the approved-site SNAP Volunteer Program (Option B), while the DHS web-page activities table and advocacy explainers list general 'Volunteer work' as countable Unpaid Work at 80 hrs. If, in operational practice, DC caseworkers steer ALL 'volunteer' attestations into the approved-site Workfare program, the effective rule for a Tended user could shift toward workfare_if_registered. The published activities table supports federal_80, but no DC policy manual / administrative issuance was located to rule out caseworker steering. This is the single biggest verification gap.",
+    "remote_stance: no DC source confirms whether remote/online/virtual volunteer hours count toward the 80-hour requirement.",
+    "accepts_outofstate_nonprofit: no DC source affirmatively permits or forbids an out-of-state 501(c)(3) certifying general-lane hours; coded 'silent' on federal-default reasoning only.",
+    "Exact field schema of the Verification of Employment or Qualifying Work Activity Form was not parsed from the rendered form; field list is a reconstructed baseline.",
+    "No DC SNAP policy manual or administrative issuance (ACL/ACIN equivalent) confirming the absence of a hidden pre-step for the general self-arranged volunteer lane was located online."
+  ],
+
+  "source_urls": [
+    "https://dhs.dc.gov/page/snap-work-requirements",
+    "https://dhs.dc.gov/page/snap-work-requirementstesting",
+    "https://dhs.dc.gov/page/supplemental-nutrition-assistance-employment-and-training-program-snap-et",
+    "https://dhs.dc.gov/sites/default/files/dc/sites/dhs/page_content/attachments/SNAP%20Work%20Requirements%20ABAWD%20Fact%20Sheet_ENGLISH.pdf",
+    "https://dhs.dc.gov/sites/default/files/dc/sites/dhs/page_content/attachments/SNAP%20Volunteer%20Program%20One%20Pager%20(Customers).pdf",
+    "https://www.legalaiddc.org/legal-info/important-changes-snap-work-requirements",
+    "https://www.legalaiddc.org/sites/default/files/2026-04/SNAP%20ABAWD%20Work%20Requirements%20Flyer_2.pdf",
+    "https://www.dchunger.org/federal-nutrition-programs/snap/snap-abawd-work-requirements/",
+    "https://www.dchunger.org/updates/snap-time-limits-have-returned-to-d-c-what-to-expect/",
+    "https://frac.org/blog/snap-time-limits-have-returned-to-d-c-what-to-expect",
+    "https://www.fna.usda.gov/snap/abawd/waivers/2025-2029",
+    "https://www.washingtonpost.com/dc-md-va/2026/06/02/new-snap-work-requirements-take-effect-could-affect-18000-dc-officials-say/"
+  ],
+
+  "notes": "VERIFICATION PASS (2026-06-22, FY2026 / OBBBA-HR1): Confirmed the prior file's federal_80 classification is CORRECT, on STRONGER and CORRECTED evidence. The decisive primary source is the DC DHS SNAP Work Requirements page's official 'How to meet work requirements' activities table, which lists under category 'Unpaid Work' the qualifying activity 'Volunteer work or barter arrangements,' counted toward the same 80-hours/month threshold as paid employment, introduced by 'You can participate in any of the following work activities ... for at least 80 hours per month,' and followed by 'Note: you can also meet work requirements by completing a smaller number of hours through the SNAP Volunteer Program.' The SNAP Volunteer Program (Workfare) is a SEPARATE, OPTIONAL lane requiring SNAP E&T sign-up, a case manager, and placement at an APPROVED host site, with hours = SNAP benefit / $17.95 (typically <=30/month). Because general self-arranged volunteering at any nonprofit counts at 80 hrs with no approved-site/registration requirement, the classification is federal_80; the allotment/min-wage formula is a lower-burden alternative, not the cost of volunteering, so this is NOT workfare_if_registered. CORRECTION to prior file: the prior notes wrongly cited the customer one-pager as confirming a general 80-hr volunteer lane; the one-pager (Updated May 6, 2026) actually presents volunteering ONLY as the approved-site Workfare program (Option A = work/training 80 hrs; Option B = volunteer at an approved site). The general volunteer lane is instead confirmed by the DHS web-page activities table plus Legal Aid DC and DC Hunger Solutions ('Work (paid, unpaid, volunteer, or work done in exchange for goods and services) ... 80 hours a month'). Enforcement re-coded 'partial' for FY2026: ABAWD time limits returned District-wide June 1, 2026 (single fixed 36-month clock June 1, 2026 - May 31, 2029); DC's prior District-wide waiver was eliminated by HR1/OBBBA and no geographic sub-waivers exist. Verification instrument: Verification of Employment or Qualifying Work Activity Form (launched June 1, 2026; EN/ES/Amharic), filled out by the customer and signed by an employer or organization representative; submitted via District Direct, in person, or mail/fax; reporting not required until next certification/recertification (may report from June 1, 2026), with a ~10-day report only if work hours drop below threshold. Remaining gaps: (1) residual risk that caseworkers in practice steer all 'volunteer' attestations into the approved-site Workfare program (no DC policy manual located to rule this out); (2) remote_stance silent; (3) out-of-state nonprofit acceptance silent; (4) verification form exact field schema unparsed. Confidence HIGH on classification + hours + form, with the documented caseworker-steering risk recorded in unresolved.",
+
+  "last_verified": "2026-06-22",
+  "next_review_by": "2027-06-22"
+}

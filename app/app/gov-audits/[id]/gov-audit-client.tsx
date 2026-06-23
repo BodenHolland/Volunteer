@@ -184,10 +184,21 @@ export function GovAuditClient({
     setSubmitError(null);
     const fd = new FormData();
     fd.set("session_id", sessionId);
-    const res = await submitGovAuditAction(fd);
-    // On success the action redirects; if we get here it's an error result.
-    if (res && !res.ok) {
-      setSubmitError(res.error ?? "Couldn't submit.");
+    try {
+      const res = await submitGovAuditAction(fd);
+      // On success the action redirects (we never get here). An error result
+      // comes back as {ok:false,error}; a network/worker timeout returns
+      // undefined — surface a retry message in both cases so the button
+      // can't get stuck "Submitting…" forever.
+      if (!res) {
+        setSubmitError("Submit didn't go through. Check your connection and try again.");
+        setSubmitting(false);
+      } else if (!res.ok) {
+        setSubmitError(res.error ?? "Couldn't submit.");
+        setSubmitting(false);
+      }
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Couldn't submit — try again.");
       setSubmitting(false);
     }
   }

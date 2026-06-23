@@ -329,38 +329,20 @@ async function submitInner(formData: FormData, sessionId: string) {
   const now = Date.now();
   const ref = row!.public_session_ref;
 
-  // Run server-side auto-checks per anchor (never throws). Fold each into a
-  // per-anchor corroboration record for integrity scoring.
+  // Materialize the public page_evaluations rows synchronously. Auto-checks
+  // (Browser Rendering + axe-core) are deferred into ctx.waitUntil() below —
+  // they take 15–30s per anchor and would otherwise blow Workers' wall-clock
+  // budget, leaving the volunteer staring at a stuck "Submitting…" button.
+  // Rubric-only corroboration is computed now; the score is recomputed once
+  // auto-checks land.
   const corroborations: AnchorCorroboration[] = [];
   for (const id of anchorIds) {
     const a = draft.anchors![id];
     const rubricComplete = isPageRubricComplete(a as unknown as Record<string, unknown>);
-    const check = await runAutoCheck(a.url);
-
-    await db
-      .prepare(
-        `INSERT INTO gov_audit_auto_checks
-         (id, public_session_ref, url, https_ok, http_status, load_ok, axe_violations, axe_summary_json, check_mode, checked_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?)`
-      )
-      .bind(
-        newId("autochk"),
-        ref,
-        check.url,
-        check.https_ok ? 1 : 0,
-        check.http_status,
-        check.load_ok ? 1 : 0,
-        check.axe_violations,
-        check.axe_summary ? JSON.stringify(check.axe_summary) : null,
-        check.check_mode,
-        now
-      )
-      .run();
-
     corroborations.push({
       accessibility: a.accessibility ?? null,
-      axeViolations: check.axe_violations,
-      loadOk: check.load_ok,
+      axeViolations: null, // unknown until the background auto-check lands
+      loadOk: null,
       rubricComplete,
     });
 
@@ -401,6 +383,13 @@ async function submitInner(formData: FormData, sessionId: string) {
       )
       .run();
   }
+
+  // Snapshot the anchor URLs the background job will check.
+  const anchorUrlsForCheck = anchorIds.map((id) => ({
+    url: draft.anchors![id].url,
+    accessibility: draft.anchors![id].accessibility ?? null,
+    rubricComplete: isPageRubricComplete(draft.anchors![id] as unknown as Record<string, unknown>),
+  }));
 
   // Materialize the single public site_evaluations row.
   const site = draft.site ?? {};
@@ -461,7 +450,107 @@ async function submitInner(formData: FormData, sessionId: string) {
     .bind(flagged ? "needs_changes" : "pending_review", now, finalCertMin * 60, row!.submission_id)
     .run();
 
+  // Kick off the slow server-side auto-checks in the background so the submit
+  // request returns immediately. waitUntil lets the worker keep running for up
+  // to ~30s after the response — plenty for one or two anchor's axe-core runs.
+  // If the worker dies before the checks finish, axe_violations stays null
+  // (treated as neutral by integrityScore) — never penalises the volunteer.
+  try {
+    getCloudflareContext().ctx.waitUntil(
+      runGovAuditAutoChecks(sessionId, ref, anchorUrlsForCheck, row!.device === "desktop")
+    );
+  } catch {
+    /* outside Workers runtime — auto-check just doesn't run */
+  }
+
   redirect(`/app/gov-audits/${sessionId}/done`);
+}
+
+/**
+ * Background auto-check pipeline. For each anchor URL:
+ *  1. runAutoCheck (HTTPS / HTTP status / load / axe-core)
+ *  2. Insert the gov_audit_auto_checks row
+ *  3. Recompute integrity_score from the rubric + real corroboration; update
+ *     the session row.
+ *
+ * This runs via ctx.waitUntil after the submit response has been sent, so the
+ * volunteer is already on /done by the time it starts. Never throws — failures
+ * leave axe_violations null, which integrityScore treats as neutral.
+ */
+async function runGovAuditAutoChecks(
+  sessionId: string,
+  ref: string,
+  anchors: { url: string; accessibility: Observable | null; rubricComplete: boolean }[],
+  isDesktop: boolean
+): Promise<void> {
+  const db = getDb();
+  const now = Date.now();
+  const corroborations: AnchorCorroboration[] = [];
+
+  for (const a of anchors) {
+    let check;
+    try {
+      check = await runAutoCheck(a.url);
+    } catch (err) {
+      await logError("runGovAuditAutoChecks", err, { sessionId, url: a.url });
+      corroborations.push({
+        accessibility: a.accessibility,
+        axeViolations: null,
+        loadOk: null,
+        rubricComplete: a.rubricComplete,
+      });
+      continue;
+    }
+
+    try {
+      await db
+        .prepare(
+          `INSERT INTO gov_audit_auto_checks
+           (id, public_session_ref, url, https_ok, http_status, load_ok, axe_violations, axe_summary_json, check_mode, checked_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?)`
+        )
+        .bind(
+          newId("autochk"),
+          ref,
+          check.url,
+          check.https_ok ? 1 : 0,
+          check.http_status,
+          check.load_ok ? 1 : 0,
+          check.axe_violations,
+          check.axe_summary ? JSON.stringify(check.axe_summary) : null,
+          check.check_mode,
+          now
+        )
+        .run();
+    } catch (err) {
+      await logError("runGovAuditAutoChecks:insertCheck", err, { sessionId, url: a.url });
+    }
+
+    corroborations.push({
+      accessibility: a.accessibility,
+      axeViolations: check.axe_violations,
+      loadOk: check.load_ok,
+      rubricComplete: a.rubricComplete,
+    });
+  }
+
+  // Recompute integrity_score with real corroboration; preserve flagged status
+  // unless the new integrity now meets the threshold (and the volunteer was on
+  // a desktop). Never downgrade a session that's already been admin-handled.
+  try {
+    const newIntegrity = integrityScore(corroborations);
+    const shouldFlag = !isDesktop || newIntegrity < INTEGRITY_FLAG_THRESHOLD;
+    await db
+      .prepare(
+        `UPDATE gov_audit_sessions
+         SET integrity_score = ?, status = CASE WHEN status IN ('submitted','flagged') THEN ? ELSE status END
+         WHERE id = ?`
+      )
+      .bind(newIntegrity, shouldFlag ? "flagged" : "submitted", sessionId)
+      .run();
+  } catch (err) {
+    await logError("runGovAuditAutoChecks:updateIntegrity", err, { sessionId });
+  }
 }
 
 function boolToInt(v: boolean | undefined): number | null {
