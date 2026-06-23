@@ -80,7 +80,8 @@ export async function POST(req: Request) {
   await writeAudit({ actorUserId: user.id, action: "login", entityType: "user", entityId: user.id, detail: { via: "firebase" } });
 
   // New recipients with no profile yet go to onboarding; others to their home.
-  const needsOnboarding = user.role === "recipient" && !user.full_name;
+  // Mirrors the isOnboarded check in /start/page.tsx: city + state + intent set.
+  const needsOnboarding = user.role === "recipient" && (!user.city || !user.state || !user.intent || user.intent === "n/a");
   const response = NextResponse.json({
     ok: true,
     next: needsOnboarding ? "/start?step=location" : homeForUser(user),
