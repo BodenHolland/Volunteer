@@ -23,7 +23,6 @@ export async function SiteHeader() {
         signIn: t.nav.signIn,
         signUp: t.nav.signUp,
         opportunities: t.nav.opportunities,
-        hoursCalculator: t.nav.hoursCalculator,
         help: t.footer.help,
       }}
       viewer={

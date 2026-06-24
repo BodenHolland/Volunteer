@@ -5,8 +5,8 @@ export const en = {
     forOrgs: "For organizations",
     signIn: "Sign in",
     signUp: "Sign up",
-    opportunities: "Opportunities",
-    hoursCalculator: "Hours calculator",
+    opportunities: "Volunteer Opportunities",
+    hoursCalculator: "SNAP volunteer hours calculator",
     seeTasks: "See tasks",
   },
   hero: {
@@ -155,6 +155,7 @@ export const en = {
       bodyCA:
         "Your reviewed hours can be certified on your state's SNAP work-hours verification form — pre-filled with your details, downloaded by you, and uploaded by you. You stay in control of your information the whole way.",
       link: "See how certification works →",
+      calculator: "Estimate your monthly volunteer hours →",
     },
     finalCta: {
       title: "Start with one task.",

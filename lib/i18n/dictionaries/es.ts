@@ -7,8 +7,8 @@ export const es: typeof en = {
     forOrgs: "Para organizaciones",
     signIn: "Iniciar sesión",
     signUp: "Crear cuenta",
-    opportunities: "Oportunidades",
-    hoursCalculator: "Calculadora de horas",
+    opportunities: "Oportunidades de voluntariado",
+    hoursCalculator: "Calculadora de horas de voluntariado SNAP",
     seeTasks: "Ver tareas",
   },
   hero: {
@@ -157,6 +157,7 @@ export const es: typeof en = {
       bodyCA:
         "Tus horas revisadas pueden certificarse en el formulario de verificación de horas de trabajo de SNAP de tu estado: pre-llenado con tus datos, descargado por ti y subido por ti. Mantienes el control de tu información en todo momento.",
       link: "Mira cómo funciona la certificación →",
+      calculator: "Calcula tus horas mensuales de voluntariado →",
     },
     finalCta: {
       title: "Empieza con una tarea.",

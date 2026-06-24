@@ -32,7 +32,6 @@ export interface PublicNavStrings {
   signIn: string;
   signUp: string;
   opportunities: string;
-  hoursCalculator: string;
   help: string;
 }
 
@@ -42,8 +41,7 @@ const EN: PublicNavStrings = {
   forOrgs: "For organizations",
   signIn: "Sign in",
   signUp: "Sign up",
-  opportunities: "Opportunities",
-  hoursCalculator: "Hours calculator",
+  opportunities: "Volunteer Opportunities",
   help: "Help center",
 };
 
@@ -122,7 +120,6 @@ export function SiteHeaderClient({
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
             <Link href="/how-it-works" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.opportunities}</Link>
-            <Link href="/data/hours-calculator" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.hoursCalculator}</Link>
             {!viewer && <Link href="/help" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-100 hover:text-white">{t.help}</Link>}
           </nav>
         </div>
@@ -174,7 +171,6 @@ export function SiteHeaderClient({
             )}
             <Link href="/how-it-works" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.howItWorks}</Link>
             <Link href="/opportunities" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.opportunities}</Link>
-            <Link href="/data/hours-calculator" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.hoursCalculator}</Link>
             {!viewer && <Link href="/help" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white">{t.help}</Link>}
             <div className="my-1 h-px bg-white/15" />
             {viewer ? (

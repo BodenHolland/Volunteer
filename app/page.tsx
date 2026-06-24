@@ -135,6 +135,9 @@ export default async function LandingPage() {
               <p className="mt-6">
                 <Link href="/how-it-works" className="font-medium text-forest hover:underline">{L.snap.link}</Link>
               </p>
+              <p className="mt-3">
+                <Link href="/data/hours-calculator" className="font-medium text-forest hover:underline">{L.snap.calculator}</Link>
+              </p>
             </div>
           </div>
         </section>
