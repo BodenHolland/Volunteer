@@ -109,11 +109,7 @@ export async function commitToTask(formData: FormData) {
       // the commit and trapping the user.
       const pool = remaining.length > 0 ? remaining : targets;
 
-      const countRow = await db
-        .prepare("SELECT COUNT(*) AS n FROM submissions WHERE task_template_id = ?")
-        .bind(taskId)
-        .first<{ n: number }>();
-      const idx = ((countRow?.n ?? 0) % pool.length);
+      const idx = Math.floor(Math.random() * pool.length);
       const assignment = pool[idx];
       initialNotes = JSON.stringify({
         assignment,

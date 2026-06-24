@@ -10,6 +10,79 @@ import { processSubmissionAi } from "@/lib/process";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { parseJson, type Submission } from "@/lib/types";
 
+/**
+ * Pick a new EMS target for an in-progress submission. Excludes the current
+ * assignment plus every provider the user has been assigned in prior
+ * submissions on this task. Falls back to the full pool if exhausted.
+ * Preserves the existing public_session_ref so the cross-boundary key is stable
+ * (the volunteer is just changing what they're researching, not starting over).
+ */
+export async function rerollEmsAssignment(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/start");
+  const id = String(formData.get("submission_id") ?? "");
+  const db = getDb();
+  const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
+  if (!sub || sub.user_id !== user.id) redirect("/app/projects");
+  if (!["committed", "in_progress", "needs_changes"].includes(sub.status)) {
+    redirect(`/app/submissions/${id}`);
+  }
+
+  const task = await db
+    .prepare("SELECT category, deliverable_spec_json FROM task_templates WHERE id = ?")
+    .bind(sub.task_template_id)
+    .first<{ category: string; deliverable_spec_json: string }>();
+  if (task?.category !== "ems-rate-research") redirect(`/app/projects/${id}/submit`);
+
+  const spec = parseJson<{ ems_targets?: { provider_name: string; city: string; state: string }[] }>(
+    task.deliverable_spec_json,
+    {}
+  );
+  const targets = spec.ems_targets ?? [];
+  if (targets.length === 0) redirect(`/app/projects/${id}/submit`);
+
+  // Exclude every assignment the user has had on this task (prior submissions
+  // PLUS the current assignment on this submission). Use a (city,state) key so
+  // entries with blank provider_name still match correctly.
+  const priorRows = (
+    await db
+      .prepare(
+        `SELECT user_notes FROM submissions
+         WHERE user_id = ? AND task_template_id = ? AND user_notes IS NOT NULL`
+      )
+      .bind(user.id, sub.task_template_id)
+      .all<{ user_notes: string }>()
+  ).results ?? [];
+  const used = new Set<string>();
+  for (const r of priorRows) {
+    const a = parseJson<{ assignment?: { city?: string; state?: string } }>(r.user_notes, {}).assignment;
+    if (a?.city || a?.state) used.add(`${a?.city ?? ""}|${a?.state ?? ""}`);
+  }
+  const remaining = targets.filter((t) => !used.has(`${t.city}|${t.state}`));
+  const pool = remaining.length > 0 ? remaining : targets;
+  const next = pool[Math.floor(Math.random() * pool.length)];
+
+  const existing = parseJson<Record<string, unknown>>(sub.user_notes ?? "", {});
+  const merged = {
+    ...existing,
+    assignment: next,
+    // Reset rate fields — the volunteer is researching a different provider now.
+    bls: { amount: "", source_url: "", not_found: false },
+    als: { amount: "", source_url: "", not_found: false },
+    mileage: { amount: "", source_url: "", not_found: false },
+    tnt: { amount: "", source_url: "", not_found: false },
+    tnt_description: "",
+    effective_date: "",
+    zip_codes: "",
+    notes: "",
+  };
+  await db
+    .prepare("UPDATE submissions SET user_notes = ? WHERE id = ?")
+    .bind(JSON.stringify(merged), id)
+    .run();
+  redirect(`/app/projects/${id}/submit`);
+}
+
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", buf);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");

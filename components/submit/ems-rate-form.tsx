@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin } from "lucide-react";
+import { MapPin, Shuffle } from "lucide-react";
+import { rerollEmsAssignment } from "@/app/app/projects/[id]/submit-actions";
 import type { EmsRateAssignment, EmsRateData, EmsRateField } from "@/lib/types";
 
 interface Props {
@@ -89,7 +90,7 @@ export function EmsRateForm({ assignment, defaults }: Props) {
       <div className="rounded-lg border-2 border-forest bg-forest-subtle p-4">
         <div className="flex items-start gap-2.5">
           <MapPin className="mt-0.5 size-4 shrink-0 text-forest" />
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-forest">Researching</p>
             {a.provider_name ? (
               <>
@@ -113,6 +114,17 @@ export function EmsRateForm({ assignment, defaults }: Props) {
         <input type="hidden" name="ems_assignment_provider_name" value={a.provider_name} />
         <input type="hidden" name="ems_assignment_city" value={a.city} />
         <input type="hidden" name="ems_assignment_state" value={a.state} />
+        <div className="mt-3 flex justify-end">
+          <button
+            type="submit"
+            formAction={rerollEmsAssignment}
+            formNoValidate
+            className="inline-flex items-center gap-1.5 rounded-md border border-forest bg-white px-2.5 py-1.5 text-xs font-medium text-forest hover:bg-forest-subtle"
+          >
+            <Shuffle className="size-3.5" />
+            Try a different city
+          </button>
+        </div>
       </div>
 
       <fieldset className="space-y-3">
