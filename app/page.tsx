@@ -16,7 +16,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { getDict } from "@/lib/i18n";
-import { getCurrentUser, viewerInCalifornia } from "@/lib/session";
+import { viewerInCalifornia } from "@/lib/session";
 import { listActiveTasks } from "@/lib/queries";
 
 export const metadata = { title: "Tended — Online volunteering that counts toward SNAP (EBT)" };
@@ -27,7 +27,6 @@ export default async function LandingPage() {
   const { t } = await getDict();
   const L = t.landing;
   const isCA = await viewerInCalifornia();
-  const viewer = await getCurrentUser();
   const featuredTasks = (await listActiveTasks()).slice(0, 4);
   const featuredCards: ListingCardData[] = featuredTasks.map((t, i) => ({
     id: t.id,
@@ -99,7 +98,7 @@ export default async function LandingPage() {
               </div>
               <div className="mt-8 border-t border-line">
                 {featuredCards.map((c) => (
-                  <ListingCard key={c.id} task={c} showBookmark={!!viewer} />
+                  <ListingCard key={c.id} task={c} />
                 ))}
               </div>
               <div className="mt-8 flex justify-center">

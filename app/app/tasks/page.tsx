@@ -97,7 +97,7 @@ export default async function TasksPage({
       ) : (
         <div className="mt-1">
           {cards.map((c) => (
-            <ListingCard key={c.id} task={c} showBookmark />
+            <ListingCard key={c.id} task={c} />
           ))}
         </div>
       )}

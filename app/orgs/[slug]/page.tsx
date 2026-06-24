@@ -9,7 +9,6 @@ import { EmptyState } from "@/components/empty-state";
 import { getDb } from "@/lib/cf";
 import { getOrgBySlug } from "@/lib/queries";
 import { getLocale } from "@/lib/i18n";
-import { getCurrentUser } from "@/lib/session";
 import { parseJson, type Address, type TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +42,6 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const org = await getOrgBySlug(slug);
   if (!org) notFound();
-  const viewer = await getCurrentUser();
 
   const tasks =
     (await getDb()
@@ -95,7 +93,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
               {cards.length > 0 ? (
                 <div className="mt-5 space-y-4">
                   {cards.map((card) => (
-                    <ListingCard key={card.id} task={card} showBookmark={!!viewer} />
+                    <ListingCard key={card.id} task={card} />
                   ))}
                 </div>
               ) : (
