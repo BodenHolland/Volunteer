@@ -149,8 +149,7 @@ export function SiteHeaderClient({
             </>
           ) : (
             <>
-              <Button asChild size="sm" variant="ghost" className="hidden text-white hover:bg-white/10 hover:text-white md:inline-flex"><Link href="/login">{t.signIn}</Link></Button>
-              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/signup">{t.signUp}</Link></Button>
+              <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/login">{t.signIn}</Link></Button>
             </>
           )}
           <LocaleSwitcher locale={locale} className="hidden text-white md:inline-flex" />
@@ -179,10 +178,7 @@ export function SiteHeaderClient({
                 <SignOutButton className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium text-red-200 hover:bg-white/10 [&_svg]:size-[18px]" />
               </>
             ) : (
-              <>
-                <Button asChild className="w-full"><Link href="/signup">{t.signUp}</Link></Button>
-                <Button asChild variant="secondary" className="w-full"><Link href="/login">{t.signIn}</Link></Button>
-              </>
+              <Button asChild className="w-full"><Link href="/login">{t.signIn}</Link></Button>
             )}
             <div className="my-1 h-px bg-white/15" />
             <div className="px-3 py-1"><LocaleSwitcher locale={locale} /></div>
