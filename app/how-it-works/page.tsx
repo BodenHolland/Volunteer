@@ -81,8 +81,8 @@ const TIERS = {
 const COPY = {
   en: {
     overline: "How it works",
-    title: "Real work, fairly counted.",
-    intro: "Tended connects you with useful civic tasks posted by local nonprofits and agencies. You do the work, log your time, and a sponsoring organization reviews it. If you get SNAP (EBT), your approved hours can be certified toward your monthly work requirement.",
+    title: "Help people, from anywhere",
+    intro: "Online volunteer tasks posted by local nonprofits and public agencies. You do the work on your own schedule and log your time. If you get SNAP (EBT), your approved hours can be certified toward your monthly work requirement.",
     onThisPage: "On this page",
     civicHeading: "Online volunteering",
     civicChecks: [
@@ -103,8 +103,8 @@ const COPY = {
   },
   es: {
     overline: "Cómo funciona",
-    title: "Trabajo real, contado con justicia.",
-    intro: "Tended te conecta con tareas cívicas útiles publicadas por organizaciones sin fines de lucro y agencias locales. Tú haces el trabajo, registras tu tiempo y una organización patrocinadora lo revisa. Si recibes SNAP (EBT), tus horas aprobadas pueden certificarse para tu requisito de trabajo mensual.",
+    title: "Ayuda a la gente, desde donde estés",
+    intro: "Tareas de voluntariado en línea publicadas por organizaciones sin fines de lucro y agencias públicas locales. Haces el trabajo a tu propio ritmo y registras tu tiempo. Si recibes SNAP (EBT), tus horas aprobadas pueden certificarse para tu requisito de trabajo mensual.",
     onThisPage: "En esta página",
     civicHeading: "Voluntariado en línea",
     civicChecks: [

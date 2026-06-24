@@ -52,7 +52,6 @@ export default async function HelpIndex() {
         <section className="border-b border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-20">
             <div className="mx-auto max-w-[760px] text-center">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-forest">{t.overline}</p>
               <h1 className="mt-3 text-[40px] font-semibold leading-[1.1] text-ink md:text-[48px]">{t.heroTitle}</h1>
               <p className="mx-auto mt-4 max-w-[620px] text-lg leading-relaxed text-body">{t.intro}</p>
               <HelpSearch articles={searchArticles} placeholder={t.searchPlaceholder} resultsLabel={t.resultsLabel} noResults={t.noResults} />
