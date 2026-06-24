@@ -46,9 +46,7 @@ export async function ArticleShell({
           <p className="mb-3 text-sm text-body">
             <Link href="/help" className="hover:underline">
               {labels.helpCenter}
-            </Link>{" "}
-            · {labels.article} {number}
-            {starred ? labels.keyArticle : ""}
+            </Link>
           </p>
           <h1 className="text-[34px] font-semibold leading-[1.15] text-ink md:text-[40px]">
             {title}
