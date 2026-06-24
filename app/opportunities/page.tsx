@@ -58,7 +58,7 @@ export default async function OpportunitiesPage({
         <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6 md:py-14">
           <div className="mx-auto max-w-[720px] text-center">
             <h1 className="text-[32px] font-semibold leading-tight text-ink md:text-[40px]">Volunteer opportunities</h1>
-            <p className="mt-3 text-body">Real civic work — counting street trees, translating flyers, mapping sidewalk hazards. Free to start, no sign-in required to browse.</p>
+            <p className="mt-3 text-body">Browse online tasks from nonprofits and public agencies near you.</p>
           </div>
 
           <div className="mt-10 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
