@@ -183,10 +183,18 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                 <MapPin className="mt-0.5 size-5 shrink-0 text-forest" />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-forest">Your assignment</p>
-                  <p className="mt-1 text-lg font-semibold text-ink">{emsAssignment.provider_name}</p>
-                  <p className="text-sm text-body">{emsAssignment.city}, {emsAssignment.state}</p>
+                  {emsAssignment.provider_name ? (
+                    <>
+                      <p className="mt-1 text-lg font-semibold text-ink">{emsAssignment.provider_name}</p>
+                      <p className="text-sm text-body">{emsAssignment.city}, {emsAssignment.state}</p>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-lg font-semibold text-ink">
+                      EMS provider serving {emsAssignment.city}, {emsAssignment.state}
+                    </p>
+                  )}
                   <p className="mt-2 text-sm text-body">
-                    Find this provider&apos;s official published ambulance billing rates and record what you find on the submit form.
+                    Find the official published ambulance billing rates for this area and record what you find on the submit form.
                   </p>
                 </div>
               </div>

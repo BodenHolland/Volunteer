@@ -91,9 +91,22 @@ export function EmsRateForm({ assignment, defaults }: Props) {
           <MapPin className="mt-0.5 size-4 shrink-0 text-forest" />
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-forest">Researching</p>
-            <p className="mt-0.5 text-base font-semibold text-ink">{a.provider_name || "(no assignment)"}</p>
-            {(a.city || a.state) && (
-              <p className="text-sm text-body">{a.city}{a.city && a.state ? ", " : ""}{a.state}</p>
+            {a.provider_name ? (
+              <>
+                <p className="mt-0.5 text-base font-semibold text-ink">{a.provider_name}</p>
+                {(a.city || a.state) && (
+                  <p className="text-sm text-body">{a.city}{a.city && a.state ? ", " : ""}{a.state}</p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="mt-0.5 text-base font-semibold text-ink">
+                  EMS provider serving {a.city}{a.city && a.state ? ", " : ""}{a.state}
+                </p>
+                <p className="mt-1 text-sm text-body">
+                  Your first task: find which agency (city fire dept, county EMS, private contractor) bills ambulance transports in this area, then look up its rates.
+                </p>
+              </>
             )}
           </div>
         </div>

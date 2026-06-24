@@ -12,6 +12,7 @@
  */
 import { parseJson, totalLoggedHours, type ChecklistItem, type DeliverableSpec, type TimeLogSession } from "./types";
 import { hashPassword } from "./auth";
+import { EMS_TARGETS } from "./ems-targets";
 
 /** All seeded sample accounts share this password so they are loginnable. */
 export const SEED_PASSWORD = "tended-sample-2026";
@@ -295,20 +296,7 @@ const TASKS: SeedTask[] = [
     ],
     spec: {
       kind: "ems-rate-research",
-      ems_targets: [
-        { provider_name: "Austin-Travis County EMS", city: "Austin", state: "TX" },
-        { provider_name: "Boston EMS", city: "Boston", state: "MA" },
-        { provider_name: "Denver Health Paramedic Division", city: "Denver", state: "CO" },
-        { provider_name: "FDNY EMS", city: "New York", state: "NY" },
-        { provider_name: "King County Medic One", city: "Seattle", state: "WA" },
-        { provider_name: "Los Angeles Fire Department EMS", city: "Los Angeles", state: "CA" },
-        { provider_name: "MedStar Mobile Healthcare", city: "Fort Worth", state: "TX" },
-        { provider_name: "Miami-Dade Fire Rescue", city: "Miami", state: "FL" },
-        { provider_name: "Pittsburgh EMS", city: "Pittsburgh", state: "PA" },
-        { provider_name: "San Francisco Fire Department EMS", city: "San Francisco", state: "CA" },
-        { provider_name: "Wake County EMS", city: "Raleigh", state: "NC" },
-        { provider_name: "Washington DC Fire and EMS", city: "Washington", state: "DC" },
-      ],
+      ems_targets: EMS_TARGETS,
     },
     rubric:
       "APPROVE if: source_url is present and from an official government or EMS-provider domain; at least one rate field (bls_base / als_base / mileage / tnt_fee) is non-empty; the screenshot shows a real rate table with dollar figures; effective_date is present. NEEDS_CHANGES if: source_url is a homepage rather than the direct schedule, all rate fields are empty, tnt_fee is filled but tnt_description is empty, or the screenshot shows an unrelated page. REJECT if: source is a personal blog / news article / Reddit / unofficial source, the screenshot is blank / AI-generated / unrelated, or provider_name + city + state are all empty. Field issues use the field name as the key (source_url, photos, overall).",
