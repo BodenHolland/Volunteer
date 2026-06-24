@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Star } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HelpSearch } from "./_components/help-search";
@@ -64,18 +64,14 @@ export default async function HelpIndex() {
           <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-16">
             <div className="flex items-end justify-between gap-6">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-forest">{t.startHere}</p>
-                <h2 className="mt-2 text-[28px] font-semibold leading-tight text-ink">{t.startHere}</h2>
+                <h2 className="text-[28px] font-semibold leading-tight text-ink">{t.startHere}</h2>
                 <p className="mt-2 max-w-[620px] text-body">{t.startHereBody}</p>
               </div>
             </div>
             <div className="mt-7 grid gap-4 md:grid-cols-2">
               {keyArticles.map((article) => (
                 <Link key={article.slug} href={`/help/${article.slug}`} className="group rounded-lg border border-line bg-white p-5 transition hover:border-forest hover:shadow-sm">
-                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-terracotta">
-                    <Star className="size-3.5 fill-current" aria-hidden /> {t.keyGuide}
-                  </div>
-                  <h3 className="mt-3 text-lg font-semibold leading-snug text-ink group-hover:text-forest">{articleTitle(article, locale)}</h3>
+                  <h3 className="text-lg font-semibold leading-snug text-ink group-hover:text-forest">{articleTitle(article, locale)}</h3>
                   <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-forest">{t.readArticle} <ArrowRight className="size-4" /></span>
                 </Link>
               ))}
@@ -85,8 +81,7 @@ export default async function HelpIndex() {
 
         <section className="border-y border-line bg-section">
           <div className="mx-auto max-w-[1200px] px-4 py-14 md:px-6 md:py-16">
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-forest">{t.browseTopics}</p>
-            <h2 className="mt-2 text-[28px] font-semibold leading-tight text-ink">{t.browseTopics}</h2>
+            <h2 className="text-[28px] font-semibold leading-tight text-ink">{t.browseTopics}</h2>
             <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {SECTIONS.map((section) => {
                 const itemCount = ARTICLES.filter((article) => article.number >= section.range[0] && article.number <= section.range[1]).length;
@@ -117,7 +112,6 @@ export default async function HelpIndex() {
                         <li key={article.slug}>
                           <Link href={`/help/${article.slug}`} className="group flex items-center gap-4 px-5 py-4 hover:bg-section">
                             <span className="min-w-0 flex-1 font-medium text-ink group-hover:text-forest">{articleTitle(article, locale)}</span>
-                            {article.starred && <span className="hidden items-center gap-1 text-xs font-medium text-terracotta sm:inline-flex"><Star className="size-3 fill-current" aria-hidden /> {t.keyGuide}</span>}
                             <ArrowRight className="size-4 shrink-0 text-meta" aria-hidden />
                           </Link>
                         </li>

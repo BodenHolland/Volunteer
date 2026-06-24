@@ -12,7 +12,7 @@ export const ARTICLES: ArticleMeta[] = [
   { number: 1, slug: "1-what-is-tended", title: "What is Tended?", title_es: "¿Qué es Tended?" },
   { number: 2, slug: "2-how-it-works", title: "How the platform works (for volunteers)", title_es: "Cómo funciona la plataforma (para voluntarios)" },
   { number: 3, slug: "3-funding", title: "Who funds Tended", title_es: "Quién financia Tended" },
-  { number: 4, slug: "4-what-counts", title: "What counts as SNAP volunteer hours, and our authority for it", title_es: "Qué cuenta como horas de voluntariado para SNAP, y nuestra autoridad para ello", starred: true },
+  { number: 4, slug: "4-what-counts", title: "What counts as SNAP volunteer hours", title_es: "Qué cuenta como horas de voluntariado para SNAP", starred: true },
   { number: 5, slug: "5-remote-online", title: "Why remote and online volunteer hours count", title_es: "Por qué cuentan las horas de voluntariado remoto y en línea", starred: true },
   { number: 6, slug: "6-surveys", title: "Surveys & community-research contributions", title_es: "Encuestas y contribuciones de investigación comunitaria" },
   { number: 7, slug: "7-not-count", title: "What does NOT count", title_es: "Qué NO cuenta" },
@@ -22,8 +22,6 @@ export const ARTICLES: ArticleMeta[] = [
   { number: 11, slug: "11-privacy", title: "Privacy, PII, and what we publish", title_es: "Privacidad, datos personales y lo que publicamos" },
   { number: 12, slug: "12-caseworkers", title: "For caseworkers — a one-page methodology", title_es: "Para trabajadores sociales — una metodología de una página", starred: true },
   { number: 13, slug: "13-ledger", title: "Audit & methodology ledger", title_es: "Registro de auditoría y metodología" },
-  { number: 14, slug: "14-questioned", title: "What happens if a county questions your hours", title_es: "Qué pasa si un condado cuestiona tus horas" },
-  { number: 15, slug: "15-legal-help", title: "Where to get legal help", title_es: "Dónde conseguir ayuda legal" },
 ];
 
 export type SectionMeta = {
@@ -38,7 +36,6 @@ export const SECTIONS: SectionMeta[] = [
   { slug: "snap-hours", name: "What counts as SNAP volunteer hours", name_es: "Qué cuenta como horas de voluntariado para SNAP", range: [4, 7] as const },
   { slug: "verification", name: "How we verify", name_es: "Cómo verificamos", range: [8, 11] as const },
   { slug: "caseworkers", name: "For caseworkers", name_es: "Para trabajadores sociales", range: [12, 13] as const },
-  { slug: "questions", name: "If your hours are questioned", name_es: "Si se cuestionan tus horas", range: [14, 15] as const },
 ];
 
 export function articleTitle(a: ArticleMeta, locale: Locale): string {

@@ -73,12 +73,8 @@ export default async function Page() {
       <p>The platform records active engagement during each task session, using a timer with idle detection, minimum-engagement floors, anti-duplication, and PII screening. Credited hours equal <code>min(measured engagement, calibrated cap)</code>, only when the deliverable passes per-submission validation. The cap is calibrated to the observed median of real, quality-passing sessions and recalibrated quarterly. The authorized representative certifies based on those records.</p>
 
       <h2>Remote and online volunteering</h2>
-      <p>No published FNS, CDSS, or OTDA guidance specifically addresses remote or online volunteer hours. None requires in-person work. Tended&apos;s position is that remote volunteering is unaddressed, not prohibited. The position is supported by:</p>
-      <ul>
-        <li>The text of 7 CFR §273.24(a)(2)(iii), which does not distinguish in-person from remote work.</li>
-        <li>Long-standing remote nonprofit volunteer programs (Smithsonian Transcription Center, Library of Congress &ldquo;By the People,&rdquo; Zooniverse, Tarjimly).</li>
-        <li>Federal endorsement of remote citizen-science data contribution (Crowdsourcing and Citizen Science Act of 2016; EPA Participatory Science; USDA Forest Service).</li>
-      </ul>
+      <p>Remote volunteer service is federally recognized. The <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) directs federal agencies to use remote volunteer contribution and defines it as a recognized form of public participation. EPA, USDA Forest Service, National Park Service, NASA, the Smithsonian, and the Library of Congress all operate large-scale remote volunteer programs under this framework.</p>
+      <p><strong>7 CFR §273.24(a)(2)(iii)</strong> counts &ldquo;unpaid work, verified under standards established by the State agency.&rdquo; The regulation does not distinguish in-person from remote work; the operative requirement is a verification standard. California (ACL 25-34, CF 888) and New York both have one. The CF 888 describes &ldquo;the organization where the person volunteers&rdquo; — location-neutral on its face.</p>
 
       <h2>Verifying a form</h2>
       <p>We welcome direct contact from caseworkers and county staff. If a form you received seems questionable, please contact us before rejecting it. We can confirm the records that support the certification.</p>
