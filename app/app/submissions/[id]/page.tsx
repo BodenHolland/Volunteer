@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, RotateCcw, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, RotateCcw, CheckCircle2, MapPin } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getSubmission, getSubmissionFiles, getSubmissionFlags } from "@/lib/queries";
 import { StatusPill } from "@/components/status-pill";
@@ -27,6 +27,9 @@ const COPY = {
     fixAndResubmit: "Fix and resubmit",
     whatYouSubmitted: "What you submitted",
     integrityChecks: "Integrity checks",
+    emsThanks: "Thanks — your rates are queued for review.",
+    emsNext: "Help fill another gap. Every city you research adds a row to the free public ambulance-rates dataset.",
+    emsCta: "Research another city",
   },
   es: {
     allProjects: "Todos los proyectos",
@@ -38,6 +41,9 @@ const COPY = {
     fixAndResubmit: "Corregir y reenviar",
     whatYouSubmitted: "Lo que enviaste",
     integrityChecks: "Verificaciones de integridad",
+    emsThanks: "Gracias — tus tarifas están en cola para revisión.",
+    emsNext: "Ayuda a cubrir otra brecha. Cada ciudad que investigas agrega una fila al conjunto público y gratuito de tarifas de ambulancia.",
+    emsCta: "Investigar otra ciudad",
   },
 } as const;
 
@@ -65,6 +71,8 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
   const verdict = sub.ai_verdict_json ? (parseJson<AiVerdict>(sub.ai_verdict_json, null as never) as AiVerdict) : null;
   const reviewing = sub.status === "ai_reviewing" || sub.status === "submitted";
   const failed = sub.status === "needs_changes" || sub.status === "rejected";
+  const isEms = sub.task.category === "ems-rate-research";
+  const showEmsCta = isEms && !failed && sub.status !== "committed" && sub.status !== "in_progress";
   const locale = await getLocale();
   const c = COPY[locale];
 
@@ -87,6 +95,21 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
 
       <div className="mt-6 space-y-6">
         {reviewing && <AiPoller submissionId={sub.id} initialStatus={sub.status} />}
+
+        {showEmsCta && (
+          <div className="rounded-lg border-2 border-forest bg-forest-subtle p-5">
+            <div className="flex items-start gap-3">
+              <MapPin className="mt-0.5 size-5 shrink-0 text-forest" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-ink">{c.emsThanks}</p>
+                <p className="mt-1 text-sm text-body">{c.emsNext}</p>
+                <Button asChild className="mt-3">
+                  <Link href={`/app/tasks/${sub.task.id}`}>{c.emsCta}</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {sub.status === "approved" && (
           <div className="flex items-center gap-3 rounded-lg border border-forest/30 bg-forest-subtle p-4">
