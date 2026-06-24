@@ -22,10 +22,10 @@ const LINE_GREY = rgb(0.55, 0.55, 0.55);
 
 export async function buildLetterPdf(
   data: StateFormData,
-  opts?: { stateName?: string; agencyLine?: string; submissionLine?: string }
+  opts?: { stateName?: string; agencyLine?: string; submissionLine?: string; requirementsLine?: string }
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
-  doc.setTitle("Volunteer Hours Verification Letter");
+  doc.setTitle(`${opts?.stateName || "State"} Volunteer Hours Verification Certificate`);
   doc.setProducer("Tended");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -96,7 +96,7 @@ export async function buildLetterPdf(
       : "SNAP Eligibility Worker");
   draw(agency, LEFT, y, reg, 11);
   y += 14;
-  draw("Re: Volunteer hours verification for the SNAP ABAWD work requirement", LEFT, y, reg, 11);
+  draw(`${opts?.stateName || "State"} SNAP ABAWD volunteer-hours verification certificate`, LEFT, y, bold, 11);
 
   // Salutation
   y += 28;
@@ -118,6 +118,7 @@ export async function buildLetterPdf(
     }. The above hours reflect the participant's actual measured time logged with our organization and have not been inflated.`,
     `Should you require additional verification, please contact the undersigned representative using the contact information at the top of this letter.`,
   ];
+  if (opts?.requirementsLine) body.splice(2, 0, opts.requirementsLine);
   for (const para of body) {
     for (const ln of wrap(para, RIGHT - LEFT, reg, 11)) {
       draw(ln, LEFT, y, reg, 11);
@@ -140,6 +141,8 @@ export async function buildLetterPdf(
   partKv("Address", data.participantAddress.filter(Boolean).join(", "));
   if (data.caseNumber) partKv("Case number", data.caseNumber);
   if (data.participantPhone) partKv("Phone", data.participantPhone);
+  partKv("Verified reporting period", data.month);
+  partKv("Verified actual hours", Number.isFinite(data.hours) ? `${data.hours} hours` : "");
 
   // Signature block
   y += 24;

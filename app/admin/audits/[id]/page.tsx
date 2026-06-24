@@ -30,14 +30,16 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
     .prepare("SELECT full_name, email FROM users WHERE id = ?")
     .bind(audit.user_id)
     .first<{ full_name: string | null; email: string }>();
+  // Public-cluster reads use public_session_ref; private flags still use audit_id.
+  const ref = audit.public_session_ref;
   const capturesRes = await db
-    .prepare("SELECT * FROM audit_item_captures WHERE audit_id = ?")
-    .bind(id)
+    .prepare("SELECT * FROM audit_item_captures WHERE public_session_ref = ?")
+    .bind(ref)
     .all<AuditItemCaptureRow>();
   const captures = capturesRes.results ?? [];
   const photoRes = await db
-    .prepare("SELECT * FROM audit_photos WHERE audit_id = ?")
-    .bind(id)
+    .prepare("SELECT * FROM audit_photos WHERE public_session_ref = ?")
+    .bind(ref)
     .all<AuditPhotoRow>();
   const photos = new Map((photoRes.results ?? []).map((p) => [p.id, p]));
   const flagRes = await db
@@ -49,9 +51,9 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
   const contribRes = await db
     .prepare(
       `SELECT basket_item_id, status, attempt_count, open_prices_id, last_error
-       FROM open_prices_contributions WHERE audit_id = ?`
+       FROM open_prices_contributions WHERE public_session_ref = ?`
     )
-    .bind(id)
+    .bind(ref)
     .all<{
       basket_item_id: string;
       status: string;

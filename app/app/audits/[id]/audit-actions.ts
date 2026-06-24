@@ -343,24 +343,35 @@ async function captureItemInner(
     const exifLat = Number.isFinite(exifLatRaw) ? exifLatRaw : null;
     const exifLng = Number.isFinite(exifLngRaw) ? exifLngRaw : null;
     const exifTs = Number.isFinite(exifTsRaw) ? exifTsRaw : null;
+    // PUBLIC photo row (no EXIF, no audit_id) keyed by public_session_ref.
     await getDb()
       .prepare(
-        `INSERT INTO audit_photos (id, audit_id, audit_item_capture_id, r2_key, sha256,
-           exif_timestamp, exif_geocode_lat, exif_geocode_lng, uploaded_at, vision_validation_status)
-         VALUES (?,?,?,?,?,?,?,?,?,?)`
+        `INSERT INTO audit_photos (id, public_session_ref, audit_item_capture_id, r2_key, sha256,
+           uploaded_at, vision_validation_status)
+         VALUES (?,?,?,?,?,?,?)`
       )
-      .bind(photoId, auditId, null, r2Key, sha, exifTs, exifLat, exifLng, now, "pending")
+      .bind(photoId, a.public_session_ref, null, r2Key, sha, now, "pending")
       .run();
+    // PRIVATE EXIF row (camera GPS + capture time) keyed by photo_id.
+    if (exifTs != null || exifLat != null || exifLng != null) {
+      await getDb()
+        .prepare(
+          `INSERT INTO audit_photo_exif (photo_id, exif_timestamp, exif_geocode_lat, exif_geocode_lng)
+           VALUES (?,?,?,?)`
+        )
+        .bind(photoId, exifTs, exifLat, exifLng)
+        .run();
+    }
   }
 
   const err = validateAndStore(cap, itemId);
   if (err) return { ok: false, error: err };
 
-  // Upsert capture.
+  // Upsert capture — keyed by (public_session_ref, basket_item_id).
   const db = getDb();
   const existing = await db
-    .prepare("SELECT id FROM audit_item_captures WHERE audit_id = ? AND basket_item_id = ?")
-    .bind(auditId, itemId)
+    .prepare("SELECT id FROM audit_item_captures WHERE public_session_ref = ? AND basket_item_id = ?")
+    .bind(a.public_session_ref, itemId)
     .first<{ id: string }>();
   const capId = existing?.id ?? newId("capture");
   if (existing) {
@@ -385,12 +396,12 @@ async function captureItemInner(
   } else {
     await db
       .prepare(
-        `INSERT INTO audit_item_captures (id, audit_id, basket_item_id, stock_status, price_usd, size_value, size_unit, produce_pricing_mode, photo_id, captured_at)
+        `INSERT INTO audit_item_captures (id, public_session_ref, basket_item_id, stock_status, price_usd, size_value, size_unit, produce_pricing_mode, photo_id, captured_at)
          VALUES (?,?,?,?,?,?,?,?,?,?)`
       )
       .bind(
         capId,
-        auditId,
+        a.public_session_ref,
         itemId,
         cap.stock_status,
         cap.price_usd ?? null,
@@ -444,8 +455,18 @@ export async function cancelAuditAction(formData: FormData) {
   if (a.submitted_at) redirect(`/app/audits/${auditId}`);
 
   const db = getDb();
-  await db.prepare("DELETE FROM audit_photos WHERE audit_id = ?").bind(auditId).run();
-  await db.prepare("DELETE FROM audit_item_captures WHERE audit_id = ?").bind(auditId).run();
+  // Wipe the public cluster via public_session_ref. EXIF rows orphan when their
+  // photo rows go — clean them up directly using the photo ids we're about to drop.
+  await db
+    .prepare(
+      `DELETE FROM audit_photo_exif WHERE photo_id IN (SELECT id FROM audit_photos WHERE public_session_ref = ?)`
+    )
+    .bind(a.public_session_ref)
+    .run();
+  await db.prepare("DELETE FROM audit_photos WHERE public_session_ref = ?").bind(a.public_session_ref).run();
+  await db.prepare("DELETE FROM audit_item_captures WHERE public_session_ref = ?").bind(a.public_session_ref).run();
+  await db.prepare("DELETE FROM audit_public_summaries WHERE public_session_ref = ?").bind(a.public_session_ref).run();
+  // Private side: validation flags FK to audits.id; drop those then the audit.
   await db.prepare("DELETE FROM audit_validation_flags WHERE audit_id = ?").bind(auditId).run();
   await db.prepare("DELETE FROM audits WHERE id = ?").bind(auditId).run();
   await db.prepare("DELETE FROM submissions WHERE id = ?").bind(a.submission_id).run();
@@ -478,8 +499,8 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
 
   const db = getDb();
   const captures = await db
-    .prepare("SELECT * FROM audit_item_captures WHERE audit_id = ?")
-    .bind(auditId)
+    .prepare("SELECT * FROM audit_item_captures WHERE public_session_ref = ?")
+    .bind(a.public_session_ref)
     .all<AuditItemCaptureRow>();
   if ((captures.results?.length ?? 0) !== USDA_THRIFTY_6.items.length) {
     return { ok: false, error: "Capture all 6 basket items before submitting." };
@@ -568,6 +589,36 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
     await logError("auditStoreSnapshot", err, { auditId: a.id });
   }
 
+  // Materialize the PUBLIC summary row. Holds only store-level facts safe to
+  // publish; verified_at flips later when the pipeline approves. Migration
+  // 0016 keeps these tables physically separated from anything with a user_id.
+  await db
+    .prepare(
+      `INSERT INTO audit_public_summaries
+         (public_session_ref, store_name, store_address, store_geocode_lat, store_geocode_lng,
+          store_type_observed, ebt_observation, submitted_at, verified_at)
+       VALUES (?,?,?,?,?,?,?,?, NULL)
+       ON CONFLICT(public_session_ref) DO UPDATE SET
+         store_name = excluded.store_name,
+         store_address = excluded.store_address,
+         store_geocode_lat = excluded.store_geocode_lat,
+         store_geocode_lng = excluded.store_geocode_lng,
+         store_type_observed = excluded.store_type_observed,
+         ebt_observation = excluded.ebt_observation,
+         submitted_at = excluded.submitted_at`
+    )
+    .bind(
+      a.public_session_ref,
+      store.name,
+      store.address,
+      store.geocode_lat,
+      store.geocode_lng,
+      a.store_type_observed,
+      a.ebt_observation,
+      now
+    )
+    .run();
+
   // Submission stays in 'submitted' until async pipeline routes it to approved/rejected/pending_review.
   await db
     .prepare(
@@ -606,6 +657,11 @@ export async function adminApproveAuditAction(formData: FormData) {
       `UPDATE audits SET validation_status = 'verified', credited_hours = ? WHERE id = ?`
     )
     .bind(credited, a.id)
+    .run();
+  // Publish the public summary row by stamping verified_at.
+  await db
+    .prepare(`UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?`)
+    .bind(now, a.public_session_ref)
     .run();
   await db
     .prepare(

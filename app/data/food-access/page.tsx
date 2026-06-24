@@ -4,10 +4,10 @@ import { relativeTime } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { requireUser } from "@/lib/session";
 
-// Reads from D1 (Cloudflare context) which isn't available at prerender time.
-// We rely on Cloudflare's edge cache (Cache-Control headers from /api/data/audits.csv)
-// for performance rather than ISR.
+// Reads from D1 (Cloudflare context) and the signed-in user session, both
+// unavailable at prerender time.
 export const dynamic = "force-dynamic";
 
 const COPY = {
@@ -70,6 +70,7 @@ function fmtPct(n: number): string {
 }
 
 export default async function FoodAccessDashboardPage() {
+  await requireUser();
   const report = await loadVerifiedAudits();
   const locale = await getLocale();
   const c = COPY[locale];

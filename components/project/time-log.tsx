@@ -20,12 +20,20 @@ export function TimeLog({
   sessions,
   measuredActiveSeconds,
   locked,
+  mode = "active",
   copy,
 }: {
   submissionId: string;
   sessions: TimeLogSession[];
   measuredActiveSeconds: number;
   locked?: boolean;
+  /** "active" (default): only ticks while the tab is visible AND there's been
+   *  user input in the last 60s. Used for in-person + interactive tasks where
+   *  the floor needs to prove the volunteer was really doing the work.
+   *  "wall_clock": ticks continuously between Start and Stop regardless of
+   *  tab focus. Used for research tasks where the work happens on external
+   *  sites and tab-switching is the whole point. */
+  mode?: "active" | "wall_clock";
   copy?: {
     activeTime: string;
     session: string;
@@ -61,6 +69,23 @@ export function TimeLog({
     lastActivityRef.current = Date.now();
     setActiveNow(0);
 
+    if (mode === "wall_clock") {
+      // Wall-clock mode: elapsed time from session start, regardless of focus
+      // or input. Using (Date.now() - sessionStart) instead of += 1 means we
+      // catch up correctly when the browser throttles setInterval on hidden
+      // tabs, so backgrounded research time isn't silently dropped.
+      const sessionStart = open.start;
+      const iv = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+        activeRef.current = elapsed;
+        setActiveNow(elapsed);
+      }, 1000);
+      // Prime immediately so the display doesn't read 0:00:00 for a beat.
+      activeRef.current = Math.floor((Date.now() - sessionStart) / 1000);
+      setActiveNow(activeRef.current);
+      return () => clearInterval(iv);
+    }
+
     const mark = () => (lastActivityRef.current = Date.now());
     const events = ["mousemove", "keydown", "pointerdown", "scroll", "touchstart"];
     events.forEach((e) => window.addEventListener(e, mark, { passive: true }));
@@ -80,7 +105,7 @@ export function TimeLog({
       events.forEach((e) => window.removeEventListener(e, mark));
       clearInterval(iv);
     };
-  }, [open, locked]);
+  }, [open, locked, mode]);
 
   const totalActive = measuredActiveSeconds + (open ? activeNow : 0);
 
@@ -121,12 +146,16 @@ export function TimeLog({
       {open && (
         <p className="mt-2 flex items-center gap-1.5 text-sm text-amber" aria-live="polite">
           <span className="inline-block size-2 animate-tended-pulse rounded-full bg-amber" />
-          {c.measuring}
+          {mode === "wall_clock"
+            ? "Timer running — keeps counting while you research on other tabs."
+            : c.measuring}
         </p>
       )}
-      <p className="mt-1 flex items-center gap-1 text-xs text-meta">
-        <Clock className="size-3" /> {c.onlyActive}
-      </p>
+      {mode === "active" && (
+        <p className="mt-1 flex items-center gap-1 text-xs text-meta">
+          <Clock className="size-3" /> {c.onlyActive}
+        </p>
+      )}
     </div>
   );
 }

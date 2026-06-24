@@ -7,7 +7,7 @@ import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
 import { currentMonth } from "@/lib/time";
 import { writeAudit } from "@/lib/audit";
-import type { Submission, TaskTemplate } from "@/lib/types";
+import { parseJson, type Submission, type TaskTemplate } from "@/lib/types";
 
 async function loadReviewable(submissionId: string) {
   const user = await getCurrentUser();
@@ -52,6 +52,19 @@ export async function approveSubmission(formData: FormData) {
     )
     .bind(newId("ledger"), sub.user_id, month, hours, task.org_id)
     .run();
+
+  // Publish the public-cluster row for EMS rate research. ems_rate_reports
+  // is keyed by public_session_ref (carried in user_notes); setting
+  // published_at is what the public CSV/JSON export filters on.
+  if (task.category === "ems-rate-research") {
+    const ref = parseJson<{ public_session_ref?: string }>(sub.user_notes ?? "", {}).public_session_ref;
+    if (ref) {
+      await db
+        .prepare("UPDATE ems_rate_reports SET published_at = ? WHERE public_session_ref = ?")
+        .bind(nowTs, ref)
+        .run();
+    }
+  }
 
   // Immutable audit: prove credited never exceeds measured, with the basis.
   await writeAudit({

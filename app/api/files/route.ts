@@ -36,8 +36,11 @@ export async function GET(req: Request) {
         .bind(key)
         .first<{ id: string }>();
       const form = await db.prepare("SELECT user_id FROM cf888_forms WHERE r2_key = ?").bind(key).first<{ user_id: string }>();
+      // audit_photos now lives in the public cluster (no audit_id column);
+      // join to the private audits row via public_session_ref to recover the
+      // owning user_id for the auth check.
       const auditPhoto = await db
-        .prepare("SELECT a.user_id FROM audit_photos p JOIN audits a ON a.id = p.audit_id WHERE p.r2_key = ? OR p.thumb_r2_key = ?")
+        .prepare("SELECT a.user_id FROM audit_photos p JOIN audits a ON a.public_session_ref = p.public_session_ref WHERE p.r2_key = ? OR p.thumb_r2_key = ?")
         .bind(key, key)
         .first<{ user_id: string }>();
       allowed =

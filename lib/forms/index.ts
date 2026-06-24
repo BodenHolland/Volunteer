@@ -6,7 +6,7 @@
  * exists, or a generic Tended-branded verification letter otherwise.
  *
  * Coverage today:
- *   - Named form: CA, MD, MO, CO, GA, DC, IL, AR, ME
+ *   - Named form: CA, MD, MO, CO, GA, DC, IL, AR, ME, NE, NY, PA, RI, VT, WA
  *   - Generic letter (federal documentary-evidence default): everywhere else
  *
  * `getStateFormSpec(state)` returns metadata (form ID, submission target,
@@ -19,8 +19,16 @@ import { buildDCPdf } from "./dc";
 import { buildGAPdf } from "./ga";
 import { buildILPdf } from "./il";
 import { buildMDPdf } from "./md";
+import { buildMAPdf } from "./ma";
 import { buildMEPdf } from "./me";
 import { buildMOPdf } from "./mo";
+import { buildNMPdf } from "./nm";
+import { buildNEPdf } from "./ne";
+import { buildNYPdf } from "./ny";
+import { buildPAPdf } from "./pa";
+import { buildRIPdf } from "./ri";
+import { buildVTPdf } from "./vt";
+import { buildWAPdf } from "./wa";
 import { buildLetterPdf } from "./letter";
 import type { StateFormData, StateFormSpec } from "./types";
 
@@ -44,6 +52,7 @@ interface NamedForm {
   submissionTarget: string;
   submissionNotes: string;
   optional: boolean;
+  kind?: "official";
   build: (data: StateFormData) => Promise<Uint8Array>;
 }
 
@@ -134,6 +143,56 @@ const NAMED_FORMS: Record<string, NamedForm> = {
     optional: false,
     build: buildMEPdf,
   },
+  MA: {
+    formId: "ABAWD WPPR-EN", submissionTarget: "DTA Connect",
+    submissionNotes: "Upload through DTA Connect, fax, mail, or scan at a local DTA office.", optional: false, build: buildMAPdf,
+  },
+  NM: {
+    formId: "ABAWD 002", submissionTarget: "https://yes.nm.gov",
+    submissionNotes: "Upload at YES.NM.GOV, fax, mail, or return to a local ISD office.", optional: true, build: buildNMPdf,
+  },
+  NE: {
+    formId: "Volunteer Verify ABAWDx",
+    submissionTarget: "DHHS.ANDICenter@nebraska.gov",
+    submissionNotes: "Nebraska DHHS initiates this verification request. The organization returns it to DHHS by email, fax (402-742-2351), or mail.",
+    optional: false,
+    build: buildNEPdf,
+  },
+  NY: {
+    formId: "Monthly ABAWD Volunteer Participation Record",
+    submissionTarget: "Local social services district",
+    submissionNotes: "Submit the completed OTDA participation record to the local social services district by the 10th of the following month.",
+    optional: false,
+    build: buildNYPdf,
+  },
+  PA: {
+    formId: "PA 1938",
+    submissionTarget: "County Assistance Office or Work Ready contractor",
+    submissionNotes: "Mail or fax the completed PA 1938 within 10 days of receipt. A new form is required every six months.",
+    optional: false,
+    build: buildPAPdf,
+  },
+  RI: {
+    formId: "DHS-SNAP-ABAWD-3",
+    submissionTarget: "https://www.healthyrhode.ri.gov",
+    submissionNotes: "Upload through the Customer Portal or HealthyRhode app, mail it, or drop it at a DHS office.",
+    optional: false,
+    build: buildRIPdf,
+  },
+  VT: {
+    formId: "218-WFV",
+    submissionTarget: "Vermont Economic Services Division",
+    submissionNotes: "Submit after the first completed volunteer month and again at the next recertification interview.",
+    optional: false,
+    build: buildVTPdf,
+  },
+  WA: {
+    formId: "DSHS 01-205",
+    submissionTarget: "Washington DSHS",
+    submissionNotes: "Return the DSHS ABAWD Activity Report by the 10th of the following month via fax, mail, or a Community Services Office.",
+    optional: true,
+    build: buildWAPdf,
+  },
 };
 
 /**
@@ -156,6 +215,18 @@ const LETTER_SUBMISSION_NOTES: Record<string, string> = {
   LA: "Submit via LAHelpU (lahelpu.dcfs.la.gov), by mail, fax, or in person at your local DCFS office.",
 };
 
+/** Evidence standard for states that publish no dedicated volunteer-hours form. */
+const LETTER_REQUIREMENTS: Record<string, string> = {
+  AZ: "Arizona requires third-party organization documentation; participant self-statements alone are not accepted.",
+  CT: "Connecticut accepts a supervisor-signed monthly volunteer log showing hours and totals.",
+  DE: "Delaware accepts a written statement, letter, timesheet, or collateral contact from the volunteer organization.",
+  NC: "North Carolina accepts written or verbal verification from the supervising organization of monthly volunteer hours.",
+  OR: "Oregon documentation must identify the participant, case number, weekly hours, start date, continuation status, and signer contact information.",
+  TX: "Texas accepts reasonable organization verification at recertification, including a signed letter or timesheet.",
+  VA: "Virginia verification must include the activity place, period, type of work, and hours contributed.",
+  WI: "Wisconsin accepts a written statement from the volunteer site with the participant's verified hours.",
+};
+
 const NO_NAMED_FORM_STATES = new Set(Object.keys(LETTER_SUBMISSION_NOTES));
 
 /** Look up form metadata for a state. Falls back to the generic letter spec. */
@@ -169,6 +240,7 @@ export function getStateFormSpec(state: string): StateFormSpec {
       submissionNotes: named.submissionNotes,
       submissionTarget: named.submissionTarget,
       optional: named.optional,
+      kind: named.kind ?? "official",
       build: named.build,
     };
   }
@@ -178,14 +250,16 @@ export function getStateFormSpec(state: string): StateFormSpec {
     `Follow your ${stateName} SNAP agency's documentary-evidence path — typically a portal upload, mail, fax, or in-person delivery to your local office.`;
   return {
     state: code,
-    formId: "Verification Letter",
+    formId: "Volunteer Hours Verification Certificate",
     submissionNotes,
     submissionTarget: stateName,
     optional: true,
+    kind: "certificate",
     build: (data) =>
       buildLetterPdf(data, {
         stateName,
         submissionLine: submissionNotes,
+        requirementsLine: LETTER_REQUIREMENTS[code],
       }),
   };
 }
@@ -212,7 +286,7 @@ export function listStateFormCoverage(): Array<{
     return {
       state: code,
       stateName: STATE_NAME[code],
-      formId: named ? named.formId : "Verification Letter",
+      formId: named ? named.formId : "Volunteer Hours Verification Certificate",
       kind: named ? "named" : "letter",
     };
   });

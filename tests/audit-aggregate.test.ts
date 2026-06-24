@@ -52,12 +52,12 @@ test("aggregate: one audit at one store → one zip, basket cost is sum of per-i
     },
   ];
   const caps: CaptureRowAgg[] = [
-    { audit_id: "a1", basket_item_id: "milk-gallon", stock_status: "in-stock", price_usd: 5.0, size_value: 1, size_unit: "gal" },
-    { audit_id: "a1", basket_item_id: "eggs-dozen", stock_status: "in-stock", price_usd: 6.0, size_value: 12, size_unit: "count" },
-    { audit_id: "a1", basket_item_id: "bread-loaf", stock_status: "in-stock", price_usd: 4.0, size_value: 16, size_unit: "oz" },
-    { audit_id: "a1", basket_item_id: "rice-1lb", stock_status: "in-stock", price_usd: 2.0, size_value: 1, size_unit: "lb" },
-    { audit_id: "a1", basket_item_id: "beans-can", stock_status: "in-stock", price_usd: 1.5, size_value: 15, size_unit: "oz" },
-    { audit_id: "a1", basket_item_id: "produce-banana-or-apple", stock_status: "in-stock", price_usd: 0.79, size_value: 1, size_unit: "lb" },
+    { public_session_ref: "a1", basket_item_id: "milk-gallon", stock_status: "in-stock", price_usd: 5.0, size_value: 1, size_unit: "gal" },
+    { public_session_ref: "a1", basket_item_id: "eggs-dozen", stock_status: "in-stock", price_usd: 6.0, size_value: 12, size_unit: "count" },
+    { public_session_ref: "a1", basket_item_id: "bread-loaf", stock_status: "in-stock", price_usd: 4.0, size_value: 16, size_unit: "oz" },
+    { public_session_ref: "a1", basket_item_id: "rice-1lb", stock_status: "in-stock", price_usd: 2.0, size_value: 1, size_unit: "lb" },
+    { public_session_ref: "a1", basket_item_id: "beans-can", stock_status: "in-stock", price_usd: 1.5, size_value: 15, size_unit: "oz" },
+    { public_session_ref: "a1", basket_item_id: "produce-banana-or-apple", stock_status: "in-stock", price_usd: 0.79, size_value: 1, size_unit: "lb" },
   ];
   const r = aggregate(audits, caps);
   assert.strictEqual(r.verified_audits, 1);
@@ -74,8 +74,8 @@ test("aggregate: OOS rate reflects stock_status mix", () => {
     { id: "a2", submitted_at: 0, store_type_observed: null, ebt_observation: null, store_name: null, store_address: "94110", store_zip: null },
   ];
   const caps: CaptureRowAgg[] = [
-    { audit_id: "a1", basket_item_id: "milk-gallon", stock_status: "in-stock", price_usd: 5, size_value: 1, size_unit: "gal" },
-    { audit_id: "a2", basket_item_id: "milk-gallon", stock_status: "out-of-stock", price_usd: null, size_value: null, size_unit: null },
+    { public_session_ref: "a1", basket_item_id: "milk-gallon", stock_status: "in-stock", price_usd: 5, size_value: 1, size_unit: "gal" },
+    { public_session_ref: "a2", basket_item_id: "milk-gallon", stock_status: "out-of-stock", price_usd: null, size_value: null, size_unit: null },
   ];
   const r = aggregate(audits, caps);
   assert.strictEqual(r.oos_rate_overall["milk-gallon"], 0.5);

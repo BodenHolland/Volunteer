@@ -26,6 +26,7 @@ const CATEGORY_LABEL: Record<"en" | "es", Record<TaskCategory, string>> = {
     seminar: "Learning",
     "food-audit": "Food prices",
     "gov-audit": "Website audit",
+    "ems-rate-research": "EMS rates",
   },
   es: {
     "data-collection": "Datos de campo",
@@ -35,6 +36,7 @@ const CATEGORY_LABEL: Record<"en" | "es", Record<TaskCategory, string>> = {
     seminar: "Aprendizaje",
     "food-audit": "Precios de alimentos",
     "gov-audit": "Auditoría de sitios",
+    "ems-rate-research": "Tarifas de EMS",
   },
 };
 

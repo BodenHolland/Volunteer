@@ -233,17 +233,22 @@ export interface AuditRow {
   validation_flag_count: number;
   credited_hours: number | null;
   trust_tier_at_submission: number;
-  // Immutable store snapshot, frozen at submit (migration 0010). Null on drafts
-  // and on records that predate the migration.
+  // Immutable store snapshot, frozen at submit (migration 0010). Null on drafts.
   store_name_snapshot?: string | null;
   store_address_snapshot?: string | null;
   store_geocode_lat_snapshot?: number | null;
   store_geocode_lng_snapshot?: number | null;
+  // Cross-cluster key (migration 0016). The single value that appears in both
+  // private `audits` and the public cluster. Always present on rows created
+  // post-migration; older rows were backfilled.
+  public_session_ref: string;
 }
+
+// PUBLIC CLUSTER ROWS — no user_id, no audit_id; joined via public_session_ref only.
 
 export interface AuditItemCaptureRow {
   id: string;
-  audit_id: string;
+  public_session_ref: string;
   basket_item_id: string;
   stock_status: StockStatus;
   price_usd: number | null;
@@ -256,22 +261,30 @@ export interface AuditItemCaptureRow {
 
 export interface AuditPhotoRow {
   id: string;
-  audit_id: string;
+  public_session_ref: string;
   audit_item_capture_id: string | null;
   r2_key: string;
   thumb_r2_key: string | null;
   sha256: string | null;
-  exif_timestamp: number | null;
-  exif_geocode_lat: number | null;
-  exif_geocode_lng: number | null;
   uploaded_at: number;
   vision_validation_status: "pending" | "running" | "passed" | "failed" | "skipped";
   vision_result_json: string | null;
   ocr_price_value: number | null;
 }
 
+/** EXIF metadata for an audit photo. PRIVATE — used only by the fraud
+ *  pipeline (geotag-mismatch check). Never exported. Lives in its own table
+ *  (audit_photo_exif) keyed by photo_id. */
+export interface AuditPhotoExifRow {
+  photo_id: string;
+  exif_timestamp: number | null;
+  exif_geocode_lat: number | null;
+  exif_geocode_lng: number | null;
+}
+
 export interface ValidationFlagRow {
   id: string;
+  // PRIVATE-side FK to audits.id; never exported.
   audit_id: string;
   flag_type: string;
   flag_severity: "block" | "review";

@@ -5,10 +5,11 @@ import { requireRecipient } from "@/lib/session";
 import { getSubmission } from "@/lib/queries";
 import { submitWork } from "@/app/app/projects/[id]/submit-actions";
 import { PhotoUpload } from "@/components/submit/photo-upload";
+import { EmsRateForm } from "@/components/submit/ems-rate-form";
 import { SubmitButton } from "@/components/submit/submit-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { parseJson, totalLoggedHours, type DeliverableSpec, type TimeLogSession } from "@/lib/types";
+import { parseJson, totalLoggedHours, type DeliverableSpec, type EmsRateData, type TimeLogSession } from "@/lib/types";
 import { formatHours } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
 import type { AiVerdict } from "@/lib/ai";
@@ -91,8 +92,15 @@ const COPY = {
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Submit work — Tended" };
 
-export default async function SubmitPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubmitPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { id } = await params;
+  const { error: errorParam } = await searchParams;
   const user = await requireRecipient();
   const sub = await getSubmission(id);
   if (!sub) notFound();
@@ -116,12 +124,28 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="mx-auto max-w-[720px]">
-      <Link href={`/app/projects/${id}`} className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
-        <ArrowLeft className="size-4" /> {c.backToProject}
+      <Link
+        href={cat === "ems-rate-research" ? "/app/tasks" : `/app/projects/${id}`}
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline"
+      >
+        <ArrowLeft className="size-4" /> {cat === "ems-rate-research" ? "All opportunities" : c.backToProject}
       </Link>
 
       <h1 className="text-[28px] font-semibold text-ink">{c.submitYourWork}</h1>
       <p className="mt-1 text-body">{sub.task.title} · {sub.org.name}</p>
+
+      {errorParam === "incomplete" && (
+        <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4 text-brick" aria-hidden="true" />
+            <p className="text-sm font-semibold text-brick">Address every rate before submitting</p>
+          </div>
+          <p className="mt-1 text-sm text-ink">
+            For each rate (BLS, ALS, mileage, TNT) either enter the dollar amount with its source URL,
+            or check &ldquo;Couldn&apos;t find&rdquo;. At least one rate must be filled in.
+          </p>
+        </div>
+      )}
 
       {aiVerdict && (
         <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
@@ -212,6 +236,35 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
         )}
+
+        {cat === "ems-rate-research" && (() => {
+          const parsed = parseJson<Partial<EmsRateData>>(sub.user_notes ?? "", {});
+          const assignment = parsed.assignment ?? null;
+          const defaults = parsed.bls && parsed.als && parsed.mileage && parsed.tnt
+            ? (parsed as EmsRateData)
+            : null;
+          return (
+            <div className="space-y-6">
+              <EmsRateForm assignment={assignment} defaults={defaults} />
+              <div className="space-y-2">
+                <Label>Screenshot of rate schedule (optional)</Label>
+                <p className="text-xs text-meta">
+                  Helpful as backup proof — the per-rate URLs above are the primary source.
+                </p>
+                <PhotoUpload
+                  min={0}
+                  copy={{
+                    add: c.addPhotos,
+                    atLeast: "Drop a screenshot of the source page if you have one.",
+                    noGeotag: c.noGeotag,
+                    addAtLeast: c.addAtLeast,
+                  }}
+                  error={photoError}
+                />
+              </div>
+            </div>
+          );
+        })()}
 
         {cat === "seminar" && (
           <div className="space-y-4">

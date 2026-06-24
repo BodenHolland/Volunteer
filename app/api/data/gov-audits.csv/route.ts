@@ -1,6 +1,7 @@
 import { getDb } from "@/lib/cf";
 import { csvEscape } from "@/lib/audit-aggregate";
 import { rateLimit } from "@/lib/ratelimit";
+import { requireDatasetAccess } from "@/lib/dataset-access";
 import type {
   GovAuditSiteEvalRow,
   GovAuditPageEvalRow,
@@ -8,7 +9,7 @@ import type {
 } from "@/lib/gov-audit";
 
 /**
- * Free public CSV export — government website audits.
+ * Signed-in CSV export — government website audits.
  *
  * DATA PRINCIPLE (CLAUDE.md): this endpoint reads ONLY the public cluster
  * (gov_audit_page_evaluations, gov_audit_site_evaluations, gov_audit_auto_checks).
@@ -61,6 +62,9 @@ interface GovAuditExportRow
     Pick<GovAuditAutoCheckRow, "axe_violations" | "http_status" | "https_ok" | "load_ok"> {}
 
 export async function GET(req: Request) {
+  const denied = await requireDatasetAccess(req);
+  if (denied) return denied;
+
   const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "anon";
   const rl = await rateLimit(`gov-audits-csv:${ip}`, 5, 60_000).catch(() => ({ ok: true }));
   if (!rl.ok) return new Response("rate limited", { status: 429 });
@@ -171,7 +175,7 @@ export async function GET(req: Request) {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": 'attachment; filename="tended-gov-website-audits.csv"',
-      "Cache-Control": "public, max-age=300",
+      "Cache-Control": "private, no-store",
     },
   });
 }

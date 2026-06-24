@@ -4,13 +4,15 @@
  *  - out-of-stock rate per item
  *  - store-type mix
  *
- * Slice 2 reads live from D1 with a small rate limit. Slice 3 will pre-bake.
+ * Reads ONLY the public cluster (audit_public_summaries + audit_item_captures);
+ * never touches `audits` or any private-cluster table. See migration 0016.
  */
 
 import { getDb } from "./cf";
 import { USDA_THRIFTY_6 } from "./food-audit";
 
 export interface AuditRowAgg {
+  /** public_session_ref — the only id that crosses to the private cluster. */
   id: string;
   submitted_at: number;
   store_type_observed: string | null;
@@ -21,7 +23,8 @@ export interface AuditRowAgg {
 }
 
 export interface CaptureRowAgg {
-  audit_id: string;
+  /** public_session_ref of the audit this capture belongs to. */
+  public_session_ref: string;
   basket_item_id: string;
   stock_status: string;
   price_usd: number | null;
@@ -80,9 +83,9 @@ export function aggregate(
 
   const capturesByAudit = new Map<string, CaptureRowAgg[]>();
   for (const c of captures) {
-    const arr = capturesByAudit.get(c.audit_id) ?? [];
+    const arr = capturesByAudit.get(c.public_session_ref) ?? [];
     arr.push(c);
-    capturesByAudit.set(c.audit_id, arr);
+    capturesByAudit.set(c.public_session_ref, arr);
   }
 
   const zips: ZipReport[] = [];
@@ -165,31 +168,35 @@ export function aggregate(
 }
 
 export async function loadVerifiedAudits(): Promise<StateReport> {
+  // PUBLIC-only query path. Reads only audit_public_summaries +
+  // audit_item_captures, both keyed by public_session_ref. No JOIN to audits,
+  // users, or any private-cluster table.
   const db = getDb();
   const audits =
     (
       await db
         .prepare(
-          `SELECT a.id, a.submitted_at, a.store_type_observed, a.ebt_observation,
-                  s.name AS store_name, s.address AS store_address
-           FROM audits a
-           LEFT JOIN stores s ON s.id = a.store_id
-           WHERE a.validation_status = 'verified'`
+          `SELECT s.public_session_ref AS id,
+                  COALESCE(s.submitted_at, 0) AS submitted_at,
+                  s.store_type_observed, s.ebt_observation,
+                  s.store_name, s.store_address
+           FROM audit_public_summaries s
+           WHERE s.verified_at IS NOT NULL`
         )
         .all<Omit<AuditRowAgg, "store_zip">>()
     ).results?.map((r) => ({ ...r, store_zip: null })) ?? [];
-  const auditIds = audits.map((a) => a.id);
-  if (auditIds.length === 0) return aggregate([], []);
-  const placeholders = auditIds.map(() => "?").join(",");
+  const refs = audits.map((a) => a.id);
+  if (refs.length === 0) return aggregate([], []);
+  const placeholders = refs.map(() => "?").join(",");
   const caps =
     (
       await db
         .prepare(
-          `SELECT audit_id, basket_item_id, stock_status, price_usd, size_value, size_unit
+          `SELECT public_session_ref, basket_item_id, stock_status, price_usd, size_value, size_unit
            FROM audit_item_captures
-           WHERE audit_id IN (${placeholders})`
+           WHERE public_session_ref IN (${placeholders})`
         )
-        .bind(...auditIds)
+        .bind(...refs)
         .all<CaptureRowAgg>()
     ).results ?? [];
   return aggregate(audits, caps);

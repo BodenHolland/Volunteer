@@ -44,5 +44,7 @@ export interface StateFormSpec {
   submissionTarget: string;
   /** Whether the form is mandatory or one of several accepted documents. */
   optional: boolean;
+  /** Official state-issued PDF or Tended organization documentation. */
+  kind: "official" | "certificate";
   build: StateBuilder;
 }

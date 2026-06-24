@@ -62,22 +62,47 @@ export async function processAudit(auditId: string): Promise<void> {
     .bind(auditId)
     .run();
 
+  const ref = audit.public_session_ref;
+
   const captures =
     (
       await db
-        .prepare("SELECT * FROM audit_item_captures WHERE audit_id = ?")
-        .bind(auditId)
+        .prepare("SELECT * FROM audit_item_captures WHERE public_session_ref = ?")
+        .bind(ref)
         .all<AuditItemCaptureRow>()
     ).results ?? [];
 
   const photos =
     (
       await db
-        .prepare("SELECT * FROM audit_photos WHERE audit_id = ?")
-        .bind(auditId)
+        .prepare("SELECT * FROM audit_photos WHERE public_session_ref = ?")
+        .bind(ref)
         .all<AuditPhotoRow>()
     ).results ?? [];
   const photoById = new Map(photos.map((p) => [p.id, p]));
+
+  // EXIF lives in a private side-table (audit_photo_exif) so the public
+  // audit_photos export can't accidentally leak camera GPS / capture time.
+  // Load it here for the geotag-mismatch fraud check.
+  const photoIds = photos.map((p) => p.id);
+  const exifByPhotoId = new Map<string, { exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null }>();
+  if (photoIds.length > 0) {
+    const placeholders = photoIds.map(() => "?").join(",");
+    const exifRows =
+      (
+        await db
+          .prepare(`SELECT photo_id, exif_geocode_lat, exif_geocode_lng, exif_timestamp FROM audit_photo_exif WHERE photo_id IN (${placeholders})`)
+          .bind(...photoIds)
+          .all<{ photo_id: string; exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null }>()
+      ).results ?? [];
+    for (const r of exifRows) {
+      exifByPhotoId.set(r.photo_id, {
+        exif_geocode_lat: r.exif_geocode_lat,
+        exif_geocode_lng: r.exif_geocode_lng,
+        exif_timestamp: r.exif_timestamp,
+      });
+    }
+  }
 
   const store = audit.store_id
     ? await db.prepare("SELECT * FROM stores WHERE id = ?").bind(audit.store_id).first<Store>()
@@ -196,17 +221,18 @@ export async function processAudit(auditId: string): Promise<void> {
         }
       }
 
-      // EXIF geocode check
+      // EXIF geocode check — EXIF is in the private audit_photo_exif side-table.
+      const exif = exifByPhotoId.get(photo.id);
       if (
         store &&
         store.geocode_lat != null &&
         store.geocode_lng != null &&
-        photo.exif_geocode_lat != null &&
-        photo.exif_geocode_lng != null
+        exif?.exif_geocode_lat != null &&
+        exif?.exif_geocode_lng != null
       ) {
         const distM = haversineMeters(
           { lat: store.geocode_lat, lng: store.geocode_lng },
-          { lat: photo.exif_geocode_lat, lng: photo.exif_geocode_lng }
+          { lat: exif.exif_geocode_lat, lng: exif.exif_geocode_lng }
         );
         if (distM > PHOTO_GEO_RADIUS_M) {
           pendingFlags.push({
@@ -284,6 +310,11 @@ export async function processAudit(auditId: string): Promise<void> {
       )
       .bind(now, credited, audit.submission_id)
       .run();
+    // Flip the public summary to verified so the public export surfaces this row.
+    await db
+      .prepare("UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?")
+      .bind(now, ref)
+      .run();
     if (credited) await addCreditedHoursToLedger(audit.user_id, credited);
     await contributeAuditToOpenPrices(auditId).catch(() => {
       /* contribution failures are queued, not surfaced */
@@ -323,7 +354,7 @@ export interface AuditCreditBreakdown {
 export async function previewCreditForAudit(auditId: string): Promise<AuditCreditBreakdown> {
   const db = getDb();
   const audit = await db
-    .prepare("SELECT id, user_id, store_id, commute_mode, commute_user_minutes FROM audits WHERE id = ?")
+    .prepare("SELECT id, user_id, store_id, commute_mode, commute_user_minutes, public_session_ref FROM audits WHERE id = ?")
     .bind(auditId)
     .first<{
       id: string;
@@ -331,6 +362,7 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
       store_id: string | null;
       commute_mode: string | null;
       commute_user_minutes: number | null;
+      public_session_ref: string;
     }>();
   if (!audit) {
     return {
@@ -343,8 +375,8 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
   }
 
   const itemsRow = await db
-    .prepare("SELECT COUNT(*) AS n FROM audit_item_captures WHERE audit_id = ?")
-    .bind(auditId)
+    .prepare("SELECT COUNT(*) AS n FROM audit_item_captures WHERE public_session_ref = ?")
+    .bind(audit.public_session_ref)
     .first<{ n: number }>();
   const itemsDocumented = itemsRow?.n ?? 0;
 
@@ -580,7 +612,7 @@ export function haversineMeters(a: { lat: number; lng: number }, b: { lat: numbe
 
 interface ContribRow {
   id: string;
-  audit_id: string;
+  public_session_ref: string;
   audit_item_capture_id: string;
   basket_item_id: string;
   product_code: string | null;
@@ -602,14 +634,15 @@ export async function contributeAuditToOpenPrices(auditId: string): Promise<void
   const env = getEnv();
   const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(auditId).first<AuditRow>();
   if (!audit || audit.validation_status !== "verified") return;
+  const ref = audit.public_session_ref;
 
   const captures =
     (
       await db
         .prepare(
-          `SELECT * FROM audit_item_captures WHERE audit_id = ? AND stock_status = 'in-stock' AND price_usd IS NOT NULL`
+          `SELECT * FROM audit_item_captures WHERE public_session_ref = ? AND stock_status = 'in-stock' AND price_usd IS NOT NULL`
         )
-        .bind(auditId)
+        .bind(ref)
         .all<AuditItemCaptureRow>()
     ).results ?? [];
 
@@ -636,10 +669,10 @@ export async function contributeAuditToOpenPrices(auditId: string): Promise<void
       await db
         .prepare(
           `INSERT INTO open_prices_contributions
-            (id, audit_id, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
+            (id, public_session_ref, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
            VALUES (?,?,?,?,?, 'skipped', 0, ?)`
         )
-        .bind(rowId, auditId, cap.id, cap.basket_item_id, null, now)
+        .bind(rowId, ref, cap.id, cap.basket_item_id, null, now)
         .run();
       continue;
     }
@@ -647,10 +680,10 @@ export async function contributeAuditToOpenPrices(auditId: string): Promise<void
     await db
       .prepare(
         `INSERT INTO open_prices_contributions
-          (id, audit_id, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
+          (id, public_session_ref, audit_item_capture_id, basket_item_id, product_code, status, attempt_count, created_at)
          VALUES (?,?,?,?,?, 'pending', 0, ?)`
       )
-      .bind(rowId, auditId, cap.id, cap.basket_item_id, code, now)
+      .bind(rowId, ref, cap.id, cap.basket_item_id, code, now)
       .run();
 
     if (!env.OPEN_PRICES_TOKEN) {
@@ -742,7 +775,12 @@ export async function retryOpenPricesQueue(limit = 25): Promise<{ tried: number;
       .prepare("SELECT * FROM audit_item_captures WHERE id = ?")
       .bind(row.audit_item_capture_id)
       .first<AuditItemCaptureRow>();
-    const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(row.audit_id).first<AuditRow>();
+    // The contribution row only knows public_session_ref; the private audit
+    // row carries the store_id + submitted_at needed to format the price post.
+    const audit = await db
+      .prepare("SELECT * FROM audits WHERE public_session_ref = ?")
+      .bind(row.public_session_ref)
+      .first<AuditRow>();
     const store = audit?.store_id
       ? await db.prepare("SELECT * FROM stores WHERE id = ?").bind(audit.store_id).first<Store>()
       : null;

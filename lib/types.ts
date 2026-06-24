@@ -11,7 +11,8 @@ export type TaskCategory =
   | "neighborhood-writing"
   | "seminar"
   | "food-audit"
-  | "gov-audit";
+  | "gov-audit"
+  | "ems-rate-research";
 
 export type SubmissionStatus =
   | "committed"
@@ -60,6 +61,43 @@ export interface DeliverableSpec {
   /** gov-audit: optional canonical URL hint for the assigned target. The
    *  volunteer still navigates freely to reach it; this only seeds the embed. */
   target_url?: string;
+  /** ems-rate-research: pool of provider/city assignments. On commit the
+   *  server picks the next one round-robin (by total submission count for
+   *  this task), stamps it onto the new submission, and shows it to the
+   *  volunteer as "here's your assignment." */
+  ems_targets?: EmsRateAssignment[];
+}
+
+export interface EmsRateAssignment {
+  provider_name: string;
+  city: string;
+  state: string;
+}
+
+/** One billing-rate row: a dollar amount and the source it came from, OR the
+ *  volunteer's explicit "couldn't find this one" attestation. Marking
+ *  not_found is itself useful data — it means the provider doesn't publish
+ *  this rate, not that the volunteer skipped the work. */
+export interface EmsRateField {
+  amount: string;
+  source_url: string;
+  not_found: boolean;
+}
+
+export interface EmsRateData {
+  assignment: EmsRateAssignment;
+  /** Opaque UUID generated at commit time. The only value that crosses the
+   *  private/public boundary — also the primary key of the matching row in
+   *  ems_rate_reports. Never the user's session token, never per-user. */
+  public_session_ref: string;
+  bls: EmsRateField;
+  als: EmsRateField;
+  mileage: EmsRateField;
+  tnt: EmsRateField;
+  tnt_description: string;
+  effective_date: string;
+  zip_codes: string;
+  notes: string;
 }
 
 export interface TimeLogSession {

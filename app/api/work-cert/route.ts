@@ -9,6 +9,7 @@
  * which now thin-redirects here.
  */
 import { NextResponse } from "next/server";
+import { PDFDocument } from "pdf-lib";
 import { getDb } from "@/lib/cf";
 import { getCurrentUser } from "@/lib/session";
 import { getLedgerForUser, getOrg } from "@/lib/queries";
@@ -60,6 +61,9 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const month = url.searchParams.get("month") || currentMonth();
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+    return NextResponse.json({ error: "month must use YYYY-MM." }, { status: 400 });
+  }
   const ledger = await getLedgerForUser(user.id, month);
   const certified = ledger.reduce((a, r) => a + r.total_hours, 0);
   if (certified < 1) {
@@ -69,37 +73,24 @@ export async function GET(req: Request) {
     );
   }
 
-  // Primary certifying org = the one with the most hours this month.
-  const primary = [...ledger].sort((a, b) => b.total_hours - a.total_hours)[0];
-  const org = primary.certified_org_id ? await getOrg(primary.certified_org_id) : null;
-  const orgAddr = org ? parseJson<Address>(org.address_json, { line1: "", city: "", state: "", zip: "" }) : null;
-
   const legalName = (await decryptField(user.legal_name)) || user.full_name || "";
   const birthdate = formatDob(await decryptField(user.dob));
 
-  const today = new Date();
-  const dateSigned = `${String(today.getMonth() + 1).padStart(2, "0")}/${String(today.getDate()).padStart(2, "0")}/${today.getFullYear()}`;
   const caseNumber = (await decryptField(user.case_number)) || undefined;
 
-  const { pdf, spec } = await buildStateForm(userState, {
-    participantName: legalName,
-    birthdate,
-    participantAddress: addrLines(userAddr),
-    participantPhone: user.phone || undefined,
-    caseNumber,
-    orgName: org?.name ?? "",
-    representativeName: org?.signing_authority_name ?? "",
-    representativeTitle: org?.signing_authority_title ?? undefined,
-    orgAddress: orgAddr ? addrLines(orgAddr) : ["", "", ""],
-    orgPhone: org ? ORG_PHONE[org.slug] ?? org.contact_email ?? "" : "",
-    orgEmail: org?.contact_email ?? undefined,
-    month: monthLabel(month),
-    monthIso: month,
-    hours: primary.total_hours,
-    activity: "ongoing",
-    signatureName: org?.signing_authority_name ?? "",
-    dateSigned,
-  });
+  const merged = await PDFDocument.create();
+  let spec: Awaited<ReturnType<typeof buildStateForm>>["spec"] | null = null;
+  for (const entry of ledger) {
+    const org = entry.certified_org_id ? await getOrg(entry.certified_org_id) : null;
+    const orgAddr = org ? parseJson<Address>(org.address_json, { line1: "", city: "", state: "", zip: "" }) : null;
+    const built = await buildStateForm(userState, { participantName: legalName, birthdate, participantAddress: addrLines(userAddr), participantPhone: user.phone || undefined, caseNumber, orgName: org?.name ?? "", representativeName: org?.signing_authority_name ?? "", representativeTitle: org?.signing_authority_title ?? undefined, orgAddress: orgAddr ? addrLines(orgAddr) : ["", "", ""], orgPhone: org ? ORG_PHONE[org.slug] ?? org.contact_email ?? "" : "", orgEmail: org?.contact_email ?? undefined, month: monthLabel(month), monthIso: month, hours: entry.total_hours, activity: "ongoing", signatureName: "", dateSigned: "" });
+    spec ??= built.spec;
+    const source = await PDFDocument.load(built.pdf);
+    const pages = await merged.copyPages(source, source.getPageIndices());
+    pages.forEach((page) => merged.addPage(page));
+  }
+  const pdf = await merged.save();
+  if (!spec) return NextResponse.json({ error: "No certificate data found." }, { status: 400 });
 
   // Persist a copy + ledger row of the generated form (R2 path stays under
   // cf888/ so existing audit records and downstream tooling don't churn).
@@ -122,7 +113,7 @@ export async function GET(req: Request) {
     detail: {
       month,
       certified_hours: certified,
-      certifying_org_id: primary.certified_org_id,
+      certifying_organizations: ledger.map((entry) => entry.certified_org_id),
       state: userState,
       form_id: spec.formId,
     },

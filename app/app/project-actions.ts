@@ -61,29 +61,104 @@ export async function commitToTask(formData: FormData) {
       )
       .bind(user.id, taskId)
       .first<{ id: string }>();
-    if (draft) redirect(`/app/projects/${draft.id}`);
+    if (draft) {
+      redirect(
+        task.category === "ems-rate-research"
+          ? `/app/projects/${draft.id}/submit`
+          : `/app/projects/${draft.id}`
+      );
+    }
   }
 
   const id = newId("sub");
   const now = Date.now();
+
+  // For ems-rate-research, assign the volunteer a provider/city at commit
+  // time. Two guarantees:
+  //   1. They never get a provider they've already worked on (excluded from the
+  //      pool based on prior submissions on this task for this user).
+  //   2. The remaining pool is distributed round-robin by global submission
+  //      count to avoid two concurrent volunteers grabbing the same target.
+  // Also generates the opaque public_session_ref UUID that ties this private
+  // submission to its public ems_rate_reports row created at submit time.
+  let initialNotes: string | null = null;
+  if (task.category === "ems-rate-research") {
+    const spec = parseJson<{ ems_targets?: { provider_name: string; city: string; state: string }[] }>(
+      task.deliverable_spec_json,
+      {}
+    );
+    const targets = spec.ems_targets ?? [];
+    if (targets.length > 0) {
+      const priorRows = (
+        await db
+          .prepare(
+            `SELECT user_notes FROM submissions
+             WHERE user_id = ? AND task_template_id = ? AND user_notes IS NOT NULL`
+          )
+          .bind(user.id, taskId)
+          .all<{ user_notes: string }>()
+      ).results ?? [];
+      const usedProviders = new Set(
+        priorRows
+          .map((r) => parseJson<{ assignment?: { provider_name?: string } }>(r.user_notes, {}).assignment?.provider_name)
+          .filter((p): p is string => !!p)
+      );
+      const remaining = targets.filter((t) => !usedProviders.has(t.provider_name));
+      // If the user has exhausted every provider in the pool, fall back to the
+      // full pool — they can repeat the oldest assignment. Better than failing
+      // the commit and trapping the user.
+      const pool = remaining.length > 0 ? remaining : targets;
+
+      const countRow = await db
+        .prepare("SELECT COUNT(*) AS n FROM submissions WHERE task_template_id = ?")
+        .bind(taskId)
+        .first<{ n: number }>();
+      const idx = ((countRow?.n ?? 0) % pool.length);
+      const assignment = pool[idx];
+      initialNotes = JSON.stringify({
+        assignment,
+        public_session_ref: crypto.randomUUID(),
+        bls: { amount: "", source_url: "", not_found: false },
+        als: { amount: "", source_url: "", not_found: false },
+        mileage: { amount: "", source_url: "", not_found: false },
+        tnt: { amount: "", source_url: "", not_found: false },
+        tnt_description: "",
+        effective_date: "",
+        zip_codes: "",
+        notes: "",
+      });
+    }
+  }
+
   await db
     .prepare(
-      "INSERT INTO submissions (id, user_id, task_template_id, status, committed_at, time_log_json, checklist_progress_json) VALUES (?,?,?,?,?,?,?)"
+      "INSERT INTO submissions (id, user_id, task_template_id, status, committed_at, time_log_json, checklist_progress_json, user_notes) VALUES (?,?,?,?,?,?,?,?)"
     )
-    .bind(id, user.id, taskId, "committed", now, "[]", "{}")
+    .bind(id, user.id, taskId, "committed", now, "[]", "{}", initialNotes)
     .run();
 
   if (task.category === "food-audit") {
     const { BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION } = await import("@/lib/food-audit");
     const auditId = newId("aud");
+    // Generate the opaque cross-boundary key now so it travels with the audit
+    // through the public cluster (audit_item_captures, audit_photos,
+    // open_prices_contributions, audit_public_summaries). The private audits
+    // row keeps user_id; the public rows only know this ref. See migration 0016.
+    const publicSessionRef = crypto.randomUUID();
     await db
       .prepare(
-        `INSERT INTO audits (id, submission_id, user_id, basket_template_id, basket_template_version, started_at)
-         VALUES (?,?,?,?,?,?)`
+        `INSERT INTO audits (id, submission_id, user_id, basket_template_id, basket_template_version, started_at, public_session_ref)
+         VALUES (?,?,?,?,?,?,?)`
       )
-      .bind(auditId, id, user.id, BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION, now)
+      .bind(auditId, id, user.id, BASKET_TEMPLATE_ID, BASKET_TEMPLATE_VERSION, now, publicSessionRef)
       .run();
     redirect(`/app/audits/${auditId}`);
+  }
+
+  if (task.category === "ems-rate-research") {
+    // The structured form is the work — there's no checklist, no time floor,
+    // nothing to do on a generic project hub. Jump straight to the form.
+    redirect(`/app/projects/${id}/submit`);
   }
 
   if (task.category === "gov-audit") {

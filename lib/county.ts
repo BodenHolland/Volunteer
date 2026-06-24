@@ -3,16 +3,12 @@
  *
  * Originally per-county and CA-only (Change 8). Broadened once Tended grew
  * multi-state form generators: the work-cert PDF endpoint now gates on the
- * recipient's `users.state`. It opens if (a) DEMO_MODE is on, (b) any county
- * in the state has cert_enabled=1, OR (c) Tended ships a state-specific
- * named-form generator for that state (CA / MD / MO / CO / GA / DC / IL /
- * AR / ME). Letter-fallback states (federal documentary-evidence default)
- * stay gated until a county clears, so we never auto-credit hours in a
- * jurisdiction Tended hasn't actually pre-cleared.
+ * recipient's `users.state`. It opens only if DEMO_MODE is on or a county in
+ * the state has an explicit clearance record. Rendering an official form is
+ * not evidence that a local agency accepts a certificate from Tended.
  */
 import { getDb } from "./cf";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { getStateFormSpec } from "./forms";
 
 const CITY_TO_COUNTY: Record<string, string> = {
   Sacramento: "county_sacramento",
@@ -66,8 +62,5 @@ export async function isCertEnabledForState(
     .first<{ yes: number }>();
   if (cleared) return true;
 
-  // (c) Tended ships a state-specific named-form generator for this state.
-  //     Letter-fallback states fall through to false.
-  const spec = getStateFormSpec(code);
-  return spec.formId !== "Verification Letter";
+  return false;
 }

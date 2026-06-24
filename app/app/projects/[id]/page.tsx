@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ListChecks, Clock, StickyNote, ArrowRight } from "lucide-react";
+import { ArrowLeft, ListChecks, Clock, StickyNote, ArrowRight, MapPin } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getSubmission } from "@/lib/queries";
 import { Markdown } from "@/components/markdown";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { TimeLog } from "@/components/project/time-log";
 import { Checklist } from "@/components/project/checklist";
 import { Notes } from "@/components/project/notes";
-import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession } from "@/lib/types";
+import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession, type EmsRateAssignment } from "@/lib/types";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
@@ -112,16 +112,29 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
         : `/app/gov-audits/${sub.govAuditId}/done`
     );
   }
+  // ems-rate-research has no hub UI either — the structured form on /submit
+  // is the work. Don't strand the volunteer here if they hit Back.
+  if (sub.task.category === "ems-rate-research" && ["committed", "in_progress", "needs_changes"].includes(sub.status)) {
+    redirect(`/app/projects/${id}/submit`);
+  }
 
   const checklist = parseJson<ChecklistItem[]>(sub.task.checklist_json, []);
   const progress = parseJson<ChecklistProgress>(sub.checklist_progress_json, {});
   const sessions = parseJson<TimeLogSession[]>(sub.time_log_json, []);
 
   const editable = ["committed", "in_progress", "needs_changes"].includes(sub.status);
-  const allRequiredDone = checklist.filter((c) => c.required).every((c) => progress[c.id]);
+  const isEms = sub.task.category === "ems-rate-research";
+  // Structured-form tasks (ems-rate-research) gate on the form's own validation,
+  // not on the generic checklist or the active-time floor. The checklist for
+  // these tasks just duplicates required form fields, and the engagement floor
+  // penalizes work that happens almost entirely off-tab (reading source PDFs).
+  const allRequiredDone = isEms || checklist.filter((c) => c.required).every((c) => progress[c.id]);
   const measuredSeconds = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
-  const meetsFloor = measuredSeconds >= MIN_ENGAGEMENT_SECONDS;
+  const meetsFloor = isEms || measuredSeconds >= MIN_ENGAGEMENT_SECONDS;
   const canSubmit = editable && allRequiredDone && meetsFloor;
+  const emsAssignment = isEms
+    ? parseJson<{ assignment?: EmsRateAssignment }>(sub.user_notes ?? "", {}).assignment ?? null
+    : null;
   const submittedView = ["submitted", "ai_reviewing", "pending_review", "approved", "rejected"].includes(sub.status);
   const locale = await getLocale();
   const c = COPY[locale];
@@ -164,17 +177,35 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
         <div className="space-y-8">
+          {emsAssignment && (
+            <section className="rounded-lg border-2 border-forest bg-forest-subtle p-5">
+              <div className="flex items-start gap-3">
+                <MapPin className="mt-0.5 size-5 shrink-0 text-forest" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-forest">Your assignment</p>
+                  <p className="mt-1 text-lg font-semibold text-ink">{emsAssignment.provider_name}</p>
+                  <p className="text-sm text-body">{emsAssignment.city}, {emsAssignment.state}</p>
+                  <p className="mt-2 text-sm text-body">
+                    Find this provider&apos;s official published ambulance billing rates and record what you find on the submit form.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           <section>
             <h2 className="mb-2 text-[22px] font-semibold text-ink">{c.aboutTask}</h2>
             <Markdown>{sub.task.instructions_md}</Markdown>
           </section>
 
-          <section>
-            <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-              <ListChecks className="size-5 text-forest" /> {c.checklist}
-            </h2>
-            <Checklist submissionId={sub.id} items={checklist} progress={progress} locked={!editable} copy={c.checklistItem} />
-          </section>
+          {!isEms && (
+            <section>
+              <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
+                <ListChecks className="size-5 text-forest" /> {c.checklist}
+              </h2>
+              <Checklist submissionId={sub.id} items={checklist} progress={progress} locked={!editable} copy={c.checklistItem} />
+            </section>
+          )}
 
           <section>
             <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
@@ -195,6 +226,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                 sessions={sessions}
                 measuredActiveSeconds={measuredSeconds}
                 locked={!editable}
+                mode={isEms ? "wall_clock" : "active"}
                 copy={{
                   activeTime: c.timeLogActiveTime,
                   session: c.timeLogSession,

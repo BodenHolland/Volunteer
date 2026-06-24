@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArticleShell } from "../_components/article-shell";
 import { Placeholder } from "../_components/draft-banner";
 import { neighbors } from "../_components/articles";
@@ -15,6 +16,7 @@ export default async function Page() {
     return (
       <ArticleShell number={12} starred title="Para trabajadores sociales: una metodología en una página" prev={prevEs} next={nextEs}>
         <p><em>Escrito para los trabajadores sociales de bienestar del condado y el personal de programas de beneficios que revisan una certificación de horas firmada por Tended.</em></p>
+      <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">Ver la página completa para trabajadores sociales →</Link> Incluye citas con fuentes primarias, fórmula de verificación detallada, acceso a datos públicos y formulario de contacto.</p>
 
         <h2>Quiénes somos</h2>
         <p>Tended es una entidad benéfica pública 501(c)(3). Operamos un programa de voluntariado cívico en línea. Los voluntarios contribuyen a trabajo de beneficio público, que incluye mapeo de acceso a alimentos, revisión de traducciones, transcripción de archivos y auditorías de accesibilidad. Para los voluntarios sujetos al requisito de trabajo ABAWD, Tended verifica sus horas en el formulario estatal estándar como el representante autorizado de la organización donde se realizó el voluntariado.</p>
@@ -54,6 +56,7 @@ export default async function Page() {
   return (
     <ArticleShell number={12} starred title="For caseworkers — a one-page methodology" prev={prev} next={next}>
       <p><em>Written for county welfare caseworkers and benefits-program staff reviewing a work-hours certification signed by Tended.</em></p>
+      <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">See the full caseworker resource page →</Link> Includes cited primary sources, detailed verification formula, public data access, and a contact form.</p>
 
       <h2>Who we are</h2>
       <p>Tended is a 501(c)(3) public charity. We run an online civic-volunteer program. Volunteers contribute to public-benefit work, including food-access mapping, translation review, archive transcription, and accessibility audits. For volunteers subject to the ABAWD work requirement, Tended verifies their hours on the standard state form as the authorized representative of the organization where the volunteering occurred.</p>

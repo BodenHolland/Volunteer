@@ -186,8 +186,8 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
     ? await db.prepare("SELECT * FROM stores WHERE id = ?").bind(audit.store_id).first<Store>()
     : null;
   const capturesRes = await db
-    .prepare("SELECT * FROM audit_item_captures WHERE audit_id = ?")
-    .bind(id)
+    .prepare("SELECT * FROM audit_item_captures WHERE public_session_ref = ?")
+    .bind(audit.public_session_ref)
     .all<AuditItemCaptureRow>();
   const captures = capturesRes.results ?? [];
 

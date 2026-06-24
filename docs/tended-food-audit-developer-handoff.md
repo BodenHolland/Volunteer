@@ -208,7 +208,7 @@ Data export (public, rate-limited):
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/api/data/audits.csv` | Public CSV download (verified audits only, store_id replaced with anonymized hash if Store was volunteer-added) |
+| GET | `/api/data/audits.csv` | Signed-in CSV download (verified audits only, store_id replaced with anonymized hash if Store was volunteer-added) |
 | GET | `/api/data/dashboard/state-report.json` | JSON feed for public dashboard |
 
 ### 5.2 Vision validation service

@@ -19,6 +19,7 @@ import {
 import { newId } from "./ids";
 import {
   parseJson,
+  type EmsRateData,
   type Submission,
   type TaskTemplate,
   type User,
@@ -56,7 +57,7 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
 
   const submissionText =
     `Task: ${task.title}\nCategory: ${task.category}\n\n` +
-    `Participant's submission:\n${sub.user_notes ?? "(no written content)"}\n\n` +
+    `Participant's submission:\n${formatNotesForAi(task.category, sub.user_notes)}\n\n` +
     `Attached files: ${files.length}`;
 
   const env = getEnv();
@@ -103,6 +104,34 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
     .prepare("UPDATE submissions SET status = ?, ai_verdict_json = ? WHERE id = ? AND status = 'ai_reviewing'")
     .bind(nextStatus, JSON.stringify(verdict), submissionId)
     .run();
+}
+
+function formatNotesForAi(category: string, notes: string | null): string {
+  if (!notes) return "(no written content)";
+  if (category !== "ems-rate-research") return notes;
+  const data = parseJson<EmsRateData | null>(notes, null);
+  if (!data || !data.assignment) return notes;
+  const row = (label: string, f: { amount: string; source_url: string; not_found: boolean }) =>
+    f.not_found
+      ? `- ${label}: COULDN'T FIND`
+      : f.amount
+        ? `- ${label}: $${f.amount}  (source: ${f.source_url || "MISSING URL"})`
+        : `- ${label}: (blank)`;
+  return [
+    `Assigned provider: ${data.assignment.provider_name} — ${data.assignment.city}, ${data.assignment.state}`,
+    "",
+    "Rates reported:",
+    row("BLS base", data.bls),
+    row("ALS base", data.als),
+    row("Per-mile", data.mileage),
+    row("TNT fee", data.tnt),
+    data.tnt_description ? `TNT description: ${data.tnt_description}` : "",
+    data.effective_date ? `Effective date: ${data.effective_date}` : "",
+    data.zip_codes ? `Coverage: ${data.zip_codes}` : "",
+    data.notes ? `Notes: ${data.notes}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function toBase64(buf: ArrayBuffer): string {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/auth";
 
 // App surfaces that require an authenticated session.
-const SESSION_REQUIRED = ["/app", "/org", "/admin"];
+const SESSION_REQUIRED = ["/app", "/org", "/admin", "/data"];
 // Public pages that live under a session-gated prefix.
 const SESSION_EXEMPT = ["/org/signup"];
 

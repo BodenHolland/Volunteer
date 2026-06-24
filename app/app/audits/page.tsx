@@ -94,7 +94,7 @@ export default async function MyAuditsPage() {
                   COUNT(c.id) AS total_contribs
            FROM audits a
            LEFT JOIN stores s ON s.id = a.store_id
-           LEFT JOIN open_prices_contributions c ON c.audit_id = a.id
+           LEFT JOIN open_prices_contributions c ON c.public_session_ref = a.public_session_ref
            WHERE a.user_id = ?
            GROUP BY a.id
            ORDER BY COALESCE(a.submitted_at, a.started_at) DESC

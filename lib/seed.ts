@@ -45,6 +45,7 @@ export const TASK_INPUT = "task_input";
 export const TASK_SEMINAR = "task_seminar";
 export const TASK_FOOD_AUDIT = "task_food_audit";
 export const TASK_GOV_AUDIT = "task_gov_audit";
+export const TASK_EMS_RATES = "task_ems_rates";
 
 export const PERSONAS: Persona[] = [
   { user_id: USER_MARISOL, label: "Marisol Reyes", sublabel: "Recipient · certifies SNAP hours", role: "recipient" },
@@ -274,6 +275,47 @@ const TASKS: SeedTask[] = [
     max: 0.33,
     location: "online",
   },
+  {
+    id: TASK_EMS_RATES,
+    org_id: ORG_SFCDC,
+    title: "Find ambulance rates for one EMS provider",
+    category: "ems-rate-research",
+    short_description:
+      "Look up the official published ambulance billing rates for one assigned EMS provider, record the dollar amounts in a short structured form, and upload a screenshot of the source. Takes about 30 minutes.",
+    instructions_md:
+      "## What you'll do\nAmbulance billing rates are public but scattered across city ordinances, county fee schedules, and provider PDFs. Help build a free national dataset by pinning down the rates for one provider.\n\n1. Search for the provider's **official** fee schedule — city site, county site, the provider's own site, or a state regulator. Not a news article or blog.\n2. Find the **dollar amounts** for as many of these as the source lists: BLS base, ALS base, per-mile, and treat-no-transport (TNT).\n3. Note the **effective date** of the rates.\n4. **Screenshot** the rate table from the source.\n5. Paste the direct URL into the form and submit.\n\n## What the public gets\nYour entry joins a free CSV/JSON of US ambulance rates anyone can download — patients, journalists, and researchers checking whether a bill is in line with the published schedule.",
+    checklist: [
+      { id: "source", label: "Find the provider's official rate schedule from an authoritative source", required: true },
+      { id: "rate", label: "Record at least one rate (BLS, ALS, mileage, or TNT)", required: true },
+      { id: "url", label: "Paste the direct URL to the source document", required: true },
+      { id: "screenshot", label: "Upload a screenshot of the rate schedule table", required: true },
+      { id: "date", label: "Enter the effective date of the rates", required: true },
+      { id: "zips", label: "Note the ZIP codes or service area if listed", required: false },
+      { id: "tnt", label: "Check whether a Treatment-Without-Transport (TNT) fee exists", required: false },
+    ],
+    spec: {
+      kind: "ems-rate-research",
+      ems_targets: [
+        { provider_name: "Austin-Travis County EMS", city: "Austin", state: "TX" },
+        { provider_name: "Boston EMS", city: "Boston", state: "MA" },
+        { provider_name: "Denver Health Paramedic Division", city: "Denver", state: "CO" },
+        { provider_name: "FDNY EMS", city: "New York", state: "NY" },
+        { provider_name: "King County Medic One", city: "Seattle", state: "WA" },
+        { provider_name: "Los Angeles Fire Department EMS", city: "Los Angeles", state: "CA" },
+        { provider_name: "MedStar Mobile Healthcare", city: "Fort Worth", state: "TX" },
+        { provider_name: "Miami-Dade Fire Rescue", city: "Miami", state: "FL" },
+        { provider_name: "Pittsburgh EMS", city: "Pittsburgh", state: "PA" },
+        { provider_name: "San Francisco Fire Department EMS", city: "San Francisco", state: "CA" },
+        { provider_name: "Wake County EMS", city: "Raleigh", state: "NC" },
+        { provider_name: "Washington DC Fire and EMS", city: "Washington", state: "DC" },
+      ],
+    },
+    rubric:
+      "APPROVE if: source_url is present and from an official government or EMS-provider domain; at least one rate field (bls_base / als_base / mileage / tnt_fee) is non-empty; the screenshot shows a real rate table with dollar figures; effective_date is present. NEEDS_CHANGES if: source_url is a homepage rather than the direct schedule, all rate fields are empty, tnt_fee is filled but tnt_description is empty, or the screenshot shows an unrelated page. REJECT if: source is a personal blog / news article / Reddit / unofficial source, the screenshot is blank / AI-generated / unrelated, or provider_name + city + state are all empty. Field issues use the field name as the key (source_url, photos, overall).",
+    est: 0.5,
+    max: 0.5,
+    location: "online",
+  },
 ];
 
 function addr(o: { line1: string; line2?: string; city: string; state: string; zip: string }) {
@@ -293,8 +335,10 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
     "gov_audit_site_evaluations",
     "gov_audit_sessions",
     "audit_validation_flags",
+    "audit_photo_exif",
     "audit_photos",
     "audit_item_captures",
+    "audit_public_summaries",
     "audits",
     "stores",
     "basket_templates",
@@ -488,7 +532,10 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
     // Only the food-audit task is live in the catalog. Older seeded tasks stay
     // archived so their sample submissions / hours rows still reference a valid
     // task_template row but they don't surface in /app/tasks.
-    const status = t.id === TASK_FOOD_AUDIT || t.id === TASK_GOV_AUDIT ? "active" : "archived";
+    const status =
+      t.id === TASK_FOOD_AUDIT || t.id === TASK_GOV_AUDIT || t.id === TASK_EMS_RATES
+        ? "active"
+        : "archived";
     stmts.push(
       taskIns.bind(
         t.id, t.org_id, createdBy, t.title, t.category, t.short_description,

@@ -150,8 +150,7 @@ export function routeStatus(
   flags: FraudFlag[]
 ): "pending_review" | "rejected" | "needs_changes" {
   if (flags.some((f) => f.severity === "block")) return "needs_changes";
-  // AI reject → needs_changes so the user sees field-level feedback and can fix + resubmit.
-  // "rejected" (terminal) is reserved for human reviewers after deliberate review.
-  if (verdict.verdict === "reject") return "needs_changes";
+  // A validator rejection is terminal under the submission state machine.
+  if (verdict.verdict === "reject") return "rejected";
   return "pending_review";
 }

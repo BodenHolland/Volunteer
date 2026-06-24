@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/cf";
 import { rateLimit } from "@/lib/ratelimit";
+import { requireDatasetAccess } from "@/lib/dataset-access";
 import type {
   GovAuditSiteEvalRow,
   GovAuditPageEvalRow,
@@ -7,7 +8,7 @@ import type {
 } from "@/lib/gov-audit";
 
 /**
- * Free public JSON export — government website audits.
+ * Signed-in JSON export — government website audits.
  *
  * Same data, same moderation gate, and same public-cluster-only guarantee as
  * the CSV export (app/api/data/gov-audits.csv/route.ts). Reads ONLY
@@ -53,6 +54,9 @@ interface GovAuditExportRow
     Pick<GovAuditAutoCheckRow, "axe_violations" | "http_status" | "https_ok" | "load_ok"> {}
 
 export async function GET(req: Request) {
+  const denied = await requireDatasetAccess(req);
+  if (denied) return denied;
+
   const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for") ?? "anon";
   const rl = await rateLimit(`gov-audits-json:${ip}`, 5, 60_000).catch(() => ({ ok: true }));
   if (!rl.ok) return new Response("rate limited", { status: 429 });
@@ -124,7 +128,7 @@ export async function GET(req: Request) {
     status: 200,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=300",
+      "Cache-Control": "private, no-store",
     },
   });
 }
