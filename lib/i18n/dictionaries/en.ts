@@ -11,9 +11,9 @@ export const en = {
   },
   hero: {
     overline: "Online volunteering",
-    title: "Online volunteering opportunities that count.",
+    title: "Help people, from anywhere",
     subhead:
-      "Choose a task from a sponsoring nonprofit and volunteer online. If you get SNAP (EBT), your reviewed hours are certified toward your work requirement.",
+      "Online volunteer tasks posted by local nonprofits and public agencies. You do the work on your own schedule and log your time. If you get SNAP (EBT), your approved hours can be certified toward your monthly work requirement.",
     cta: "Browse opportunities",
     calfresh: "Getting SNAP (EBT)? Find your required hours →",
   },

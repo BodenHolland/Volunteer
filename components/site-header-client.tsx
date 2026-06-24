@@ -114,7 +114,7 @@ export function SiteHeaderClient({
     <header className="sticky top-0 z-40 border-b border-navy-deep bg-navy text-white shadow-sm">
       <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-8">
-          <Link href={viewer?.home ?? "/"} aria-label="Tended home" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+          <Link href="/" aria-label="Tended home" className="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             <Logo className="text-white" size={24} />
           </Link>
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
