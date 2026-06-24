@@ -71,7 +71,7 @@ export default async function LandingPage() {
                 <Button asChild size="lg" variant="secondary"><Link href="/how-it-works">{L.secondaryCta}</Link></Button>
               </div>
               <p className="mt-6 text-[15px]">
-                <Link href="/how-it-works" className="font-medium text-forest hover:underline">{t.hero.calfresh}</Link>
+                <Link href="/data/hours-calculator" className="font-medium text-forest hover:underline">{t.hero.calfresh}</Link>
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default async function LandingPage() {
         <section className="border-b border-line bg-white">
           <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-x-6 gap-y-4 px-4 py-6 md:grid-cols-4 md:px-6">
             {trust.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2.5 text-sm font-medium text-ink">
+              <div key={label} className="flex items-center justify-center gap-2.5 text-sm font-medium text-ink">
                 <Icon className="size-[18px] shrink-0 text-forest" strokeWidth={1.75} aria-hidden />
                 {label}
               </div>

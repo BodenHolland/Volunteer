@@ -15,7 +15,7 @@ export const en = {
     subhead:
       "Choose a task from a sponsoring nonprofit and volunteer online. If you get SNAP (EBT), your reviewed hours are certified toward your work requirement.",
     cta: "Browse opportunities",
-    calfresh: "Getting SNAP (EBT)? See how your hours are certified →",
+    calfresh: "Getting SNAP (EBT)? Find your required hours →",
   },
   orgCta: {
     title: "Run a nonprofit, school, or agency?",

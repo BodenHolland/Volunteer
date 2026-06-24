@@ -27,17 +27,18 @@ export const ARTICLES: ArticleMeta[] = [
 ];
 
 export type SectionMeta = {
+  slug: string;
   name: string;
   name_es: string;
   range: readonly [number, number];
 };
 
 export const SECTIONS: SectionMeta[] = [
-  { name: "About Tended", name_es: "Acerca de Tended", range: [1, 3] as const },
-  { name: "What counts as SNAP volunteer hours", name_es: "Qué cuenta como horas de voluntariado para SNAP", range: [4, 7] as const },
-  { name: "How we verify", name_es: "Cómo verificamos", range: [8, 11] as const },
-  { name: "For caseworkers", name_es: "Para trabajadores sociales", range: [12, 13] as const },
-  { name: "If your hours are questioned", name_es: "Si se cuestionan tus horas", range: [14, 15] as const },
+  { slug: "about", name: "About Tended", name_es: "Acerca de Tended", range: [1, 3] as const },
+  { slug: "snap-hours", name: "What counts as SNAP volunteer hours", name_es: "Qué cuenta como horas de voluntariado para SNAP", range: [4, 7] as const },
+  { slug: "verification", name: "How we verify", name_es: "Cómo verificamos", range: [8, 11] as const },
+  { slug: "caseworkers", name: "For caseworkers", name_es: "Para trabajadores sociales", range: [12, 13] as const },
+  { slug: "questions", name: "If your hours are questioned", name_es: "Si se cuestionan tus horas", range: [14, 15] as const },
 ];
 
 export function articleTitle(a: ArticleMeta, locale: Locale): string {

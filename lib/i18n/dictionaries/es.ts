@@ -17,7 +17,7 @@ export const es: typeof en = {
     subhead:
       "Elige una tarea de una organización patrocinadora y haz voluntariado en línea. Si recibes SNAP (EBT), tus horas revisadas se certifican para tu requisito de trabajo.",
     cta: "Ver oportunidades",
-    calfresh: "¿Recibes SNAP (EBT)? Mira cómo se certifican tus horas →",
+    calfresh: "¿Recibes SNAP (EBT)? Calcula tus horas requeridas →",
   },
   orgCta: {
     title: "¿Diriges una organización sin fines de lucro, escuela o agencia?",
