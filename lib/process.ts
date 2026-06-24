@@ -117,8 +117,12 @@ function formatNotesForAi(category: string, notes: string | null): string {
       : f.amount
         ? `- ${label}: $${f.amount}  (source: ${f.source_url || "MISSING URL"})`
         : `- ${label}: (blank)`;
+  const where = `${data.assignment.city}, ${data.assignment.state}`;
+  const assignmentLine = data.assignment.provider_name
+    ? `Assigned provider: ${data.assignment.provider_name} (${where})`
+    : `Service area: ${where}. Volunteer was asked to identify the EMS agency that bills ambulance transports in this area and verify its published rates. Judge the rates and source URL against whichever agency the volunteer's source documents.`;
   return [
-    `Assigned provider: ${data.assignment.provider_name} — ${data.assignment.city}, ${data.assignment.state}`,
+    assignmentLine,
     "",
     "Rates reported:",
     row("BLS base", data.bls),
