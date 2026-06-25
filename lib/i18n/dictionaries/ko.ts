@@ -740,13 +740,13 @@ export const ko: typeof en = {
     certifiedTimeCaption: "Capped at 20 min per page, gated on a complete rubric.",
     integrityScore: "Integrity score",
     integrityScoreCaption: "Rubric completeness × automated-check corroboration.",
-    certifiedMinutes: "minutes",
-    datasetNotePre: "This audit's data is released publicly at",
-    datasetNotePost: "under a CC0 license.",
     datasetLink: "government-website audit dataset",
     backToDashboard: "Back to dashboard",
     auditAnother: "Audit another URL",
     findDifferentTask: "Find a different task",
+    certifiedMinutes: "minutes",
+    datasetNotePre: "This audit's data is released publicly at",
+    datasetNotePost: "under a CC0 license.",
   },
   appProfile: {
     overline: "Benefits details",
@@ -818,10 +818,6 @@ export const ko: typeof en = {
     commit: "Commit to task",
   },
   orgDashboard: {
-    noOrgLinked: "No organization linked to your account.",
-    pendingAwaitingReview: "Awaiting review",
-    hoursMonthLabel: "hours this month",
-    aVolunteer: "A volunteer",
     title: "Review dashboard",
     awaitingReviewStat: "Awaiting review",
     activeTasks: "Active tasks",
@@ -829,13 +825,12 @@ export const ko: typeof en = {
     recipientsServed: "Recipients served",
     recentActivity: "Recent activity",
     emptyQueue: "Queue is empty. New submissions appear here when recipients submit work.",
+    noOrgLinked: "No organization linked to your account.",
+    pendingAwaitingReview: "Awaiting review",
+    hoursMonthLabel: "hours this month",
+    aVolunteer: "A volunteer",
   },
   reviewQueue: {
-    noOrgLinked: "No organization linked.",
-    subhead: "Review submitted work and approve volunteer hours.",
-    volunteerFallback: "A volunteer",
-    submitted: "Submitted",
-    needsALook: "Needs a look",
     title: "Review queue",
     filterAwaitingReview: "Awaiting review",
     filterApproved: "Approved",
@@ -843,10 +838,15 @@ export const ko: typeof en = {
     filterRejected: "Rejected",
     filterAll: "All",
     emptyState: "Queue is empty. New submissions appear here when recipients submit work.",
+    noOrgLinked: "No organization linked.",
+    subhead: "Review submitted work and approve volunteer hours.",
+    volunteerFallback: "A volunteer",
+    submitted: "Submitted",
+    needsALook: "Needs a look",
   },
   orgTasks: {
-    noOrgLinked: "No organization linked.",
     title: "Tasks",
+    noOrgLinked: "No organization linked.",
     adminDesc: "The civic tasks your organization hosts for volunteers.",
     nonAdminDesc: "The civic tasks your organization hosts. Editing is limited to admins.",
     emptyState: "You haven't published any tasks yet. Create one to start hosting volunteers.",
@@ -877,17 +877,17 @@ export const ko: typeof en = {
     backToTasks: "Tasks",
   },
   orgProfilePage: {
+    title: "Organization profile",
+    subtitle: "This information appears on your public page and the organization section of each work-hours certification.",
+    saved: "Profile saved.",
     noOrgLinked: "No organization linked.",
+    contactEmailPlaceholder: "org@example.org",
     streetAddressPlaceholder: "123 Main St",
     suitePlaceholder: "Suite 100",
     cityPlaceholder: "City",
     statePlaceholder: "CA",
     zipPlaceholder: "00000",
     profileSaved: "Profile saved.",
-    contactEmailPlaceholder: "org@example.org",
-    title: "Organization profile",
-    subtitle: "This information appears on your public page and the organization section of each work-hours certification.",
-    saved: "Profile saved.",
     basicsSection: "Basics",
     orgName: "Organization name",
     about: "About",
@@ -922,40 +922,7 @@ export const ko: typeof en = {
     readArticle: "Read article",
     skipToContent: "Skip to content",
   },
-
-  orgTeam: {
-    errorNoOrg: "No organization linked to your account.",
-    unnamedMember: "Team member",
-    title: "Team",
-    subtitle: "People who can review and manage work for your organization.",
-    inviteSection: "Invite a teammate",
-    emailLabel: "Email",
-    roleLabel: "Role",
-    roleReviewer: "Reviewer",
-    roleAdmin: "Admin",
-    sendInvite: "Send invite",
-    roleHelp: "Reviewers can review and approve work. Admins can also manage templates, the org profile, and the team.",
-    pendingInvitations: "Pending invitations",
-    invitedStatus: "Invited · awaiting sign-up",
-    membersSection: "Members",
-    noMembers: "No team members yet.",
-    youLabel: "(you)",
-    updateRole: "Update",
-    revoke: "Revoke",
-    remove: "Remove",
-    statusInvited: "Invitation sent.",
-    statusInviteRevoked: "Invitation revoked.",
-    statusMemberRemoved: "Member removed from the team.",
-    statusRoleChanged: "Role updated.",
-    errorInvalidEmail: "Enter a valid email address.",
-    errorAlreadyMember: "That person is already on the team.",
-    errorAlreadyInvited: "That email already has a pending invite.",
-    errorCannotRemoveSelf: "You can't remove yourself.",
-    errorLastAdmin: "You're the last admin — promote someone else first.",
-    errorNotFound: "That member is no longer on the team.",
-    errorGeneric: "Something went wrong. Try again.",
-  },
-    helpSurveys: {
+  helpSurveys: {
     title: "Surveys & community-research contributions — how we approach them",
     intro: "Some colift tasks involve volunteers contributing structured responses to community-research questions, such as observations that feed a needs assessment or a community report. This article explains how we treat those tasks, what supports the position, and what we won’t do.",
     lawStatusHeading: "Honest status of the law",
@@ -985,7 +952,7 @@ export const ko: typeof en = {
     preferencePara: "When an external-environment observation task can do the same job as a self-report survey, we design the observation task instead. It carries no \"subject\" risk and produces a self-verifying artifact. \"Document fresh-food prices at five stores near you\" is what we’d build before \"report your own grocery spending.\"",
     legalNote: "Not legal advice.",
   },
-    forCaseworkers: {
+  forCaseworkers: {
     metaTitle: "For caseworkers — colift",
     metaDescription: "A plain-language methodology overview for county welfare caseworkers and benefits staff reviewing CF 888 or equivalent state forms signed by colift.",
     heroBadge: "For county welfare caseworkers & benefits staff",
@@ -1095,13 +1062,13 @@ export const ko: typeof en = {
     contactBtn: "Contact colift",
     contactDisclaimer: "This page is informational and does not constitute legal advice. Citations are to publicly available primary sources. The legal framework described here represents colift's good-faith interpretation of the applicable regulations; counties retain discretion in administering the SNAP work requirement.",
   },
-    errorPages: {
+  errorPages: {
     unauthorizedTitle: "You don't have access to that",
     unauthorizedBody: "This area is for a different kind of account. Switch identity to continue as the right user.",
     switchIdentity: "Switch identity",
     backToHome: "Back to home",
   },
-    getStarted: {
+  getStarted: {
     heading: "What would you like to do?",
     subhead: "Pick the option that fits you best. You can change this later.",
     option0Title: "Volunteer on civic work",
@@ -1112,8 +1079,7 @@ export const ko: typeof en = {
     option2Body: "I represent a nonprofit or public agency and want to post tasks or certify volunteer hours.",
     nextBtn: "Next",
   },
-    submissionHistory: {},
-    reviewSubmission: {
+  reviewSubmission: {
     backLink: "Review queue",
     volunteerFallback: "A volunteer",
     submittedAt: "· submitted {time}",
@@ -1124,10 +1090,10 @@ export const ko: typeof en = {
     needsChangesStatus: "Sent back for changes.",
     rejectedStatus: "Rejected.",
   },
-    govAudit: {
+  govAudit: {
     metaTitle: "Government website audit — colift",
   },
-    hoursCalculator: {
+  hoursCalculator: {
     skipToContent: "Skip to content",
     title: "How many volunteer hours does ABAWD actually require?",
     intro: "The federal default is 80 hours per month — but 7 states (NY, ME, MA, VT, PA, VA, GA) use the SNAP workfare formula for general nonprofit volunteering, which can drop the requirement to as few as",
@@ -1147,7 +1113,7 @@ export const ko: typeof en = {
     ctaVolunteer: "Start volunteering",
     ctaHowItWorks: "How SNAP hour certification works",
   },
-    helpWhatIsTended: {
+  helpWhatIsTended: {
     title: "What is colift?",
     metaTitle: "What is colift? — Help Center",
     intro: "colift is a nonprofit that runs an online civic-volunteering platform. People sign up, complete tasks that produce real public-benefit work, and the time they spend is verified and certified by colift. For people receiving CalFresh or SNAP who are subject to the work requirement, those certified hours count toward the 80 hours per month (or, in New York, the state's lower formula-based total).",
@@ -1163,7 +1129,7 @@ export const ko: typeof en = {
     why1: "colift connects those two facts. The model is remote work that public agencies actually use, verified rigorously, and certified on the state's standard form.",
     seeAlso: "See also: How the platform works, Who funds colift, What counts as SNAP volunteer hours.",
   },
-    helpHowPlatformWorks: {
+  helpHowPlatformWorks: {
     title: "How the platform works (for volunteers)",
     intro: "Here is what you do on colift and what happens with your time.",
     loopHeading: "The loop",
@@ -1183,7 +1149,7 @@ export const ko: typeof en = {
     aiBody: "You can use AI tools when you do tasks. colift does not test for AI use, and does not use AI to detect AI. The question we care about is whether genuine effort produced a usable contribution, which the validation already checks.",
     footer: "If a county questions your hours, see What happens if a county questions your hours and Where to get legal help.",
   },
-    helpFunding: {
+  helpFunding: {
     intro: "colift is funded by grants and donations. Foundations, individuals, and corporate philanthropy. The work product volunteers produce is distributed free to the partner agency, the partner nonprofit, or the community. colift does not sell data, deliverables, or research.",
     whyHeading: "Why the funding structure matters here",
     whyBody: "colift signs the state verification form. That means colift is accountable for the integrity of each certification. A funding model that paid colift per certified recipient would give the certifier a financial incentive to maximize what it certifies. That is the conflict the structure avoids.",
@@ -1197,7 +1163,7 @@ export const ko: typeof en = {
     lobbyingBody: "A 501(c)(3) cannot make lobbying a substantial part of its activities (IRC §501(c)(3); §501(h) caps it). colift does not.",
     seeAlso: "See also: What is colift?, How we verify volunteer hours.",
   },
-    helpWhatCounts: {
+  helpWhatCounts: {
     metaTitle: "What counts as SNAP volunteer hours — Help Center",
     title: "What counts as SNAP volunteer hours, and our authority for it",
     introPara: "Federal law, the California verification standard, and the New York verification standard each allow unpaid volunteer work to count toward the SNAP/ABAWD work requirement. This article cites each one. Claims are graded:",
@@ -1243,7 +1209,7 @@ export const ko: typeof en = {
     practicePara2: "The follow-on question, whether remote and online volunteering specifically counts, is covered in the next article.",
     disclaimer: "Not legal advice. Citations as of publication.",
   },
-    helpRemoteOnline: {
+  helpRemoteOnline: {
     title: "Why remote and online volunteer hours count",
     introPara: "The federal government already recognizes remote and online volunteering as a legitimate form of service. The SNAP authority for counting volunteer work applies to verifiable unpaid work — not to where it happens.",
     h2Federal: "Federal recognition of remote contribution is explicit",
@@ -1262,7 +1228,7 @@ export const ko: typeof en = {
     howColiftClosingPara: "The authorized organization certifies hours based on the platform's records. Those records are the evidence supporting the certification.",
     legalDisclaimer: "Not legal advice.",
   },
-    helpVerify: {
+  helpVerify: {
     metaTitle: "How we verify volunteer hours — Help Center",
     title: "How we verify volunteer hours",
     esPrevTitle: "Qué NO cuenta",
@@ -1331,7 +1297,7 @@ export const ko: typeof en = {
     legalNote: "Not legal advice.",
     legalNoteEs: "No es asesoría legal.",
   },
-    helpCalibrate: {
+  helpCalibrate: {
     metaTitle: "How we calibrate hour caps — Help Center",
     title: "How we calibrate hour caps",
     intro: "Every task on colift has a Maximum Allowable Time (MAT). This is how the cap gets set, and how it stays honest.",
@@ -1355,7 +1321,7 @@ export const ko: typeof en = {
     transparencyHeading: "Transparency",
     transparencyPara: "The methodology document, current caps, and changelog are published. (See Audit & methodology ledger.)",
   },
-    helpCertifier: {
+  helpCertifier: {
     enTitle: "Who certifies your hours, and how",
     enIntro: "On California's work-hours verification form, the New York Monthly ABAWD Volunteer Participation Record, and equivalent state forms, the signature in the organization section is what makes the form valid. Here's who signs, what they certify, and what the law requires.",
     enWhoSignsHeading: "Who signs",
@@ -1405,7 +1371,7 @@ export const ko: typeof en = {
     esPrevTitle: "Cómo calibramos los límites de horas",
     esNextTitle: "Privacidad, datos personales y lo que publicamos",
   },
-    helpPrivacy: {
+  helpPrivacy: {
     title: "Privacy, PII, and what we publish",
     titleEs: "Privacidad, datos personales y lo que publicamos",
     intro: "Some colift tasks involve volunteers contributing observations or knowledge that can include personal information, their own or others'. This describes how that's handled.",
@@ -1451,7 +1417,7 @@ export const ko: typeof en = {
     prevTitleEs: "Quién certifica tus horas, y cómo",
     nextTitleEs: "Para trabajadores sociales: una metodología en una página",
   },
-    helpCaseworkers: {
+  helpCaseworkers: {
     title: "For caseworkers — a one-page methodology",
     intro: "Written for county welfare caseworkers and benefits-program staff reviewing a work-hours certification signed by colift.",
     resourceLink: "See the full caseworker resource page →",
@@ -1508,7 +1474,7 @@ export const ko: typeof en = {
     prevTitleEs: "Privacidad, datos personales y lo que publicamos",
     nextTitleEs: "Registro de auditoría y metodología",
   },
-    helpLedger: {
+  helpLedger: {
     title: "Audit & methodology ledger",
     intro: "colift publishes an open methodology ledger so volunteers, caseworkers, partners, funders, and auditors can see how we verify volunteer hours and how the methodology has evolved.",
     whatsInHeading: "What's in the ledger",
@@ -1546,7 +1512,7 @@ export const ko: typeof en = {
     formalReviewsHeadingEs: "Para revisiones formales",
     formalReviewsBodyEs: "Los revisores estatales (CDSS, OTDA) y federales (FNS) pueden solicitar una extracción formal de registros, que incluye los registros de validación subyacentes y la base de certificación por beneficiario, sujeto a las salvaguardas aplicables. Contacto: {contactEmail}.",
   },
-    helpFindATask: {
+  helpFindATask: {
     title: "How to find and commit to a task",
     intro: "The task catalog is at /app/tasks. From there you can browse available tasks, filter them down, and commit to one you want to do.",
     filterHeading: "How to filter the catalog",
@@ -1574,7 +1540,7 @@ export const ko: typeof en = {
     seeAlso: "See also:",
     seeAlsoLink: "How to complete and submit your work",
   },
-    helpCompleteWork: {
+  helpCompleteWork: {
     title: "How to complete and submit your work",
     metaTitle: "How to complete and submit your work — Help Center",
     intro: "Once you've committed to a task, the project hub at /app/projects/[id] is where you do and record the work. This page explains each part.",
@@ -1624,7 +1590,7 @@ export const ko: typeof en = {
     statusAiReviewing: "AI reviewing",
     statusNeedsChanges: "needs changes",
   },
-    helpHoursCf888: {
+  helpHoursCf888: {
     title: "Your hours and how to download your CF 888",
     titleEs: "Tus horas y cómo descargar tu formulario CF 888",
     howCreditedHeading: "How hours are credited",
@@ -1700,7 +1666,7 @@ export const ko: typeof en = {
     seeAlsoCertifierEs: "Quién certifica tus horas, y cómo",
     seeAlsoCompleteEs: "Cómo completar y enviar tu trabajo",
   },
-    helpAccountSettings: {
+  helpAccountSettings: {
     title: "Changing your account details",
     titleEs: "Cambiar los detalles de tu cuenta",
     introPara: "Your account settings are at <strong>/settings</strong>. Changes in each section save independently — each section has its own save button.",
@@ -1764,7 +1730,7 @@ export const ko: typeof en = {
     seeAlso: "See also: <a href=\"/help/18-password-lockout\">Forgot your password or locked out</a>.",
     seeAlsoEs: "Ver también: <a href=\"/help/18-password-lockout\">Olvidaste tu contraseña o tu cuenta está bloqueada</a>.",
   },
-    helpPasswordLockout: {
+  helpPasswordLockout: {
     metaTitle: "Forgot your password or locked out — Help Center",
     titleEn: "Forgot your password or locked out",
     titleEs: "Olvidaste tu contraseña o tu cuenta está bloqueada",
@@ -1817,7 +1783,7 @@ export const ko: typeof en = {
     seeAlsoLink2En: "Changing your account details",
     seeAlsoLink2Es: "Cambiar los detalles de tu cuenta",
   },
-    helpCommunityGuidelines: {
+  helpCommunityGuidelines: {
     title: "Community guidelines",
     intro: "colift exists to produce real work with genuine public value. The guidelines below describe what that means in practice, what happens when a submission falls short, and why the stakes here are higher than usual.",
     doRealWorkHeading: "Do real work",
@@ -1851,7 +1817,7 @@ export const ko: typeof en = {
     seeAlsoVerify: "How we verify volunteer hours",
     seeAlsoContact: "Report a bug or contact us",
   },
-    helpContactBug: {
+  helpContactBug: {
     titleEn: "Report a bug or contact us",
     titleEs: "Reportar un error o contactarnos",
     introEn: "If you found a bug, something that didn't work the way you expected, or you have a question that the Help Center doesn't answer — we'd like to hear from you.",
@@ -1935,7 +1901,7 @@ export const ko: typeof en = {
     helpCenterEn: "Help Center",
     helpCenterEs: "Centro de ayuda",
   },
-    helpNotCount: {
+  helpNotCount: {
     title: "What does NOT count",
     intro: "Here is what colift won’t credit as volunteer hours, and why.",
     selfHelpHeading: "Self-help and personal-benefit tasks",
@@ -1960,4 +1926,37 @@ export const ko: typeof en = {
     commercialBody: "Labeling data for a for-profit startup. Doing tasks for a commercial vendor. Not charitable service to a qualifying organization.",
     footerNote: "If you want to propose a task type, every idea gets checked against this list and against the internal qualification test. Not legal advice.",
   },
+  orgTeam: {
+    title: "Team",
+    subtitle: "People who can review and manage work for your organization.",
+    errorNoOrg: "No organization linked to your account.",
+    unnamedMember: "Team member",
+    inviteSection: "Invite a teammate",
+    emailLabel: "Email",
+    roleLabel: "Role",
+    roleReviewer: "Reviewer",
+    roleAdmin: "Admin",
+    sendInvite: "Send invite",
+    roleHelp: "Reviewers can review and approve work. Admins can also manage templates, the org profile, and the team.",
+    pendingInvitations: "Pending invitations",
+    invitedStatus: "Invited · awaiting sign-up",
+    membersSection: "Members",
+    noMembers: "No team members yet.",
+    youLabel: "(you)",
+    updateRole: "Update",
+    revoke: "Revoke",
+    remove: "Remove",
+    statusInvited: "Invitation sent.",
+    statusInviteRevoked: "Invitation revoked.",
+    statusMemberRemoved: "Member removed from the team.",
+    statusRoleChanged: "Role updated.",
+    errorInvalidEmail: "Enter a valid email address.",
+    errorAlreadyMember: "That person is already on the team.",
+    errorAlreadyInvited: "That email already has a pending invite.",
+    errorCannotRemoveSelf: "You can't remove yourself.",
+    errorLastAdmin: "You're the last admin — promote someone else first.",
+    errorNotFound: "That member is no longer on the team.",
+    errorGeneric: "Something went wrong. Try again.",
+  },
+    submissionHistory: {},
 };
