@@ -284,7 +284,7 @@ any }) {
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-3 z-30 w-[64%] rotate-[-4deg] rounded-md border border-[#c4d8c9] bg-verification-sage p-4 shadow-[0_4px_18px_-4px_rgba(19,35,30,0.12)]">
+      <div className="absolute top-[50%] left-3 z-30 w-[64%] rotate-[-4deg] rounded-md border border-[#c4d8c9] bg-verification-sage p-4 shadow-[0_4px_18px_-4px_rgba(19,35,30,0.12)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-[15px] font-semibold text-ink">{t.heroBoardHoursCertified}</p>

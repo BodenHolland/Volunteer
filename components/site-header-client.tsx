@@ -141,7 +141,7 @@ export function SiteHeaderClient({
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 md:px-8">
         <div className="flex items-center gap-10">
           <Link href="/" aria-label="colift home" className="rounded-md focus-visible:outline-none">
-            <Logo size={24} />
+            <Logo size={40} />
           </Link>
           <nav className="hidden items-center gap-1 md:flex" aria-label="Primary navigation">
             <Link href="/opportunities" className={navLinkBase}>{t.opportunities}</Link>
