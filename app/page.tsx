@@ -265,7 +265,7 @@ any }) {
         <p className="mt-1.5 text-[12px] text-ink/70">{t.heroBoardNoticeLabel}</p>
       </div>
 
-      <div className="absolute left-5 top-24 z-20 w-[78%] rotate-[-2deg] rounded-md border border-civic-line bg-white px-5 py-4 shadow-[0_8px_28px_-8px_rgba(19,35,30,0.18)]">
+      <div className="absolute left-3 top-24 z-20 w-[90%] rotate-[-2deg] rounded-md border border-civic-line bg-white px-5 py-4 shadow-[0_8px_28px_-8px_rgba(19,35,30,0.18)]">
         <p className="text-[13px] text-slate">{t.heroBoardOrgLine}</p>
         <p className="mt-1 text-[16px] font-semibold leading-snug text-ink">
           {t.heroBoardTaskTitle}
