@@ -6,10 +6,35 @@ import { relativeTime } from "@/lib/time";
 import type { LocationKind, TaskCategory } from "@/lib/types";
 
 const TASK_IMAGES: Record<string, string> = {
-  task_ems_rates: "/ems-rates-icon.ico",
+  // Native tasks
+  task_trees:     "/tasks/trees.jpg",
+  task_hazards:   "/tasks/hazards.jpg",
+  task_translate: "/tasks/translate.jpg",
+  task_input:     "/tasks/civic-input.jpg",
+  task_seminar:   "/tasks/seminar.jpg",
+  task_space:     "/tasks/community-space.jpg",
   task_food_audit: "/food-audit-icon.jpg",
-  task_gov_audit: "/gov-audit-icon.png",
+  task_gov_audit:  "/gov-audit-icon.png",
+  task_ems_rates:  "/ems-rates-icon.ico",
   task_zooniverse: "/zooniverse-icon.png",
+  // External tasks — org logos
+  ext_audubon_count:   "/orgs/national-audubon-society.svg",
+  ext_audubon_habitat: "/orgs/national-audubon-society.svg",
+  ext_bbbs_mentor:     "/orgs/big-brothers-big-sisters.png",
+  ext_feeding_pantry:  "/orgs/feeding-america.svg",
+  ext_feeding_sort:    "/orgs/feeding-america.svg",
+  ext_habitat_build:   "/orgs/habitat-for-humanity.svg",
+  ext_habitat_restore: "/orgs/habitat-for-humanity.svg",
+  ext_humane_foster:   "/orgs/humane-society.svg",
+  ext_humane_shelter:  "/orgs/humane-society.svg",
+  ext_mow_deliver:     "/orgs/meals-on-wheels-america.svg",
+  ext_pro_esl:         "/orgs/proliteracy.svg",
+  ext_pro_tutor:       "/orgs/proliteracy.svg",
+  ext_redcross_blood:  "/orgs/american-red-cross.svg",
+  ext_redcross_disaster: "/orgs/american-red-cross.svg",
+  ext_sierra_trail:    "/orgs/sierra-club-foundation.png",
+  ext_sierra_water:    "/orgs/sierra-club-foundation.png",
+  ext_twb_translate:   "/orgs/translators-without-borders.png",
 };
 
 export interface ListingCardData {
