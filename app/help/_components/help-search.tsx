@@ -45,7 +45,7 @@ export function HelpSearch({
 
       {query.trim() && (
         <div className="absolute z-10 mt-2 w-full overflow-hidden rounded-lg border border-line bg-white text-left shadow-lg">
-          <p className="border-b border-line px-4 py-3 text-xs font-medium uppercase tracking-wide text-meta">
+          <p className="border-b border-line px-4 py-3 text-[13px] font-medium text-meta">
             {resultsLabel}
           </p>
           {results.length > 0 ? (

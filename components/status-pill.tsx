@@ -30,7 +30,7 @@ export function StatusPill({ status, className }: { status: string; className?: 
       className={cn(
         "inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-medium",
         s.cls,
-        s.pulse && "animate-tended-pulse",
+        s.pulse && "animate-colift-pulse",
         className
       )}
     >

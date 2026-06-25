@@ -52,6 +52,17 @@ export async function commitToTask(formData: FormData) {
       .bind(user.id, taskId)
       .first<{ id: string }>();
     if (draft) redirect(`/app/gov-audits/${draft.id}`);
+  } else if (task.category === "citizen-science") {
+    const draft = await db
+      .prepare(
+        `SELECT id FROM submissions
+         WHERE user_id = ? AND task_template_id = ?
+           AND status IN ('committed','in_progress','needs_changes')
+         ORDER BY committed_at DESC LIMIT 1`
+      )
+      .bind(user.id, taskId)
+      .first<{ id: string }>();
+    if (draft) redirect(`/app/external/${draft.id}`);
   } else {
     const draft = await db
       .prepare(
@@ -155,6 +166,19 @@ export async function commitToTask(formData: FormData) {
     // The structured form is the work — there's no checklist, no time floor,
     // nothing to do on a generic project hub. Jump straight to the form.
     redirect(`/app/projects/${id}/submit`);
+  }
+
+  if (task.category === "citizen-science") {
+    // External-certificate flow: stamp an opaque public_session_ref on the
+    // submission so the future public-cluster row (zooniverse_public_activity)
+    // has its cross-boundary key from day one. No project hub, no timer —
+    // the work happens off-platform.
+    const publicRef = crypto.randomUUID();
+    await db
+      .prepare("UPDATE submissions SET public_session_ref = ? WHERE id = ?")
+      .bind(publicRef, id)
+      .run();
+    redirect(`/app/external/${id}`);
   }
 
   if (task.category === "gov-audit") {

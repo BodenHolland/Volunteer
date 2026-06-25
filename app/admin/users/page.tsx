@@ -4,7 +4,7 @@ import { getDb } from "@/lib/cf";
 import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Users — Tended admin" };
+export const metadata = { title: "Users — colift admin" };
 
 interface UserRow {
   id: string;

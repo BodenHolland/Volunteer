@@ -174,7 +174,7 @@ export async function GET(req: Request) {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="tended-gov-website-audits.csv"',
+      "Content-Disposition": 'attachment; filename="colift-gov-website-audits.csv"',
       "Cache-Control": "private, no-store",
     },
   });

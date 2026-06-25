@@ -18,6 +18,8 @@ export const DEVICE_FOR_CATEGORY: Record<TaskCategory, DeviceRequirement> = {
   "food-audit": "mobile",
   "gov-audit": "desktop",
   "ems-rate-research": "either",
+  "community-service": "either",
+  "citizen-science": "either",
 };
 
 /** Tag-ready label + icon for a category's device requirement, or null when
@@ -77,4 +79,6 @@ export const CATEGORY_LABEL: Record<TaskCategory, string> = {
   "food-audit": "Food prices",
   "gov-audit": "Website audit",
   "ems-rate-research": "EMS rates",
+  "community-service": "Community service",
+  "citizen-science": "Citizen science",
 };

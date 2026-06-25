@@ -102,7 +102,7 @@ export async function GET(req: Request) {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="tended-food-audits.csv"',
+      "Content-Disposition": 'attachment; filename="colift-food-audits.csv"',
       "Cache-Control": "private, no-store",
     },
   });

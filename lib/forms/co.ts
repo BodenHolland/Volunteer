@@ -38,7 +38,7 @@ const CO_BLUE = rgb(0.0, 0.27, 0.55);
 export async function buildCOPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("Colorado Volunteer Verification Form (ABAWD)");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);

@@ -3,7 +3,7 @@
  *
  * State-agnostic work-hours certification PDF endpoint. Routes on the
  * recipient's state — CA → CF 888, other named-form states → their own
- * generator, fallback states → generic Tended verification letter. Gated
+ * generator, fallback states → generic colift verification letter. Gated
  * on state-level pre-clearance (DEMO_MODE / cleared county / shipped
  * named-form state). Replaces the legacy CA-specific /api/cf888 path,
  * which now thin-redirects here.
@@ -123,8 +123,8 @@ export async function GET(req: Request) {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="work-hours-certification-${userState}-${month}.pdf"`,
-      "X-Tended-Form-Id": spec.formId,
-      "X-Tended-Submission-Target": spec.submissionTarget,
+      "X-colift-Form-Id": spec.formId,
+      "X-colift-Submission-Target": spec.submissionTarget,
     },
   });
 }

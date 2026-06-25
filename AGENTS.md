@@ -1,6 +1,6 @@
-# TENDED — project guide (read this first)
+# COLIFT — project guide (read this first)
 
-TENDED is a civic-tech web app where people do real, useful civic tasks —
+COLIFT is a civic-tech web app where people do real, useful civic tasks —
 counting street trees, translating flyers, mapping sidewalk hazards,
 documenting neighborhoods — for sponsoring nonprofits. For users who receive
 CalFresh, approved hours can be certified via California's **Form CF 888** and
@@ -17,7 +17,7 @@ recipients, no real state submissions.
 
 ## Legal framework (read [docs/legal-framework.md](docs/legal-framework.md))
 
-Tended is a **501(c)(3) virtual volunteer-coordinating nonprofit**, **100% grant-
+colift is a **501(c)(3) virtual volunteer-coordinating nonprofit**, **100% grant-
 and donation-funded** — it **never sells** volunteer output; deliverables are
 given away free to the public, libraries, and government. Two hard lines bind the
 product:
@@ -52,8 +52,8 @@ Do not cite 29 CFR §553.101 (public-agency volunteers only) for volunteer statu
 > manager.
 
 ### Provisioned Cloudflare resources (account `65fb048fa9b4fb99f6473038c393d6a0`)
-- D1 `tended-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
-- R2 `tended-files`
+- D1 `colift-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
+- R2 `colift-files`
 
 ---
 
@@ -85,7 +85,7 @@ Real **email + password** accounts. No demo gate, no identity-swap.
 
 - Passwords hashed with **PBKDF2-SHA256** (100k iters, per-user salt).
 - **Revocable server-side sessions** (`sessions` table). The cookie
-  (`tended_session`, HttpOnly/SameSite=Lax/Secure-in-prod) holds an opaque token;
+  (`colift_session`, HttpOnly/SameSite=Lax/Secure-in-prod) holds an opaque token;
   the DB stores only its SHA-256 hash. Password change revokes all sessions.
 - **Email verification** + **password reset** via one-time `auth_tokens` (hashed).
   The flows are real; **delivery is stubbed** (`lib/notify.ts`) until a provider is
@@ -95,7 +95,7 @@ Real **email + password** accounts. No demo gate, no identity-swap.
 - `middleware.ts` redirects unauthenticated `/app|/org|/admin` to `/login`; role is
   enforced in layouts/pages via `require*` (`lib/session.ts`).
 
-**Demo accounts** (seeded, all share password `tended-demo-2026`):
+**Demo accounts** (seeded, all share password `colift-demo-2026`):
 `marisol.reyes@example.com` (recipient, snap_cert), `trevor.nakamura@example.com`
 (recipient, casual), `priya.venkatesan@example.com` (SFCDC org_admin),
 `daniel.okafor@example.com` (FUF reviewer), `alex.mercado@example.com` (admin).
@@ -259,6 +259,6 @@ pnpm dev                      # http://localhost:3000  (loads .dev.vars)
 Seed runs idempotently on first request and via **`/admin/reset`** (a POST that
 wipes + reseeds all tables; also reachable from the `/admin` page button).
 
-Site password (local): `tended-pilot` (see `.dev.vars`).
+Site password (local): `colift-pilot` (see `.dev.vars`).
 
 See `README.md` for D1/R2 setup, deploy, and **Known Gaps**.

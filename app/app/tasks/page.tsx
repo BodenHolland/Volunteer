@@ -15,12 +15,12 @@ function personalizeTitle(title: string, category: string, city: string | null |
 }
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Tasks — Tended" };
+export const metadata = { title: "Tasks — colift" };
 
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ loc?: string; cat?: string; q?: string }>;
+  searchParams: Promise<{ loc?: string; cat?: string; q?: string; type?: string }>;
 }) {
   const sp = await searchParams;
   const { t: tr } = await getDict();
@@ -28,19 +28,27 @@ export default async function TasksPage({
   const me = await getCurrentUser();
   const city = me?.city ?? null;
 
-  const counts = { location: {} as Record<string, number>, category: {} as Record<string, number> };
+  const counts = {
+    location: {} as Record<string, number>,
+    category: {} as Record<string, number>,
+    listingType: {} as Record<string, number>,
+  };
   for (const t of all) {
     counts.location[t.location_kind] = (counts.location[t.location_kind] ?? 0) + 1;
     counts.category[t.category] = (counts.category[t.category] ?? 0) + 1;
+    const lt = t.listing_type ?? "native";
+    counts.listingType[lt] = (counts.listingType[lt] ?? 0) + 1;
   }
 
   const loc = new Set((sp.loc ?? "").split(",").filter(Boolean));
   const cat = new Set((sp.cat ?? "").split(",").filter(Boolean));
+  const type = new Set((sp.type ?? "").split(",").filter(Boolean));
   const q = (sp.q ?? "").trim().toLowerCase();
 
   const filtered = all.filter((t) => {
     if (loc.size && !loc.has(t.location_kind)) return false;
     if (cat.size && !cat.has(t.category)) return false;
+    if (type.size && !type.has(t.listing_type ?? "native")) return false;
     if (q && !(`${t.title} ${t.short_description} ${t.org.name}`.toLowerCase().includes(q))) return false;
     return true;
   });
@@ -51,16 +59,19 @@ export default async function TasksPage({
     title: personalizeTitle(t.title, t.category, city),
     orgName: t.org.name,
     orgSlug: t.org.slug,
+    orgLogoUrl: t.org.logo_url,
     category: t.category,
     location: t.location_kind,
+    listingType: t.listing_type ?? "native",
     createdAt: t.created_at,
-    featured: i === 0,
+    closesAt: t.closes_at,
+    featured: i === 0 && t.id !== "task_food_audit",
   }));
 
   return (
     <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)_240px]">
       <aside className="lg:border-r lg:border-line lg:pr-6">
-        <TaskFilters counts={counts} variant="sidebar" />
+        <TaskFilters counts={counts} listingTypeCounts={counts.listingType} variant="sidebar" />
       </aside>
 
       <div>
@@ -81,8 +92,8 @@ export default async function TasksPage({
           <EmptyState
             icon={<Sprout />}
             title="No opportunities open right now"
-            body="New civic tasks from sponsoring nonprofits are posted regularly. Check back soon — or see how Tended works in the meantime."
-            ctaLabel="How Tended works"
+            body="New civic tasks from sponsoring nonprofits are posted regularly. Check back soon — or see how colift works in the meantime."
+            ctaLabel="How colift works"
             ctaHref="/how-it-works"
           />
         ) : (

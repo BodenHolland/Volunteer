@@ -9,7 +9,7 @@ import { approveTaskGate } from "./actions";
 import type { TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Task approval — Tended admin" };
+export const metadata = { title: "Task approval — colift admin" };
 
 interface TaskRow extends TaskTemplate {
   org_name: string | null;
@@ -35,12 +35,20 @@ export default async function AdminTasksPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-[28px] font-semibold text-ink">Task approval</h1>
-        <p className="mt-1 text-body">
-          Every task template must pass the 4-part beneficiary gate before it can go active.
-          Approve templates that meet all four criteria; those missing criteria stay draft.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[28px] font-semibold text-ink">Task approval</h1>
+          <p className="mt-1 text-body">
+            Every task template must pass the 4-part beneficiary gate before it can go active.
+            Approve templates that meet all four criteria; those missing criteria stay draft.
+          </p>
+        </div>
+        <a
+          href="/admin/tasks/zooniverse"
+          className="inline-flex h-9 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink hover:bg-section"
+        >
+          Zooniverse catalog →
+        </a>
       </div>
 
       {rows.length === 0 ? (

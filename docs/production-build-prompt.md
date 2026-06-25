@@ -1,6 +1,6 @@
-# Tended — Production Build Brief (hand this to the build agent)
+# colift — Production Build Brief (hand this to the build agent)
 
-You previously built **Tended** as a working prototype. Your job now is to take it
+You previously built **colift** as a working prototype. Your job now is to take it
 to a **real production system**: replace everything that was mocked, stubbed, or
 assumed with production-grade implementations, fold in the legal requirement
 changes below, and harden it to handle real people, real PII, and a real

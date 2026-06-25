@@ -6,7 +6,7 @@
   "federal_minimum_wage_usd": 7.25,
   "doc": "Per-state ABAWD monthly hour requirement. States not listed default to federal_default_hours (80). For workfare-formula states, the calculator computes floor(snap_max_allotment[household_size] / minimum_wage_used). Only NY has sub-state regional variation (NYC/LI vs upstate). Schema v3 (2026-06-22): GA moved back into `states` after re-verification of PAMMS 3355 confirmed self-initiated placement is permitted (Form 805 PART I is the case-manager's hours-calculation worksheet, not a site-approval gate); AR added to workfare_if_registered after verification of Arkansas SNAP Manual §3700/§3730 (Comparable Workfare lane only).",
   "workfare_if_registered": {
-    "doc": "States where the workfare formula yields lower required hours, BUT only when the volunteer site is registered as a state-approved workfare/comparable-workfare/SICS provider. Tended-style general 501(c)(3) volunteering at an unregistered nonprofit gets 80 hrs in these states.",
+    "doc": "States where the workfare formula yields lower required hours, BUT only when the volunteer site is registered as a state-approved workfare/comparable-workfare/SICS provider. colift-style general 501(c)(3) volunteering at an unregistered nonprofit gets 80 hrs in these states.",
     "MI": {
       "alternative_path_name": "SICS (Self-Initiated Community Service)",
       "requirement": "Site must be approved by MI DHHS as a workfare site",

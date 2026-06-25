@@ -11,12 +11,12 @@ import {
 import { formatHours } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "System health — Tended admin" };
+export const metadata = { title: "System health — colift admin" };
 
 function Stat({ icon, value, label, hint }: { icon: React.ReactNode; value: string | number; label: string; hint?: string }) {
   return (
     <div className="rounded-lg border border-line bg-white p-5 [&_svg]:size-5">
-      <div className="flex items-center gap-2 text-meta">{icon}<span className="overline">{label}</span></div>
+      <div className="flex items-center gap-2 text-sm font-medium text-meta">{icon}<span>{label}</span></div>
       <p className="mt-2 text-3xl font-semibold text-ink">{value}</p>
       {hint && <p className="mt-1 text-sm text-meta">{hint}</p>}
     </div>

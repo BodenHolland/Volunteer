@@ -5,13 +5,15 @@ import { requireUser } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { commitToTask } from "@/app/app/project-actions";
 import type { GovAuditSessionRow } from "@/lib/gov-audit";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Audit submitted — Tended" };
+export const metadata = { title: "Audit submitted — colift" };
 
 export default async function GovAuditDonePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireUser();
+  const { t } = await getDict();
   const session = await getDb()
     .prepare("SELECT * FROM gov_audit_sessions WHERE id = ?")
     .bind(id)
@@ -26,49 +28,48 @@ export default async function GovAuditDonePage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-2xl py-10">
-      <p className="text-xs font-semibold uppercase tracking-wide text-terracotta">Government website audit</p>
-      <h1 className="mt-2 text-[28px] font-semibold leading-tight text-ink">
-        {flagged ? "Submitted — flagged for review" : "Thanks — your audit is in for review."}
+      <h1 className="text-[28px] font-semibold leading-tight text-ink">
+        {flagged ? t.govAuditDone.titleFlagged : t.govAuditDone.titleApproved}
       </h1>
       <p className="mt-3 text-body">
-        {flagged
-          ? "Your audit was submitted but flagged for a human spot-check (non-desktop device, or your self-report didn't line up with our automated checks). If it clears review, your time will be credited."
-          : "Your structured audit was submitted and the server ran automated accessibility checks against the same page. Time credits to your SNAP hours once a reviewer approves it."}
+        {flagged ? t.govAuditDone.descFlagged : t.govAuditDone.descApproved}
       </p>
 
       <dl className="mt-6 grid grid-cols-2 gap-4">
         <div className="rounded-lg border border-line bg-white p-4">
-          <dt className="text-xs uppercase tracking-wide text-body">Certified time</dt>
-          <dd className="mt-1 text-2xl font-semibold tabular-nums text-ink">{certMin} min</dd>
-          <p className="mt-1 text-xs text-body">Capped at 20 min per page, gated on a complete rubric.</p>
+          <dt className="text-[13px] text-body">{t.govAuditDone.certifiedTime}</dt>
+          <dd className="mt-1 text-2xl font-semibold tabular-nums text-ink">
+            {t.govAuditDone.certifiedMinutes.replace("{n}", String(certMin))}
+          </dd>
+          <p className="mt-1 text-xs text-body">{t.govAuditDone.certifiedTimeCaption}</p>
         </div>
         <div className="rounded-lg border border-line bg-white p-4">
-          <dt className="text-xs uppercase tracking-wide text-body">Integrity score</dt>
+          <dt className="text-[13px] text-body">{t.govAuditDone.integrityScore}</dt>
           <dd className="mt-1 text-2xl font-semibold tabular-nums text-ink">
             {integrityPct != null ? `${integrityPct}%` : "—"}
           </dd>
-          <p className="mt-1 text-xs text-body">Rubric completeness × automated-check corroboration.</p>
+          <p className="mt-1 text-xs text-body">{t.govAuditDone.integrityScoreCaption}</p>
         </div>
       </dl>
 
       <div className="mt-6 rounded-lg border border-line bg-section p-4 text-sm text-body">
-        Your findings (minus any free-text pending moderation) flow into the free, public{" "}
+        {t.govAuditDone.datasetNotePre}
         <Link href="/data" className="font-medium text-navy underline underline-offset-4">
-          government-website audit dataset
-        </Link>{" "}
-        — a public good for the offices that run these pages.
+          {t.govAuditDone.datasetLink}
+        </Link>
+        {t.govAuditDone.datasetNotePost}
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Button asChild variant="secondary">
-          <Link href="/app">Back to dashboard</Link>
+          <Link href="/app">{t.govAuditDone.backToDashboard}</Link>
         </Button>
         <form action={commitToTask}>
           <input type="hidden" name="task_id" value={session.task_template_id} />
-          <Button type="submit">Audit another URL</Button>
+          <Button type="submit">{t.govAuditDone.auditAnother}</Button>
         </form>
         <Button asChild variant="ghost">
-          <Link href="/app/tasks">Find a different task</Link>
+          <Link href="/app/tasks">{t.govAuditDone.findDifferentTask}</Link>
         </Button>
       </div>
     </div>

@@ -8,34 +8,15 @@ import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { EmptyState } from "@/components/empty-state";
 import { getDb } from "@/lib/cf";
 import { getOrgBySlug } from "@/lib/queries";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
 import { parseJson, type Address, type TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-const COPY = {
-  en: {
-    openTasks: "Open civic tasks",
-    noTasksTitle: "No open tasks right now",
-    noTasksBody:
-      "This organization doesn't have any active tasks at the moment. Check back soon.",
-    about: "About",
-    noDescription: "This organization hasn't added a description yet.",
-  },
-  es: {
-    openTasks: "Tareas cívicas abiertas",
-    noTasksTitle: "No hay tareas abiertas en este momento",
-    noTasksBody:
-      "Esta organización no tiene tareas activas por ahora. Vuelve a consultar pronto.",
-    about: "Acerca de",
-    noDescription: "Esta organización aún no ha agregado una descripción.",
-  },
-} as const;
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const org = await getOrgBySlug(slug);
-  return { title: org ? `${org.name} — Tended` : "Organization — Tended" };
+  return { title: org ? `${org.name} — colift` : "Organization — colift" };
 }
 
 export default async function OrgProfilePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -49,20 +30,19 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
       .bind(org.id)
       .all<TaskTemplate>()).results ?? [];
 
-  const cards: ListingCardData[] = tasks.map((t: TaskTemplate) => ({
-    id: t.id,
-    href: `/tasks/${t.id}/preview`,
-    title: t.title,
+  const cards: ListingCardData[] = tasks.map((tmpl: TaskTemplate) => ({
+    id: tmpl.id,
+    href: `/tasks/${tmpl.id}/preview`,
+    title: tmpl.title,
     orgName: org.name,
     orgSlug: org.slug,
-    category: t.category,
-    location: t.location_kind,
-    createdAt: t.created_at,
+    category: tmpl.category,
+    location: tmpl.location_kind,
+    createdAt: tmpl.created_at,
   }));
 
   const address = parseJson<Address | null>(org.address_json, null);
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
 
   return (
     <>
@@ -89,7 +69,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
           <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_320px]">
             {/* Tasks */}
             <div className="min-w-0 lg:order-2 lg:col-start-1">
-              <h2 className="text-[22px] font-semibold text-ink">{c.openTasks}</h2>
+              <h2 className="text-[22px] font-semibold text-ink">{t.publicOrgProfile.openTasks}</h2>
               {cards.length > 0 ? (
                 <div className="mt-5 space-y-4">
                   {cards.map((card) => (
@@ -100,8 +80,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                 <div className="mt-5">
                   <EmptyState
                     icon={<Info />}
-                    title={c.noTasksTitle}
-                    body={c.noTasksBody}
+                    title={t.publicOrgProfile.noTasksTitle}
+                    body={t.publicOrgProfile.noTasksBody}
                   />
                 </div>
               )}
@@ -110,12 +90,12 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
             {/* About */}
             <aside className="lg:order-1 lg:col-start-2 lg:row-start-1">
               <div className="rounded-lg border border-line bg-white p-5">
-                <h2 className="text-base font-semibold text-ink">{c.about}</h2>
+                <h2 className="text-base font-semibold text-ink">{t.publicOrgProfile.about}</h2>
                 <div className="mt-3">
                   {org.about_md ? (
                     <Markdown>{org.about_md}</Markdown>
                   ) : (
-                    <p className="text-sm text-body">{c.noDescription}</p>
+                    <p className="text-sm text-body">{t.publicOrgProfile.noDescription}</p>
                   )}
                 </div>
               </div>

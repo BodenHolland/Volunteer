@@ -2,89 +2,92 @@ import Link from "next/link";
 import { ArticleShell } from "../_components/article-shell";
 import { Placeholder } from "../_components/draft-banner";
 import { neighbors } from "../_components/articles";
-import { getLocale } from "@/lib/i18n";
+import { getDict, getLocale } from "@/lib/i18n";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = { title: "For caseworkers — a one-page methodology — Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();
+  const { t } = await getDict();
   const { prev, next } = neighbors(12);
 
   if (locale === "es") {
-    const prevEs = prev ? { ...prev, title: "Privacidad, datos personales y lo que publicamos" } : undefined;
-    const nextEs = next ? { ...next, title: "Registro de auditoría y metodología" } : undefined;
+    const prevEs = prev ? { ...prev, title: t.helpCaseworkers.prevTitleEs } : undefined;
+    const nextEs = next ? { ...next, title: t.helpCaseworkers.nextTitleEs } : undefined;
     return (
-      <ArticleShell number={12} starred title="Para trabajadores sociales: una metodología en una página" prev={prevEs} next={nextEs}>
-        <p><em>Escrito para los trabajadores sociales de bienestar del condado y el personal de programas de beneficios que revisan una certificación de horas firmada por Tended.</em></p>
-      <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">Ver la página completa para trabajadores sociales →</Link> Incluye citas con fuentes primarias, fórmula de verificación detallada, acceso a datos públicos y formulario de contacto.</p>
+      <ArticleShell number={12} starred title={t.helpCaseworkers.titleEs} prev={prevEs} next={nextEs}>
+        <p><em>{t.helpCaseworkers.introEs}</em></p>
+        <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">{t.helpCaseworkers.resourceLinkEs}</Link> {t.helpCaseworkers.resourceLinkSuffixEs}</p>
 
-        <h2>Quiénes somos</h2>
-        <p>Tended es una entidad benéfica pública 501(c)(3). Operamos un programa de voluntariado cívico en línea. Los voluntarios contribuyen a trabajo de beneficio público, que incluye mapeo de acceso a alimentos, revisión de traducciones, transcripción de archivos y auditorías de accesibilidad. Para los voluntarios sujetos al requisito de trabajo ABAWD, Tended verifica sus horas en el formulario estatal estándar como el representante autorizado de la organización donde se realizó el voluntariado.</p>
+        <h2>{t.helpCaseworkers.whoHeadingEs}</h2>
+        <p>{t.helpCaseworkers.whoParaEs}</p>
 
-        <h2>Autoridad</h2>
+        <h2>{t.helpCaseworkers.authorityHeadingEs}</h2>
         <ul>
-          <li>Federal: 7 CFR §273.24(a)(2)(iii). El trabajo no remunerado verificado bajo el estándar del estado satisface el requisito de trabajo ABAWD.</li>
-          <li>California: ACL 25-34 (14 de mayo de 2025) y el formulario CalFresh ABAWD Volunteer Work Hours Verification (rev. 5/25). Tended firma la sección de la organización como la organización sin fines de lucro que califica.</li>
-          <li>New York: OTDA Monthly ABAWD Volunteer Participation Record, firmado por la organización sin fines de lucro anfitriona. La documentación de NYC se tramita a través de ACCESS HRA.</li>
-          <li>Estatus de Tended: organización sin fines de lucro 501(c)(3) con una carta de determinación del IRS. No existe una lista estatal de preaprobación para organizaciones sin fines de lucro que califican. La determinación del IRS es la credencial que califica.</li>
+          <li>{t.helpCaseworkers.authorityFederalEs}</li>
+          <li>{t.helpCaseworkers.authorityCaliforniaEs}</li>
+          <li>{t.helpCaseworkers.authorityNewYorkEs}</li>
+          <li>{t.helpCaseworkers.authorityStatusEs}</li>
         </ul>
 
-        <h2>Cómo verificamos las horas</h2>
-        <p>La plataforma registra la participación activa durante cada sesión de tarea, usando un temporizador con detección de inactividad, mínimos de participación, antiduplicación y detección de datos personales (PII). Las horas acreditadas equivalen a <code>mín(participación medida, límite calibrado)</code>, solo cuando el entregable pasa la validación por envío. El límite se calibra según la mediana observada de sesiones reales que pasaron el control de calidad y se recalibra trimestralmente. El representante autorizado certifica con base en esos registros.</p>
+        <h2>{t.helpCaseworkers.verifyHeadingEs}</h2>
+        <p>{t.helpCaseworkers.verifyParaEs}</p>
 
-        <h2>Voluntariado remoto y en línea</h2>
-        <p>Ninguna guía publicada de FNS, CDSS u OTDA aborda específicamente las horas de voluntariado remotas o en línea. Ninguna exige trabajo presencial. La posición de Tended es que el voluntariado remoto no está abordado, no prohibido. Esta posición se sustenta en:</p>
+        <h2>{t.helpCaseworkers.remoteHeadingEs}</h2>
+        <p>{t.helpCaseworkers.remotePara1Es}</p>
         <ul>
-          <li>El texto de 7 CFR §273.24(a)(2)(iii), que no distingue entre trabajo presencial y remoto.</li>
-          <li>Programas de voluntariado remoto de larga trayectoria en organizaciones sin fines de lucro (Smithsonian Transcription Center, Library of Congress &ldquo;By the People,&rdquo; Zooniverse, Tarjimly).</li>
-          <li>El respaldo federal a la contribución remota de datos en ciencia ciudadana (Crowdsourcing and Citizen Science Act of 2016; EPA Participatory Science; USDA Forest Service).</li>
+          <li>{t.helpCaseworkers.remoteBullet0Es}</li>
+          <li>{t.helpCaseworkers.remoteBullet1Es}</li>
+          <li>{t.helpCaseworkers.remoteBullet2Es}</li>
         </ul>
 
-        <h2>Verificar un formulario</h2>
-        <p>Damos la bienvenida al contacto directo de trabajadores sociales y personal del condado. Si un formulario que recibiste parece cuestionable, por favor contáctanos antes de rechazarlo. Podemos confirmar los registros que respaldan la certificación.</p>
-        <p>Contacto: <Placeholder>[correo de contacto]</Placeholder> / <Placeholder>[teléfono]</Placeholder>.</p>
+        <h2>{t.helpCaseworkers.formHeadingEs}</h2>
+        <p>{t.helpCaseworkers.formParaEs}</p>
+        <p>{t.helpCaseworkers.formContact} <Placeholder>{t.helpCaseworkers.formContactEmailEs}</Placeholder> / <Placeholder>{t.helpCaseworkers.formContactPhoneEs}</Placeholder>.</p>
 
-        <h2>Acceso a auditoría</h2>
-        <p>Tended publica un registro de metodología abierto que cubre la metodología de verificación, los límites actuales por tarea, el registro de cambios de calibración y los criterios de validación aplicados a cada envío. Acceso directo: <Placeholder>[Registro de auditoría y metodología]</Placeholder>.</p>
+        <h2>{t.helpCaseworkers.auditHeadingEs}</h2>
+        <p>{t.helpCaseworkers.auditParaEs} <Placeholder>{t.helpCaseworkers.auditLinkEs}</Placeholder>.</p>
 
-        <h2>Lo que no hacemos</h2>
-        <p>No certificamos horas que excedan la participación medida. No acreditamos tiempo pasivo. No inflamos las horas. No certificamos trabajo que el voluntario no realizó. No comprobamos si se usó IA, y no creemos que hacerlo sea apropiado.</p>
+        <h2>{t.helpCaseworkers.dontHeadingEs}</h2>
+        <p>{t.helpCaseworkers.dontParaEs}</p>
       </ArticleShell>
     );
   }
 
   return (
-    <ArticleShell number={12} starred title="For caseworkers — a one-page methodology" prev={prev} next={next}>
-      <p><em>Written for county welfare caseworkers and benefits-program staff reviewing a work-hours certification signed by Tended.</em></p>
-      <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">See the full caseworker resource page →</Link> Includes cited primary sources, detailed verification formula, public data access, and a contact form.</p>
+    <ArticleShell number={12} starred title={t.helpCaseworkers.title} prev={prev} next={next}>
+      <p><em>{t.helpCaseworkers.intro}</em></p>
+      <p><Link href="/for-caseworkers" className="text-forest underline underline-offset-2">{t.helpCaseworkers.resourceLink}</Link> {t.helpCaseworkers.resourceLinkSuffix}</p>
 
-      <h2>Who we are</h2>
-      <p>Tended is a 501(c)(3) public charity. We run an online civic-volunteer program. Volunteers contribute to public-benefit work, including food-access mapping, translation review, archive transcription, and accessibility audits. For volunteers subject to the ABAWD work requirement, Tended verifies their hours on the standard state form as the authorized representative of the organization where the volunteering occurred.</p>
+      <h2>{t.helpCaseworkers.whoHeading}</h2>
+      <p>{t.helpCaseworkers.whoPara}</p>
 
-      <h2>Authority</h2>
+      <h2>{t.helpCaseworkers.authorityHeading}</h2>
       <ul>
-        <li>Federal: 7 CFR §273.24(a)(2)(iii). Unpaid work verified under the state&apos;s standard satisfies the ABAWD work requirement.</li>
-        <li>California: ACL 25-34 (May 14, 2025) and the CalFresh ABAWD Volunteer Work Hours Verification Form (rev. 5/25). Tended signs the organization section as the qualifying nonprofit.</li>
-        <li>New York: OTDA Monthly ABAWD Volunteer Participation Record, signed by the host nonprofit. NYC documentation goes through ACCESS HRA.</li>
-        <li>Tended&apos;s status: 501(c)(3) nonprofit with an IRS determination letter. There is no state pre-approval list for qualifying nonprofits. The IRS determination is the qualifying credential.</li>
+        <li>{t.helpCaseworkers.authorityFederal}</li>
+        <li>{t.helpCaseworkers.authorityCalifornia}</li>
+        <li>{t.helpCaseworkers.authorityNewYork}</li>
+        <li>{t.helpCaseworkers.authorityStatus}</li>
       </ul>
 
-      <h2>How we verify hours</h2>
-      <p>The platform records active engagement during each task session, using a timer with idle detection, minimum-engagement floors, anti-duplication, and PII screening. Credited hours equal <code>min(measured engagement, calibrated cap)</code>, only when the deliverable passes per-submission validation. The cap is calibrated to the observed median of real, quality-passing sessions and recalibrated quarterly. The authorized representative certifies based on those records.</p>
+      <h2>{t.helpCaseworkers.verifyHeading}</h2>
+      <p>{t.helpCaseworkers.verifyPara}</p>
 
-      <h2>Remote and online volunteering</h2>
-      <p>Remote volunteer service is federally recognized. The <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) directs federal agencies to use remote volunteer contribution and defines it as a recognized form of public participation. EPA, USDA Forest Service, National Park Service, NASA, the Smithsonian, and the Library of Congress all operate large-scale remote volunteer programs under this framework.</p>
-      <p><strong>7 CFR §273.24(a)(2)(iii)</strong> counts &ldquo;unpaid work, verified under standards established by the State agency.&rdquo; The regulation does not distinguish in-person from remote work; the operative requirement is a verification standard. California (ACL 25-34, CF 888) and New York both have one. The CF 888 describes &ldquo;the organization where the person volunteers&rdquo; — location-neutral on its face.</p>
+      <h2>{t.helpCaseworkers.remoteHeading}</h2>
+      <p>{t.helpCaseworkers.remotePara1}</p>
+      <p><strong>7 CFR §273.24(a)(2)(iii)</strong> {t.helpCaseworkers.remotePara2}</p>
 
-      <h2>Verifying a form</h2>
-      <p>We welcome direct contact from caseworkers and county staff. If a form you received seems questionable, please contact us before rejecting it. We can confirm the records that support the certification.</p>
-      <p>Contact: <Placeholder>[contact email]</Placeholder> / <Placeholder>[phone]</Placeholder>.</p>
+      <h2>{t.helpCaseworkers.formHeading}</h2>
+      <p>{t.helpCaseworkers.formPara}</p>
+      <p>{t.helpCaseworkers.formContact} <Placeholder>{t.helpCaseworkers.formContactEmail}</Placeholder> / <Placeholder>{t.helpCaseworkers.formContactPhone}</Placeholder>.</p>
 
-      <h2>Audit access</h2>
-      <p>Tended publishes an open methodology ledger covering the verification methodology, current per-task caps, the calibration changelog, and the validation criteria applied to each submission. Direct access: <Placeholder>[Audit &amp; methodology ledger]</Placeholder>.</p>
+      <h2>{t.helpCaseworkers.auditHeading}</h2>
+      <p>{t.helpCaseworkers.auditPara} <Placeholder>{t.helpCaseworkers.auditLink}</Placeholder>.</p>
 
-      <h2>What we don&apos;t do</h2>
-      <p>We don&apos;t certify hours that exceed measured engagement. We don&apos;t credit passive time. We don&apos;t pad hours. We don&apos;t certify work the volunteer did not perform. We don&apos;t test for AI use, and we don&apos;t believe doing so is appropriate.</p>
+      <h2>{t.helpCaseworkers.dontHeading}</h2>
+      <p>{t.helpCaseworkers.dontPara}</p>
     </ArticleShell>
   );
 }

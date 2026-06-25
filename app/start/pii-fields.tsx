@@ -72,14 +72,18 @@ export function DobInput({ defaultValue = "" }: { defaultValue?: string }) {
 export function NameFields({
   defaultFirst = "",
   defaultLast = "",
+  labelFirst = "First name",
+  labelLast = "Last name",
 }: {
   defaultFirst?: string;
   defaultLast?: string;
+  labelFirst?: string;
+  labelLast?: string;
 }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="space-y-1.5">
-        <Label htmlFor="first_name">First name</Label>
+        <Label htmlFor="first_name">{labelFirst}</Label>
         <Input
           id="first_name"
           name="first_name"
@@ -89,7 +93,7 @@ export function NameFields({
         />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="last_name">Last name</Label>
+        <Label htmlFor="last_name">{labelLast}</Label>
         <Input
           id="last_name"
           name="last_name"
@@ -119,6 +123,11 @@ export function AddressFields({
   defaultState,
   defaultZip,
   showStateField = false,
+  labelStreet = "Street address",
+  labelApt = "Apt / unit (optional)",
+  labelCity = "City",
+  labelState = "State",
+  labelZip = "ZIP",
 }: {
   defaultLine1: string;
   defaultLine2: string;
@@ -129,6 +138,11 @@ export function AddressFields({
    *  city/zip. When false (onboarding default), state is a hidden input — the
    *  user already picked it on a prior step. */
   showStateField?: boolean;
+  labelStreet?: string;
+  labelApt?: string;
+  labelCity?: string;
+  labelState?: string;
+  labelZip?: string;
 }) {
   const [line1, setLine1] = useState(defaultLine1);
   const [line2, setLine2] = useState(defaultLine2);
@@ -178,7 +192,7 @@ export function AddressFields({
   return (
     <>
       <div className="space-y-1.5">
-        <Label htmlFor="line1">Street address</Label>
+        <Label htmlFor="line1">{labelStreet}</Label>
         <div className="relative">
           <Input
             id="line1"
@@ -221,7 +235,7 @@ export function AddressFields({
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="line2">Apt / unit (optional)</Label>
+        <Label htmlFor="line2">{labelApt}</Label>
         <Input
           id="line2"
           name="line2"
@@ -232,7 +246,7 @@ export function AddressFields({
       </div>
       <div className={showStateField ? "grid grid-cols-[1fr_5rem_7rem] gap-3" : "grid grid-cols-2 gap-3"}>
         <div className="space-y-1.5">
-          <Label htmlFor="city2">City</Label>
+          <Label htmlFor="city2">{labelCity}</Label>
           <Input
             id="city2"
             name="city"
@@ -243,7 +257,7 @@ export function AddressFields({
         </div>
         {showStateField ? (
           <div className="space-y-1.5">
-            <Label htmlFor="state2">State</Label>
+            <Label htmlFor="state2">{labelState}</Label>
             <Input
               id="state2"
               name="state"
@@ -257,7 +271,7 @@ export function AddressFields({
           <input type="hidden" name="state" value={stateCode} />
         )}
         <div className="space-y-1.5">
-          <Label htmlFor="zip">ZIP</Label>
+          <Label htmlFor="zip">{labelZip}</Label>
           <Input
             id="zip"
             name="zip"

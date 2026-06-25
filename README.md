@@ -1,8 +1,8 @@
-# Tended
+# colift
 
 Real civic work for your neighborhood — with a path to certify CalFresh hours.
 
-Tended is a civic-tech web app where people do real, useful civic tasks (counting
+colift is a civic-tech web app where people do real, useful civic tasks (counting
 street trees, translating flyers, mapping sidewalk hazards, documenting
 neighborhoods) for sponsoring nonprofits. For users who receive CalFresh, approved
 hours can be certified via California's **Form CF 888** and uploaded to BenefitsCal.
@@ -40,7 +40,7 @@ pnpm db:migrate:local         # apply migrations to local D1
 pnpm dev                      # http://localhost:3000
 ```
 
-- **Demo login:** any seeded account with password `tended-demo-2026` —
+- **Demo login:** any seeded account with password `colift-demo-2026` —
   `marisol.reyes@example.com` (recipient), `daniel.okafor@example.com` (reviewer),
   `priya.venkatesan@example.com` (org admin), `alex.mercado@example.com` (admin).
 - The database **auto-seeds** on first visit to `/login`, or reseed at
@@ -58,22 +58,22 @@ pnpm dev                      # http://localhost:3000
 | `OPENROUTER_API_KEY` | `.dev.vars` / `wrangler secret` | Optional; enables real AI verdicts |
 | `OPENROUTER_MODEL` | `wrangler.jsonc` vars | Defaults to gemini flash free |
 | `OPENROUTER_SITE_URL` | `wrangler.jsonc` vars | Sent as `HTTP-Referer` |
-| `OPENROUTER_APP_NAME` | `wrangler.jsonc` vars | Sent as `X-Title` ("Tended Demo") |
+| `OPENROUTER_APP_NAME` | `wrangler.jsonc` vars | Sent as `X-Title` ("colift Demo") |
 | `NEXTJS_ENV` | `.dev.vars` | `development` locally |
 
-Bindings (in `wrangler.jsonc`): **`DB`** → D1 `tended-db`, **`FILES`** → R2 `tended-files`.
+Bindings (in `wrangler.jsonc`): **`DB`** → D1 `colift-db`, **`FILES`** → R2 `colift-files`.
 
 ## Cloudflare resources (already provisioned)
 
 - Account `65fb048fa9b4fb99f6473038c393d6a0`
-- D1 `tended-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
-- R2 `tended-files`
+- D1 `colift-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
+- R2 `colift-files`
 
 To recreate from scratch:
 
 ```bash
-wrangler d1 create tended-db          # paste the id into wrangler.jsonc
-wrangler r2 bucket create tended-files
+wrangler d1 create colift-db          # paste the id into wrangler.jsonc
+wrangler r2 bucket create colift-files
 ```
 
 ## Deploy (Cloudflare Workers / .pages.dev)
@@ -114,13 +114,13 @@ disaster recovery, secret/key rotation, deploy & rollback, incident response, an
 an on-call checklist.
 
 ```bash
-pnpm run backup          # export remote D1 -> backups/tended-d1-<UTC>.sql
+pnpm run backup          # export remote D1 -> backups/colift-d1-<UTC>.sql
 pnpm run backup:verify   # sanity-check the latest dump (exits non-zero on failure)
 ```
 
 - Run `pnpm run backup` **daily** and **before every deploy/migration**. Dumps land
   in `backups/` (gitignored — they contain PII; never commit them). Keep ≥30 days.
-- `scripts/backup-d1.sh` wraps `wrangler d1 export tended-db --remote`;
+- `scripts/backup-d1.sh` wraps `wrangler d1 export colift-db --remote`;
   `scripts/verify-backup.sh` checks the newest dump exists, is non-empty, and
   contains the core table DDL.
 - Restore, R2 notes, and `PII_ENCRYPTION_KEY` rotation (losing it = unrecoverable

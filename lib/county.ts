@@ -1,11 +1,11 @@
 /**
  * Per-jurisdiction certification pre-clearance gating.
  *
- * Originally per-county and CA-only (Change 8). Broadened once Tended grew
+ * Originally per-county and CA-only (Change 8). Broadened once colift grew
  * multi-state form generators: the work-cert PDF endpoint now gates on the
  * recipient's `users.state`. It opens only if DEMO_MODE is on or a county in
  * the state has an explicit clearance record. Rendering an official form is
- * not evidence that a local agency accepts a certificate from Tended.
+ * not evidence that a local agency accepts a certificate from colift.
  */
 import { getDb } from "./cf";
 import { getCloudflareContext } from "@opennextjs/cloudflare";

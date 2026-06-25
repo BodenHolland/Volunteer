@@ -36,7 +36,7 @@ const LINE_GREY = rgb(0.5, 0.5, 0.5);
 export async function buildMDPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("FIA/500b — Verification of Activity Participation");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);
@@ -153,7 +153,7 @@ export async function buildMDPdf(data: StateFormData): Promise<Uint8Array> {
       color: LINE_GREY,
     });
     if (filled) {
-      // Tended logs monthly totals, not per-week schedules — render a derived
+      // colift logs monthly totals, not per-week schedules — render a derived
       // weekly average so the LDSS reviewer gets the answer pattern they expect.
       const wk = Math.round((data.hours / 4) * 10) / 10;
       draw(`Approx. ${wk} hours / week across the month of ${data.month}`, labelX + 2, hoursTop + 28, reg, 10);
@@ -209,7 +209,7 @@ export async function buildMDPdf(data: StateFormData): Promise<Uint8Array> {
   // Row 1: Name (full row)
   labeled("Name", data.participantName, partTop + 34, partLabelX, partValX, partValEnd2, 10);
   // Row 2: DOB | Last 4 SSN — Last 4 SSN is on the official form but not in
-  // the Tended data model; the line is drawn blank for the recipient to fill.
+  // the colift data model; the line is drawn blank for the recipient to fill.
   labeled("D.O.B.", data.birthdate, partTop + 56, partLabelX, partValX, partValEnd, 10);
   draw("Last 4 SSN", partValEnd + 24, partTop + 56, bold, 10);
   page.drawLine({
@@ -233,7 +233,7 @@ export async function buildMDPdf(data: StateFormData): Promise<Uint8Array> {
   page.drawLine({ start: { x: sigMidX, y: T(psigTop) }, end: { x: sigMidX, y: T(psigBot) }, thickness: 0.7, color: INK });
   draw("Participant's Signature", LEFT + 4, psigTop + 8, reg, 8.5);
   draw("Date", sigMidX + 4, psigTop + 8, reg, 8.5);
-  // Participant signature isn't carried by the Tended data model — leave blank
+  // Participant signature isn't carried by the colift data model — leave blank
   // for the recipient to sign before submission.
 
   // ---- Footer ----

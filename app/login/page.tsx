@@ -10,7 +10,7 @@ import { ensureSeeded } from "@/lib/seed";
 import { getDict } from "@/lib/i18n";
 import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
-export const metadata = { title: "Sign in — Tended" };
+export const metadata = { title: "Sign in — colift" };
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +31,7 @@ export default async function LoginPage({
       footer={
         <span>
           {a.newHere}{" "}
-          <Link href="/signup" className="font-medium text-forest hover:underline">{a.createAccount}</Link>
+          <Link href="/get-started" className="font-medium text-forest hover:underline">{a.createAccount}</Link>
         </span>
       }
     >

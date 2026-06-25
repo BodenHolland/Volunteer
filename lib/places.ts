@@ -85,7 +85,7 @@ out center ${limit};`;
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "Tended/1.0 (civic food-price audit)",
+        "User-Agent": "colift/1.0 (civic food-price audit)",
       },
       body: `data=${encodeURIComponent(q)}`,
       signal: AbortSignal.timeout(10_000),
@@ -137,7 +137,7 @@ export async function nominatimGeocode(
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
       headers: {
-        "User-Agent": "Tended/1.0 (civic food-price audit; hello@tended.org)",
+        "User-Agent": "colift/1.0 (civic food-price audit; hello@colift.org)",
         "Accept-Language": "en",
       },
       signal: AbortSignal.timeout(8_000),
@@ -157,7 +157,7 @@ export async function nominatimGeocode(
 
 /**
  * Compute the driving route between two points via the OSRM public router
- * (`router.project-osrm.org`) — free, no key, intended for small projects.
+ * (`router.project-osrm.org`) — free, no key, incolift for small projects.
  * Returns distance (meters) and duration (seconds), or null on failure.
  * Caller is responsible for doubling for round trip.
  */
@@ -168,7 +168,7 @@ export async function osrmRoute(
   const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=false&alternatives=false&steps=false`;
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Tended/1.0 (civic food-price audit)" },
+      headers: { "User-Agent": "colift/1.0 (civic food-price audit)" },
       signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) return null;
@@ -235,7 +235,7 @@ export async function nominatimSearch(
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
       headers: {
-        "User-Agent": "Tended/1.0 (civic food-price audit; hello@tended.org)",
+        "User-Agent": "colift/1.0 (civic food-price audit; hello@colift.org)",
         "Accept-Language": "en",
       },
       signal: AbortSignal.timeout(8_000),

@@ -18,7 +18,7 @@ const GREY = rgb(0.82, 0.82, 0.82);
 export async function buildRIPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("DHS-SNAP-ABAWD-3 - ABAWD Combined Activity Reporting Form");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([W, H]);
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);

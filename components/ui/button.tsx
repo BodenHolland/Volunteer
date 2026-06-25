@@ -4,22 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-[18px] [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-[18px] [&_svg]:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic-blue focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
   {
     variants: {
       variant: {
-        primary: "bg-navy text-white hover:bg-navy-deep shadow-sm",
-        secondary: "border border-navy bg-white text-navy hover:bg-section",
-        tertiary: "px-0 text-navy underline-offset-4 hover:underline",
-        destructive: "text-brick hover:bg-brick-subtle",
-        ghost: "text-ink hover:bg-section",
-        accent: "bg-terracotta text-white hover:bg-terracotta/90 shadow-sm",
+        primary: "bg-civic-blue text-white hover:bg-civic-blue-hover",
+        secondary: "border border-civic-line bg-white text-ink hover:bg-paper-deep",
+        outline: "border border-ink/80 bg-transparent text-ink hover:bg-ink hover:text-white",
+        tertiary: "px-0 text-civic-blue underline-offset-4 hover:underline",
+        destructive: "text-community-red hover:bg-community-red-soft",
+        ghost: "text-ink hover:bg-paper-deep",
+        accent: "bg-field-green text-white hover:bg-field-green-hover",
+        urgent: "bg-community-red text-white hover:opacity-90",
       },
       size: {
         default: "h-10 px-4 text-sm",
-        lg: "h-12 px-6 text-base",
+        lg: "h-12 px-6 text-[15px]",
         sm: "h-9 px-3 text-sm",
-        icon: "h-8 w-8",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: { variant: "primary", size: "default" },

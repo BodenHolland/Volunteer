@@ -1,7 +1,7 @@
-# Tended — Legal & Program Framework
+# colift — Legal & Program Framework
 
 Revised after independent legal stress-test. This document is the canonical
-statement of what Tended is, why it is lawful, and the rules every part of the
+statement of what colift is, why it is lawful, and the rules every part of the
 product must obey. Where this document and the code/marketing copy ever
 disagree, **this document wins** and the code is the bug.
 
@@ -20,27 +20,27 @@ Everything below exists to keep these two lines true.
 
 ---
 
-## What Tended is
+## What colift is
 
-Tended is a **501(c)(3) virtual volunteer coordinating organization**. Its
+colift is a **501(c)(3) virtual volunteer coordinating organization**. Its
 charitable purpose is to mobilize remote volunteers to produce **free
 public-benefit civic outputs** — translations and plain-language versions of
 public information, civic data collected for city agencies, transcriptions of
 public archives, neighborhood documentation donated to libraries and government.
 
-A Tended volunteer is **legally indistinguishable from a food-bank volunteer**
+A colift volunteer is **legally indistinguishable from a food-bank volunteer**
 meeting the same CalFresh ABAWD work requirement. That equivalence — not a novel
 theory — is the entire legal basis. CF 888 was built for exactly this.
 
 Remote, massively-parallel nonprofit volunteering is established and accepted.
-Tended is squarely in the lineage of:
+colift is squarely in the lineage of:
 
 - **Smithsonian Transcription Center** — volunteers transcribe collections online.
 - **Library of Congress "By the People"** — crowdsourced transcription of public records.
 - **Zooniverse** — volunteers do real research-grade data tasks at scale.
 - **Tarjimly** — remote volunteer translators for refugees and aid orgs.
 
-None of these sell their volunteers' output. Neither does Tended.
+None of these sell their volunteers' output. Neither does colift.
 
 ---
 
@@ -56,10 +56,10 @@ The counting mechanism is solid and unchanged:
 - **Enforcement timing:** California enforces the expanded ABAWD rules from
   **June 1, 2026**.
 
-Pipeline: volunteer performs genuine charitable work → Tended records *measured*
+Pipeline: volunteer performs genuine charitable work → colift records *measured*
 hours → sponsoring nonprofit reviews quality and signs Section 2 → recipient
 downloads the pre-filled CF 888 and uploads it to BenefitsCal themselves →
-**the County**, not Tended, decides eligibility.
+**the County**, not colift, decides eligibility.
 
 ### Citation discipline (apply everywhere)
 
@@ -83,8 +83,8 @@ downloads the pre-filled CF 888 and uploads it to BenefitsCal themselves →
 
 ## 1. Funding: 100% grant- and donation-funded. No data sales. Ever.
 
-Tended takes **no revenue from the work product** of its volunteers. Volunteer
-outputs are distributed **free** to the public, libraries, and government. Tended
+colift takes **no revenue from the work product** of its volunteers. Volunteer
+outputs are distributed **free** to the public, libraries, and government. colift
 **never sells** aggregated data, de-identified datasets, or commissioned research.
 Operations are funded **only** by grants and donations.
 
@@ -101,8 +101,8 @@ collapses the misclassification, UBIT, and exemption risks simultaneously.
 
 ## 2. Entity & positioning
 
-Tended is presented and operated as a charitable volunteer-coordinating nonprofit
-(see "What Tended is"), explicitly analogized to the established remote-volunteer
+colift is presented and operated as a charitable volunteer-coordinating nonprofit
+(see "What colift is"), explicitly analogized to the established remote-volunteer
 nonprofits above. We do **not** ask any regulator to bless a monetization theory;
 we ask only that they treat a remote charitable volunteer the same as an in-person
 one — which the CF 888 framework already does.
@@ -134,7 +134,7 @@ self-reflection that benefits only its author fails gate (a) and does not ship.
 > produces a **free public deliverable** — e.g., a one-page plain-language
 > money-help guide donated to a partner library for other residents to use.
 
-The `tended-task-designer` reference encodes the per-task qualification test; every
+The `colift-task-designer` reference encodes the per-task qualification test; every
 template must pass this gate before `status = 'active'`.
 
 ---
@@ -185,13 +185,13 @@ is a defensible standard — **this written methodology is the audit defense.**
 
 ## 6. Entity, filing & governance
 
-- **Form 1023, not 1023-EZ**, if Tended will raise **> $50k/year**. The 1023-EZ
+- **Form 1023, not 1023-EZ**, if colift will raise **> $50k/year**. The 1023-EZ
   requires attesting that gross receipts will **not** exceed $50k in any of the
   next three years; that attestation would be false for a funded org and would
   invalidate the determination.
 - Adopt an **IRS-style conflict-of-interest policy**.
 - **Insulate the CF 888 certification function from every growth/fundraising
-  metric.** Tended both runs the platform and facilitates certification, so the
+  metric.** colift both runs the platform and facilitates certification, so the
   certification path must be **visibly independent** of any incentive to inflate
   volume. Certification decisions and the verification methodology are governed
   separately from product/fundraising goals.
@@ -201,14 +201,14 @@ is a defensible standard — **this written methodology is the audit defense.**
 ## 7. Volunteer-status hygiene (state explicitly, everywhere)
 
 - Volunteers receive **zero compensation, stipends, or anything of value** from
-  Tended. The **only** benefit is *independent* State SNAP eligibility, decided by
+  colift. The **only** benefit is *independent* State SNAP eligibility, decided by
   the County.
 - Volunteers **do not displace paid staff** and are not integral to any commercial
   business (there is none).
-- **"Tended records hours; the County decides eligibility."**
+- **"colift records hours; the County decides eligibility."**
 
 This keeps the **FLSA** analysis and the **California ABC test** (Lab. Code §2775)
-defused: no payment flows from Tended, and there is no commercial enterprise the
+defused: no payment flows from colift, and there is no commercial enterprise the
 volunteers could be economically integral to.
 
 ---
@@ -218,7 +218,7 @@ volunteers could be economically integral to.
 - **One verified account per person.** Controls against a single person farming
   multiple case numbers, so logged work ties to one identified beneficiary. The
   CF 888 case number is the bridge to identity (the State already verified
-  enrollment); Tended's job is account continuity and accurate Section 1 capture —
+  enrollment); colift's job is account continuity and accurate Section 1 capture —
   **not KYC**. Never use ID.me, facial recognition, selfie + ID, SSNs, or credit
   checks.
 - **Get it in writing before scaling.** There is currently **no** CDSS or county

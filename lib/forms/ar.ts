@@ -32,7 +32,7 @@ const LINE_GREY = rgb(0.45, 0.45, 0.45);
 export async function buildARPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("DCO-261 — Arkansas Volunteer Agreement");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);

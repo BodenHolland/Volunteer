@@ -3,7 +3,7 @@
  *
  * `buildStateForm(state, data)` returns the volunteer-hours verification PDF
  * appropriate for the recipient's state — the named state form when one
- * exists, or a generic Tended-branded verification letter otherwise.
+ * exists, or a generic colift-branded verification letter otherwise.
  *
  * Coverage today:
  *   - Named form: CA, MD, MO, CO, GA, DC, IL, AR, ME, NE, NY, PA, RI, VT, WA

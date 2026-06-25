@@ -106,7 +106,10 @@ export async function signup(formData: FormData) {
   const fullName = String(formData.get("full_name") ?? "").trim();
   const emailParsed = emailSchema.safeParse(formData.get("email"));
   const passwordParsed = passwordSchema.safeParse(formData.get("password"));
-  const role = (String(formData.get("role") ?? "recipient") as Role) === "org_member" ? "org_member" : "recipient";
+  // Role + intent are picked on the next step (/get-started). Default to a
+  // blank-slate recipient so the wizard can branch from there.
+  const role: Role = "recipient";
+  const intent = "n/a";
 
   if (!fullName) redirect("/signup?error=name");
   if (!emailParsed.success) redirect("/signup?error=email");
@@ -128,7 +131,7 @@ export async function signup(formData: FormData) {
   const passwordHash = await hashPassword(passwordParsed.data);
   await db
     .prepare("INSERT INTO users (id, email, role, full_name, intent, password_hash, created_at) VALUES (?,?,?,?,?,?,?)")
-    .bind(id, email, role, fullName, "n/a", passwordHash, Date.now())
+    .bind(id, email, role, fullName, intent, passwordHash, Date.now())
     .run();
 
   // Email verification (flow real; delivery stubbed).
@@ -153,7 +156,7 @@ export async function signup(formData: FormData) {
   logEvent("signup", { email, ip, userId: id, role: invite ? "org_member" : role });
   await writeAudit({ actorUserId: id, action: "signup", entityType: "user", entityId: id, detail: { email, ip, role, invited: Boolean(invite) } });
   if (invite) redirect("/org");
-  redirect(role === "org_member" ? "/start?step=orgpick" : "/start?step=location");
+  redirect("/get-started");
 }
 
 export async function forgotPassword(formData: FormData) {

@@ -1,12 +1,12 @@
-# Build handoff: Food Access Price Audit (Tended v1)
+# Build handoff: Food Access Price Audit (colift v1)
 
-You're building a feature inside **Tended**, a **national** civic-work platform that lets US residents earn certified volunteer hours toward the federal SNAP/ABAWD work requirement by doing real volunteer tasks for sponsoring nonprofits. The platform operates state-by-state — each state has its own SNAP certification mechanism (CA's is CF 888; other states have analogous forms) — but the catalog, validation, and data model are nationwide.
+You're building a feature inside **colift**, a **national** civic-work platform that lets US residents earn certified volunteer hours toward the federal SNAP/ABAWD work requirement by doing real volunteer tasks for sponsoring nonprofits. The platform operates state-by-state — each state has its own SNAP certification mechanism (CA's is CF 888; other states have analogous forms) — but the catalog, validation, and data model are nationwide.
 
 This handoff is self-contained — you don't need to read the conversation that produced it. Read it once end-to-end before writing code so you understand the slicing.
 
 You have two companion specs to reference:
-- [`tended-v1-task-specs.json`](tended-v1-task-specs.json) — the authoritative task definition (look for `id: "food-access-price-audit"`)
-- [`tended-food-audit-build-spec.md`](tended-food-audit-build-spec.md) — the rationale-and-tradeoffs companion that explains *why* the architecture looks the way it does
+- [`colift-v1-task-specs.json`](colift-v1-task-specs.json) — the authoritative task definition (look for `id: "food-access-price-audit"`)
+- [`colift-food-audit-build-spec.md`](colift-food-audit-build-spec.md) — the rationale-and-tradeoffs companion that explains *why* the architecture looks the way it does
 
 If anything in this handoff contradicts those, those win — flag it.
 
@@ -20,7 +20,7 @@ Volunteers visit any food retailer in their community (supermarket, bodega, ethn
 
 Don't guess on these:
 
-1. **Stack.** What's the current Tended stack? (Frontend framework + state management; backend language + framework; database; object storage; queue/job system.) Adapt this build to existing patterns; don't introduce new tech without justification.
+1. **Stack.** What's the current colift stack? (Frontend framework + state management; backend language + framework; database; object storage; queue/job system.) Adapt this build to existing patterns; don't introduce new tech without justification.
 2. **Auth & volunteer identity.** Is there a `volunteer` / `user` table already? An auth system (Firebase Auth, NextAuth, custom)? Reuse it.
 3. **Existing Task Session component.** Is there already a session-engine component that renders a configured task as an ordered list of steps? If yes, extend it. If not, see Section 6 — you're building the first version.
 4. **Existing primitives.** Which of these primitives already exist in the codebase: `dial`, `open-link`, `confirm-location`, `multi-choice`, `short-text`, `photo`? You will need to add `repeat-group` (see Section 6.4) regardless.
@@ -30,7 +30,7 @@ Don't guess on these:
 
 ## 3. Hard rules — do not violate
 
-These come from the federal legal framework Tended operates under (7 CFR §273.24, with state-specific certification mechanisms — California's is CF 888; each state has its own analogous form). If you find yourself violating one, stop and flag it.
+These come from the federal legal framework colift operates under (7 CFR §273.24, with state-specific certification mechanisms — California's is CF 888; each state has its own analogous form). If you find yourself violating one, stop and flag it.
 
 - **Hour credit must reflect measured engagement.** Never auto-credit based on estimates; never let the volunteer "claim" hours. Hours = `min(measured_session_time, calibrated_cap_minutes)`. Cap = 15 min/audit; calibrated target = 12 min.
 - **Photos and prices are required for every in-stock item.** No partial submissions credited.
@@ -397,7 +397,7 @@ This primitive is reusable for every future audit-style task (pharmacy prices, g
 
 ### 7.1 Photos
 
-Object storage (S3, R2, Firebase Storage — whichever Tended uses). Path scheme:
+Object storage (S3, R2, Firebase Storage — whichever colift uses). Path scheme:
 
 ```
 /audits/{audit_id}/{basket_item_id}_{photo_id}.jpg
@@ -411,7 +411,7 @@ Object storage (S3, R2, Firebase Storage — whichever Tended uses). Path scheme
 
 ### 7.2 Validation queue
 
-Whatever Tended uses for background jobs (BullMQ, Cloud Tasks, Firebase Functions queues, etc.). Idempotent: re-running a vision-validation job on the same Photo should produce the same DB state.
+Whatever colift uses for background jobs (BullMQ, Cloud Tasks, Firebase Functions queues, etc.). Idempotent: re-running a vision-validation job on the same Photo should produce the same DB state.
 
 ### 7.3 Public dataset materialization
 
@@ -424,7 +424,7 @@ Daily batch job rebuilds:
 
 ### Slice 1 — capture works end-to-end (4–5 days)
 
-Goal: a volunteer can complete a real audit and a Tended admin can see + manually approve it. No automated validation yet.
+Goal: a volunteer can complete a real audit and a colift admin can see + manually approve it. No automated validation yet.
 
 Build:
 - All data model entities (4.1–4.8)
@@ -461,7 +461,7 @@ Build:
 - OFF account + auth token in env
 - Product mapping table: each basket_item.id → Open Food Facts product code (need to research per item; produce is by-region so this needs care)
 - Open Prices API client + retry queue
-- Per-item POST after audit verifies, marked with project tag `tended-ca-food-access`
+- Per-item POST after audit verifies, marked with project tag `colift-ca-food-access`
 - Surface the contribution link on the volunteer's audit-history screen ("Your contributions are part of Open Prices →")
 
 **Acceptance:** verified audits appear on prices.openfoodfacts.org under the project tag within 5 minutes.
@@ -608,8 +608,8 @@ These are legitimate future features. Don't let them creep into v1.
 
 ## 12. Reference materials
 
-- [tended-v1-task-specs.json](tended-v1-task-specs.json) — authoritative task spec (JSON form)
-- [tended-food-audit-build-spec.md](tended-food-audit-build-spec.md) — rationale + tradeoffs
+- [colift-v1-task-specs.json](colift-v1-task-specs.json) — authoritative task spec (JSON form)
+- [colift-food-audit-build-spec.md](colift-food-audit-build-spec.md) — rationale + tradeoffs
 - USDA Thrifty Food Plan: https://www.fns.usda.gov/cnpp/usda-food-plans-cost-food-reports
 - Open Prices API docs: https://prices.openfoodfacts.org/
 - Federal SNAP ABAWD work requirement: https://www.fns.usda.gov/snap/ABAWD (per-state implementation varies; CA's CalFresh page is at https://www.cdss.ca.gov/calfresh as a worked example)
@@ -618,4 +618,4 @@ These are legitimate future features. Don't let them creep into v1.
 
 - If a design choice would require violating a Hard Rule (Section 3), stop and ask.
 - If a design choice would require building something not in the slice plan, stop and ask whether to expand the slice or defer.
-- If the existing Tended codebase patterns suggest a different shape than this handoff, follow the existing patterns and flag the divergence — this handoff is the spec, not the diff.
+- If the existing colift codebase patterns suggest a different shape than this handoff, follow the existing patterns and flag the divergence — this handoff is the spec, not the diff.

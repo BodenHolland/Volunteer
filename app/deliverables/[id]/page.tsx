@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { OrgThumb } from "@/components/org-thumb";
 import { getPublishedDeliverable } from "@/lib/deliverables";
 import { monthLabel } from "@/lib/time";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
 import type { TaskCategory } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,8 @@ const CATEGORY_LABEL: Record<"en" | "es", Record<TaskCategory, string>> = {
     "food-audit": "Food prices",
     "gov-audit": "Website audit",
     "ems-rate-research": "EMS rates",
+    "community-service": "Community service",
+    "citizen-science": "Citizen science",
   },
   es: {
     "data-collection": "Datos de campo",
@@ -31,10 +33,12 @@ const CATEGORY_LABEL: Record<"en" | "es", Record<TaskCategory, string>> = {
     "food-audit": "Precios de alimentos",
     "gov-audit": "Auditoría de sitios",
     "ems-rate-research": "Tarifas de EMS",
+    "community-service": "Servicio comunitario",
+    "citizen-science": "Ciencia ciudadana",
   },
 };
 
-function outputLabel(category: TaskCategory, locale: "en" | "es"): string {
+function outputLabel(category: TaskCategory, locale: string): string {
   if (locale === "es") {
     if (category === "translation") return "Traducción";
     if (category === "neighborhood-writing") return "Redacción";
@@ -45,39 +49,6 @@ function outputLabel(category: TaskCategory, locale: "en" | "es"): string {
   return "Notes";
 }
 
-const COPY = {
-  en: {
-    allDeliverables: "All public deliverables",
-    sponsoredBy: "Sponsored by",
-    donatedTitle: "Donated free to the public",
-    donatedBody1:
-      "This work was produced by a Tended volunteer and donated free — to the public, a partner library, or a city agency. It is released under",
-    ccZero: "CC0 / public domain",
-    donatedBody2:
-      ": anyone may use, share, or adapt it for any purpose, with no permission needed. Tended never sells volunteer work.",
-    photoOne: "photo",
-    photoMany: "photos",
-    noContent: "No public content attached.",
-    footer: "Free to use — CC0 / public domain.",
-    imgAlt: "Public deliverable",
-  },
-  es: {
-    allDeliverables: "Todos los entregables públicos",
-    sponsoredBy: "Patrocinado por",
-    donatedTitle: "Donado gratis al público",
-    donatedBody1:
-      "Este trabajo fue realizado por un voluntario de Tended y donado gratis — al público, a una biblioteca asociada o a una agencia de la ciudad. Se publica bajo",
-    ccZero: "CC0 / dominio público",
-    donatedBody2:
-      ": cualquiera puede usarlo, compartirlo o adaptarlo para cualquier propósito, sin necesidad de permiso. Tended nunca vende el trabajo de los voluntarios.",
-    photoOne: "foto",
-    photoMany: "fotos",
-    noContent: "No hay contenido público adjunto.",
-    footer: "De uso libre — CC0 / dominio público.",
-    imgAlt: "Entregable público",
-  },
-} as const;
-
 function ymOf(ts: number): string {
   const d = new Date(ts);
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -87,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const d = await getPublishedDeliverable(id);
   return {
-    title: d ? `${d.taskTitle} — free public deliverable | Tended` : "Deliverable — Tended",
+    title: d ? `${d.taskTitle} — free public deliverable | colift` : "Deliverable — colift",
   };
 }
 
@@ -97,8 +68,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
   // notFound() if the submission isn't published (helper returns null).
   if (!d) notFound();
 
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
 
   return (
     <>
@@ -110,7 +80,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
             href="/deliverables"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-body hover:text-forest"
           >
-            <ArrowLeft className="size-4" /> {c.allDeliverables}
+            <ArrowLeft className="size-4" /> {t.deliverableDetail.allDeliverables}
           </Link>
 
           {/* Header */}
@@ -118,13 +88,13 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
             <OrgThumb name={d.org.name} slug={d.org.slug} size={72} className="h-[72px] w-[72px]" />
             <div className="min-w-0">
               <span className="inline-flex w-fit items-center rounded-full border border-line bg-section px-2.5 py-0.5 text-xs font-medium text-body">
-                {CATEGORY_LABEL[locale][d.category] ?? d.category}
+                {(CATEGORY_LABEL[locale as "en" | "es"] ?? CATEGORY_LABEL.en)[d.category] ?? d.category}
               </span>
               <h1 className="mt-2 text-[28px] font-semibold leading-tight text-ink md:text-[32px]">
                 {d.taskTitle}
               </h1>
               <p className="mt-2 text-sm text-body">
-                {c.sponsoredBy}{" "}
+                {t.deliverableDetail.sponsoredBy}{" "}
                 <Link href={`/orgs/${d.org.slug}`} className="font-medium text-forest hover:underline">
                   {d.org.name}
                 </Link>{" "}
@@ -136,11 +106,11 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
           {/* Donation / license callout */}
           <div className="mt-8 rounded-lg border border-forest/30 bg-forest-subtle/40 p-5">
             <p className="flex items-center gap-2 text-sm font-semibold text-ink">
-              <Gift className="size-4 text-forest" strokeWidth={1.75} /> {c.donatedTitle}
+              <Gift className="size-4 text-forest" strokeWidth={1.75} /> {t.deliverableDetail.donatedTitle}
             </p>
             <p className="mt-1.5 text-sm leading-relaxed text-body">
-              {c.donatedBody1}{" "}
-              <span className="font-medium text-ink">{c.ccZero}</span>{c.donatedBody2}
+              {t.deliverableDetail.donatedBody1}{" "}
+              <span className="font-medium text-ink">{t.deliverableDetail.ccZero}</span>{t.deliverableDetail.donatedBody2}
             </p>
           </div>
 
@@ -162,7 +132,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={`/api/files?key=${encodeURIComponent(p.r2_key)}`}
-                        alt={c.imgAlt}
+                        alt="Public deliverable"
                         className="aspect-square w-full object-cover"
                       />
                     </li>
@@ -172,12 +142,12 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
             )}
 
             {!d.userNotes && d.files.length === 0 && (
-              <p className="text-sm text-meta">{c.noContent}</p>
+              <p className="text-sm text-meta">{t.deliverableDetail.noContent}</p>
             )}
           </div>
 
           <p className="mt-10 text-xs text-meta">
-            {c.footer}
+            {t.deliverableDetail.footer}
           </p>
         </div>
       </main>

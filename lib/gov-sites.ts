@@ -105,7 +105,7 @@ const STATE: GovSite[] = [
   { id: "st-wy", state: "wy", name: "Wyoming.gov", url: "https://www.wyoming.gov", kind: "state", description: "Wyoming state services and agencies." },
 ];
 
-// ---------- Local (California-first; expand as Tended expands) ----------
+// ---------- Local (California-first; expand as colift expands) ----------
 
 const LOCAL: GovSite[] = [
   { id: "loc-sacramento", state: "ca", city: "sacramento", name: "City of Sacramento", url: "https://www.cityofsacramento.gov", kind: "local", description: "Sacramento city services, permits, utilities." },

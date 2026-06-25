@@ -14,41 +14,10 @@ import { parseJson } from "@/lib/types";
 import type { AiVerdict } from "@/lib/ai";
 import type { FlagKind } from "@/lib/fraud";
 import { formatHours } from "@/lib/time";
-import { getLocale } from "@/lib/i18n";
-
-const COPY = {
-  en: {
-    allProjects: "All projects",
-    certifiedPre: "Certified —",
-    certifiedPost: "hours credited toward this month.",
-    reviewerAsked: "The reviewer asked for changes",
-    aiAsked: "Your submission needs a few fixes",
-    tryAgain: "Try again",
-    fixAndResubmit: "Fix and resubmit",
-    whatYouSubmitted: "What you submitted",
-    integrityChecks: "Integrity checks",
-    emsThanks: "Thanks — your rates are queued for review.",
-    emsNext: "Help fill another gap. Every city you research adds a row to the free public ambulance-rates dataset.",
-    emsCta: "Research another city",
-  },
-  es: {
-    allProjects: "Todos los proyectos",
-    certifiedPre: "Certificado —",
-    certifiedPost: "horas acreditadas para este mes.",
-    reviewerAsked: "El revisor pidió cambios",
-    aiAsked: "Tu envío necesita algunos ajustes",
-    tryAgain: "Inténtalo de nuevo",
-    fixAndResubmit: "Corregir y reenviar",
-    whatYouSubmitted: "Lo que enviaste",
-    integrityChecks: "Verificaciones de integridad",
-    emsThanks: "Gracias — tus tarifas están en cola para revisión.",
-    emsNext: "Ayuda a cubrir otra brecha. Cada ciudad que investigas agrega una fila al conjunto público y gratuito de tarifas de ambulancia.",
-    emsCta: "Investigar otra ciudad",
-  },
-} as const;
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Submission — Tended" };
+export const metadata = { title: "Submission — colift" };
 
 export default async function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -59,6 +28,9 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
 
   // Audit-typed tasks have their own detail/done routes — bounce stale links.
   if (sub.auditId) redirect(`/app/audits/${sub.auditId}`);
+  if (sub.task.evidence_mode === "external_certificate") {
+    redirect(`/app/external/${id}`);
+  }
   if (sub.govAuditId) {
     redirect(
       sub.govAuditStatus === "in_progress"
@@ -73,13 +45,12 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
   const failed = sub.status === "needs_changes" || sub.status === "rejected";
   const isEms = sub.task.category === "ems-rate-research";
   const showEmsCta = isEms && !failed && sub.status !== "committed" && sub.status !== "in_progress";
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
 
   return (
     <div className="mx-auto max-w-[760px]">
       <Link href="/app/projects" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
-        <ArrowLeft className="size-4" /> {c.allProjects}
+        <ArrowLeft className="size-4" /> {t.submissionDetail.allProjects}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -101,10 +72,10 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
             <div className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-5 shrink-0 text-forest" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-ink">{c.emsThanks}</p>
-                <p className="mt-1 text-sm text-body">{c.emsNext}</p>
+                <p className="text-sm font-semibold text-ink">{t.submissionDetail.emsThanks}</p>
+                <p className="mt-1 text-sm text-body">{t.submissionDetail.emsNext}</p>
                 <Button asChild className="mt-3">
-                  <Link href={`/app/tasks/${sub.task.id}`}>{c.emsCta}</Link>
+                  <Link href={`/app/tasks/${sub.task.id}`}>{t.submissionDetail.emsCta}</Link>
                 </Button>
               </div>
             </div>
@@ -115,23 +86,23 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
           <div className="flex items-center gap-3 rounded-lg border border-forest/30 bg-forest-subtle p-4">
             <CheckCircle2 className="size-5 text-forest" />
             <p className="text-sm font-medium text-forest">
-              {c.certifiedPre} {formatHours(sub.hours_credited ?? sub.task.est_hours)} {c.certifiedPost}
+              {t.submissionDetail.certifiedPre} {formatHours(sub.hours_credited ?? sub.task.est_hours)} {t.submissionDetail.certifiedPost}
             </p>
           </div>
         )}
 
         {failed && sub.reviewer_notes && (
           <div className="rounded-lg border border-brick/30 bg-brick-subtle p-4">
-            <p className="text-sm font-medium text-brick">{c.reviewerAsked}</p>
+            <p className="text-sm font-medium text-brick">{t.submissionDetail.reviewerAsked}</p>
             <p className="mt-1 text-sm text-ink">{sub.reviewer_notes}</p>
             <Button asChild variant="secondary" className="mt-3">
-              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {c.tryAgain}</Link>
+              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {t.submissionDetail.tryAgain}</Link>
             </Button>
           </div>
         )}
         {failed && !sub.reviewer_notes && verdict && (
           <div className="rounded-lg border border-brick/30 bg-brick-subtle p-4">
-            <p className="text-sm font-medium text-brick">{c.aiAsked}</p>
+            <p className="text-sm font-medium text-brick">{t.submissionDetail.aiAsked}</p>
             <p className="mt-1 text-sm text-ink">{verdict.reasoning}</p>
             {verdict.issues.length > 0 && (
               <ul className="mt-2 ml-4 list-disc text-sm text-body">
@@ -139,13 +110,13 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
               </ul>
             )}
             <Button asChild variant="secondary" className="mt-3">
-              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {c.fixAndResubmit}</Link>
+              <Link href={`/app/projects/${sub.id}/submit`}><RotateCcw /> {t.submissionDetail.fixAndResubmit}</Link>
             </Button>
           </div>
         )}
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-ink">{c.whatYouSubmitted}</h2>
+          <h2 className="mb-3 text-lg font-semibold text-ink">{t.submissionDetail.whatYouSubmitted}</h2>
           <SubmissionContent submission={sub} task={sub.task} files={files} />
         </section>
 

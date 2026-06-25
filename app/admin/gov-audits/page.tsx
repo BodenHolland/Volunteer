@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { relativeTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Website audits — Tended admin" };
+export const metadata = { title: "Website audits — colift admin" };
 
 interface Row {
   id: string;
@@ -49,7 +49,7 @@ export default async function AdminGovAuditsPage() {
       ) : (
         <div className="overflow-hidden rounded-lg border border-line">
           <table className="w-full text-sm">
-            <thead className="bg-section text-left text-xs uppercase tracking-wide text-body">
+            <thead className="bg-section text-left text-[13px] font-medium text-body">
               <tr>
                 <th className="px-4 py-2">Volunteer</th>
                 <th className="px-4 py-2">Target</th>

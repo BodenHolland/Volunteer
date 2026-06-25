@@ -1,17 +1,19 @@
 import { ArticleShell } from "../_components/article-shell";
 import { AuthorityBadge } from "../_components/draft-banner";
 import { neighbors } from "../_components/articles";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Why remote and online volunteer hours count — Help Center" };
 
 export default async function Page() {
-  const locale = await getLocale();
+  const { locale, t } = await getDict();
   const { prev, next } = neighbors(5, locale);
   const title =
     locale === "es"
       ? "Por qué cuentan las horas de voluntariado remoto y en línea"
-      : "Why remote and online volunteer hours count";
+      : t.helpRemoteOnline.title;
 
   return (
     <ArticleShell number={5} starred title={title} prev={prev} next={next}>
@@ -43,8 +45,8 @@ export default async function Page() {
           </ul>
           <p>Una persona que revisa una traducción generada por IA desde su casa está realizando el mismo tipo de trabajo voluntario que alguien que la revisa en la oficina de un centro comunitario. La forma del servicio es lo que importa, no el código postal del voluntario.</p>
 
-          <h2>Cómo Tended encaja en este marco establecido</h2>
-          <p>Tended es una organización sin fines de lucro 501(c)(3) que coordina voluntarios remotos para producir entregables públicos gratuitos. La plataforma:</p>
+          <h2>Cómo colift encaja en este marco establecido</h2>
+          <p>colift es una organización sin fines de lucro 501(c)(3) que coordina voluntarios remotos para producir entregables públicos gratuitos. La plataforma:</p>
           <ul>
             <li>Mide la participación activa por sesión, no estima.</li>
             <li>Produce entregables verificables dentro de la plataforma — datos cívicos, traducciones, auditorías de accesibilidad.</li>
@@ -58,11 +60,11 @@ export default async function Page() {
         </>
       ) : (
         <>
-          <p>The federal government already recognizes remote and online volunteering as a legitimate form of service. The SNAP authority for counting volunteer work applies to verifiable unpaid work — not to where it happens.</p>
+          <p>{t.helpRemoteOnline.introPara}</p>
 
-          <h2>Federal recognition of remote contribution is explicit</h2>
+          <h2>{t.helpRemoteOnline.h2Federal}</h2>
           <p><AuthorityBadge level="direct" /> The <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) directs federal agencies to use citizen science, defined to include public participation where volunteers &ldquo;contribute data&rdquo; to government work. This is standing federal law — not analogy, not inference — that treats remote volunteer contribution as a recognized form of service.</p>
-          <p>Federal agencies have implemented this at scale:</p>
+          <p>{t.helpRemoteOnline.federalImplemented}</p>
           <ul>
             <li><strong>EPA Participatory Science</strong> — remote volunteers contribute air- and water-quality data that supports regulatory decisions.</li>
             <li><strong>USDA Forest Service</strong> and <strong>National Park Service</strong> — remote volunteers log wildlife observations and landscape mapping that feed federal land management.</li>
@@ -70,11 +72,11 @@ export default async function Page() {
           </ul>
           <p>Source: <a href="https://www.epa.gov/participatory-science" target="_blank" rel="noopener noreferrer">EPA Participatory Science</a>; <a href="https://www.citizenscience.gov/" target="_blank" rel="noopener noreferrer">CitizenScience.gov</a>.</p>
 
-          <h2>The SNAP text covers all verified unpaid work, anywhere</h2>
+          <h2>{t.helpRemoteOnline.h2Snap}</h2>
           <p><AuthorityBadge level="direct" /> <strong>7 CFR §273.24(a)(2)(iii)</strong> counts &ldquo;unpaid work, verified under standards established by the State agency.&rdquo; The regulatory text does not distinguish in-person from remote work. The only operative requirement is a verification standard. California (ACL 25-34, form CF 888) and New York both have one.</p>
-          <p>California&apos;s CF 888 form describes &ldquo;the organization where the person volunteers&rdquo; — with no physical-presence requirement. The certifying organization attests to the actual hours worked; the form is location-neutral.</p>
+          <p>{t.helpRemoteOnline.snapCf888Para}</p>
 
-          <h2>Remote nonprofit volunteering is established service</h2>
+          <h2>{t.helpRemoteOnline.h2Nonprofit}</h2>
           <p><AuthorityBadge level="direct" /> Large nonprofit programs have run on remote volunteers for years, accepted by federal cultural institutions and recognized as legitimate charitable service:</p>
           <ul>
             <li><strong>Smithsonian Transcription Center</strong> — volunteers transcribe Smithsonian collections (a federally-supported institution) from anywhere.</li>
@@ -82,20 +84,20 @@ export default async function Page() {
             <li><strong>Zooniverse</strong> — large-scale citizen science funded in part by federal grants.</li>
             <li><strong>Tarjimly</strong> — remote volunteer translation for refugees, recognized in social-service programs.</li>
           </ul>
-          <p>A person reviewing an AI-generated translation from home is performing the same kind of volunteer work as someone reviewing it in a community-center office. The shape of the service is what matters, not the volunteer&apos;s ZIP code.</p>
+          <p>{t.helpRemoteOnline.nonprofitClosingPara}</p>
 
-          <h2>How Tended fits this established framework</h2>
-          <p>Tended is a 501(c)(3) nonprofit that coordinates remote volunteers to produce free public deliverables. The platform:</p>
+          <h2>{t.helpRemoteOnline.h2HowColift}</h2>
+          <p>{t.helpRemoteOnline.howColiftIntroPara}</p>
           <ul>
-            <li>Measures active engagement per session, not estimates.</li>
-            <li>Produces verifiable deliverables inside the platform — civic data, translations, accessibility audits.</li>
-            <li>Distributes every output free to the public, libraries, and government.</li>
-            <li>Publishes its verification methodology openly.</li>
-            <li>Pursues pre-clearance conversations with state and county welfare departments.</li>
+            <li>{t.helpRemoteOnline.howColiftBullet0}</li>
+            <li>{t.helpRemoteOnline.howColiftBullet1}</li>
+            <li>{t.helpRemoteOnline.howColiftBullet2}</li>
+            <li>{t.helpRemoteOnline.howColiftBullet3}</li>
+            <li>{t.helpRemoteOnline.howColiftBullet4}</li>
           </ul>
-          <p>The authorized organization certifies hours based on the platform&apos;s records. Those records are the evidence supporting the certification.</p>
+          <p>{t.helpRemoteOnline.howColiftClosingPara}</p>
           <hr />
-          <p><em>Not legal advice.</em></p>
+          <p><em>{t.helpRemoteOnline.legalDisclaimer}</em></p>
         </>
       )}
     </ArticleShell>

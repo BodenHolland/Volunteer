@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { OrgRole } from "@/lib/types";
 import { inviteMember, revokeInvite, removeMember, changeMemberRole } from "./actions";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Team — Tended" };
+export const metadata = { title: "Team — colift" };
 
 interface TeamMember {
   id: string;
@@ -26,26 +27,6 @@ interface PendingInvite {
   created_at: number;
 }
 
-const ROLE_LABELS: Record<string, { label: string; cls: string }> = {
-  org_admin: { label: "Admin", cls: "bg-forest-subtle text-forest" },
-  reviewer: { label: "Reviewer", cls: "bg-section text-body" },
-};
-
-const STATUS_MESSAGES: Record<string, { tone: "ok" | "err"; text: string }> = {
-  invited: { tone: "ok", text: "Invitation sent." },
-  "invite-revoked": { tone: "ok", text: "Invitation revoked." },
-  "member-removed": { tone: "ok", text: "Member removed from the team." },
-  "role-changed": { tone: "ok", text: "Role updated." },
-  "invalid-email": { tone: "err", text: "Enter a valid email address." },
-  "already-member": { tone: "err", text: "That person is already on the team." },
-  "already-invited": { tone: "err", text: "That email already has a pending invite." },
-  "cannot-remove-self": { tone: "err", text: "You can't remove yourself." },
-  "last-admin": { tone: "err", text: "You're the last admin — promote someone else first." },
-  "not-found": { tone: "err", text: "That member is no longer on the team." },
-  error: { tone: "err", text: "Something went wrong. Try again." },
-  "no-org": { tone: "err", text: "No organization linked to this account." },
-};
-
 function initials(name: string | null, email: string): string {
   const source = name?.trim() || email;
   const parts = source.split(/\s+/).filter(Boolean);
@@ -58,9 +39,31 @@ export default async function OrgTeamPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  const { t } = await getDict();
+
+  const ROLE_LABELS: Record<string, { label: string; cls: string }> = {
+    org_admin: { label: t.orgTeam.roleAdmin, cls: "bg-forest-subtle text-forest" },
+    reviewer: { label: t.orgTeam.roleReviewer, cls: "bg-section text-body" },
+  };
+
+  const STATUS_MESSAGES: Record<string, { tone: "ok" | "err"; text: string }> = {
+    invited: { tone: "ok", text: t.orgTeam.statusInvited },
+    "invite-revoked": { tone: "ok", text: t.orgTeam.statusInviteRevoked },
+    "member-removed": { tone: "ok", text: t.orgTeam.statusMemberRemoved },
+    "role-changed": { tone: "ok", text: t.orgTeam.statusRoleChanged },
+    "invalid-email": { tone: "err", text: t.orgTeam.errorInvalidEmail },
+    "already-member": { tone: "err", text: t.orgTeam.errorAlreadyMember },
+    "already-invited": { tone: "err", text: t.orgTeam.errorAlreadyInvited },
+    "cannot-remove-self": { tone: "err", text: t.orgTeam.errorCannotRemoveSelf },
+    "last-admin": { tone: "err", text: t.orgTeam.errorLastAdmin },
+    "not-found": { tone: "err", text: t.orgTeam.errorNotFound },
+    error: { tone: "err", text: t.orgTeam.errorGeneric },
+    "no-org": { tone: "err", text: t.orgTeam.errorNoOrg },
+  };
+
   const user = await requireOrgAdmin();
   if (!user.org_id) {
-    return <EmptyState icon={<Users2 />} title="No organization linked to this account." />;
+    return <EmptyState icon={<Users2 />} title={t.orgTeam.errorNoOrg} />;
   }
 
   const { status } = await searchParams;
@@ -86,8 +89,8 @@ export default async function OrgTeamPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-[28px] font-semibold text-ink">Team</h1>
-        <p className="mt-1 text-body">People who can review and manage work for your organization.</p>
+        <h1 className="text-[28px] font-semibold text-ink">{t.orgTeam.title}</h1>
+        <p className="mt-1 text-body">{t.orgTeam.subtitle}</p>
       </div>
 
       {message && (
@@ -106,10 +109,10 @@ export default async function OrgTeamPage({
 
       {/* Invite */}
       <section className="space-y-4 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-base font-semibold text-ink">Invite a teammate</h2>
+        <h2 className="text-base font-semibold text-ink">{t.orgTeam.inviteSection}</h2>
         <form action={inviteMember} className="flex flex-wrap items-end gap-3">
           <div className="min-w-[220px] flex-1 space-y-1.5">
-            <Label htmlFor="invite-email">Email</Label>
+            <Label htmlFor="invite-email">{t.orgTeam.emailLabel}</Label>
             <Input
               id="invite-email"
               name="email"
@@ -120,28 +123,28 @@ export default async function OrgTeamPage({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="invite-role">Role</Label>
+            <Label htmlFor="invite-role">{t.orgTeam.roleLabel}</Label>
             <select
               id="invite-role"
               name="org_role"
               defaultValue="reviewer"
               className="h-10 rounded-md border border-line bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
             >
-              <option value="reviewer">Reviewer</option>
-              <option value="org_admin">Admin</option>
+              <option value="reviewer">{t.orgTeam.roleReviewer}</option>
+              <option value="org_admin">{t.orgTeam.roleAdmin}</option>
             </select>
           </div>
-          <Button type="submit">Send invite</Button>
+          <Button type="submit">{t.orgTeam.sendInvite}</Button>
         </form>
         <p className="text-xs text-meta">
-          Reviewers can review and approve work. Admins can also manage templates, the org profile, and the team.
+          {t.orgTeam.roleHelp}
         </p>
       </section>
 
       {/* Pending invites */}
       {pending.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-base font-semibold text-ink">Pending invitations</h2>
+          <h2 className="text-base font-semibold text-ink">{t.orgTeam.pendingInvitations}</h2>
           <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-white">
             {pending.map((inv) => {
               const role = ROLE_LABELS[inv.org_role];
@@ -152,7 +155,7 @@ export default async function OrgTeamPage({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-ink">{inv.email}</p>
-                    <p className="truncate text-sm text-meta">Invited &middot; awaiting sign-up</p>
+                    <p className="truncate text-sm text-meta">{t.orgTeam.invitedStatus}</p>
                   </div>
                   {role && (
                     <span className={cn("inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium", role.cls)}>
@@ -161,7 +164,7 @@ export default async function OrgTeamPage({
                   )}
                   <form action={revokeInvite}>
                     <input type="hidden" name="invite_id" value={inv.id} />
-                    <Button type="submit" variant="destructive" size="sm">Revoke</Button>
+                    <Button type="submit" variant="destructive" size="sm">{t.orgTeam.revoke}</Button>
                   </form>
                 </li>
               );
@@ -172,9 +175,9 @@ export default async function OrgTeamPage({
 
       {/* Members */}
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-ink">Members</h2>
+        <h2 className="text-base font-semibold text-ink">{t.orgTeam.membersSection}</h2>
         {members.length === 0 ? (
-          <EmptyState icon={<Users2 />} title="No team members yet." />
+          <EmptyState icon={<Users2 />} title={t.orgTeam.noMembers} />
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-white">
             {members.map((m) => {
@@ -186,31 +189,31 @@ export default async function OrgTeamPage({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-ink">
-                      {m.full_name ?? "Unnamed member"}
-                      {isSelf && <span className="ml-2 text-xs font-normal text-meta">(you)</span>}
+                      {m.full_name ?? t.orgTeam.unnamedMember}
+                      {isSelf && <span className="ml-2 text-xs font-normal text-meta">{t.orgTeam.youLabel}</span>}
                     </p>
                     <p className="truncate text-sm text-meta">{m.email}</p>
                   </div>
 
                   <form action={changeMemberRole} className="flex items-center gap-2">
                     <input type="hidden" name="member_id" value={m.id} />
-                    <Label htmlFor={`role-${m.id}`} className="sr-only">Role</Label>
+                    <Label htmlFor={`role-${m.id}`} className="sr-only">{t.orgTeam.roleLabel}</Label>
                     <select
                       id={`role-${m.id}`}
                       name="org_role"
                       defaultValue={m.org_role ?? "reviewer"}
                       className="h-9 rounded-md border border-line bg-white px-2.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
                     >
-                      <option value="reviewer">Reviewer</option>
-                      <option value="org_admin">Admin</option>
+                      <option value="reviewer">{t.orgTeam.roleReviewer}</option>
+                      <option value="org_admin">{t.orgTeam.roleAdmin}</option>
                     </select>
-                    <Button type="submit" variant="secondary" size="sm">Update</Button>
+                    <Button type="submit" variant="secondary" size="sm">{t.orgTeam.updateRole}</Button>
                   </form>
 
                   {!isSelf && (
                     <form action={removeMember}>
                       <input type="hidden" name="member_id" value={m.id} />
-                      <Button type="submit" variant="destructive" size="sm">Remove</Button>
+                      <Button type="submit" variant="destructive" size="sm">{t.orgTeam.remove}</Button>
                     </form>
                   )}
                 </li>

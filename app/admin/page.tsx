@@ -7,7 +7,7 @@ import { formatHours, relativeTime } from "@/lib/time";
 import type { SubmissionStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin overview — Tended" };
+export const metadata = { title: "Admin overview — colift" };
 
 interface RecentRow {
   id: string;
@@ -26,7 +26,7 @@ async function count(sql: string, ...binds: unknown[]): Promise<number> {
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
   return (
     <div className="rounded-lg border border-line bg-white p-5 [&_svg]:size-5">
-      <div className="flex items-center gap-2 text-meta">{icon}<span className="overline">{label}</span></div>
+      <div className="flex items-center gap-2 text-sm font-medium text-meta">{icon}<span>{label}</span></div>
       <p className="mt-2 text-3xl font-semibold text-ink">{value}</p>
     </div>
   );

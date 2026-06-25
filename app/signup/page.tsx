@@ -8,7 +8,7 @@ import { signup } from "@/app/auth-actions";
 import { getDict } from "@/lib/i18n";
 import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
-export const metadata = { title: "Create account — Tended" };
+export const metadata = { title: "Create account — colift" };
 
 const ERRORS: Record<string, string> = {
   name: "Please enter your name.",
@@ -52,17 +52,6 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
           <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} leadingIcon={<Lock />} />
           <p className="text-xs text-meta">{a.passwordHint}</p>
         </div>
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-ink">{a.here}</legend>
-          <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
-            <input type="radio" name="role" value="recipient" defaultChecked className="mt-1 accent-[var(--color-forest)]" />
-            <span className="text-sm text-ink">{a.roleRecipient} <span className="text-meta">{a.roleRecipientHint}</span></span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 hover:bg-section has-[:checked]:border-forest has-[:checked]:bg-forest-subtle">
-            <input type="radio" name="role" value="org_member" className="mt-1 accent-[var(--color-forest)]" />
-            <span className="text-sm text-ink">{a.roleOrg} <span className="text-meta">{a.roleOrgHint}</span></span>
-          </label>
-        </fieldset>
         {sp.error && <p className="text-sm text-brick" role="alert">{ERRORS[sp.error] ?? "Something went wrong."}</p>}
         <Button type="submit" className="w-full">{a.createBtn}</Button>
         <p className="text-center text-xs text-meta">{a.legalNote}</p>

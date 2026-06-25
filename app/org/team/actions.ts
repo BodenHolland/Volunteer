@@ -56,8 +56,8 @@ export async function inviteMember(formData: FormData) {
   const origin = await appOrigin();
   await sendEmail({
     to: email,
-    subject: "You've been invited to a Tended organization",
-    text: `You've been invited to join an organization on Tended as a ${
+    subject: "You've been invited to a colift organization",
+    text: `You've been invited to join an organization on colift as a ${
       orgRole === "org_admin" ? "team admin" : "reviewer"
     }.\n\nSign up or sign in with this email to accept:\n\n${origin}/signup\n\nIf you weren't expecting this, you can ignore this message.`,
   });

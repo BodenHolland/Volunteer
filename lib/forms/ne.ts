@@ -18,7 +18,7 @@ const gold = rgb(0.96, 0.68, 0.13);
 export async function buildNEPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("Volunteer Verify ABAWDx - Work Verification Request");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([W, H]);
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
   const reg = await doc.embedFont(StandardFonts.Helvetica);

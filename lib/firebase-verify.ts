@@ -33,7 +33,7 @@ function projectId(): string | undefined {
   // Runtime bindings are the source of truth on Workers. The build-time public
   // value is a safe fallback for route handlers where OpenNext has not yet
   // initialized the request context (otherwise Firebase signs in successfully
-  // but the server rejects its token and never creates a Tended session).
+  // but the server rejects its token and never creates a colift session).
   return (
     env.FIREBASE_PROJECT_ID ||
     env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||

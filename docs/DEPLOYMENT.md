@@ -1,6 +1,6 @@
 # Production deployment
 
-Tended ships to Cloudflare Workers via `@opennextjs/cloudflare`. Production is
+colift ships to Cloudflare Workers via `@opennextjs/cloudflare`. Production is
 **not** demo mode: there is no sample-data seeding, no `/admin/reset`, no
 onboarding skips, and PII encryption is required.
 
@@ -13,7 +13,7 @@ Secrets are **not** committed — set each one against the deployed Worker:
 | `PII_ENCRYPTION_KEY` | **Required** | AES-256-GCM key for PII at rest. Without it, storing PII **throws** (fail-closed). Generate: `openssl rand -base64 32` |
 | `OPENROUTER_API_KEY` | Optional | Enables AI submission + BenefitsCal review. Without it, both fall back to **manual review** (safe, never auto-approves). |
 | `RESEND_API_KEY` | Optional | Sends org **team-invite** emails via Resend. Without it, invites still work (the row is created and matched at signup) but the email is only logged. |
-| `EMAIL_FROM` | with Resend | Verified sender, e.g. `Tended <noreply@tended.org>`. |
+| `EMAIL_FROM` | with Resend | Verified sender, e.g. `colift <noreply@colift.org>`. |
 
 ```bash
 nvm use

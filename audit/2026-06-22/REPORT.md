@@ -1,6 +1,6 @@
-# Tended production audit — 2026-06-22
+# colift production audit — 2026-06-22
 
-Scope: production at `https://tended.xkbtrjm2bm.workers.dev`, desktop and mobile recipient flows, plus a focused code/security review. Screenshots in `screenshots/` were captured during this run.
+Scope: production at `https://colift.xkbtrjm2bm.workers.dev`, desktop and mobile recipient flows, plus a focused code/security review. Screenshots in `screenshots/` were captured during this run.
 
 ## Evidence captured
 

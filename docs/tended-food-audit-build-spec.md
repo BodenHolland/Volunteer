@@ -195,7 +195,7 @@ Output: a public dashboard + monthly PDF report + open dataset download (CSV + G
 For each validated in-stock item, format and POST to Open Prices:
 - Endpoint: `https://prices.openfoodfacts.org/api/v1/prices`
 - Required fields: product (mapped from basket-item to OFF product code), price, currency, location, date, proof image (the photo)
-- Mark with project tag: `tended-ca-food-access`
+- Mark with project tag: `colift-ca-food-access`
 - One contribution = one item; one audit = up to 6 contributions
 
 This needs:
@@ -260,5 +260,5 @@ Ship in three slices so we can validate at each step:
 **Slice 3 — Open Prices contribution**
 - OFF product mapping
 - Open Prices API client + retry queue
-- Mark contributions with `tended-ca-food-access`
+- Mark contributions with `colift-ca-food-access`
 - → Global reuse, additional validation signal

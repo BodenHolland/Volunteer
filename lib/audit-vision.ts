@@ -102,7 +102,7 @@ export async function validateAuditPhoto(input: VisionInput): Promise<VisionResu
         Authorization: `Bearer ${input.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": input.siteUrl ?? "http://localhost:3000",
-        "X-Title": input.appName ?? "Tended Food Access",
+        "X-Title": input.appName ?? "colift Food Access",
       },
       body: JSON.stringify({
         model: input.model ?? "google/gemini-2.0-flash-exp:free",

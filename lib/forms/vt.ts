@@ -11,7 +11,7 @@ const INK = rgb(0, 0, 0);
 export async function buildVTPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("218-WFV - Workfare Verification Form");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const T = (top: number) => H - top;

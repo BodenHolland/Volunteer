@@ -1,15 +1,19 @@
 import { StatusPage } from "@/components/status-page";
+import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "Not allowed — Tended" };
+export const dynamic = "force-dynamic";
 
-export default function UnauthorizedPage() {
+export const metadata = { title: "Not allowed — colift" };
+
+export default async function UnauthorizedPage() {
+  const { t } = await getDict();
   return (
     <StatusPage
       code="403"
-      title="You don't have access to that"
-      body="This area is for a different kind of account. Switch identity to continue as the right user."
-      primary={{ href: "/start", label: "Switch identity" }}
-      secondary={{ href: "/", label: "Back to home" }}
+      title={t.errorPages.unauthorizedTitle}
+      body={t.errorPages.unauthorizedBody}
+      primary={{ href: "/start", label: t.errorPages.switchIdentity }}
+      secondary={{ href: "/", label: t.errorPages.backToHome }}
     />
   );
 }

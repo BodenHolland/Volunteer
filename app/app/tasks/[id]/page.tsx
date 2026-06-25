@@ -1,6 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ListChecks, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ListChecks, CheckCircle2, ExternalLink, ShieldCheck } from "lucide-react";
+
+const TASK_IMAGES: Record<string, string> = {
+  task_ems_rates: "/ems-rates-icon.ico",
+  task_food_audit: "/food-audit-icon.jpg",
+  task_gov_audit: "/gov-audit-icon.png",
+};
 import { getTask } from "@/lib/queries";
 import { commitToTask } from "@/app/app/project-actions";
 import { Markdown } from "@/components/markdown";
@@ -8,36 +15,16 @@ import { OrgThumb } from "@/components/org-thumb";
 import { Button } from "@/components/ui/button";
 import { HeadlineTag, SecondaryTag, DeviceTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/session";
-
-const COPY = {
-  en: {
-    allTasks: "All tasks",
-    aboutTask: "About this task",
-    whatYoullDo: "What you'll do",
-    optional: "(optional)",
-    sidebarNote:
-      "You'll log your time as you work. Credited hours reflect your measured engagement — do as much or as little as you like.",
-    commit: "Commit to task",
-  },
-  es: {
-    allTasks: "Todas las tareas",
-    aboutTask: "Acerca de esta tarea",
-    whatYoullDo: "Lo que harás",
-    optional: "(opcional)",
-    sidebarNote:
-      "Registrarás tu tiempo mientras trabajas. Las horas acreditadas reflejan tu participación medida — haz tanto o tan poco como quieras.",
-    commit: "Comprometerme con la tarea",
-  },
-} as const;
+import { ZOONIVERSE_TASK_DETAIL_DISCLAIMER, ZOONIVERSE_HOMEPAGE_URL } from "@/lib/zooniverse";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = await getTask(id);
-  return { title: task ? `${task.title} — Tended` : "Task — Tended" };
+  return { title: task ? `${task.title} — colift` : "Task — colift" };
 }
 
 export default async function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -46,24 +33,30 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
   if (!task) notFound();
 
   const checklist = parseJson<ChecklistItem[]>(task.checklist_json, []);
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
   const me = await getCurrentUser();
   const displayTitle =
     task.category === "gov-audit" && me?.city
       ? `Audit a ${me.city} government, nonprofit, or public-service website`
       : task.title;
+  const isExternalCert = task.evidence_mode === "external_certificate";
 
   return (
     <div>
       <Link href="/app/tasks" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
-        <ArrowLeft className="size-4" /> {c.allTasks}
+        <ArrowLeft className="size-4" /> {t.taskDetail.allTasks}
       </Link>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
           <div className="flex items-start gap-4">
-            <OrgThumb name={task.org.name} slug={task.org.slug} size={72} className="h-[72px] w-[72px]" />
+            {TASK_IMAGES[task.id] ? (
+              <span className="flex h-[72px] w-[72px] shrink-0 rounded-md overflow-hidden border border-line">
+                <Image src={TASK_IMAGES[task.id]} alt="" width={72} height={72} className="h-full w-full object-cover" />
+              </span>
+            ) : (
+              <OrgThumb name={task.org.name} slug={task.org.slug} logoUrl={task.org.logo_url} size={72} className="h-[72px] w-[72px]" />
+            )}
             <div>
               <h1 className="text-[28px] font-semibold leading-tight text-ink">{displayTitle}</h1>
               <p className="mt-1 text-[15px] font-medium text-ink">{task.org.name}</p>
@@ -77,39 +70,81 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           </div>
 
           <section className="mt-8">
-            <h2 className="mb-2 text-[22px] font-semibold text-ink">{c.aboutTask}</h2>
+            <h2 className="mb-2 text-[22px] font-semibold text-ink">{t.taskDetail.aboutTask}</h2>
             <Markdown>{task.instructions_md}</Markdown>
           </section>
 
-          <section className="mt-8">
-            <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-              <ListChecks className="size-5 text-forest" /> {c.whatYoullDo}
-            </h2>
-            <ul className="space-y-2">
-              {checklist.map((item) => (
-                <li key={item.id} className="flex items-start gap-2.5 text-body">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />
-                  <span>
-                    {item.label}
-                    {!item.required && <span className="ml-1.5 text-xs text-meta">{c.optional}</span>}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {checklist.length > 0 && (
+            <section className="mt-8">
+              <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
+                <ListChecks className="size-5 text-forest" /> {t.taskDetail.whatYoullDo}
+              </h2>
+              <ul className="space-y-2">
+                {checklist.map((item) => (
+                  <li key={item.id} className="flex items-start gap-2.5 text-body">
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />
+                    <span>
+                      {item.label}
+                      {!item.required && <span className="ml-1.5 text-xs text-meta">{t.taskDetail.optional}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="rounded-lg border border-line bg-white p-5">
-            <p className="rounded-md bg-section p-3 text-xs text-body">
-              {c.sidebarNote}
-            </p>
-            <form action={commitToTask} className="mt-4">
-              <input type="hidden" name="task_id" value={task.id} />
-              <Button type="submit" className="w-full">{c.commit}</Button>
-            </form>
-          </div>
+          {isExternalCert ? (
+            <div className="rounded-lg border border-line bg-white p-5 space-y-4">
+              <p className="rounded-md bg-amber-subtle p-3 text-xs text-body">
+                <ShieldCheck className="mr-1 inline size-3.5 align-text-bottom text-amber" />
+                {ZOONIVERSE_TASK_DETAIL_DISCLAIMER}
+              </p>
+              <a
+                href={ZOONIVERSE_HOMEPAGE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-1.5 rounded-md bg-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-forest/90 transition-colors"
+              >
+                <ExternalLink className="size-4" /> Open Zooniverse
+              </a>
+              <form action={commitToTask}>
+                <input type="hidden" name="task_id" value={task.id} />
+                <Button type="submit" variant="secondary" className="w-full">
+                  Return with certificate
+                </Button>
+              </form>
+              <p className="text-xs text-meta">
+                Hours are credited from the certificate, up to {Math.round((task.monthly_minutes_cap ?? 600) / 60)} per month per Zooniverse project.
+              </p>
+            </div>
+          ) : task.listing_type === "external" ? (
+            <div className="rounded-lg border border-line bg-white p-5 space-y-4">
+              <p className="rounded-md bg-section p-3 text-xs text-body">
+                This opportunity is organized by <strong>{task.org.name}</strong>. Sign up directly on their website.
+              </p>
+              <a
+                href={task.external_url ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center rounded-md bg-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-forest/90 transition-colors"
+              >
+                Sign up at {task.org.name} →
+              </a>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-line bg-white p-5">
+              <p className="rounded-md bg-section p-3 text-xs text-body">
+                {t.taskDetail.sidebarNote}
+              </p>
+              <form action={commitToTask} className="mt-4">
+                <input type="hidden" name="task_id" value={task.id} />
+                <Button type="submit" className="w-full">{t.taskDetail.commit}</Button>
+              </form>
+            </div>
+          )}
         </aside>
       </div>
     </div>

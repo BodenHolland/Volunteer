@@ -32,16 +32,16 @@ grep -rn "<Placeholder>" app/help
 
 ### 2. Verify entity-status statements are still accurate
 
-These pages make present-tense claims that depend on the org being a 501(c)(3) with a designated authorized representative. **Once Tended's IRS determination is granted AND the board has formally designated an authorized representative, no edit is needed.** If those are not yet true at the time of review, the present-tense language in these pages must be softened to forward-looking ("is being established as" / "will be designated") or the pages should be unpublished.
+These pages make present-tense claims that depend on the org being a 501(c)(3) with a designated authorized representative. **Once colift's IRS determination is granted AND the board has formally designated an authorized representative, no edit is needed.** If those are not yet true at the time of review, the present-tense language in these pages must be softened to forward-looking ("is being established as" / "will be designated") or the pages should be unpublished.
 
 Pages with present-tense entity claims:
-- `app/help/1-what-is-tended/page.tsx` ("501(c)(3) public charity")
+- `app/help/1-what-is-colift/page.tsx` ("501(c)(3) public charity")
 - `app/help/3-funding/page.tsx` (IRS §501(c)(3) status)
-- `app/help/4-what-counts/page.tsx` ("Tended is a 501(c)(3) and meets the criteria.")
+- `app/help/4-what-counts/page.tsx` ("colift is a 501(c)(3) and meets the criteria.")
 - `app/help/10-certifier/page.tsx` (board-designated authorized representative)
 - `app/help/12-caseworkers/page.tsx` ("IRS determination letter")
 
-A future agent should ask the user: **"Does Tended currently hold its IRS 501(c)(3) determination letter, and has the board formally designated an authorized representative?"** If either answer is no, flag the affected pages.
+A future agent should ask the user: **"Does colift currently hold its IRS 501(c)(3) determination letter, and has the board formally designated an authorized representative?"** If either answer is no, flag the affected pages.
 
 ### 3. Confirm the audit ledger at the URL placeholder actually exists
 

@@ -67,15 +67,15 @@ export async function appOrigin(): Promise<string> {
 export function verifyEmailMessage(to: string, link: string): OutboundEmail {
   return {
     to,
-    subject: "Confirm your Tended email",
-    text: `Welcome to Tended. Confirm your email to finish setting up your account:\n\n${link}\n\nThis link expires in 24 hours. If you didn't sign up, ignore this message.`,
+    subject: "Confirm your colift email",
+    text: `Welcome to colift. Confirm your email to finish setting up your account:\n\n${link}\n\nThis link expires in 24 hours. If you didn't sign up, ignore this message.`,
   };
 }
 
 export function resetPasswordMessage(to: string, link: string): OutboundEmail {
   return {
     to,
-    subject: "Reset your Tended password",
-    text: `We received a request to reset your Tended password. Use this link within the next hour:\n\n${link}\n\nIf you didn't request this, you can ignore it — your password won't change.`,
+    subject: "Reset your colift password",
+    text: `We received a request to reset your colift password. Use this link within the next hour:\n\n${link}\n\nIf you didn't request this, you can ignore it — your password won't change.`,
   };
 }

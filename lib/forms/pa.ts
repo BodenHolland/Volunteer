@@ -12,7 +12,7 @@ const grey = rgb(.89, .89, .89);
 export async function buildPAPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("PA 1938 - Community Service | Volunteer Verification Form");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([W, H]);
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
   const reg = await doc.embedFont(StandardFonts.Helvetica);

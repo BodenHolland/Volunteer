@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
-import { MapPin, Tag, Search, SlidersHorizontal } from "lucide-react";
+import { MapPin, Tag, Search, SlidersHorizontal, BadgeCheck } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ const LOCATIONS = [
   { value: "hybrid", label: "Hybrid" },
 ];
 const CATEGORIES = [
+  { value: "community-service", label: "Community service" },
   { value: "data-collection", label: "Field data" },
   { value: "translation", label: "Translation" },
   { value: "civic-input", label: "Civic input" },
@@ -20,12 +21,21 @@ const CATEGORIES = [
   { value: "seminar", label: "Learning" },
 ];
 
+const LISTING_TYPES = [
+  { value: "native", label: "Certification eligible" },
+  { value: "external", label: "External opportunity" },
+];
+
 export function TaskFilters({
   counts,
+  listingTypeCounts = {},
   variant = "toolbar",
+  hideSearch = false,
 }: {
   counts: { location: Record<string, number>; category: Record<string, number> };
+  listingTypeCounts?: Record<string, number>;
   variant?: "toolbar" | "sidebar";
+  hideSearch?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -61,7 +71,8 @@ export function TaskFilters({
 
   const locSel = selected("loc");
   const catSel = selected("cat");
-  const anyActive = locSel.size > 0 || catSel.size > 0 || !!params.get("q");
+  const typeSel = selected("type");
+  const anyActive = locSel.size > 0 || catSel.size > 0 || typeSel.size > 0 || !!params.get("q");
   const isSidebar = variant === "sidebar";
 
   const Chip = ({
@@ -84,9 +95,11 @@ export function TaskFilters({
     <Popover>
       <PopoverTrigger
         className={cn(
-          "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-sm font-medium [&_svg]:size-4",
+          "inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-sm font-medium transition-colors [&_svg]:size-4",
           isSidebar && "w-full justify-between",
-          count > 0 ? "border-forest bg-forest-subtle text-forest" : "border-line bg-white text-ink hover:bg-section"
+          count > 0
+            ? "border-civic-blue bg-civic-blue-soft text-civic-blue"
+            : "border-civic-line bg-white text-ink hover:bg-paper-deep",
         )}
       >
         {icon}
@@ -117,37 +130,34 @@ export function TaskFilters({
 
   return (
     <div className="space-y-4">
-      {/* Search bar */}
-      <div className="flex h-14 items-center gap-3 rounded-lg border border-line bg-white px-4">
-        <Search className="size-5 text-meta" />
-        <input
-          defaultValue={params.get("q") ?? ""}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by keyword, skill, or interest"
-          className="h-full flex-1 bg-transparent text-sm text-ink placeholder:text-meta focus:outline-none"
-          aria-label="Search tasks"
-        />
-        <span className={cn("hidden items-center gap-1.5 border-l border-line pl-3 text-sm text-meta sm:flex", isSidebar && "lg:hidden")}>
-          <MapPin className="size-4" /> California
-        </span>
-      </div>
+      {!hideSearch && (
+        <div className="flex h-14 items-center gap-3 rounded-lg border border-line bg-white px-4">
+          <Search className="size-5 text-meta" />
+          <input
+            defaultValue={params.get("q") ?? ""}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by keyword, skill, or interest"
+            className="h-full flex-1 bg-transparent text-sm text-ink placeholder:text-meta focus:outline-none"
+            aria-label="Search tasks"
+          />
+        </div>
+      )}
 
       {/* Chip row */}
       <div className={cn("flex items-center gap-2 overflow-x-auto pb-1", isSidebar && "flex-col items-stretch overflow-visible")}>
+        <Chip icon={<BadgeCheck />} label="Type"     count={typeSel.size} options={LISTING_TYPES} paramKey="type" sel={typeSel} optCounts={listingTypeCounts} />
+        <Chip icon={<MapPin />}     label="Location" count={locSel.size}  options={LOCATIONS}     paramKey="loc"  sel={locSel}  optCounts={counts.location} />
+        <Chip icon={<Tag />}        label="Category" count={catSel.size}  options={CATEGORIES}    paramKey="cat"  sel={catSel}  optCounts={counts.category} />
         {anyActive && (
           <button
             onClick={() => router.push(pathname)}
-            className={cn("shrink-0 whitespace-nowrap text-sm font-medium text-forest hover:underline", isSidebar && "text-left")}
+            className={cn(
+              "ml-1 shrink-0 whitespace-nowrap rounded-md px-2 py-1 text-sm font-medium text-civic-blue hover:underline",
+              isSidebar && "text-left",
+            )}
           >
-            Clear Filters
+            Clear filters
           </button>
-        )}
-        <Chip icon={<MapPin />} label="Location Type" count={locSel.size} options={LOCATIONS} paramKey="loc" sel={locSel} optCounts={counts.location} />
-        <Chip icon={<Tag />} label="Category" count={catSel.size} options={CATEGORIES} paramKey="cat" sel={catSel} optCounts={counts.category} />
-        {!isSidebar && (
-          <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm font-medium text-meta [&_svg]:size-4">
-            <SlidersHorizontal /> More Filters
-          </span>
         )}
       </div>
     </div>

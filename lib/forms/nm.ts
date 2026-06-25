@@ -13,7 +13,7 @@ export async function buildNMPdf(data: StateFormData): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle("Verification of Volunteer Hours - ABAWD 002");
   pdf.setAuthor("New Mexico Health Care Authority");
-  pdf.setProducer("Tended");
+  pdf.setProducer("colift");
   const reg = await pdf.embedFont(StandardFonts.TimesRoman);
   const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   const t = (top: number) => H - top;
@@ -70,7 +70,7 @@ export async function buildNMPdf(data: StateFormData): Promise<Uint8Array> {
     const x = cols[index], width = cols[index + 1] - cols[index];
     words.forEach((word, row) => draw(word, x + (width - bold.widthOfTextAtSize(word, 10.5)) / 2, top + 13 + row * 13, bold, 10.5));
   });
-  // Tended stores a monthly measured total rather than daily logs.  Place the
+  // colift stores a monthly measured total rather than daily logs.  Place the
   // reporting month in the first official row and leave the other rows blank.
   const rowTop = top + headerH + 13;
   draw(data.month, cols[0] + 5, rowTop, reg, 8.2);

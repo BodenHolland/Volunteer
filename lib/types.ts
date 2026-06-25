@@ -12,7 +12,14 @@ export type TaskCategory =
   | "seminar"
   | "food-audit"
   | "gov-audit"
-  | "ems-rate-research";
+  | "ems-rate-research"
+  | "community-service"
+  | "citizen-science";
+
+export type ListingType = "native" | "external";
+
+export type ExternalProvider = "zooniverse";
+export type EvidenceMode = "in_app" | "external_certificate";
 
 export type SubmissionStatus =
   | "committed"
@@ -168,7 +175,10 @@ export interface TaskTemplate {
   max_hours: number;
   location_kind: LocationKind;
   status: "draft" | "active" | "paused" | "archived";
+  listing_type: ListingType;
+  external_url: string | null;
   created_at: number;
+  closes_at: number | null;
   // 4-part beneficiary gate (migration 0003)
   gate_external_beneficiary: number;
   gate_genuine_need: number;
@@ -176,6 +186,54 @@ export interface TaskTemplate {
   gate_would_do_anyway: number;
   gate_reviewed_by: string | null;
   gate_reviewed_at: number | null;
+  // external provider (migration 0019) — null/'in_app' for native tasks
+  external_provider: ExternalProvider | null;
+  evidence_mode: EvidenceMode;
+  monthly_minutes_cap: number | null;
+}
+
+export interface ExternalProjectCatalog {
+  task_template_id: string;
+  provider: ExternalProvider;
+  external_project_id: string;
+  external_project_slug: string;
+  project_url: string;
+  /** JSON array of workflow ids; empty array = all workflows allowed */
+  allowed_workflow_ids: string;
+  public_benefit_summary: string;
+  task_type_label: string;
+  active: number;
+  created_at: number;
+}
+
+export interface CertificateReview {
+  submission_id: string;
+  reviewer_id: string;
+  cert_name_matches_user: "yes" | "no" | "unclear";
+  date_range_present: "yes" | "no" | "unclear";
+  hours_present: "yes" | "no" | "unclear";
+  project_scope_match: "yes" | "no" | "unclear";
+  signature_present: "yes" | "no" | "unclear";
+  // migration 0020 — cross-reference checks against the volunteer-provided profile URL
+  // and dashboard screenshot. Existing rows default to 'unclear'.
+  profile_url_matches: "yes" | "no" | "unclear";
+  screenshot_supports_certificate: "yes" | "no" | "unclear";
+  duplicate_file_match: number;
+  decision: "approved" | "rejected" | "needs_information";
+  reviewer_note: string | null;
+  credited_minutes: number | null;
+  reviewed_at: number;
+}
+
+export interface ZooniversePublicActivity {
+  public_session_ref: string;
+  external_project_id: string;
+  external_project_slug: string;
+  task_type_label: string;
+  reporting_month: string;
+  credited_minutes: number;
+  evidence_tier: "provider_certificate_confirmed";
+  approved_at: number;
 }
 
 export interface Submission {
@@ -199,6 +257,8 @@ export interface Submission {
   idle_seconds: number;
   // deliverable distribution (migration 0004)
   published_at: number | null;
+  // external provider cross-boundary key (migration 0019); null for native tasks
+  public_session_ref: string | null;
 }
 
 export interface SubmissionFile {
@@ -212,7 +272,14 @@ export interface SubmissionFile {
 export interface SubmissionFlagRow {
   id: string;
   submission_id: string;
-  kind: "duplicate_image" | "likely_ai_content" | "geotag_mismatch" | "velocity_anomaly";
+  kind:
+    | "duplicate_image"
+    | "likely_ai_content"
+    | "geotag_mismatch"
+    | "velocity_anomaly"
+    | "duplicate_certificate"
+    | "cert_user_name_mismatch"
+    | "monthly_cap_exceeded";
   severity: "warn" | "flag" | "block";
   evidence_json: string | null;
   created_at: number;

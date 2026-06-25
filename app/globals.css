@@ -2,45 +2,82 @@
 @plugin "tailwindcss-animate";
 
 /*
-  TENDED design system — forest + terracotta, earthy + warm.
-  Palette and scale are the single source of truth referenced by every
-  component. No dark mode (warm off-white only). No gradients; shadow-sm max.
+  COLIFT design system — color palette only.
+  Token NAMES preserved (navy, forest, teal, terracotta, …) so the rest of
+  the codebase keeps rendering; values repointed to the new colift palette.
 */
 
 @theme {
-  /* Service-marketplace brand */
-  --color-navy: #082b5b;
-  --color-navy-deep: #061f42;
-  --color-teal: #008b8c;
-  --color-teal-hover: #007274;
-  --color-teal-subtle: #e5f5f4;
-  --color-gold: #f59e0b;
-  --color-gold-hover: #d97706;
-  --color-gold-subtle: #fff5de;
+  /* ───── colift palette ─────────────────────────────────────────── */
+  /* Core (raw values for direct use as bg-ink, text-civic-blue, etc.) */
+  --color-ink: #13231e;
+  --color-ink-deep: #0b1714;
+  --color-slate: #5e6b65;
+  --color-slate-soft: #8a958f;
 
-  /* Legacy semantic aliases used throughout the app. */
-  --color-forest: var(--color-teal);
-  --color-forest-hover: var(--color-teal-hover);
-  --color-forest-subtle: var(--color-teal-subtle);
-  --color-terracotta: var(--color-gold);
-  --color-terracotta-subtle: var(--color-gold-subtle);
+  --color-civic-blue: #2854c5;
+  --color-civic-blue-hover: #1e44a8;
+  --color-civic-blue-soft: #ddebfa;
+
+  --color-field-green: #1d6b57;
+  --color-field-green-hover: #145745;
+  --color-field-green-soft: #e1eee6;
+
+  --color-community-red: #c84f35;
+  --color-community-red-soft: #f7e0d8;
+
+  --color-notice-yellow: #f4c84a;
+  --color-notice-yellow-soft: #fff3c8;
+
+  /* Neutrals */
+  --color-paper: #faf7f0;
+  --color-paper-deep: #f0f0f0;
+  --color-civic-line: #d6ddd6;
+
+  /* Section moods (still useful as backgrounds when wanted) */
+  --color-task-sky: #ddebfa;
+  --color-verification-sage: #e1eee6;
+  --color-community-lilac: #e8e0f3;
+  --color-warm-sand: #f3e6d3;
+  --color-notice-tint: #fff3c8;
+
+  /* ───── Legacy token aliases (used throughout the app) ─────────── */
+  --color-navy: var(--color-ink);
+  --color-navy-deep: var(--color-ink-deep);
+
+  --color-teal: var(--color-civic-blue);
+  --color-teal-hover: var(--color-civic-blue-hover);
+  --color-teal-subtle: var(--color-task-sky);
+
+  --color-forest: var(--color-field-green);
+  --color-forest-hover: var(--color-field-green-hover);
+  --color-forest-subtle: var(--color-field-green-soft);
+
+  --color-gold: var(--color-notice-yellow);
+  --color-gold-hover: #d6a92b;
+  --color-gold-subtle: var(--color-notice-tint);
+
+  --color-terracotta: var(--color-community-red);
+  --color-terracotta-subtle: var(--color-community-red-soft);
 
   /* Slate / ink scale */
-  --color-ink: #102a4f;
-  --color-body: #4b617c;
-  --color-meta: #687d96;
-  --color-muted: #687d96;
-  --color-line: #d8e2ee;
-  --color-section: #f4f8fb;
+  --color-body: #3d4a44;
+  --color-meta: var(--color-slate);
+  --color-muted: var(--color-slate-soft);
+  --color-line: var(--color-civic-line);
+  /* Legacy `bg-section` — was the default tinted section bg. Now WHITE so
+     legacy pages stop reading as "all tan". Use the mood classes
+     (mode-task / mode-verify / etc.) when a tint is intentional. */
+  --color-section: #ffffff;
 
   /* Status */
   --color-amber: #b76d00;
-  --color-amber-subtle: #fff3d8;
-  --color-brick: #c53d3d;
-  --color-brick-subtle: #fff0f0;
+  --color-amber-subtle: var(--color-notice-tint);
+  --color-brick: var(--color-community-red);
+  --color-brick-subtle: var(--color-community-red-soft);
 
   /* Surfaces */
-  --color-cream: #eef6f6;
+  --color-cream: var(--color-warm-sand);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
@@ -57,11 +94,52 @@ html {
 }
 
 body {
-  background: #f7fafc;
+  background: #ffffff;
   color: var(--color-body);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
+}
+
+/* Section moods — page-level tinted backgrounds */
+.mode-task       { background: var(--color-task-sky); }
+.mode-verify     { background: var(--color-verification-sage); }
+.mode-community  { background: var(--color-community-lilac); }
+.mode-partner    { background: var(--color-warm-sand); }
+.mode-notice     { background: var(--color-notice-tint); }
+.mode-paper-deep { background: var(--color-paper-deep); }
+
+/* Card families */
+.card-task {
+  background: #fff;
+  border: 1px solid var(--color-civic-line);
+  border-radius: 0.625rem;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+.card-task:hover { box-shadow: 0 2px 10px 0 rgba(19, 35, 30, 0.06); }
+.card-verify {
+  background: var(--color-verification-sage);
+  border: 1px solid #c4d8c9;
+  border-radius: 0.625rem;
+}
+.card-flat {
+  background: #fff;
+  border: 1px solid var(--color-civic-line);
+  border-radius: 0.625rem;
+}
+
+/* Verification badge — small sentence-case, no uppercase tracking */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--color-field-green);
+  border-radius: 999px;
+  color: var(--color-field-green);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .service-panel {
@@ -76,24 +154,24 @@ body {
   letter-spacing: -0.025em;
 }
 
-/* Visible focus ring everywhere: 2px teal at 2px offset */
+/* Visible focus ring everywhere: 2px civic-blue at 2px offset */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-forest);
+  outline: 2px solid var(--color-civic-blue);
   outline-offset: 2px;
 }
 
-/* Overline helper */
+/* Legacy `.overline` class — neutralized.
+   We no longer use uppercase tracked above-heading labels (kickers).
+   Existing usages now render as a small sentence-case meta label. */
 .overline {
-  font-size: 12px;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
   color: var(--color-meta);
 }
 
 /* Pulsing "AI reviewing" pill */
-@keyframes tended-pulse {
+@keyframes colift-pulse {
   0%,
   100% {
     opacity: 1;
@@ -102,8 +180,8 @@ body {
     opacity: 0.55;
   }
 }
-.animate-tended-pulse {
-  animation: tended-pulse 1.4s ease-in-out infinite;
+.animate-colift-pulse {
+  animation: colift-pulse 1.4s ease-in-out infinite;
 }
 
 /* Screen-reader-only utility (used by visually-hidden file inputs etc.).
@@ -143,32 +221,32 @@ body {
   transform: translate(-50%, 0);
   opacity: 1;
   pointer-events: auto;
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-civic-blue);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-tended-pulse {
+  .animate-colift-pulse {
     animation: none;
   }
 }
 
 /* Help-center article prose */
-.prose-tended { color: var(--color-body, #333); }
-.prose-tended > * + * { margin-top: 1rem; }
-.prose-tended h2 { margin-top: 2rem; font-size: 1.375rem; font-weight: 600; color: var(--color-ink, #111); line-height: 1.3; }
-.prose-tended h3 { margin-top: 1.5rem; font-size: 1.125rem; font-weight: 600; color: var(--color-ink, #111); }
-.prose-tended p { line-height: 1.7; }
-.prose-tended ul, .prose-tended ol { padding-left: 1.5rem; line-height: 1.7; }
-.prose-tended ul { list-style: disc; }
-.prose-tended ol { list-style: decimal; }
-.prose-tended li + li { margin-top: 0.375rem; }
-.prose-tended a { color: var(--color-teal); text-decoration: underline; text-underline-offset: 2px; }
-.prose-tended a:hover { color: var(--color-teal-hover); }
-.prose-tended blockquote { margin: 1.25rem 0; border-left: 3px solid var(--color-line); background: var(--color-section); padding: 0.75rem 1rem; font-style: italic; color: var(--color-body); }
-.prose-tended blockquote p { line-height: 1.6; }
-.prose-tended code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; background: var(--color-section); padding: 0.1em 0.35em; border-radius: 3px; }
-.prose-tended pre { background: var(--color-section); padding: 0.875rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.92em; line-height: 1.5; }
-.prose-tended pre code { background: none; padding: 0; }
-.prose-tended hr { margin: 2rem 0; border-top: 1px solid var(--color-line); }
-.prose-tended em { color: var(--color-body); }
+.prose-colift { color: var(--color-body, #333); }
+.prose-colift > * + * { margin-top: 1rem; }
+.prose-colift h2 { margin-top: 2rem; font-size: 1.375rem; font-weight: 600; color: var(--color-ink, #111); line-height: 1.3; }
+.prose-colift h3 { margin-top: 1.5rem; font-size: 1.125rem; font-weight: 600; color: var(--color-ink, #111); }
+.prose-colift p { line-height: 1.7; }
+.prose-colift ul, .prose-colift ol { padding-left: 1.5rem; line-height: 1.7; }
+.prose-colift ul { list-style: disc; }
+.prose-colift ol { list-style: decimal; }
+.prose-colift li + li { margin-top: 0.375rem; }
+.prose-colift a { color: var(--color-civic-blue); text-decoration: underline; text-underline-offset: 2px; }
+.prose-colift a:hover { color: var(--color-civic-blue-hover); }
+.prose-colift blockquote { margin: 1.25rem 0; border-left: 3px solid var(--color-line); background: var(--color-section); padding: 0.75rem 1rem; font-style: italic; color: var(--color-body); }
+.prose-colift blockquote p { line-height: 1.6; }
+.prose-colift code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; background: var(--color-section); padding: 0.1em 0.35em; border-radius: 3px; }
+.prose-colift pre { background: var(--color-section); padding: 0.875rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.92em; line-height: 1.5; }
+.prose-colift pre code { background: none; padding: 0; }
+.prose-colift hr { margin: 2rem 0; border-top: 1px solid var(--color-line); }
+.prose-colift em { color: var(--color-body); }

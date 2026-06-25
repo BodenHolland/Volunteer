@@ -7,7 +7,7 @@ import { relativeTime, formatHours } from "@/lib/time";
 import type { SubmissionStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Submissions — Tended admin" };
+export const metadata = { title: "Submissions — colift admin" };
 
 interface SubRow {
   id: string;

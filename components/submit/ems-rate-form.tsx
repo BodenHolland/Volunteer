@@ -91,7 +91,7 @@ export function EmsRateForm({ assignment, defaults }: Props) {
         <div className="flex items-start gap-2.5">
           <MapPin className="mt-0.5 size-4 shrink-0 text-forest" />
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-forest">Researching</p>
+            <p className="text-[13px] font-medium text-forest">Researching</p>
             {a.provider_name ? (
               <>
                 <p className="mt-0.5 text-base font-semibold text-ink">{a.provider_name}</p>

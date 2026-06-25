@@ -13,84 +13,7 @@ import { Notes } from "@/components/project/notes";
 import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession, type EmsRateAssignment } from "@/lib/types";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
-import { getLocale } from "@/lib/i18n";
-
-const COPY = {
-  en: {
-    allProjects: "All projects",
-    est: "Est",
-    cap: "cap",
-    hrs: "hrs",
-    reviewerAsked: "The reviewer asked for changes",
-    submittedNote: "This work has been submitted. You can follow its review.",
-    viewSubmission: "View submission",
-    aboutTask: "About this task",
-    checklist: "Checklist",
-    notes: "Notes",
-    timeLog: "Time log",
-    submitWhenReady: "Submit when ready",
-    checkRequired: "Check off the required steps",
-    and: " and ",
-    logAtLeast: (min: number) => `log at least ${min} min of active time`,
-    toSubmit: " to submit.",
-    checklistItem: {
-      required: "required",
-      optional: "optional",
-    },
-    notesPlaceholder: "Jot notes as you work — what you found, where you are, anything to remember.",
-    saving: "Saving…",
-    saved: "Saved",
-    autosaves: "Autosaves when you click away.",
-    timeLogActiveTime: "active time",
-    timeLogSession: "session",
-    timeLogSessions: "sessions",
-    stopSession: "Stop session",
-    startSession: "Start session",
-    measuring: "Measuring active time — only counts while this tab is open and you're working.",
-    onlyActive: "Only active time is credited — never idle time or estimates.",
-    cancelTask: "Cancel task",
-    cancelConfirm: "Remove this task from your work? Your progress on it will be deleted.",
-    cancelYes: "Yes, cancel",
-    cancelNo: "Keep it",
-  },
-  es: {
-    allProjects: "Todos los proyectos",
-    est: "Estimado",
-    cap: "límite",
-    hrs: "h",
-    reviewerAsked: "El revisor pidió cambios",
-    submittedNote: "Este trabajo se ha enviado. Puedes seguir su revisión.",
-    viewSubmission: "Ver envío",
-    aboutTask: "Acerca de esta tarea",
-    checklist: "Lista de verificación",
-    notes: "Notas",
-    timeLog: "Registro de tiempo",
-    submitWhenReady: "Enviar cuando esté listo",
-    checkRequired: "Marca los pasos obligatorios",
-    and: " y ",
-    logAtLeast: (min: number) => `registra al menos ${min} min de tiempo activo`,
-    toSubmit: " para enviar.",
-    checklistItem: {
-      required: "obligatorio",
-      optional: "opcional",
-    },
-    notesPlaceholder: "Anota notas mientras trabajas — lo que encontraste, dónde estás, cualquier cosa que recordar.",
-    saving: "Guardando…",
-    saved: "Guardado",
-    autosaves: "Se guarda automáticamente cuando haces clic fuera.",
-    timeLogActiveTime: "tiempo activo",
-    timeLogSession: "sesión",
-    timeLogSessions: "sesiones",
-    stopSession: "Detener sesión",
-    startSession: "Iniciar sesión",
-    measuring: "Midiendo el tiempo activo — solo cuenta mientras esta pestaña está abierta y estás trabajando.",
-    onlyActive: "Solo se acredita el tiempo activo — nunca el tiempo inactivo ni las estimaciones.",
-    cancelTask: "Cancelar tarea",
-    cancelConfirm: "¿Quitar esta tarea de tu trabajo? Se borrará tu progreso en ella.",
-    cancelYes: "Sí, cancelar",
-    cancelNo: "Conservarla",
-  },
-} as const;
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +40,12 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
   if (sub.task.category === "ems-rate-research" && ["committed", "in_progress", "needs_changes"].includes(sub.status)) {
     redirect(`/app/projects/${id}/submit`);
   }
+  // External-certificate tasks (Zooniverse) have their own hub at /app/external/[id]
+  // — the generic timer + checklist doesn't apply because the work happens
+  // off-platform and is verified via certificate.
+  if (sub.task.evidence_mode === "external_certificate") {
+    redirect(`/app/external/${id}`);
+  }
 
   const checklist = parseJson<ChecklistItem[]>(sub.task.checklist_json, []);
   const progress = parseJson<ChecklistProgress>(sub.checklist_progress_json, {});
@@ -136,13 +65,12 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
     ? parseJson<{ assignment?: EmsRateAssignment }>(sub.user_notes ?? "", {}).assignment ?? null
     : null;
   const submittedView = ["submitted", "ai_reviewing", "pending_review", "approved", "rejected"].includes(sub.status);
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
 
   return (
     <div>
       <Link href="/app/projects" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
-        <ArrowLeft className="size-4" /> {c.allProjects}
+        <ArrowLeft className="size-4" /> {t.projectHub.allProjects}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -155,22 +83,22 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
         </div>
         <div className="flex flex-col items-end gap-2">
           <StatusPill status={sub.status} />
-          <p className="text-xs text-meta">{c.est} {formatHours(sub.task.est_hours)} · {c.cap} {formatHours(sub.task.max_hours)} {c.hrs}</p>
+          <p className="text-xs text-meta">{t.projectHub.est} {formatHours(sub.task.est_hours)} · {t.projectHub.cap} {formatHours(sub.task.max_hours)} {t.projectHub.hrs}</p>
         </div>
       </div>
 
       {sub.status === "needs_changes" && sub.reviewer_notes && (
         <div className="mt-6 rounded-lg border border-brick/30 bg-brick-subtle p-4">
-          <p className="text-sm font-medium text-brick">{c.reviewerAsked}</p>
+          <p className="text-sm font-medium text-brick">{t.projectHub.reviewerAsked}</p>
           <p className="mt-1 text-sm text-ink">{sub.reviewer_notes}</p>
         </div>
       )}
 
       {submittedView && (
         <div className="mt-6 flex items-center justify-between rounded-lg border border-line bg-section p-4">
-          <p className="text-sm text-body">{c.submittedNote}</p>
+          <p className="text-sm text-body">{t.projectHub.submittedNote}</p>
           <Button asChild variant="secondary">
-            <Link href={`/app/submissions/${sub.id}`}>{c.viewSubmission} <ArrowRight /></Link>
+            <Link href={`/app/submissions/${sub.id}`}>{t.projectHub.viewSubmission} <ArrowRight /></Link>
           </Button>
         </div>
       )}
@@ -182,7 +110,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-5 shrink-0 text-forest" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-forest">Your assignment</p>
+                  <p className="text-[13px] font-medium text-forest">Your assignment</p>
                   {emsAssignment.provider_name ? (
                     <>
                       <p className="mt-1 text-lg font-semibold text-ink">{emsAssignment.provider_name}</p>
@@ -202,24 +130,24 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
           )}
 
           <section>
-            <h2 className="mb-2 text-[22px] font-semibold text-ink">{c.aboutTask}</h2>
+            <h2 className="mb-2 text-[22px] font-semibold text-ink">{t.projectHub.aboutTask}</h2>
             <Markdown>{sub.task.instructions_md}</Markdown>
           </section>
 
           {!isEms && (
             <section>
               <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-                <ListChecks className="size-5 text-forest" /> {c.checklist}
+                <ListChecks className="size-5 text-forest" /> {t.projectHub.checklist}
               </h2>
-              <Checklist submissionId={sub.id} items={checklist} progress={progress} locked={!editable} copy={c.checklistItem} />
+              <Checklist submissionId={sub.id} items={checklist} progress={progress} locked={!editable} copy={{ required: t.projectHub.checklistRequired, optional: t.projectHub.checklistOptional }} />
             </section>
           )}
 
           <section>
             <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-              <StickyNote className="size-5 text-forest" /> {c.notes}
+              <StickyNote className="size-5 text-forest" /> {t.projectHub.notes}
             </h2>
-            <Notes submissionId={sub.id} initial={sub.user_notes ?? ""} locked={!editable} copy={{ placeholder: c.notesPlaceholder, saving: c.saving, saved: c.saved, autosaves: c.autosaves }} />
+            <Notes submissionId={sub.id} initial={sub.user_notes ?? ""} locked={!editable} copy={{ placeholder: t.projectHub.notesPlaceholder, saving: t.projectHub.saving, saved: t.projectHub.saved, autosaves: t.projectHub.autosaves }} />
           </section>
         </div>
 
@@ -227,7 +155,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
           <div className="space-y-5 rounded-lg border border-line bg-white p-5">
             <div>
               <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-ink">
-                <Clock className="size-4 text-forest" /> {c.timeLog}
+                <Clock className="size-4 text-forest" /> {t.projectHub.timeLog}
               </h2>
               <TimeLog
                 submissionId={sub.id}
@@ -236,13 +164,13 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
                 locked={!editable}
                 mode={isEms ? "wall_clock" : "active"}
                 copy={{
-                  activeTime: c.timeLogActiveTime,
-                  session: c.timeLogSession,
-                  sessions: c.timeLogSessions,
-                  stop: c.stopSession,
-                  start: c.startSession,
-                  measuring: c.measuring,
-                  onlyActive: c.onlyActive,
+                  activeTime: t.projectHub.activeTime,
+                  session: t.projectHub.session,
+                  sessions: t.projectHub.sessions,
+                  stop: t.projectHub.stopSession,
+                  start: t.projectHub.startSession,
+                  measuring: t.projectHub.measuring,
+                  onlyActive: t.projectHub.onlyActive,
                 }}
               />
             </div>
@@ -251,16 +179,16 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
               <div className="border-t border-line pt-4">
                 {canSubmit ? (
                   <Button asChild className="w-full">
-                    <Link href={`/app/projects/${sub.id}/submit`}>{c.submitWhenReady} <ArrowRight /></Link>
+                    <Link href={`/app/projects/${sub.id}/submit`}>{t.projectHub.submitWhenReady} <ArrowRight /></Link>
                   </Button>
                 ) : (
                   <>
-                    <Button disabled className="w-full">{c.submitWhenReady}</Button>
+                    <Button disabled className="w-full">{t.projectHub.submitWhenReady}</Button>
                     <p className="mt-2 text-xs text-meta">
-                      {!allRequiredDone && c.checkRequired}
-                      {!allRequiredDone && !meetsFloor && c.and}
-                      {!meetsFloor && c.logAtLeast(Math.round(MIN_ENGAGEMENT_SECONDS / 60) || 1)}
-                      {c.toSubmit}
+                      {!allRequiredDone && t.projectHub.checkRequired}
+                      {!allRequiredDone && !meetsFloor && t.projectHub.and}
+                      {!meetsFloor && t.projectHub.logAtLeast.replace("{min}", String(Math.round(MIN_ENGAGEMENT_SECONDS / 60) || 1))}
+                      {t.projectHub.toSubmit}
                     </p>
                   </>
                 )}

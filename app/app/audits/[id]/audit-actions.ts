@@ -502,8 +502,13 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
     .prepare("SELECT * FROM audit_item_captures WHERE public_session_ref = ?")
     .bind(a.public_session_ref)
     .all<AuditItemCaptureRow>();
-  if ((captures.results?.length ?? 0) !== USDA_THRIFTY_6.items.length) {
-    return { ok: false, error: "Capture all 6 basket items before submitting." };
+  const capturedIds = new Set((captures.results ?? []).map((c) => c.basket_item_id));
+  const missingRequired = USDA_THRIFTY_6.items.filter((i) => !capturedIds.has(i.id));
+  if (missingRequired.length > 0) {
+    return {
+      ok: false,
+      error: `Capture all required basket items first. Missing: ${missingRequired.map((i) => i.display_name).join(", ")}.`,
+    };
   }
 
   const store = await db

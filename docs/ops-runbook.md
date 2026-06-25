@@ -1,6 +1,6 @@
-# TENDED — Operations Runbook
+# COLIFT — Operations Runbook
 
-Operational reference for running TENDED in production: backups, disaster
+Operational reference for running COLIFT in production: backups, disaster
 recovery, secrets & key rotation, deploy & rollback, incident response, and an
 on-call checklist. Concrete for **this** stack: Next.js 15 on Cloudflare Workers
 via `@opennextjs/cloudflare`, D1 (SQLite), R2 (files).
@@ -15,10 +15,10 @@ via `@opennextjs/cloudflare`, D1 (SQLite), R2 (files).
 | Thing | Value |
 |---|---|
 | Cloudflare account | `65fb048fa9b4fb99f6473038c393d6a0` |
-| Worker name | `tended` |
-| Live Worker URL | https://tended.xkbtrjm2bm.workers.dev |
-| D1 database | `tended-db` — id `3a4387f9-9220-40b4-998c-a682565b825c` |
-| R2 bucket | `tended-files` |
+| Worker name | `colift` |
+| Live Worker URL | https://colift.xkbtrjm2bm.workers.dev |
+| D1 database | `colift-db` — id `3a4387f9-9220-40b4-998c-a682565b825c` |
+| R2 bucket | `colift-files` |
 | Bindings (wrangler.jsonc) | `DB` → D1, `FILES` → R2, `ASSETS` → static assets |
 | Migrations | `migrations/0001_init.sql` … `0004_phase3.sql` |
 | Node | 22.x — `export PATH="$HOME/.nvm/versions/node/v22.22.3/bin:$PATH"` |
@@ -44,10 +44,10 @@ Two layers of protection:
    ```bash
    pnpm run backup
    # = bash scripts/backup-d1.sh
-   # = npx wrangler d1 export tended-db --remote --output=backups/tended-d1-<UTC>.sql
+   # = npx wrangler d1 export colift-db --remote --output=backups/colift-d1-<UTC>.sql
    ```
 
-   - Output: `backups/tended-d1-<UTCtimestamp>.sql` (full schema + data, replayable).
+   - Output: `backups/colift-d1-<UTCtimestamp>.sql` (full schema + data, replayable).
    - `backups/` is **gitignored** — dumps contain PII; never commit them.
    - Verify the newest dump: `pnpm run backup:verify` (exits non-zero on failure;
      checks it exists, is non-empty, and contains `CREATE TABLE users` /
@@ -57,8 +57,8 @@ Two layers of protection:
    history. To inspect / restore:
 
    ```bash
-   npx wrangler d1 time-travel info tended-db --remote
-   npx wrangler d1 time-travel restore tended-db --timestamp=<ISO8601>   # or --bookmark=<id>
+   npx wrangler d1 time-travel info colift-db --remote
+   npx wrangler d1 time-travel restore colift-db --timestamp=<ISO8601>   # or --bookmark=<id>
    ```
 
    Time Travel is the fastest path for "undo the last N hours". The SQL dumps are
@@ -68,7 +68,7 @@ Two layers of protection:
 `pnpm run deploy` and every migration**. **Retention:** keep ≥30 daily dumps;
 prune older. For long-term retention copy dumps to encrypted cold storage.
 
-### R2 (`tended-files`) — no simple export
+### R2 (`colift-files`) — no simple export
 
 R2 has **no one-command export** like D1. It holds:
 
@@ -83,7 +83,7 @@ screenshots + submission photos) are NOT** and are the only truly irreplaceable
 R2 data. Inventory / spot-check objects:
 
 ```bash
-npx wrangler r2 object get tended-files/<key> --file=<local>   # fetch one object
+npx wrangler r2 object get colift-files/<key> --file=<local>   # fetch one object
 # Bulk copy/sync for backup is best done with an S3-compatible client (rclone/aws-cli)
 # pointed at the R2 S3 endpoint for account 65fb048fa9b4fb99f6473038c393d6a0,
 # using an R2 API token. wrangler has no recursive "export bucket" command.
@@ -106,12 +106,12 @@ D1 + Worker rebuild from a dump.
 ```bash
 # A) Restore INTO the existing database (DESTRUCTIVE — replays the dump on top).
 #    Take a fresh backup first, then:
-npx wrangler d1 execute tended-db --remote --file=backups/tended-d1-<UTC>.sql
+npx wrangler d1 execute colift-db --remote --file=backups/colift-d1-<UTC>.sql
 
 # B) Recreate the database from scratch (e.g. account/DB lost):
-npx wrangler d1 create tended-db
+npx wrangler d1 create colift-db
 #   -> paste the NEW database_id into wrangler.jsonc (d1_databases[0].database_id)
-npx wrangler d1 execute tended-db --remote --file=backups/tended-d1-<UTC>.sql
+npx wrangler d1 execute colift-db --remote --file=backups/colift-d1-<UTC>.sql
 ```
 
 The dump contains `CREATE TABLE` + `INSERT` for every table including
@@ -124,11 +124,11 @@ After a from-scratch recreate, confirm migrations are consistent:
 If the whole project is gone:
 
 ```bash
-npx wrangler d1 create tended-db                 # -> update wrangler.jsonc with new id
-npx wrangler r2 bucket create tended-files
+npx wrangler d1 create colift-db                 # -> update wrangler.jsonc with new id
+npx wrangler r2 bucket create colift-files
 # restore R2 objects from your rclone/S3 snapshot (see §1)
 # re-add secrets (see §3): SITE_PASSWORD, OPENROUTER_API_KEY, PII_ENCRYPTION_KEY
-npx wrangler d1 execute tended-db --remote --file=backups/tended-d1-<UTC>.sql
+npx wrangler d1 execute colift-db --remote --file=backups/colift-d1-<UTC>.sql
 pnpm run deploy
 ```
 
@@ -138,7 +138,7 @@ to update the D1 `database_id` if it changed.
 
 ### Verify after restore
 
-- `curl -I https://tended.xkbtrjm2bm.workers.dev` returns 200/redirect.
+- `curl -I https://colift.xkbtrjm2bm.workers.dev` returns 200/redirect.
 - Sign in works; `/admin/system` health page loads (see §5).
 - A row with encrypted PII (`enc:v1:…`) decrypts correctly → confirms
   `PII_ENCRYPTION_KEY` matches the data (see §3).
@@ -227,8 +227,8 @@ Two options:
 1. **Fast — roll back to the previous Worker version (no rebuild):**
 
    ```bash
-   npx wrangler rollback --name tended            # rollback to the prior version
-   npx wrangler rollback <version-id> --name tended -m "reason"   # to a specific version
+   npx wrangler rollback --name colift            # rollback to the prior version
+   npx wrangler rollback <version-id> --name colift -m "reason"   # to a specific version
    ```
 
    `wrangler rollback` accepts an optional `version-id`, `--name`, `-m/--message`,
@@ -255,19 +255,19 @@ schema change, restore D1 from the pre-deploy dump (§2) or use Time Travel.
 
 ### Where to look
 
-- **Live logs (tail):** `npx wrangler tail tended --format=pretty` — streams Worker
+- **Live logs (tail):** `npx wrangler tail colift --format=pretty` — streams Worker
   requests/exceptions in real time. Add `--status error` to filter.
 - **Audit log (in-app, durable):** the `audit_log` D1 table records sensitive
   actions (certification, approvals, auth, admin). Surfaced at **`/admin/audit`**
   (read via `lib/observability.ts`). Query directly:
   ```bash
-  npx wrangler d1 execute tended-db --remote \
+  npx wrangler d1 execute colift-db --remote \
     --command="SELECT created_at, actor_user_id, action, entity_type, entity_id FROM audit_log ORDER BY created_at DESC LIMIT 50"
   ```
 - **System health page:** **`/admin/system`** (admin role) — operational status of
   DB, integrations, etc.
-- **Cloudflare dashboard:** Workers → `tended` → Logs/Metrics for error rates and
-  request volume; D1 → `tended-db` for size/Time-Travel; R2 → `tended-files`.
+- **Cloudflare dashboard:** Workers → `colift` → Logs/Metrics for error rates and
+  request volume; D1 → `colift-db` for size/Time-Travel; R2 → `colift-files`.
 
 ### Common levers
 
@@ -275,20 +275,20 @@ schema change, restore D1 from the pre-deploy dump (§2) or use Time Travel.
   legal hold): the `counties` table gates the CF 888 path via `cert_enabled`
   (`lib/county.ts`). Flip it off:
   ```bash
-  npx wrangler d1 execute tended-db --remote \
+  npx wrangler d1 execute colift-db --remote \
     --command="UPDATE counties SET cert_enabled=0, clearance_note='disabled <date>: <reason> ' WHERE id='<county_id>'"
   ```
   (SF is seeded as the only cleared county for the pilot.)
 - **Reseed / reset data** (wipes + reseeds ALL tables — destructive, demo/staging
   only): `/admin/reset` (admin UI button) or
-  `curl -X POST https://tended.xkbtrjm2bm.workers.dev/api/admin/reset`. **Never run
+  `curl -X POST https://colift.xkbtrjm2bm.workers.dev/api/admin/reset`. **Never run
   against real user data** — take a backup first.
 - **AI verdicts misbehaving:** the app already degrades to manual review on any
   OpenRouter failure (429/non-2xx/parse). If needed, `wrangler secret delete
   OPENROUTER_API_KEY` forces all submissions to manual review.
 - **Bad deploy:** roll back (§4). **Bad data/migration:** restore D1 (§2).
 - **Read direct DB state:**
-  `npx wrangler d1 execute tended-db --remote --command="SELECT COUNT(*) FROM submissions"`.
+  `npx wrangler d1 execute colift-db --remote --command="SELECT COUNT(*) FROM submissions"`.
 
 ### Triage order
 
@@ -304,8 +304,8 @@ schema change, restore D1 from the pre-deploy dump (§2) or use Time Travel.
 
 **Daily**
 - [ ] `pnpm run backup && pnpm run backup:verify` ran and passed (cron or manual).
-- [ ] Error rate normal in CF dashboard (Workers → tended → Metrics).
-- [ ] D1 size sane (CF dashboard → D1 → tended-db).
+- [ ] Error rate normal in CF dashboard (Workers → colift → Metrics).
+- [ ] D1 size sane (CF dashboard → D1 → colift-db).
 
 **Before every deploy**
 - [ ] `pnpm run backup && pnpm run backup:verify` (fresh D1 snapshot).
@@ -320,7 +320,7 @@ schema change, restore D1 from the pre-deploy dump (§2) or use Time Travel.
       decrypts).
 
 **Incident**
-- [ ] `wrangler tail tended` to scope.
+- [ ] `wrangler tail colift` to scope.
 - [ ] Backup D1 before any corrective write.
 - [ ] Rollback (code) or restore (data) as appropriate (§§2,4).
 - [ ] Disable affected county / AI key if needed (§5).

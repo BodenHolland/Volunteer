@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { relativeTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Food audits — Tended admin" };
+export const metadata = { title: "Food audits — colift admin" };
 
 interface Row {
   id: string;

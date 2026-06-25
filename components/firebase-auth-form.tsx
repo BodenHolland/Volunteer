@@ -129,7 +129,7 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
         </div>
         {formError && <p className="text-sm text-brick" role="alert">{formError}</p>}
         <Button type="submit" className="w-full" disabled={busy}>
-          {busy ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
+          {busy ? "Working…" : mode === "signup" ? "Create account" : "Log in"}
         </Button>
       </form>
       <div className="flex items-center gap-3 text-xs text-meta">

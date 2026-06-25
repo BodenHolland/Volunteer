@@ -177,7 +177,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
         <h2 className="font-semibold">Resolve</h2>
         <p className="text-sm text-body">
           Approving credits <strong>{(credited * 60).toFixed(0)} minutes</strong> ({credited} hours) to
-          this volunteer for the current month, certified by Tended Food Access.
+          this volunteer for the current month, certified by colift Food Access.
         </p>
         <div className="flex gap-3">
           <form action={adminApproveAuditAction}>

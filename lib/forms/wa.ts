@@ -18,7 +18,7 @@ const PALE_BLUE = rgb(0.84, 0.9, 0.95);
 export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("DSHS 01-205 - ABAWD Activity Report");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const T = (top: number) => H - top;

@@ -8,7 +8,10 @@ export type FlagKind =
   | "duplicate_image"
   | "likely_ai_content"
   | "geotag_mismatch"
-  | "velocity_anomaly";
+  | "velocity_anomaly"
+  | "duplicate_certificate"
+  | "cert_user_name_mismatch"
+  | "monthly_cap_exceeded";
 
 export type Severity = "warn" | "flag" | "block";
 
@@ -24,6 +27,9 @@ export const FLAG_LABELS: Record<FlagKind, { label: string; tone: "error" | "amb
   likely_ai_content: { label: "Likely AI-generated content", tone: "error" },
   geotag_mismatch: { label: "Geotag doesn't match task area", tone: "amber" },
   velocity_anomaly: { label: "Submitted faster than estimated", tone: "amber" },
+  duplicate_certificate: { label: "Duplicate certificate file", tone: "error" },
+  cert_user_name_mismatch: { label: "Certificate name doesn't match user", tone: "amber" },
+  monthly_cap_exceeded: { label: "Hours would exceed monthly cap", tone: "amber" },
 };
 
 export interface LatLng {

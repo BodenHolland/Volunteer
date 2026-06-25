@@ -2,9 +2,9 @@
  * Open Prices contribution client.
  *
  * Open Prices is the open-data project hosted by Open Food Facts at
- * https://prices.openfoodfacts.org. Every verified Tended food audit
+ * https://prices.openfoodfacts.org. Every verified colift food audit
  * contributes its per-item prices upstream under the project tag
- * `tended-ca-food-access` so the global dataset benefits too.
+ * `colift-ca-food-access` so the global dataset benefits too.
  *
  * Pure module: caller passes the token. Persistence + retry queue live
  * in lib/audit-pipeline.ts (contributeAuditToOpenPrices).
@@ -12,7 +12,7 @@
 
 import type { BasketItem } from "./food-audit";
 
-export const OPEN_PRICES_PROJECT_TAG = "tended-ca-food-access";
+export const OPEN_PRICES_PROJECT_TAG = "colift-ca-food-access";
 export const OPEN_PRICES_BASE = "https://prices.openfoodfacts.org/api/v1";
 
 /**
@@ -70,7 +70,7 @@ export async function postOpenPrice(input: ContribInput): Promise<OpenPricesResu
       headers: {
         Authorization: `Bearer ${input.token}`,
         "Content-Type": "application/json",
-        "User-Agent": "tended-food-access/1.0 (https://tended.org)",
+        "User-Agent": "colift-food-access/1.0 (https://colift.org)",
       },
       body: JSON.stringify(input.price),
     });

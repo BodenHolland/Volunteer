@@ -1,6 +1,6 @@
 import { StatusPage } from "@/components/status-page";
 
-export const metadata = { title: "Not found — Tended" };
+export const metadata = { title: "Not found — colift" };
 
 export default function NotFound() {
   return (

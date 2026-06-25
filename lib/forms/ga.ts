@@ -33,7 +33,7 @@ const LINE_GREY = rgb(0.45, 0.45, 0.45);
 export async function buildGAPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("Form 805 — ABAWD Volunteer Work Verification Form");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);

@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/empty-state";
 import { relativeTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Feedback — Tended admin" };
+export const metadata = { title: "Feedback — colift admin" };
 
 interface FeedbackRow {
   id: string;

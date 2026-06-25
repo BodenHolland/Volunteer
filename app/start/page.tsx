@@ -9,12 +9,11 @@ import { getDb } from "@/lib/cf";
 import { homeForUser, requireUser } from "@/lib/session";
 import { decryptField } from "@/lib/crypto";
 import { parseJson, type Address, type Org } from "@/lib/types";
+import { getDict } from "@/lib/i18n";
 import { submitLocation, submitPii, submitOrgPick } from "./actions";
 import { AddressFields, DobInput, NameFields, PhoneInput } from "./pii-fields";
 
-export const metadata = { title: "Finish setting up — Tended" };
-
-const ROLE_STEPS = ["Location", "Details", "Done"];
+export const metadata = { title: "Finish setting up — colift" };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -29,14 +28,6 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function StepHint({ index }: { index: number }) {
-  return (
-    <p className="mb-2 text-sm text-body">
-      Step {index + 1} of {ROLE_STEPS.length} · {ROLE_STEPS[index]}
-    </p>
-  );
-}
-
 export default async function StartPage({
   searchParams,
 }: {
@@ -45,10 +36,12 @@ export default async function StartPage({
   const sp = await searchParams;
   const db = getDb();
   const user = await requireUser();
+  const { t } = await getDict();
+  const s = t.start;
 
-  // Skip onboarding entirely if the user has already finished it. Without this
-  // guard, any link back to /start (preview "Sign in to commit", "Switch identity",
-  // a stale bookmark) re-runs the wizard.
+  const ROLE_STEPS = [s.stepLocation, s.stepDetails, s.stepDone];
+
+  // Skip onboarding entirely if the user has already finished it.
   const isOnboarded =
     user.role === "org_member"
       ? !!user.org_id
@@ -57,14 +50,10 @@ export default async function StartPage({
     redirect(homeForUser(user));
   }
 
-  // Onboarding operates on the signed-in account. Route unspecified visits.
   const step = sp.step ?? (user.role === "org_member" ? "orgpick" : "location");
 
   // PII is stored encrypted at rest. Decrypt before rendering so the form
-  // shows the actual values back to the signed-in owner (and not the ciphertext
-  // blob, which would also get re-saved as garbage). Decryption happens
-  // server-side; only the rendered HTML reaches the client, which is the same
-  // surface area as /app/profile.
+  // shows the actual values back to the signed-in owner.
   const [legalName, caseNumber, dob, phone, addressJsonPlain] = await Promise.all([
     decryptField(user.legal_name),
     decryptField(user.case_number),
@@ -79,25 +68,32 @@ export default async function StartPage({
     zip: "",
   });
 
-  // Split "First Last" → two fields; last name gets everything after the first space.
   const firstSpace = (legalName ?? "").indexOf(" ");
   const firstName = firstSpace === -1 ? (legalName ?? "") : (legalName ?? "").slice(0, firstSpace);
   const lastName = firstSpace === -1 ? "" : (legalName ?? "").slice(firstSpace + 1);
+
+  function StepHint({ index }: { index: number }) {
+    return (
+      <p className="mb-2 text-sm text-body">
+        {s.stepHintPrefix} {index + 1} {s.stepHintOf} {ROLE_STEPS.length} · {ROLE_STEPS[index]}
+      </p>
+    );
+  }
 
   // ---- LOCATION + INTENT ----
   if (step === "location") {
     return (
       <Shell>
         <StepHint index={0} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Where and why</h1>
+        <h1 className="text-[28px] font-semibold leading-tight text-ink">{s.locationTitle}</h1>
         <form action={submitLocation} className="mt-6 space-y-5">
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" required defaultValue={addr.city} placeholder="Your city" />
+              <Label htmlFor="city">{s.city}</Label>
+              <Input id="city" name="city" required defaultValue={addr.city} placeholder={s.cityPlaceholder} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state">{s.state}</Label>
               <Input
                 id="state"
                 name="state"
@@ -109,15 +105,15 @@ export default async function StartPage({
             </div>
           </div>
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-ink">What brings you here?</legend>
+            <legend className="text-sm font-medium text-ink">{s.intentLegend}</legend>
             {[
-              { v: "casual_volunteer", t: "I just want to volunteer", hint: "" },
+              { v: "casual_volunteer", t: s.intentVolunteer, hint: "" },
               {
                 v: "snap_cert",
-                t: "I want to volunteer and certify hours toward the SNAP work requirement",
-                hint: "For ABAWDs (Able-Bodied Adults Without Dependents). Your state may call SNAP CalFresh, Lone Star, ACCESS, etc.",
+                t: s.intentSnap,
+                hint: s.intentSnapHint,
               },
-              { v: "other", t: "Something else", hint: "" },
+              { v: "other", t: s.intentOther, hint: "" },
             ].map((o, i) => (
               <label
                 key={o.v}
@@ -138,7 +134,7 @@ export default async function StartPage({
             ))}
           </fieldset>
           <Button type="submit" className="w-full">
-            Continue <ArrowRight />
+            {s.continueBtn} <ArrowRight />
           </Button>
         </form>
       </Shell>
@@ -150,22 +146,27 @@ export default async function StartPage({
     return (
       <Shell>
         <StepHint index={1} />
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Your SNAP details</h1>
-        <p className="mt-2 text-body">This appears on your work-hours certification exactly as entered.</p>
+        <h1 className="text-[28px] font-semibold leading-tight text-ink">{s.piiTitle}</h1>
+        <p className="mt-2 text-body">{s.piiSubhead}</p>
         <form action={submitPii} className="mt-6 space-y-4">
-          <NameFields defaultFirst={firstName} defaultLast={lastName} />
+          <NameFields
+            defaultFirst={firstName}
+            defaultLast={lastName}
+            labelFirst={s.firstNameLabel}
+            labelLast={s.lastNameLabel}
+          />
           <div className="space-y-1.5">
-            <Label htmlFor="phone">Mobile number</Label>
+            <Label htmlFor="phone">{s.mobileLabel}</Label>
             <PhoneInput defaultValue={phone ?? ""} />
-            <p className="text-xs text-meta">For updates about your hours. We never share it with the state.</p>
+            <p className="text-xs text-meta">{s.mobileHint}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="case_number">Case number</Label>
+              <Label htmlFor="case_number">{s.caseLabel}</Label>
               <Input id="case_number" name="case_number" required defaultValue={caseNumber ?? ""} inputMode="numeric" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="dob">Date of birth</Label>
+              <Label htmlFor="dob">{s.dobLabel}</Label>
               <DobInput defaultValue={dob ?? ""} />
             </div>
           </div>
@@ -175,9 +176,13 @@ export default async function StartPage({
             defaultCity={addr.city}
             defaultState={addr.state}
             defaultZip={addr.zip}
+            labelStreet={s.streetLabel}
+            labelApt={s.aptLabel}
+            labelCity={s.cityLabel}
+            labelZip={s.zipLabel}
           />
           <Button type="submit" className="w-full">
-            Continue <ArrowRight />
+            {s.continueBtn} <ArrowRight />
           </Button>
         </form>
       </Shell>
@@ -189,34 +194,34 @@ export default async function StartPage({
     const orgs = (await db.prepare("SELECT * FROM orgs ORDER BY name").all<Org>()).results ?? [];
     return (
       <Shell>
-        <h1 className="text-[28px] font-semibold leading-tight text-ink">Join your organization</h1>
+        <h1 className="text-[28px] font-semibold leading-tight text-ink">{s.orgPickTitle}</h1>
         <form action={submitOrgPick} className="mt-6 space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="org_choice">Organization</Label>
+            <Label htmlFor="org_choice">{s.orgLabel}</Label>
             <select id="org_choice" name="org_choice" className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink">
               {orgs.map((o) => (
                 <option key={o.id} value={o.id}>{o.name}</option>
               ))}
-              <option value="__new__">My org isn&apos;t listed…</option>
+              <option value="__new__">{s.orgNotListed}</option>
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="org_role">Your role</Label>
+            <Label htmlFor="org_role">{s.orgRoleLabel}</Label>
             <select id="org_role" name="org_role" className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink">
-              <option value="reviewer">Reviewer — review and approve submissions</option>
-              <option value="org_admin">Admin — also manage tasks and profile</option>
+              <option value="reviewer">{s.roleReviewer}</option>
+              <option value="org_admin">{s.roleAdmin}</option>
             </select>
           </div>
           <details className="rounded-md border border-line p-3">
-            <summary className="cursor-pointer text-sm font-medium text-ink">New organization details</summary>
+            <summary className="cursor-pointer text-sm font-medium text-ink">{s.newOrgSection}</summary>
             <div className="mt-3 space-y-3">
-              <Input name="new_org_name" placeholder="Organization name" />
-              <Input name="new_org_ein" placeholder="EIN (00-0000000)" />
-              <Input name="new_org_contact" type="email" placeholder="Contact email" />
-              <p className="text-xs text-meta">Only used if you chose &quot;My org isn&apos;t listed.&quot;</p>
+              <Input name="new_org_name" placeholder={s.newOrgNamePlaceholder} />
+              <Input name="new_org_ein" placeholder={s.newOrgEinPlaceholder} />
+              <Input name="new_org_contact" type="email" placeholder={s.newOrgContactPlaceholder} />
+              <p className="text-xs text-meta">{s.newOrgHint}</p>
             </div>
           </details>
-          <Button type="submit" className="w-full">Continue <ArrowRight /></Button>
+          <Button type="submit" className="w-full">{s.continueBtn} <ArrowRight /></Button>
         </form>
       </Shell>
     );
@@ -227,14 +232,14 @@ export default async function StartPage({
     <Shell>
       <div className="flex flex-col items-center py-4 text-center">
         <CheckCircle2 className="size-12 text-forest" strokeWidth={1.5} />
-        <h1 className="mt-4 text-[28px] font-semibold text-ink">You&apos;re all set, {user.full_name?.split(" ")[0]}</h1>
+        <h1 className="mt-4 text-[28px] font-semibold text-ink">
+          {s.welcomeTitle} {user.full_name?.split(" ")[0]}
+        </h1>
         <p className="mt-2 max-w-sm text-body">
-          {user.intent === "snap_cert"
-            ? "Your details are saved. Browse tasks, log your hours, and certify them when you're ready."
-            : "Your account is ready. Find a task near you and start helping."}
+          {user.intent === "snap_cert" ? s.welcomeSnapBody : s.welcomeVolunteerBody}
         </p>
         <Button asChild className="mt-6">
-          <Link href="/app">Go to your dashboard <ArrowRight /></Link>
+          <Link href="/app">{s.welcomeBtn} <ArrowRight /></Link>
         </Button>
       </div>
     </Shell>

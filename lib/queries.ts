@@ -38,6 +38,10 @@ export function workHref(s: SubmissionWithTask): string {
       ? `/app/gov-audits/${s.govAuditId}`
       : `/app/gov-audits/${s.govAuditId}/done`;
   }
+  // External-certificate tasks (Zooniverse) live at /app/external/[id] for
+  // both active and post-decision states — the generic project hub doesn't
+  // render the right UI for them.
+  if (s.task.evidence_mode === "external_certificate") return `/app/external/${s.id}`;
   if (["committed", "in_progress", "needs_changes"].includes(s.status)) return `/app/projects/${s.id}`;
   return `/app/submissions/${s.id}`;
 }
@@ -80,7 +84,7 @@ export async function listOrgs(): Promise<Org[]> {
 
 export async function listActiveTasks(): Promise<(TaskTemplate & { org: Org })[]> {
   const tasks = (await getDb()
-    .prepare("SELECT * FROM task_templates WHERE status = 'active' ORDER BY created_at DESC")
+    .prepare("SELECT * FROM task_templates WHERE status = 'active' AND (closes_at IS NULL OR closes_at > unixepoch() * 1000) ORDER BY created_at DESC")
     .all<TaskTemplate>()).results ?? [];
   const orgs = await listOrgs();
   const byId = new Map(orgs.map((o) => [o.id, o]));

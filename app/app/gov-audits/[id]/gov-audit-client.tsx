@@ -209,7 +209,6 @@ export function GovAuditClient({
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-terracotta">Website audit</p>
         <h1 className="text-[28px] font-semibold leading-tight text-ink">{targetDescriptor}</h1>
         <p className="text-body">
           Pick any government, nonprofit, or public-service page worth auditing — your city site, a state agency, a
@@ -232,7 +231,7 @@ export function GovAuditClient({
         <div className="sticky top-2 z-10 rounded-md border border-navy/30 bg-section px-4 py-3 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy">Your anchor</p>
+              <p className="text-[13px] font-medium text-navy">Your anchor</p>
               <p className="truncate text-sm font-medium text-ink">{anchor.page_title || anchor.url}</p>
               <p className="truncate text-xs text-body">{anchor.url}</p>
             </div>

@@ -12,7 +12,7 @@ import { formatHours, formatDate, monthLabel } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Dashboard — Tended" };
+export const metadata = { title: "Dashboard — colift" };
 
 export default async function DashboardPage() {
   const user = await requireRecipient();

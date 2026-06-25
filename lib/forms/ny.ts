@@ -11,7 +11,7 @@ const ink = rgb(0.04, 0.04, 0.04);
 export async function buildNYPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("Monthly ABAWD Volunteer Participation Record");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const reg = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const italic = await doc.embedFont(StandardFonts.TimesRomanItalic);

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 
 /**
- * Dataset exports are available to every signed-in Tended user, but never to
+ * Dataset exports are available to every signed-in colift user, but never to
  * anonymous requests. Route handlers use this in addition to middleware so a
  * direct request to an /api/data URL cannot bypass the access check.
  */

@@ -8,13 +8,13 @@
   - Task finder: `/Users/boden/.codex/generated_images/019ee7d2-90d7-7ea1-866c-274cc907b2f3/exec-1fec8e80-1819-4bf4-b4be-22489cbd9b23.png`
   - Review workspace: `/Users/boden/.codex/generated_images/019ee7d2-90d7-7ea1-866c-274cc907b2f3/exec-243f7d80-2be7-4b61-897e-00aba880201d.png`
 - Rendered implementation screenshots:
-  - `/private/tmp/tended-recipient-dashboard.png`
-  - `/private/tmp/tended-task-finder-final.png`
-  - `/private/tmp/tended-review-workspace.png`
+  - `/private/tmp/colift-recipient-dashboard.png`
+  - `/private/tmp/colift-task-finder-final.png`
+  - `/private/tmp/colift-review-workspace.png`
 - Full-view comparison evidence:
-  - `/private/tmp/tended-qa-dashboard.png`
-  - `/private/tmp/tended-qa-tasks.png`
-  - `/private/tmp/tended-qa-review.png`
+  - `/private/tmp/colift-qa-dashboard.png`
+  - `/private/tmp/colift-qa-tasks.png`
+  - `/private/tmp/colift-qa-review.png`
 
 Focused-region comparison was not needed: the full-view evidence keeps the navigation, primary panels, task/filter layout, and review decision surfaces legible at the target viewport.
 

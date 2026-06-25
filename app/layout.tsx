@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tended — Online volunteering that counts toward SNAP (EBT)",
+  title: "colift — Civic work that counts",
   description:
-    "Find online volunteering opportunities from sponsoring nonprofits. If you get SNAP (EBT), certify the hours toward your monthly work requirement.",
+    "Flexible, verified community work — translation, tree counts, food-access audits, neighborhood writing. If you receive SNAP/EBT, certified hours count toward your monthly work requirement.",
 };
 
 export default function RootLayout({

@@ -12,8 +12,8 @@ import {
 } from "@/lib/open-prices";
 import { USDA_THRIFTY_6 } from "@/lib/food-audit";
 
-test("project tag is the canonical Tended food access tag", () => {
-  assert.strictEqual(OPEN_PRICES_PROJECT_TAG, "tended-ca-food-access");
+test("project tag is the canonical colift food access tag", () => {
+  assert.strictEqual(OPEN_PRICES_PROJECT_TAG, "colift-ca-food-access");
 });
 
 test("every non-produce basket item has a mapped OFF product code", () => {
@@ -72,14 +72,14 @@ test("postOpenPrice returns ok:true and the upstream id on 200", async () => {
         price: 4.99,
         currency: "USD",
         date: "2026-06-20",
-        source: "tended-ca-food-access:aud_abc",
+        source: "colift-ca-food-access:aud_abc",
         location_label: "Safeway, 2020 Market St",
       },
     });
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.open_prices_id, "42");
     assert.strictEqual(calledUrl, `${OPEN_PRICES_BASE}/prices`);
-    assert.match(calledBody, /tended-ca-food-access:aud_abc/);
+    assert.match(calledBody, /colift-ca-food-access:aud_abc/);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -97,7 +97,7 @@ test("postOpenPrice returns ok:false on non-2xx", async () => {
         price: 4.99,
         currency: "USD",
         date: "2026-06-20",
-        source: "tended-ca-food-access:aud_abc",
+        source: "colift-ca-food-access:aud_abc",
       },
     });
     assert.strictEqual(r.ok, false);

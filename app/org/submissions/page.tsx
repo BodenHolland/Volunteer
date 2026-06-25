@@ -6,24 +6,27 @@ import { StatusPill } from "@/components/status-pill";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "@/lib/time";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review queue — Tended" };
-
-const FILTERS = [
-  { value: "pending_review", label: "Awaiting review" },
-  { value: "approved", label: "Approved" },
-  { value: "needs_changes", label: "Needs changes" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All" },
-];
+export const metadata = { title: "Review queue — colift" };
 
 export default async function OrgQueuePage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const sp = await searchParams;
   const status = sp.status ?? "pending_review";
   const user = await requireOrgMember();
   const org = user.org_id ? await getOrg(user.org_id) : null;
-  if (!org) return <EmptyState icon={<Inbox />} title="No organization linked." />;
+  const { t } = await getDict();
+
+  const FILTERS = [
+    { value: "pending_review", label: t.reviewQueue.filterAwaitingReview },
+    { value: "approved", label: t.reviewQueue.filterApproved },
+    { value: "needs_changes", label: t.reviewQueue.filterNeedsChanges },
+    { value: "rejected", label: t.reviewQueue.filterRejected },
+    { value: "all", label: t.reviewQueue.filterAll },
+  ];
+
+  if (!org) return <EmptyState icon={<Inbox />} title={t.reviewQueue.noOrgLinked} />;
 
   const subs = await listSubmissionsForOrg(org.id, status);
   const names = await getDisplayNames(subs.map((s) => s.user_id));
@@ -31,8 +34,8 @@ export default async function OrgQueuePage({ searchParams }: { searchParams: Pro
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-[28px] font-semibold text-ink">Review queue</h1>
-        <p className="mt-1 text-body">Submissions for {org.name}&apos;s tasks.</p>
+        <h1 className="text-[28px] font-semibold text-ink">{t.reviewQueue.title}</h1>
+        <p className="mt-1 text-body">{t.reviewQueue.subhead.replace("{org}", org.name)}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -51,7 +54,7 @@ export default async function OrgQueuePage({ searchParams }: { searchParams: Pro
       </div>
 
       {subs.length === 0 ? (
-        <EmptyState icon={<Inbox />} title="Queue is empty. New submissions appear here when recipients submit work." />
+        <EmptyState icon={<Inbox />} title={t.reviewQueue.emptyState} />
       ) : (
         <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-white">
           {subs.map((s) => {
@@ -62,11 +65,11 @@ export default async function OrgQueuePage({ searchParams }: { searchParams: Pro
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-ink">{s.task.title}</p>
                     <p className="truncate text-sm text-body">
-                      {names.get(s.user_id) ?? "A volunteer"} · submitted {relativeTime(s.submitted_at ?? s.committed_at)}
+                      {names.get(s.user_id) ?? t.reviewQueue.volunteerFallback} · {t.reviewQueue.submitted} {relativeTime(s.submitted_at ?? s.committed_at)}
                     </p>
                   </div>
                   {verdict?.verdict === "flag" && (
-                    <span className="hidden items-center gap-1 text-xs text-amber sm:flex"><AlertTriangle className="size-3.5" /> needs a look</span>
+                    <span className="hidden items-center gap-1 text-xs text-amber sm:flex"><AlertTriangle className="size-3.5" /> {t.reviewQueue.needsALook}</span>
                   )}
                   <StatusPill status={s.status} />
                   <ArrowRight className="size-4 shrink-0 text-meta" />

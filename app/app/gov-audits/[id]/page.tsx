@@ -7,9 +7,14 @@ import {
   type GovAuditDraft,
 } from "@/lib/gov-audit";
 import { GovAuditClient } from "./gov-audit-client";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Government website audit — Tended" };
+
+export async function generateMetadata() {
+  const { t } = await getDict();
+  return { title: t.govAudit.metaTitle };
+}
 
 export default async function GovAuditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

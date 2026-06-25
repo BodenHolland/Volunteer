@@ -68,7 +68,7 @@ export async function GET() {
   };
 
   const body = JSON.stringify(payload, null, 2);
-  const filename = `tended-export-${new Date().toISOString().slice(0, 10)}.json`;
+  const filename = `colift-export-${new Date().toISOString().slice(0, 10)}.json`;
 
   return new NextResponse(body, {
     status: 200,

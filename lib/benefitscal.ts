@@ -138,7 +138,7 @@ export async function verifyBenefitsCalScreenshot(
         Authorization: `Bearer ${input.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": input.siteUrl ?? "http://localhost:3000",
-        "X-Title": input.appName ?? "Tended",
+        "X-Title": input.appName ?? "colift",
       },
       body: JSON.stringify({
         model: input.model ?? "google/gemini-2.0-flash-exp:free",

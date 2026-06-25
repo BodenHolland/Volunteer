@@ -81,11 +81,16 @@ export async function POST(req: Request) {
 
   // New recipients with no profile yet go to onboarding; others to their home.
   // Mirrors the isOnboarded check in /start/page.tsx: city + state + intent set.
-  const needsOnboarding = user.role === "recipient" && (!user.city || !user.state || !user.intent || user.intent === "n/a");
-  const response = NextResponse.json({
-    ok: true,
-    next: needsOnboarding ? "/start?step=location" : homeForUser(user),
-  });
+  // Fresh accounts (intent still "n/a") pick their path on /get-started; users
+  // who already chose an intent but haven't filled location/PII continue in /start.
+  const needsChoice = user.role === "recipient" && (!user.intent || user.intent === "n/a");
+  const needsLocation = user.role === "recipient" && (!user.city || !user.state);
+  const next = needsChoice
+    ? "/get-started"
+    : needsLocation
+    ? "/start?step=location"
+    : homeForUser(user);
+  const response = NextResponse.json({ ok: true, next });
   // Set the cookie directly on this response — relying on cookies().set() from
   // next/headers to attach to a fetch-style NextResponse has been unreliable
   // (mobile Safari occasionally drops the Set-Cookie, producing an auth loop).

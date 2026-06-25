@@ -18,15 +18,32 @@ function initials(name: string): string {
 export function OrgThumb({
   name,
   slug,
+  logoUrl,
   size = 120,
   className,
 }: {
   name: string;
   slug?: string;
+  logoUrl?: string | null;
   size?: number;
   className?: string;
 }) {
   const Icon = slug ? ICONS[slug] : undefined;
+
+  if (logoUrl) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={logoUrl}
+        alt={name}
+        width={size}
+        height={size}
+        className={cn("shrink-0 rounded-md border border-line bg-white object-contain p-1", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
       className={cn(

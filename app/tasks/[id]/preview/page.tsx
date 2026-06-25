@@ -10,39 +10,14 @@ import { Button } from "@/components/ui/button";
 import { HeadlineTag, SecondaryTag, DeviceTag, LOCATION_LABEL, CATEGORY_LABEL } from "@/components/ui/tag";
 import { parseJson, type ChecklistItem } from "@/lib/types";
 import { formatHours } from "@/lib/time";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-
-const COPY = {
-  en: {
-    hrs: "hrs",
-    aboutTask: "About this task",
-    whatYoullDo: "What you'll do",
-    optional: "(optional)",
-    estimated: "Estimated",
-    hoursCap: "Hours cap",
-    hours: "hours",
-    signInCallout: "Sign in to commit to this task, log your time, and submit your work for review.",
-    signInToCommit: "Sign in to commit",
-  },
-  es: {
-    hrs: "h",
-    aboutTask: "Sobre esta tarea",
-    whatYoullDo: "Lo que harás",
-    optional: "(opcional)",
-    estimated: "Estimado",
-    hoursCap: "Límite de horas",
-    hours: "horas",
-    signInCallout: "Inicia sesión para comprometerte con esta tarea, registrar tu tiempo y enviar tu trabajo para revisión.",
-    signInToCommit: "Inicia sesión para comprometerte",
-  },
-} as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = await getTask(id);
-  return { title: task ? `${task.title} — Tended` : "Task — Tended" };
+  return { title: task ? `${task.title} — colift` : "Task — colift" };
 }
 
 export default async function TaskPreviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,8 +26,7 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
   if (!task) notFound();
 
   const checklist = parseJson<ChecklistItem[]>(task.checklist_json, []);
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
 
   return (
     <>
@@ -78,17 +52,17 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
                 <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
                 <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
                 <DeviceTag category={task.category} />
-                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} {c.hrs}</SecondaryTag>
+                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} {t.taskPreview.hrs}</SecondaryTag>
               </div>
 
               <section className="mt-8">
-                <h2 className="mb-2 text-[22px] font-semibold text-ink">{c.aboutTask}</h2>
+                <h2 className="mb-2 text-[22px] font-semibold text-ink">{t.taskPreview.aboutTask}</h2>
                 <Markdown>{task.instructions_md}</Markdown>
               </section>
 
               <section className="mt-8">
                 <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
-                  <ListChecks className="size-5 text-forest" /> {c.whatYoullDo}
+                  <ListChecks className="size-5 text-forest" /> {t.taskPreview.whatYoullDo}
                 </h2>
                 <ul className="space-y-2">
                   {checklist.map((item) => (
@@ -96,7 +70,7 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-forest" strokeWidth={1.5} />
                       <span>
                         {item.label}
-                        {!item.required && <span className="ml-1.5 text-xs text-meta">{c.optional}</span>}
+                        {!item.required && <span className="ml-1.5 text-xs text-meta">{t.taskPreview.optional}</span>}
                       </span>
                     </li>
                   ))}
@@ -109,19 +83,19 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
               <div className="rounded-lg border border-line bg-white p-5">
                 <dl className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> {c.estimated}</dt>
-                    <dd className="font-medium text-ink">{formatHours(task.est_hours)} {c.hours}</dd>
+                    <dt className="flex items-center gap-1.5 text-body"><Clock className="size-4 text-meta" /> {t.taskPreview.estimated}</dt>
+                    <dd className="font-medium text-ink">{formatHours(task.est_hours)} {t.taskPreview.hours}</dd>
                   </div>
                   <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-1.5 text-body"><Gift className="size-4 text-meta" /> {c.hoursCap}</dt>
-                    <dd className="font-medium text-ink">{formatHours(task.max_hours)} {c.hours}</dd>
+                    <dt className="flex items-center gap-1.5 text-body"><Gift className="size-4 text-meta" /> {t.taskPreview.hoursCap}</dt>
+                    <dd className="font-medium text-ink">{formatHours(task.max_hours)} {t.taskPreview.hours}</dd>
                   </div>
                 </dl>
                 <p className="mt-3 rounded-md bg-section p-3 text-xs text-body">
-                  {c.signInCallout}
+                  {t.taskPreview.signInCallout}
                 </p>
                 <Button asChild className="mt-4 w-full">
-                  <Link href="/start"><LogIn /> {c.signInToCommit}</Link>
+                  <Link href="/start"><LogIn /> {t.taskPreview.signInToCommit}</Link>
                 </Button>
               </div>
             </aside>

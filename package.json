@@ -1,5 +1,5 @@
 {
-  "name": "tended",
+  "name": "colift",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.8.0",
@@ -11,12 +11,14 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "pnpm build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "db:migrate:local": "wrangler d1 migrations apply tended-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply tended-db --remote",
+    "db:migrate:local": "wrangler d1 migrations apply colift-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply colift-db --remote",
     "shots": "node scripts/screenshots.mjs",
     "test": "tsx --test tests/*.test.ts",
     "backup": "bash scripts/backup-d1.sh",
-    "backup:verify": "bash scripts/verify-backup.sh"
+    "backup:verify": "bash scripts/verify-backup.sh",
+    "translate": "tsx scripts/translate.ts",
+    "translate:ci": "tsx scripts/translate.ts --merge zh vi tl ko es"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.1.0",

@@ -390,17 +390,17 @@ function HoursResult(props: {
       {isWorkfare && allotmentUsd != null && minimumWageUsd != null && (
         <dl className="mt-6 grid grid-cols-3 gap-3 border-t border-line pt-5 text-sm">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-meta">
+            <dt className="text-[12px] text-meta">
               {allotmentSource === "user_provided" ? "Your allotment" : "Max allotment"}
             </dt>
             <dd className="mt-0.5 font-medium text-ink">${allotmentUsd}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-meta">Minimum wage</dt>
+            <dt className="text-[12px] text-meta">Minimum wage</dt>
             <dd className="mt-0.5 font-medium text-ink">${minimumWageUsd.toFixed(2)}/hr</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-meta">Hours basis</dt>
+            <dt className="text-[12px] text-meta">Hours basis</dt>
             <dd className="mt-0.5 font-medium text-ink">Workfare formula</dd>
           </div>
         </dl>
@@ -507,7 +507,7 @@ function ExemptResult({ reason, stateName }: { reason: string; stateName: string
           </p>
           <p className="mt-3 text-sm leading-relaxed text-body">{reason}</p>
           <p className="mt-3 text-xs text-meta">
-            You may still benefit from volunteering — Tended welcomes anyone, exempt or not. But
+            You may still benefit from volunteering — colift welcomes anyone, exempt or not. But
             you don't need a work-hours verification form to keep your SNAP benefits.
           </p>
         </div>

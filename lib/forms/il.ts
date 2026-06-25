@@ -30,7 +30,7 @@ const LINE_GREY = rgb(0.45, 0.45, 0.45);
 export async function buildILPdf(data: StateFormData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle("IL444-2610 — SNAP Activity Report");
-  doc.setProducer("Tended");
+  doc.setProducer("colift");
   const page = doc.addPage([PAGE_W, PAGE_H]);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);
@@ -185,7 +185,7 @@ export async function buildILPdf(data: StateFormData): Promise<Uint8Array> {
     });
   }
 
-  // Fill summary row (row 1) with the monthly rollup Tended logs.
+  // Fill summary row (row 1) with the monthly rollup colift logs.
   const summaryRowTop = tblTop + headerH + 14; // baseline inside row 1
   const activityLabel =
     data.positionDescription && data.positionDescription.trim()
@@ -199,7 +199,7 @@ export async function buildILPdf(data: StateFormData): Promise<Uint8Array> {
   }
   if (actText !== activityLabel) actText = actText.slice(0, -1) + "…";
   draw(actText, colActivityX + 6, summaryRowTop, reg, 10);
-  // Date column: end-of-month signature date (start/finish unknown — Tended only stores rolled-up hours)
+  // Date column: end-of-month signature date (start/finish unknown — colift only stores rolled-up hours)
   draw(data.dateSigned || "", colDateX + 6, summaryRowTop, reg, 10);
   // Start/Finish intentionally blank (monthly rollup, no per-session times)
   // Hours column: monthly total

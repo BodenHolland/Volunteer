@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ClipboardList, ArrowRight, ExternalLink, Store } from "lucide-react";
 import { requireUser } from "@/lib/session";
 import { getDb } from "@/lib/cf";
-import { getLocale } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n";
 import { relativeTime } from "@/lib/time";
 import { OPEN_PRICES_PROJECT_TAG } from "@/lib/open-prices";
 import { EmptyState } from "@/components/empty-state";
@@ -10,54 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "My food audits — Tended" };
-
-const COPY = {
-  en: {
-    title: "My food audits",
-    introLead: "Every verified audit also flows into",
-    introTail: ", the global open-data food-price dataset.",
-    findAudit: "Find a food audit",
-    emptyTitle: "No food audits yet",
-    emptyBody:
-      "Pick up a food-price audit, visit any store, and log shelf prices for six basket items — about 12 minutes.",
-    draftAudit: "Draft audit",
-    inProgress: "In progress",
-    minCredited: "min credited",
-    sentToOpenPrices: "sent to Open Prices",
-    status: {
-      draft: "Draft",
-      submitted: "Submitted",
-      validating: "Reviewing",
-      pending_review: "Awaiting review",
-      approved: "Certified",
-      rejected: "Needs another try",
-      needs_changes: "Needs changes",
-    } as Record<string, string>,
-  },
-  es: {
-    title: "Mis auditorías de comida",
-    introLead: "Cada auditoría verificada también se suma a",
-    introTail: ", el conjunto de datos abierto y global de precios de comida.",
-    findAudit: "Buscar una auditoría",
-    emptyTitle: "Aún no tienes auditorías",
-    emptyBody:
-      "Toma una auditoría de precios, visita cualquier tienda y registra los precios de seis productos de la canasta — unos 12 minutos.",
-    draftAudit: "Borrador de auditoría",
-    inProgress: "En progreso",
-    minCredited: "min acreditados",
-    sentToOpenPrices: "enviados a Open Prices",
-    status: {
-      draft: "Borrador",
-      submitted: "Enviada",
-      validating: "Revisando",
-      pending_review: "Esperando revisión",
-      approved: "Certificada",
-      rejected: "Necesita otro intento",
-      needs_changes: "Necesita cambios",
-    } as Record<string, string>,
-  },
-} as const;
+export const metadata = { title: "My food audits — colift" };
 
 interface AuditMineRow {
   id: string;
@@ -81,8 +34,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 export default async function MyAuditsPage() {
   const user = await requireUser();
-  const locale = await getLocale();
-  const c = COPY[locale];
+  const { locale, t } = await getDict();
   const db = getDb();
   const rows =
     (
@@ -104,13 +56,23 @@ export default async function MyAuditsPage() {
         .all<AuditMineRow>()
     ).results ?? [];
 
+  const statusLabel: Record<string, string> = {
+    draft: t.myAudits.statusDraft,
+    submitted: t.myAudits.statusSubmitted,
+    validating: t.myAudits.statusValidating,
+    pending_review: t.myAudits.statusPendingReview,
+    approved: t.myAudits.statusApproved,
+    rejected: t.myAudits.statusRejected,
+    needs_changes: t.myAudits.statusNeedsChanges,
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-semibold text-ink">{c.title}</h1>
+          <h1 className="text-[28px] font-semibold text-ink">{t.myAudits.title}</h1>
           <p className="mt-1 max-w-prose text-body">
-            {c.introLead}{" "}
+            {t.myAudits.introLead}{" "}
             <a
               href={`https://prices.openfoodfacts.org/?project=${OPEN_PRICES_PROJECT_TAG}`}
               target="_blank"
@@ -120,20 +82,20 @@ export default async function MyAuditsPage() {
               Open Prices
               <ExternalLink className="ml-0.5 inline size-3.5 align-[-1px]" aria-hidden />
             </a>
-            {c.introTail}
+            {t.myAudits.introTail}
           </p>
         </div>
         <Button asChild variant="secondary">
-          <Link href="/app/tasks">{c.findAudit} <ArrowRight /></Link>
+          <Link href="/app/tasks">{t.myAudits.findAudit} <ArrowRight /></Link>
         </Button>
       </div>
 
       {rows.length === 0 ? (
         <EmptyState
           icon={<ClipboardList />}
-          title={c.emptyTitle}
-          body={c.emptyBody}
-          ctaLabel={c.findAudit}
+          title={t.myAudits.emptyTitle}
+          body={t.myAudits.emptyBody}
+          ctaLabel={t.myAudits.findAudit}
           ctaHref="/app/tasks"
         />
       ) : (
@@ -148,13 +110,13 @@ export default async function MyAuditsPage() {
                   <Store className="size-5" strokeWidth={1.75} aria-hidden />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-ink">{r.store_name ?? c.draftAudit}</p>
-                  <p className="truncate text-sm text-body">{r.store_address ?? c.inProgress}</p>
+                  <p className="truncate font-semibold text-ink">{r.store_name ?? t.myAudits.draftAudit}</p>
+                  <p className="truncate text-sm text-body">{r.store_address ?? t.myAudits.inProgress}</p>
                   {(r.credited_hours != null || r.total_contribs > 0) && (
                     <p className="mt-0.5 text-xs text-meta">
-                      {r.credited_hours != null ? `${(r.credited_hours * 60).toFixed(0)} ${c.minCredited}` : ""}
+                      {r.credited_hours != null ? `${(r.credited_hours * 60).toFixed(0)} ${t.myAudits.minCredited}` : ""}
                       {r.credited_hours != null && r.total_contribs > 0 ? " · " : ""}
-                      {r.total_contribs > 0 ? `${r.sent_contribs}/${r.total_contribs} ${c.sentToOpenPrices}` : ""}
+                      {r.total_contribs > 0 ? `${r.sent_contribs}/${r.total_contribs} ${t.myAudits.sentToOpenPrices}` : ""}
                     </p>
                   )}
                 </div>
@@ -164,7 +126,7 @@ export default async function MyAuditsPage() {
                     STATUS_STYLE[r.validation_status] ?? "bg-section text-ink"
                   )}
                 >
-                  {c.status[r.validation_status] ?? r.validation_status}
+                  {statusLabel[r.validation_status] ?? r.validation_status}
                 </span>
                 <div className="hidden shrink-0 text-right text-xs text-meta sm:block">
                   {r.submitted_at ? relativeTime(r.submitted_at) : "—"}

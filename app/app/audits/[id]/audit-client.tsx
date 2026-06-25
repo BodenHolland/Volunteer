@@ -107,6 +107,9 @@ export interface AuditCopy {
   cancelConfirm: string;
   cancelYes: string;
   cancelNo: string;
+  addMoreItems: string;
+  moreItemsHint: string;
+  removeOptionalItem: string;
 }
 
 export interface CreditPreview {
@@ -122,6 +125,7 @@ interface Props {
   store: Store | null;
   captures: AuditItemCaptureRow[];
   basketItems: BasketItem[];
+  optionalCatalog: BasketItem[];
   storeTypes: { value: StoreType; label: string; help: string }[];
   ebtOptions: { value: EbtObservation; label: string }[];
   travelModes: { value: TravelMode; label: string }[];
@@ -129,8 +133,9 @@ interface Props {
   creditPreview: CreditPreview;
 }
 
-export function AuditClient({ audit, store, captures, basketItems, storeTypes, ebtOptions, travelModes, copy, creditPreview }: Props) {
-  const allCaptured = captures.length === basketItems.length;
+export function AuditClient({ audit, store, captures, basketItems, optionalCatalog, storeTypes, ebtOptions, travelModes, copy, creditPreview }: Props) {
+  const allCaptured = basketItems.every((item) => captures.some((c) => c.basket_item_id === item.id));
+  const requiredCaptureCount = captures.filter((c) => basketItems.some((i) => i.id === c.basket_item_id)).length;
   const canSubmit =
     !!audit.store_id && !!audit.store_type_observed && !!audit.ebt_observation && allCaptured;
 
@@ -187,8 +192,8 @@ export function AuditClient({ audit, store, captures, basketItems, storeTypes, e
         <EbtStep auditId={audit.id} current={audit.ebt_observation} options={ebtOptions} />
       </Step>
 
-      <Step n={4} title={copy.step4Title} done={allCaptured} editLabel={copy.edit} summary={copy.capturedSummary.replace("{n}", String(captures.length)).replace("{total}", String(basketItems.length))}>
-        <BasketStep auditId={audit.id} items={basketItems} captures={captures} copy={copy} />
+      <Step n={4} title={copy.step4Title} done={allCaptured} editLabel={copy.edit} summary={copy.capturedSummary.replace("{n}", String(requiredCaptureCount)).replace("{total}", String(basketItems.length))}>
+        <BasketStep auditId={audit.id} items={basketItems} captures={captures} optionalCatalog={optionalCatalog} copy={copy} />
       </Step>
 
       <SubmitStep
@@ -705,15 +710,34 @@ function BasketStep({
   auditId,
   items,
   captures,
+  optionalCatalog,
   copy,
 }: {
   auditId: string;
   items: BasketItem[];
   captures: AuditItemCaptureRow[];
+  optionalCatalog: BasketItem[];
   copy: AuditCopy;
 }) {
+  const requiredIds = new Set(items.map((i) => i.id));
+  const capturedOptionalIds = new Set(
+    captures.filter((c) => !requiredIds.has(c.basket_item_id)).map((c) => c.basket_item_id)
+  );
+
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const [catalogOpen, setCatalogOpen] = useState(false);
+
+  const activeOptionalItems = optionalCatalog.filter(
+    (item) => capturedOptionalIds.has(item.id) || addedIds.has(item.id)
+  );
+  const availableItems = optionalCatalog.filter(
+    (item) => !capturedOptionalIds.has(item.id) && !addedIds.has(item.id)
+  );
+
+  const allItems = [...items, ...activeOptionalItems];
   const byId = new Map(captures.map((c) => [c.basket_item_id, c]));
-  const rgItems: RepeatGroupItem[] = items.map((item) => {
+
+  const rgItems: RepeatGroupItem[] = allItems.map((item) => {
     const cap = byId.get(item.id);
     let summary: string | undefined;
     if (cap) {
@@ -728,21 +752,80 @@ function BasketStep({
     return {
       id: item.id,
       label: item.display_name,
-      sublabel: item.spec,
+      sublabel: requiredIds.has(item.id) ? item.spec : `${item.spec} · Optional`,
       complete: !!cap,
       summary,
     };
   });
 
   return (
-    <RepeatGroup
-      items={rgItems}
-      renderForm={(rgItem, close) => {
-        const item = items.find((i) => i.id === rgItem.id)!;
-        const cap = byId.get(item.id);
-        return <CaptureForm auditId={auditId} item={item} current={cap} onDone={close} copy={copy} />;
-      }}
-    />
+    <div className="flex flex-col gap-4">
+      <RepeatGroup
+        items={rgItems}
+        renderForm={(rgItem, close) => {
+          const item = allItems.find((i) => i.id === rgItem.id)!;
+          const cap = byId.get(item.id);
+          const canRemove = !requiredIds.has(item.id) && !capturedOptionalIds.has(item.id);
+          return (
+            <div className="flex flex-col gap-3">
+              {canRemove ? (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAddedIds((prev) => {
+                        const next = new Set(prev);
+                        next.delete(item.id);
+                        return next;
+                      });
+                      close();
+                    }}
+                    className="text-xs text-meta underline-offset-2 hover:text-brick hover:underline"
+                  >
+                    {copy.removeOptionalItem}
+                  </button>
+                </div>
+              ) : null}
+              <CaptureForm auditId={auditId} item={item} current={cap} onDone={close} copy={copy} />
+            </div>
+          );
+        }}
+      />
+
+      {availableItems.length > 0 ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setCatalogOpen((x) => !x)}
+            className="flex items-center gap-1.5 text-sm font-medium text-forest underline-offset-2 hover:underline"
+          >
+            <span className="text-base leading-none">{catalogOpen ? "−" : "+"}</span>
+            {copy.addMoreItems}
+          </button>
+          {catalogOpen ? (
+            <div className="mt-3 rounded-xl border border-line bg-section p-4">
+              <p className="mb-3 text-xs text-body">{copy.moreItemsHint}</p>
+              <div className="flex flex-wrap gap-2">
+                {availableItems.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setAddedIds((prev) => new Set([...prev, item.id]));
+                      setCatalogOpen(false);
+                    }}
+                    className="rounded-md border border-line bg-white px-3 py-1.5 text-left text-sm hover:border-forest hover:bg-forest-subtle"
+                  >
+                    <span className="font-medium text-ink">{item.display_name}</span>
+                    <span className="ml-1.5 text-xs text-meta">{item.spec}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

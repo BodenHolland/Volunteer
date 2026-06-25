@@ -3,7 +3,7 @@ import { getDb } from "./cf";
 import { newId } from "./ids";
 import type { User } from "./types";
 
-export const SESSION_COOKIE = "tended_session";
+export const SESSION_COOKIE = "colift_session";
 const SESSION_TTL = 60 * 60 * 24 * 30 * 1000; // 30 days
 const PBKDF2_ITERATIONS = 100_000;
 

@@ -1,8 +1,8 @@
-# Tended — Concept, Legal Grounding, and Go-to-Market Strategy
+# colift — Concept, Legal Grounding, and Go-to-Market Strategy
 
 **Status:** Working strategy document (not legal advice) — Revision 5
 **Date:** June 19, 2026
-**Prepared as:** Synthesis of the legal stress-test, redesign, and pre-launch findings for the Tended concept
+**Prepared as:** Synthesis of the legal stress-test, redesign, and pre-launch findings for the colift concept
 
 > **Read me first.** This document folds together (a) the idea, (b) its legal foundation and the authorities that support it, (c) the risks that sank the original version and how the redesign neutralizes them, (d) the funding structure that keeps the charity safe, and (e) a rollout strategy realistically likely to succeed. It is an internal strategy memo, not legal advice. Items I could not verify against a primary source are marked **[UNVERIFIED]**. Before relying on anything here, confirm the flagged items and have counsel review.
 
@@ -10,13 +10,13 @@
 
 ## 1. Executive summary
 
-**The idea:** Tended is a web platform that lets California residents complete short, low-tech civic/charitable volunteer tasks online, logs the time they spend, and — for residents who must meet the CalFresh ABAWD work requirement — verifies those hours on California's **CF 888** form so they count toward the **80-hours-per-month** requirement.
+**The idea:** colift is a web platform that lets California residents complete short, low-tech civic/charitable volunteer tasks online, logs the time they spend, and — for residents who must meet the CalFresh ABAWD work requirement — verifies those hours on California's **CF 888** form so they count toward the **80-hours-per-month** requirement.
 
-**The legal core is sound.** Federal law expressly lets unpaid volunteer work count toward the ABAWD requirement when verified under a state standard (**7 CFR §273.24(a)(2)(iii)**), and California created exactly such a standard in 2025 (**CDSS ACL 25-34** and the **CF 888 Volunteer Work Hour Verification Form**). A properly structured Tended volunteer is legally indistinguishable from a food-bank volunteer meeting the same requirement.
+**The legal core is sound.** Federal law expressly lets unpaid volunteer work count toward the ABAWD requirement when verified under a state standard (**7 CFR §273.24(a)(2)(iii)**), and California created exactly such a standard in 2025 (**CDSS ACL 25-34** and the **CF 888 Volunteer Work Hour Verification Form**). A properly structured colift volunteer is legally indistinguishable from a food-bank volunteer meeting the same requirement.
 
-**Two design decisions define the model and keep it on solid ground.** (1) Tended is **funded by grants and donations and distributes its outputs free** rather than selling the volunteers' work product — which keeps volunteers clearly volunteers and avoids the employee-status analysis of *Tony & Susan Alamo Foundation v. Secretary of Labor*, 471 U.S. 290 (1985). (2) Tended **certifies measured actual hours, never task estimates** (a calibrated cap bounds each credit — §5.3) — which keeps every CF 888 a true statement. §4 sets out each decision and the variables weighed.
+**Two design decisions define the model and keep it on solid ground.** (1) colift is **funded by grants and donations and distributes its outputs free** rather than selling the volunteers' work product — which keeps volunteers clearly volunteers and avoids the employee-status analysis of *Tony & Susan Alamo Foundation v. Secretary of Labor*, 471 U.S. 290 (1985). (2) colift **certifies measured actual hours, never task estimates** (a calibrated cap bounds each credit — §5.3) — which keeps every CF 888 a true statement. §4 sets out each decision and the variables weighed.
 
-The result: Tended sits on the side of the line California already approved — a bona-fide volunteer organization whose participants meet the ABAWD requirement the same way a food-bank volunteer does.
+The result: colift sits on the side of the line California already approved — a bona-fide volunteer organization whose participants meet the ABAWD requirement the same way a food-bank volunteer does.
 
 **Two disciplines keep the model clean:** **certify actual hours only** (the CF 888's certification is light, but knowingly inflated hours are still fraud — §3.2), and keep the **certification function independent of funders** (corporate and other support is welcome; what's avoided is funding *conditioned on* enrollment or certification outcomes — §6).
 
@@ -26,15 +26,15 @@ On approvals and rollout: no agency pre-approval is legally required, and there 
 
 ## 2. The idea
 
-Tended is a **virtual volunteer and civic-participation organization** — a 501(c)(3) with a charitable *and* educational purpose that mobilizes remote volunteers to produce free, public-benefit civic and educational outputs. It runs on a simple loop:
+colift is a **virtual volunteer and civic-participation organization** — a 501(c)(3) with a charitable *and* educational purpose that mobilizes remote volunteers to produce free, public-benefit civic and educational outputs. It runs on a simple loop:
 
 1. **Tasks.** Short, massively-parallel, low-tech civic tasks — e.g., reviewing/correcting AI-generated translations or plain-language rewrites for limited-English residents; light civic data collection (sidewalk-hazard photos, tree census, EBT-acceptance audits) routed to a city agency; transcription for public archives; contributions to free community resource guides and oral-history collections.
-2. **Performance.** Any California resident can complete tasks. Volunteers receive nothing of value from Tended.
+2. **Performance.** Any California resident can complete tasks. Volunteers receive nothing of value from colift.
 3. **Hours logging.** The platform measures active engagement; the volunteer self-reports and attests to their time.
 4. **Validation.** Automated checks validate each submission — engagement measurement, a deliverable-present/usability check, and PII screening; submissions outside normal bounds are flagged for human spot-review; work with no genuine deliverable earns zero hours (§5.11).
-5. **Verification.** For volunteers subject to the ABAWD work requirement, Tended generates a pre-filled **CF 888**, and an authorized representative signs Section 2 attesting to the organization and the **actual verified hours**. The volunteer uploads it to BenefitsCal as proof toward the 80-hour requirement.
+5. **Verification.** For volunteers subject to the ABAWD work requirement, colift generates a pre-filled **CF 888**, and an authorized representative signs Section 2 attesting to the organization and the **actual verified hours**. The volunteer uploads it to BenefitsCal as proof toward the 80-hour requirement.
 
-**Outputs are distributed free** (never sold) to mission-aligned recipients — the commissioning agency, partner organizations, or the community served. Distribution need not be fully public: access can be controlled to protect privacy, and submissions are screened for personal information before release (§5.12). Tended is funded entirely by grants and donations and **does not sell** data, deliverables, or research.
+**Outputs are distributed free** (never sold) to mission-aligned recipients — the commissioning agency, partner organizations, or the community served. Distribution need not be fully public: access can be controlled to protect privacy, and submissions are screened for personal information before release (§5.12). colift is funded entirely by grants and donations and **does not sell** data, deliverables, or research.
 
 The design intent: a permissionless, scalable way for benefit recipients to meet a work requirement through genuine community service that also produces real public goods.
 
@@ -48,7 +48,7 @@ The ABAWD time limit and work requirement live at **7 CFR §273.24** (not §273.
 
 > "(i) Work in exchange for money; (ii) Work in exchange for goods or services ('in kind' work); or **(iii) Unpaid work, verified under standards established by the State agency.**"
 
-That third prong is the entire foundation. Note what it is **not**: nonprofit volunteering is **not** an enumerated "work program" under §273.24(a)(3) (those are WIOA, Trade Act, E&T, veterans programs). Tended qualifies **only** through the unpaid-work prong — which means it lives or dies on the **State verification standard**.
+That third prong is the entire foundation. Note what it is **not**: nonprofit volunteering is **not** an enumerated "work program" under §273.24(a)(3) (those are WIOA, Trade Act, E&T, veterans programs). colift qualifies **only** through the unpaid-work prong — which means it lives or dies on the **State verification standard**.
 
 ### 3.2 The California standard — ACL 25-34 and CF 888 (verified)
 
@@ -67,7 +67,7 @@ Key facts about the form:
 - **No observation or supervision requirement.** The signer is simply "a representative of the organization where the person volunteers." An AI-rubric + human-review basis is sufficient.
 - **The certified value is actual "hours [the person] volunteered or performed"** — not a task estimate. This is the discipline that governs crediting.
 - **No EIN field** — a correction to the original concept, which assumed the form captures the EIN. Fields are: organization name, representative name, address, phone, month, hours, ongoing/one-time, signature, date.
-- **"Required Form — No Substitutes Permitted."** Tended may *pre-fill the official CF 888* but may **not** issue its own substitute verification form.
+- **"Required Form — No Substitutes Permitted."** colift may *pre-fill the official CF 888* but may **not** issue its own substitute verification form.
 
 **Crediting rule to conform to:** `certified hours = actual volunteered hours` (= the `min(measured engagement, calibrated cap)` figure from §5.3). The form's formal bar is low; your internal discipline is what keeps it honest.
 
@@ -76,11 +76,11 @@ Key facts about the form:
 The framework assumes a genuine volunteer relationship with a qualifying organization (published examples: food pantries, libraries, religious/community orgs, Red Cross, Goodwill). Two things make volunteer work "bona fide":
 
 - It is **service to a third party / the community**, not solely self-serving busywork.
-- The volunteer receives **no compensation** from the organization. The SNAP benefit is an **independent State entitlement**, not payment from Tended — exactly as it is for a food-bank volunteer.
+- The volunteer receives **no compensation** from the organization. The SNAP benefit is an **independent State entitlement**, not payment from colift — exactly as it is for a food-bank volunteer.
 
 ### 3.4 The current ABAWD landscape (why this is urgent)
 
-The **One Big Beautiful Bill Act (H.R. 1, 2025)** expanded ABAWD work requirements: the age range rose from 18–54 to **18–64**, the dependent-care exemption narrowed (children under 14 only), and exemptions for veterans, people experiencing homelessness, and former foster youth were eliminated. California began enforcing the time limit broadly in 2026. The result is a large population newly subject to the 80-hour requirement and actively seeking qualifying-hours options — the demand Tended addresses.
+The **One Big Beautiful Bill Act (H.R. 1, 2025)** expanded ABAWD work requirements: the age range rose from 18–54 to **18–64**, the dependent-care exemption narrowed (children under 14 only), and exemptions for veterans, people experiencing homelessness, and former foster youth were eliminated. California began enforcing the time limit broadly in 2026. The result is a large population newly subject to the 80-hour requirement and actively seeking qualifying-hours options — the demand colift addresses.
 
 ---
 
@@ -90,7 +90,7 @@ The eligibility core (§3) is sound. Four design choices determine whether the m
 
 ### 4.1 Decision: distribute outputs free; do not sell the work product
 
-**Decision:** outputs are given away to the public, libraries, or government; Tended does not sell the volunteers' work product. **Variables weighed:** a sales-funded model would place unpaid volunteers' labor inside a revenue-generating operation — the fact pattern of ***Tony & Susan Alamo Foundation v. Secretary of Labor*, 471 U.S. 290 (1985)**, where workers who considered themselves volunteers were held to be FLSA **employees** under the "economic reality" test because their labor fed the organization's **commercial** activity. California's **ABC test** (Labor Code §2775; *Dynamex Operations West v. Superior Court*, 4 Cal.5th 903 (2018)) would compound it with minimum-wage, overtime, and **PAGA** exposure. **Why we landed here:** giving outputs away removes the commercial enterprise, so there is no business the volunteers are "integral" to — the volunteer characterization holds and the misclassification analysis falls away. The trade-off (foregoing earned revenue) is handled by the funding strategy in §6.
+**Decision:** outputs are given away to the public, libraries, or government; colift does not sell the volunteers' work product. **Variables weighed:** a sales-funded model would place unpaid volunteers' labor inside a revenue-generating operation — the fact pattern of ***Tony & Susan Alamo Foundation v. Secretary of Labor*, 471 U.S. 290 (1985)**, where workers who considered themselves volunteers were held to be FLSA **employees** under the "economic reality" test because their labor fed the organization's **commercial** activity. California's **ABC test** (Labor Code §2775; *Dynamex Operations West v. Superior Court*, 4 Cal.5th 903 (2018)) would compound it with minimum-wage, overtime, and **PAGA** exposure. **Why we landed here:** giving outputs away removes the commercial enterprise, so there is no business the volunteers are "integral" to — the volunteer characterization holds and the misclassification analysis falls away. The trade-off (foregoing earned revenue) is handled by the funding strategy in §6.
 
 ### 4.2 Decision: certify measured actual hours, not task estimates
 
@@ -102,7 +102,7 @@ The eligibility core (§3) is sound. Four design choices determine whether the m
 
 ### 4.4 Decision: full Form 1023 and conflict-of-interest governance
 
-**Decision:** file the full **Form 1023** (not 1023-EZ) and adopt board-level conflict-of-interest governance over the certification function. **Variables weighed:** an organization projecting >$50k in gross receipts in any of its next three years **may not use Form 1023-EZ** (IRS 1023-EZ eligibility worksheet), and Tended's dual role as platform *and* certifier is a structural conflict that governance must address. **Why we landed here:** the full 1023 matches the real revenue trajectory (§5.1), and an insulated certification function (§5.5, §6) keeps verification demonstrably independent of fundraising and growth incentives.
+**Decision:** file the full **Form 1023** (not 1023-EZ) and adopt board-level conflict-of-interest governance over the certification function. **Variables weighed:** an organization projecting >$50k in gross receipts in any of its next three years **may not use Form 1023-EZ** (IRS 1023-EZ eligibility worksheet), and colift's dual role as platform *and* certifier is a structural conflict that governance must address. **Why we landed here:** the full 1023 matches the real revenue trajectory (§5.1), and an insulated certification function (§5.5, §6) keeps verification demonstrably independent of fundraising and growth incentives.
 
 ### 4.5 Citation precision (carry these everywhere)
 
@@ -141,13 +141,13 @@ Every task must pass four tests before it ships:
 
 Among tasks that pass the gate, prioritize in this order (most defensible first):
 
-- **Tier 1 — Agency-commissioned tasks.** A city, county, or public agency posts the task, states the need, and uses the result. This produces the strongest version of every gate criterion and anchors legitimacy outside Tended. This is the direction to build toward. Agency sponsorship establishes the *task's* legitimacy; it does not remove the requirement to measure actual hours or to keep the deliverable verifiable.
+- **Tier 1 — Agency-commissioned tasks.** A city, county, or public agency posts the task, states the need, and uses the result. This produces the strongest version of every gate criterion and anchors legitimacy outside colift. This is the direction to build toward. Agency sponsorship establishes the *task's* legitimacy; it does not remove the requirement to measure actual hours or to keep the deliverable verifiable.
 - **Tier 2 — Data collection and information production with a self-verifying deliverable.** Geotagged hazard photos with metadata, EBT-acceptance audits, translation and plain-language QA, archive transcription. The artifact is its own proof, quality-gates cleanly, and is straightforward to support in an audit.
 - **Tier 3 — Qualitative tasks that produce a real, used artifact.** Community conversations or interviews qualify only when they yield structured output that feeds a published needs assessment, oral history, or resource guide that is reviewed and used — not a free-form "we talked to people" with no reviewable product.
 
 Do not build:
 
-- **Passive time tasks** — "open a task, start a timer, read a document, get credited for the elapsed time." Reading is consumption, not service, and an unattended timer measures nothing.
+- **Passive time tasks** — "open a task, start a timer, read a document, get credited for the elapsed time." Reading is consumption, not service, and an unatcolift timer measures nothing.
 - **Content sized to manufacture hours** — documents whose only function is to extend credited reading time. Credited time tracks genuine effort on a deliverable, not page count.
 - **Deliberately unverifiable tasks** — work designed so the claim cannot be checked. A task that cannot be verified is a CF 888 that cannot be supported; certifying it is the false-attestation exposure in §4.2.
 
@@ -167,7 +167,7 @@ credited_hours = min( measured_active_engagement , calibrated_cap )
 
 Credited time must correspond to genuine effort that produces the task's deliverable. An open timer with no engagement, or reading detached from a deliverable, does not count.
 
-Three distinct numbers are involved, and only one is certified. The **AI estimate** is a planning figure and the cap. The **measured engagement** is the record of actual time. The **self-report** is the volunteer's attestation. On the CF 888 it is **Tended's representative — not the volunteer — who certifies the hours** in Section 2; the certified number is the measured engagement bounded by the cap (`min(measured, cap)`), corroborated by the self-report. The estimate (calibrated with variance from reported data) sizes the cap; it is never itself the certified figure.
+Three distinct numbers are involved, and only one is certified. The **AI estimate** is a planning figure and the cap. The **measured engagement** is the record of actual time. The **self-report** is the volunteer's attestation. On the CF 888 it is **colift's representative — not the volunteer — who certifies the hours** in Section 2; the certified number is the measured engagement bounded by the cap (`min(measured, cap)`), corroborated by the self-report. The estimate (calibrated with variance from reported data) sizes the cap; it is never itself the certified figure.
 
 Defensible framing: *"We credit measured active engagement, bounded by an empirically-calibrated cap, gated on quality review — here are the methodology and the session records."* Not: *"Our AI predicts 3 hours, so we credit 3 hours."*
 
@@ -180,7 +180,7 @@ Defensible framing: *"We credit measured active engagement, bounded by an empiri
 
 ### 5.5 Certification & governance
 
-Tended signs CF 888 as "a representative of the organization where the person volunteers" (allowed; Tended genuinely assigns and reviews the work; the form requires no observation/supervision and carries no perjury jurat — see §3.2). De-risk the residual conflict: a **written verification methodology**, certification insulated from fundraising/growth metrics, human review confirming the work was performed, and an audit trail. Certify **actual volunteered hours only** (the §5.3 figure).
+colift signs CF 888 as "a representative of the organization where the person volunteers" (allowed; colift genuinely assigns and reviews the work; the form requires no observation/supervision and carries no perjury jurat — see §3.2). De-risk the residual conflict: a **written verification methodology**, certification insulated from fundraising/growth metrics, human review confirming the work was performed, and an audit trail. Certify **actual volunteered hours only** (the §5.3 figure).
 
 **Authorized representative and signing.** Section 2 requires a **named individual** who is a genuine authorized representative of the organization (officer, employee, or board-designated agent) — not the entity in the abstract, and not an outside party hired only to absorb liability (a figurehead signer is a sham that offloads nothing and simply spreads exposure). The board should formally designate the authorized representative(s) and document the delegation. That representative's signature **may be applied electronically and automatically** to forms generated from validated records — e-signatures are valid (federal **ESIGN Act**, 15 U.S.C. §7001; California **UETA**, Civ. Code §1633.1 et seq.), and the CF 888 has no notary or perjury jurat. Auto-signing changes the mechanics, not the accountability: the named person certifies every form, so the auto-signature must fire **only on submissions that passed the documented validation** (§5.3, §5.11), and the representative should sample and audit batches to genuinely stand behind the system. **[Confirm county/BenefitsCal acceptance of an e-signed CF 888.]**
 
@@ -188,11 +188,11 @@ Tended signs CF 888 as "a representative of the organization where the person vo
 
 ### 5.6 Volunteer-status hygiene
 
-**Zero compensation** of any kind from Tended to volunteers. No displacement of paid staff. Frame consistently: **"Tended records and verifies hours; the County determines eligibility."** The only benefit is the independent State SNAP entitlement.
+**Zero compensation** of any kind from colift to volunteers. No displacement of paid staff. Frame consistently: **"colift records and verifies hours; the County determines eligibility."** The only benefit is the independent State SNAP entitlement.
 
 ### 5.7 Identity basis
 
-No ID.me required, but build a defensible chain that the **certified beneficiary personally did the certified hours**: one account per person, controls against one person farming multiple case numbers. Tended's attestation must be supportable.
+No ID.me required, but build a defensible chain that the **certified beneficiary personally did the certified hours**: one account per person, controls against one person farming multiple case numbers. colift's attestation must be supportable.
 
 ### 5.8 The two hard lines
 
@@ -214,7 +214,7 @@ Mechanics: credit **measured engagement, not an estimate** (the §5.3 rule appli
 
 The educational mandate (§5.1) is real and worth building toward, but two uses of "education" must never be blurred:
 
-- **Educational *mission*, delivered as volunteer *service* — YES.** Volunteers who *produce* educational public goods (review AI-generated educational/plain-language content for free distribution, draft civic-literacy explainers, build community learning resources) are providing service in furtherance of an educational purpose. This is clean on CF 888 and is the intended growth path.
+- **Educational *mission*, delivered as volunteer *service* — YES.** Volunteers who *produce* educational public goods (review AI-generated educational/plain-language content for free distribution, draft civic-literacy explainers, build community learning resources) are providing service in furtherance of an educational purpose. This is clean on CF 888 and is the incolift growth path.
 - **Education/training the participant *receives*, counted for hours — DIFFERENT PATHWAY.** A person *receiving* training is a beneficiary, not a volunteer, and such hours generally count toward the ABAWD requirement only through a qualifying **work program** under 7 CFR §273.24(a)(1)(ii) — i.e., **CalFresh Employment & Training (E&T)** — a separate regulatory regime that **requires a provider contract with CDSS/the county** (and can draw federal reimbursement). This is a legitimate *future* expansion (a deliberate Phase-5 build), **not** a wording tweak to the volunteer model, and carries its own legal lift. **[Verify E&T mechanics with CDSS/the county before pursuing.]**
 
 The boundary to hold: the volunteer-hours product stays about service the person *provides*; "training that itself counts as hours" is a separate program you build on purpose, with its own approvals, if and when you choose to.
@@ -245,16 +245,16 @@ California nonprofits sit largely outside the CCPA/CPRA's core obligations, but 
 
 ## 6. Funding strategy and the certification firewall
 
-Tended is funded by **grants and donations** — a diversified base that may include foundations, government grants, individual donors, and **corporate philanthropy**, including from companies with a commercial interest in food access and community well-being. Corporate support for remote and virtual volunteering is ordinary, legitimate philanthropy. The fact that a funder benefits *indirectly* when the mission succeeds — greater food security, civic participation, community health, more dollars circulating in local economies — is **incidental private benefit**, which the law tolerates and which describes most charitable funding. It is not, by itself, a conflict: employers fund job-training nonprofits whose graduates they may hire; hospitals fund health nonprofits; that downstream interest does not taint the gift.
+colift is funded by **grants and donations** — a diversified base that may include foundations, government grants, individual donors, and **corporate philanthropy**, including from companies with a commercial interest in food access and community well-being. Corporate support for remote and virtual volunteering is ordinary, legitimate philanthropy. The fact that a funder benefits *indirectly* when the mission succeeds — greater food security, civic participation, community health, more dollars circulating in local economies — is **incidental private benefit**, which the law tolerates and which describes most charitable funding. It is not, by itself, a conflict: employers fund job-training nonprofits whose graduates they may hire; hospitals fund health nonprofits; that downstream interest does not taint the gift.
 
-The variable to manage is narrow, and it exists only because **Tended is also the certifier** of the CF 888 hours. Two structural practices keep it clean and let Tended accept interested money with confidence:
+The variable to manage is narrow, and it exists only because **colift is also the certifier** of the CF 888 hours. Two structural practices keep it clean and let colift accept interested money with confidence:
 
 1. **No funding conditioned on, or priced to, certification/enrollment outcomes.** General operating and program support is welcome from any aligned funder. What is avoided is a *quid pro quo* — payment tied to the number of recipients certified or kept enrolled. That is the actual line the law draws: funding the *mission* is fine; being *operated to produce a private party's revenue* is the version that draws private-benefit scrutiny (IRC §501(c)(3); Treas. Reg. §1.501(c)(3)-1(d)(1)(ii); *American Campaign Academy v. Commissioner*, 92 T.C. 1053 (1989)).
 2. **The certification function is walled off from funders**, documented in the conflict-of-interest policy. No funder influences which tasks exist, how hours are measured, or who is certified. This firewall is what makes the verification *demonstrably* independent of anyone's financial interest — and is therefore the thing that lets even an obviously-interested funder participate without compromising the program.
 
 Two lighter practices reinforce it: **reasonable diversification** (so the organization is plainly nobody's instrument) and, given the certifier role, **transparent disclosure of major funders** (which turns a "who's behind this?" question into a non-issue). Neither is a barrier to corporate support; both are cheap governance that makes the support easy to defend.
 
-**Lobbying** is a separate matter: a 501(c)(3) cannot make lobbying a *substantial part* of its activities (IRC §501(c)(3); the §501(h) expenditure election sets dollar limits). That constrains Tended's own lobbying, not a funder's independent advocacy. If organized policy advocacy ever becomes central to the work, house it in an affiliated **501(c)(4)**, kept at arm's length from the entity that signs the forms.
+**Lobbying** is a separate matter: a 501(c)(3) cannot make lobbying a *substantial part* of its activities (IRC §501(c)(3); the §501(h) expenditure election sets dollar limits). That constrains colift's own lobbying, not a funder's independent advocacy. If organized policy advocacy ever becomes central to the work, house it in an affiliated **501(c)(4)**, kept at arm's length from the entity that signs the forms.
 
 ---
 
@@ -269,7 +269,7 @@ Two lighter practices reinforce it: **reasonable diversification** (so the organ
 **Therefore: pre-clearance is prudence, not a prerequisite.** Optional but recommended:
 
 1. **CDSS (policy):** a written read that the remote/online model qualifies — converting silence into an affirmative interpretation you solicited.
-2. **1–2 pilot counties (operational):** informal buy-in where first volunteers live, so forms are accepted at the counter and Tended is a known quantity.
+2. **1–2 pilot counties (operational):** informal buy-in where first volunteers live, so forms are accepted at the counter and colift is a known quantity.
 
 ---
 
@@ -282,10 +282,10 @@ Rejection is **not the end**, and it's **not unreviewable**. SNAP benefits are a
 3. **Aid paid pending** if the hearing is requested before the action's effective date (7 CFR §273.15(k)).
 4. **Judicial review** by writ of administrative mandamus (Cal. Code Civ. Proc. §1094.5) after exhausting the hearing.
 
-**Why this matters for Tended:** the fair hearing **tests the adequacy of Tended's verification.** Strong records → the recipient wins, and favorable decisions build informal precedent for the model. Weak records → the recipient loses, and Tended's design failure directly harms a low-income person. Two implications:
+**Why this matters for colift:** the fair hearing **tests the adequacy of colift's verification.** Strong records → the recipient wins, and favorable decisions build informal precedent for the model. Weak records → the recipient loses, and colift's design failure directly harms a low-income person. Two implications:
 
 - The measured-hours-plus-methodology system is **both** audit defense **and** the evidence your users need to win an appeal.
-- **Never guarantee outcomes.** Even a winning recipient endures weeks of stress and possible interim loss. Disclaim clearly: *Tended records and verifies hours; the county determines eligibility.* Direct disputing recipients to a legal-aid SNAP specialist.
+- **Never guarantee outcomes.** Even a winning recipient endures weeks of stress and possible interim loss. Disclaim clearly: *colift records and verifies hours; the county determines eligibility.* Direct disputing recipients to a legal-aid SNAP specialist.
 
 ---
 

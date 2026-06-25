@@ -145,7 +145,7 @@ export function TimeLog({
       </div>
       {open && (
         <p className="mt-2 flex items-center gap-1.5 text-sm text-amber" aria-live="polite">
-          <span className="inline-block size-2 animate-tended-pulse rounded-full bg-amber" />
+          <span className="inline-block size-2 animate-colift-pulse rounded-full bg-amber" />
           {mode === "wall_clock"
             ? "Timer running — keeps counting while you research on other tabs."
             : c.measuring}

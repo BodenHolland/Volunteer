@@ -25,7 +25,7 @@ export async function AuthShell({
         </div>
       </header>
       <div className="flex flex-col items-center px-4 py-12 md:py-16">
-      <div className="w-full max-w-[420px] border-l-4 border-teal bg-white p-8 shadow-sm">
+      <div className="w-full max-w-[420px] rounded-lg border border-line bg-white p-8 shadow-sm">
         <h1 className="service-heading text-2xl">{title}</h1>
         {subtitle && <p className="mt-2 text-sm text-body">{subtitle}</p>}
         <div className="mt-6">{children}</div>

@@ -5,7 +5,7 @@ import { isDemoMode } from "@/lib/cf";
 import { ResetButton } from "@/components/admin/reset-button";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Reset data — Tended admin" };
+export const metadata = { title: "Reset data — colift admin" };
 
 export default async function AdminResetPage() {
   await requireAdmin();

@@ -7,7 +7,7 @@ type Config = { state: string; formId: string; title: string; agency: string; in
  * every builder remains safe in the Cloudflare Workers runtime. */
 export async function buildOfficialStateForm(data: StateFormData, c: Config): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
-  doc.setTitle(`${c.formId} - ${c.title}`); doc.setProducer("Tended");
+  doc.setTitle(`${c.formId} - ${c.title}`); doc.setProducer("colift");
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const italic = await doc.embedFont(StandardFonts.TimesRomanItalic);

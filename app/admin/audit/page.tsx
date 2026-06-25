@@ -8,7 +8,7 @@ import { parseJson } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Audit log — Tended admin" };
+export const metadata = { title: "Audit log — colift admin" };
 
 // The common actions written across the app (per lib/audit.ts call sites).
 const FILTERS: { value: string; label: string }[] = [

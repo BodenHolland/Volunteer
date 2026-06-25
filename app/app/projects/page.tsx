@@ -9,7 +9,7 @@ import { relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "My work — Tended" };
+export const metadata = { title: "My work — colift" };
 
 export default async function MyWorkPage() {
   const user = await requireRecipient();

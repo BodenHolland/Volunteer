@@ -62,7 +62,7 @@ export function DonePolling({
         <p className="text-xs text-body mt-3">
           {copy.pricesFlowingLead}{" "}
           <a
-            href="https://prices.openfoodfacts.org/?project=tended-ca-food-access"
+            href="https://prices.openfoodfacts.org/?project=colift-ca-food-access"
             target="_blank"
             rel="noopener noreferrer"
             className="text-forest underline-offset-2 hover:underline"

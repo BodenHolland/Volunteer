@@ -19,7 +19,7 @@ export async function buildMAPdf(data: StateFormData): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle("ABAWD Work Program Participation Report - ABAWD WPPR-EN");
   pdf.setAuthor("Massachusetts Department of Transitional Assistance");
-  pdf.setProducer("Tended");
+  pdf.setProducer("colift");
   const reg = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const italic = await pdf.embedFont(StandardFonts.TimesRomanItalic);
