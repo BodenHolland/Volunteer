@@ -258,14 +258,14 @@ any }) {
         className="absolute left-1/2 top-3 z-30 size-2.5 -translate-x-1/2 rounded-full bg-community-red shadow-[0_1px_3px_rgba(19,35,30,0.25)]"
       />
 
-      <div className="absolute right-3 top-5 z-10 w-[60%] rotate-[3deg] rounded-md border border-civic-line bg-notice-yellow-soft px-4 py-3 shadow-[0_2px_10px_rgba(19,35,30,0.06)]">
+      <div className="absolute right-3 top-5 z-10 w-[58%] rotate-[3deg] rounded-md border border-civic-line bg-notice-yellow-soft px-4 py-3 shadow-[0_2px_10px_rgba(19,35,30,0.06)]">
         <p className="text-[13px] font-medium leading-snug text-ink">
           {t.heroBoardNoticeTitle}
         </p>
         <p className="mt-1.5 text-[12px] text-ink/70">{t.heroBoardNoticeLabel}</p>
       </div>
 
-      <div className="absolute left-3 top-24 z-20 w-[90%] rotate-[-2deg] rounded-md border border-civic-line bg-white px-5 py-4 shadow-[0_8px_28px_-8px_rgba(19,35,30,0.18)]">
+      <div className="absolute left-3 top-24 z-20 w-[85%] rotate-[-2deg] rounded-md border border-civic-line bg-white px-5 py-4 shadow-[0_8px_28px_-8px_rgba(19,35,30,0.18)]">
         <p className="text-[13px] text-slate">{t.heroBoardOrgLine}</p>
         <p className="mt-1 text-[16px] font-semibold leading-snug text-ink">
           {t.heroBoardTaskTitle}
@@ -284,7 +284,7 @@ any }) {
         </div>
       </div>
 
-      <div className="absolute top-[50%] left-3 z-30 w-[64%] rotate-[-4deg] rounded-md border border-[#c4d8c9] bg-verification-sage p-4 shadow-[0_4px_18px_-4px_rgba(19,35,30,0.12)]">
+      <div className="absolute top-[57%] left-3 z-30 w-[62%] rotate-[-4deg] rounded-md border border-[#c4d8c9] bg-verification-sage p-4 shadow-[0_4px_18px_-4px_rgba(19,35,30,0.12)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-[15px] font-semibold text-ink">{t.heroBoardHoursCertified}</p>
@@ -299,7 +299,7 @@ any }) {
         </div>
       </div>
 
-      <div className="absolute bottom-3 right-4 z-30 rotate-[2deg] rounded-md border border-civic-line bg-white px-3 py-2 shadow-sm">
+      <div className="absolute bottom-14 right-4 z-30 rotate-[2deg] rounded-md border border-civic-line bg-white px-3 py-2 shadow-sm">
         <p className="text-[12px] font-medium text-ink">{t.heroBoardWorkHours}</p>
       </div>
     </div>
