@@ -123,7 +123,7 @@ export async function validateSubmission(input: AiInput): Promise<AiVerdict> {
         "X-Title": input.appName ?? "colift",
       },
       body: JSON.stringify({
-        model: input.model ?? "google/gemini-2.0-flash-exp:free",
+        model: input.model ?? "google/gemini-2.5-flash-lite",
         response_format: { type: "json_object" },
         max_tokens: 1024,
         messages: [
@@ -155,7 +155,7 @@ export async function prewarmOpenRouter(apiKey?: string, model?: string): Promis
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: model ?? "google/gemini-2.0-flash-exp:free",
+        model: model ?? "google/gemini-2.5-flash-lite",
         max_tokens: 1,
         messages: [{ role: "user", content: "ping" }],
       }),

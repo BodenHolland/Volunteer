@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink, Upload, Clock, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, Upload, Clock, CheckCircle2, AlertCircle, ShieldCheck, XCircle } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getSubmission } from "@/lib/queries";
 import { ZOONIVERSE_TASK_DETAIL_DISCLAIMER, ZOONIVERSE_HOMEPAGE_URL } from "@/lib/zooniverse";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
 import { Markdown } from "@/components/markdown";
+import { cancelSubmission } from "./submit/actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zooniverse task | colift" };
@@ -33,6 +34,8 @@ export default async function ExternalHubPage({
   }
 
   const canSubmit = sub.status === "committed" || sub.status === "in_progress" || sub.status === "needs_changes";
+  const cancellable = ["committed", "in_progress", "submitted", "ai_reviewing", "pending_review", "needs_changes"].includes(sub.status);
+  const wasCancelled = sub.status === "rejected" && (sub.reviewer_notes ?? "").startsWith("Cancelled by volunteer");
   const capMinutes = sub.task.monthly_minutes_cap;
 
   return (
@@ -43,7 +46,13 @@ export default async function ExternalHubPage({
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h1 className="text-[28px] font-semibold leading-tight text-ink">{sub.task.title}</h1>
-        <StatusPill status={sub.status} />
+        {wasCancelled ? (
+          <span className="inline-flex h-6 items-center rounded-full bg-section px-2.5 text-xs font-medium text-meta">
+            Cancelled
+          </span>
+        ) : (
+          <StatusPill status={sub.status} />
+        )}
       </div>
       <p className="mt-1 text-sm text-body">{sub.org.name}</p>
 
@@ -98,6 +107,10 @@ export default async function ExternalHubPage({
             <p className="mt-4 flex items-center gap-1.5 text-sm text-forest">
               <CheckCircle2 className="size-4" /> Approved, {sub.hours_credited ?? 0}h credited.
             </p>
+          ) : wasCancelled ? (
+            <p className="mt-4 flex items-center gap-1.5 text-sm text-meta">
+              <XCircle className="size-4" /> Cancelled. You can start a new submission for this month any time.
+            </p>
           ) : sub.status === "rejected" ? (
             <p className="mt-4 flex items-center gap-1.5 text-sm text-brick">
               <AlertCircle className="size-4" /> Rejected. {sub.reviewer_notes ?? ""}
@@ -107,6 +120,17 @@ export default async function ExternalHubPage({
             <p className="mt-3 rounded-md border border-amber/30 bg-amber-subtle p-3 text-sm text-body">
               <strong>Reviewer asked for changes:</strong> {sub.reviewer_notes}
             </p>
+          )}
+          {cancellable && (
+            <form action={cancelSubmission} className="mt-4 border-t border-line pt-4">
+              <input type="hidden" name="submission_id" value={id} />
+              <Button type="submit" variant="secondary" className="text-meta">
+                <XCircle className="size-4" /> Cancel submission
+              </Button>
+              <p className="mt-1.5 text-xs text-meta">
+                Removes this submission from the review queue. You can resubmit any time.
+              </p>
+            </form>
           )}
         </div>
       </section>

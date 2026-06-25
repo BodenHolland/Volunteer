@@ -105,7 +105,7 @@ export async function validateAuditPhoto(input: VisionInput): Promise<VisionResu
         "X-Title": input.appName ?? "colift Food Access",
       },
       body: JSON.stringify({
-        model: input.model ?? "google/gemini-2.0-flash-exp:free",
+        model: input.model ?? "google/gemini-2.5-flash-lite",
         response_format: { type: "json_object" },
         max_tokens: 512,
         messages: [

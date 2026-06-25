@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { LocaleSwitcher } from "@/components/locale-switcher";
 import { SignOutMenuItem, SignOutButton } from "@/components/sign-out";
 import {
   DropdownMenu,
@@ -193,7 +192,8 @@ export function SiteHeaderClient({
               </Button>
             </>
           )}
-          <LocaleSwitcher locale={locale} className="hidden md:inline-flex" />
+          {/* LocaleSwitcher removed: site is English-only.
+              Multi-language work is archived on the `archive/i18n-full` branch. */}
           <button
             className="rounded-md p-2 text-ink hover:bg-paper-deep md:hidden"
             aria-label={open ? "Close menu" : "Menu"}
@@ -231,8 +231,8 @@ export function SiteHeaderClient({
                 <SignOutButton className="mt-1 flex w-full items-center gap-2.5 rounded-md px-3 py-3 text-left text-base font-medium text-community-red hover:bg-community-red-soft [&_svg]:size-[18px]" />
               </>
             ) : null}
-            <div className="my-3 h-px bg-civic-line" />
-            <div className="px-3 pb-3"><LocaleSwitcher locale={locale} /></div>
+            {/* LocaleSwitcher removed: site is English-only.
+                Restore from `archive/i18n-full` branch when re-adding languages. */}
             {!viewer && (
               <div className="mt-4 flex flex-col gap-2 px-1">
                 <Button asChild size="lg" className="w-full"><Link href="/get-started" onClick={() => setOpen(false)}>{t.signUp}</Link></Button>

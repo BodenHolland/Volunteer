@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getDb, getEnv } from "@/lib/cf";
 import { putFile } from "@/lib/r2";
 import { newId } from "@/lib/ids";
@@ -9,6 +10,7 @@ import { writeAudit } from "@/lib/audit";
 import {
   sha256Hex,
   isDuplicateCertificate,
+  findExistingMonthSubmission,
   ALLOWED_CERT_MIMES,
   MAX_CERT_BYTES,
   REPORTED_HOURS_MIN,
@@ -54,7 +56,9 @@ export async function submitCertificate(formData: FormData) {
   const file = formData.get("certificate");
   if (!(file instanceof File) || file.size === 0) back(id, "Pick a certificate file to upload.");
   if (file.size > MAX_CERT_BYTES) back(id, "Certificate must be smaller than 15 MB.");
-  if (!ALLOWED_CERT_MIMES.has(file.type)) back(id, "Certificate must be a PDF, PNG, or JPG.");
+  if (!ALLOWED_CERT_MIMES.has(file.type)) {
+    back(id, "Certificate must be a PNG or JPG image. (PDFs can't auto-verify — export or screenshot the certificate as an image and try again.)");
+  }
 
   const description = String(formData.get("description") ?? "").trim();
   if (description.length < 25 || description.length > 500) {
@@ -82,6 +86,25 @@ export async function submitCertificate(formData: FormData) {
 
   const reportingMonth = String(formData.get("reporting_month") ?? "");
   if (!/^\d{4}-\d{2}$/.test(reportingMonth)) back(id, "Pick a reporting month.");
+
+  // Zooniverse certificates are cumulative across the platform, so one
+  // submission per (project, reporting month) per volunteer is the rule.
+  // Different month or different project = fine. Rejected prior submissions
+  // don't block resubmission.
+  const existing = await findExistingMonthSubmission(
+    me.id,
+    task.id,
+    reportingMonth,
+    projectName,
+    id
+  );
+  if (existing) {
+    const verb = existing.status === "approved" ? "already credited" : "already in review";
+    back(
+      id,
+      `You ${verb} hours for "${projectName}" for ${reportingMonth}. Pick a different project or month, or wait for the existing review to clear.`
+    );
+  }
 
   const certBuf = await file.arrayBuffer();
   const certSha256 = await sha256Hex(certBuf);
@@ -270,4 +293,43 @@ export async function submitCertificate(formData: FormData) {
           ? `?notice=${encodeURIComponent(outcome.note)}`
           : "";
   redirect(`/app/external/${id}${noticeParam}`);
+}
+
+/**
+ * Volunteer-initiated cancellation. Marks the submission as rejected so it
+ * leaves the reviewer queue, with a reviewer_notes prefix the hub page uses
+ * to render a "Cancelled" pill instead of "Rejected".
+ *
+ * Only allowed while the submission is still cancellable (anything before a
+ * reviewer/AI decision lands). Approved or already-rejected submissions
+ * cannot be cancelled.
+ */
+export async function cancelSubmission(formData: FormData) {
+  const id = String(formData.get("submission_id") ?? "");
+  const me = await getCurrentUser();
+  if (!me) redirect("/login");
+  const db = getDb();
+  const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
+  if (!sub || sub.user_id !== me.id) redirect("/unauthorized");
+
+  const cancellable = new Set([
+    "committed",
+    "in_progress",
+    "submitted",
+    "ai_reviewing",
+    "pending_review",
+    "needs_changes",
+  ]);
+  if (!cancellable.has(sub.status)) redirect(`/app/external/${id}`);
+
+  const now = Date.now();
+  await db
+    .prepare(
+      "UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_notes = ? WHERE id = ?"
+    )
+    .bind(now, "Cancelled by volunteer", id)
+    .run();
+
+  revalidatePath(`/app/external/${id}`);
+  redirect(`/app/external/${id}`);
 }

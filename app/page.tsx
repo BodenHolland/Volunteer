@@ -48,16 +48,16 @@ export default async function LandingPage() {
         <section className="relative overflow-hidden bg-white">
           <div className="mx-auto max-w-[1280px] px-5 pb-20 pt-14 md:px-8 md:pb-28 md:pt-20">
             <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-              <div className="md:col-span-7 md:pt-6">
-                <h1 className="text-[40px] font-semibold leading-[1.04] tracking-tight text-ink md:text-[68px] md:leading-[1.02]">
+              <div className="text-left md:col-span-7 md:pt-6">
+                <h1 className="text-left text-[40px] font-semibold leading-[1.04] tracking-tight text-ink md:text-[68px] md:leading-[1.02]">
                   {t.landing.heroTitle1}
                   <br />
                   <span className="text-civic-blue">{t.landing.heroTitle2}</span>
                 </h1>
-                <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-body md:text-lg">
+                <p className="mt-6 max-w-xl text-left text-[17px] leading-relaxed text-body md:text-lg">
                   {t.landing.heroParagraph}
                 </p>
-                <div className="mt-9 flex flex-wrap items-center gap-3">
+                <div className="mt-9 flex flex-wrap items-center justify-start gap-3">
                   <Button asChild size="lg">
                     <Link href="/opportunities">{t.landing.heroCta} <ArrowRight /></Link>
                   </Button>
@@ -65,7 +65,7 @@ export default async function LandingPage() {
                     <Link href="/how-it-works">{t.landing.heroCtaSecondary}</Link>
                   </Button>
                 </div>
-                <p className="mt-7 inline-flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate">
+                <p className="mt-7 inline-flex flex-wrap items-center justify-start gap-x-5 gap-y-2 text-sm text-slate">
                   <span className="inline-flex items-center gap-1.5">
                     <CheckCircle2 className="size-4 text-field-green" strokeWidth={2} aria-hidden />
                     {t.landing.trustFree}

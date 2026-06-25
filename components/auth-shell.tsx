@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { LocaleSwitcher } from "@/components/locale-switcher";
-import { getLocale } from "@/lib/i18n";
 
 export async function AuthShell({
   title,
@@ -14,7 +12,6 @@ export async function AuthShell({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
-  const locale = await getLocale();
   return (
     <main className="min-h-screen bg-[#f7fafc]">
       <header className="border-b border-navy-deep bg-navy">
@@ -31,7 +28,8 @@ export async function AuthShell({
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="mt-6 text-sm text-body">{footer}</div>}
-      <div className="mt-6"><LocaleSwitcher locale={locale} /></div>
+      {/* LocaleSwitcher removed: site is English-only.
+          Restore from `archive/i18n-full` branch when re-adding languages. */}
       </div>
     </main>
   );

@@ -53,6 +53,40 @@ export async function getCatalogEntry(taskTemplateId: string): Promise<ExternalP
 }
 
 /**
+ * Has this volunteer already submitted (approved OR pending) for this task +
+ * reporting month + project name? Zooniverse certificates are cumulative
+ * across the platform, so one submission per month per project is the rule.
+ * Different month or different project name → not a conflict. Rejected
+ * submissions don't block resubmission for the same month.
+ */
+export async function findExistingMonthSubmission(
+  userId: string,
+  taskTemplateId: string,
+  reportingMonth: string,
+  projectName: string,
+  excludeSubmissionId?: string
+): Promise<{ submission_id: string; status: string } | null> {
+  const db = getDb();
+  const normalized = projectName.trim().toLowerCase();
+  let sql =
+    `SELECT s.id AS submission_id, s.status FROM submissions s
+       JOIN submission_files f ON f.submission_id = s.id AND f.kind = 'zooniverse_certificate'
+      WHERE s.user_id = ?
+        AND s.task_template_id = ?
+        AND s.status IN ('approved','pending_review','ai_reviewing','submitted')
+        AND json_extract(f.metadata_json, '$.reporting_month') = ?
+        AND LOWER(TRIM(json_extract(f.metadata_json, '$.project_name'))) = ?`;
+  const binds: string[] = [userId, taskTemplateId, reportingMonth, normalized];
+  if (excludeSubmissionId) {
+    sql += " AND s.id != ?";
+    binds.push(excludeSubmissionId);
+  }
+  return (
+    (await db.prepare(sql + " LIMIT 1").bind(...binds).first<{ submission_id: string; status: string }>()) ?? null
+  );
+}
+
+/**
  * Returns true if any other submission has already uploaded a certificate
  * with this SHA-256. Used to block re-using a single certificate across
  * submissions or users.
@@ -133,8 +167,11 @@ export function reportingMonth(ts: number | Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-/** Validate an uploaded certificate's mime type. */
-export const ALLOWED_CERT_MIMES = new Set(["application/pdf", "image/png", "image/jpeg"]);
+/** Validate an uploaded certificate's mime type.
+ *  PDFs are not accepted: vision models can't read PDF content reliably, so a
+ *  PDF cert can't auto-verify. Volunteers must upload a PNG or JPG (screenshot
+ *  of the cert or export-as-image works fine). */
+export const ALLOWED_CERT_MIMES = new Set(["image/png", "image/jpeg"]);
 export const MAX_CERT_BYTES = 15 * 1024 * 1024; // 15 MB
 
 /** Reported-hours bounds (manual self-report at submit time). */
@@ -161,6 +198,10 @@ export interface ZooniverseAiVerdict {
   /** Did the volunteer-provided profile URL look consistent with the cert? */
   profile_consistent: boolean;
   reasoning: string;
+  /** False when the AI call itself failed (network, auth, model error, parse failure).
+   *  True when we got any structured response from the model — even if it extracted
+   *  nothing. Drives the actionable-vs-informational classification. */
+  ai_succeeded: boolean;
 }
 
 const ZOON_AI_FALLBACK: ZooniverseAiVerdict = {
@@ -171,6 +212,7 @@ const ZOON_AI_FALLBACK: ZooniverseAiVerdict = {
   hours_match: false,
   profile_consistent: false,
   reasoning: "AI auto-verification unavailable; manual review required.",
+  ai_succeeded: false,
 };
 
 /**
@@ -188,50 +230,75 @@ export type AiOutcome =
   | { kind: "informational"; note: string };
 
 /**
- * Classify the AI verdict into one of three outcomes. "Actionable" means we
- * have a confident signal that something the volunteer can fix is wrong — so
- * we should bounce them back to the form. Anything else (service unavailable,
- * extracted nothing, unclear) is informational and sends to manual review.
+ * Classify the AI verdict into one of three outcomes.
+ *
+ * Goal: maximize auto-approve + actionable; minimize informational. Only true
+ * AI failures (network/auth/parse) should go to manual review — everything
+ * else gives the volunteer specific feedback to fix and resubmit.
+ *
+ * Defensive `auto_approve` recompute: trust the three individual signals over
+ * the model's overall verdict, so an over-cautious model can't veto cleanly
+ * consistent evidence.
  */
 export function classifyVerdict(
   verdict: ZooniverseAiVerdict,
   ctx: { reportedHours: number; userFullName: string }
 ): AiOutcome {
-  if (verdict.auto_approve) return { kind: "clear" };
-
-  // No information at all → can't be actionable.
-  if (
-    verdict.extracted_cert_name == null &&
-    verdict.extracted_cert_hours == null
-  ) {
+  // AI itself failed (network / no key / model error / parse failure).
+  // Only this path goes to manual review.
+  if (!verdict.ai_succeeded) {
     return { kind: "informational", note: verdict.reasoning };
   }
 
+  // Recompute auto-approve from the three flags. The model is sometimes
+  // conservative and returns auto_approve=false even when all three pass;
+  // trust the granular signals.
+  const allMatched = verdict.name_match && verdict.hours_match && verdict.profile_consistent;
+  if (verdict.auto_approve || allMatched) return { kind: "clear" };
+
+  // AI ran successfully but at least one check didn't pass. Build the most
+  // specific feedback we can from what was extracted.
   const issues: string[] = [];
 
   if (verdict.extracted_cert_name && !verdict.name_match) {
     issues.push(
-      `The name on the certificate (${verdict.extracted_cert_name}) doesn't match your account name (${ctx.userFullName}). Did you upload the right certificate?`
+      `The name on the certificate (${verdict.extracted_cert_name}) doesn't match your account name (${ctx.userFullName}). Make sure you uploaded the right certificate.`
+    );
+  } else if (!verdict.extracted_cert_name) {
+    issues.push(
+      `We couldn't read a name from your certificate. Try re-uploading a clearer image (PNG/JPG works best — PDFs sometimes don't render).`
     );
   }
 
   if (verdict.extracted_cert_hours != null && !verdict.hours_match) {
-    const diff = Math.abs(verdict.extracted_cert_hours - ctx.reportedHours);
-    if (diff >= 0.1) {
+    issues.push(
+      `The certificate shows ${verdict.extracted_cert_hours}h but you reported ${ctx.reportedHours}h. Update the "hours" field to match what's on the certificate.`
+    );
+  } else if (verdict.extracted_cert_hours == null) {
+    issues.push(
+      `We couldn't read total hours from your certificate. The certificate must show your total hours for the month.`
+    );
+  }
+
+  if (!verdict.profile_consistent) {
+    if (verdict.extracted_cert_name) {
       issues.push(
-        `The certificate shows ${verdict.extracted_cert_hours}h but you reported ${ctx.reportedHours}h. Update either field so they match.`
+        `Your profile URL doesn't look like it belongs to ${verdict.extracted_cert_name}. Open your Zooniverse profile and copy the exact URL.`
+      );
+    } else {
+      issues.push(
+        `We couldn't match your profile URL to the certificate. Open your Zooniverse profile and paste the URL exactly as shown.`
       );
     }
   }
 
-  if (!verdict.profile_consistent && verdict.extracted_cert_name) {
-    issues.push(
-      `Your profile URL doesn't look like it belongs to ${verdict.extracted_cert_name}. Double-check the URL is your own Zooniverse profile.`
-    );
-  }
-
+  // Belt-and-suspenders: if somehow no issues were generated but auto_approve
+  // is still false (shouldn't happen), give a generic actionable message
+  // rather than punting to manual review.
   if (issues.length === 0) {
-    return { kind: "informational", note: verdict.reasoning };
+    issues.push(
+      "We couldn't auto-verify this submission. Double-check the certificate, profile URL, and reported hours, then resubmit."
+    );
   }
   return { kind: "actionable", issues };
 }
@@ -243,14 +310,18 @@ const ZOON_AI_SYSTEM_PROMPT =
   '"name_match": boolean, "hours_match": boolean, "profile_consistent": boolean, ' +
   '"auto_approve": boolean, "reasoning": string}\n\n' +
   "Rules:\n" +
-  "- extracted_cert_name: the volunteer name printed on the certificate, or null if not readable.\n" +
-  "- extracted_cert_hours: total hours printed on the certificate (decimal), or null.\n" +
-  "- name_match: true only if the cert name is the same person as the user (allow case + middle-name + accent differences).\n" +
-  "- hours_match: true only if the cert hours are within 0.1 of the user-reported hours.\n" +
-  "- profile_consistent: true only if the username in the profile URL is plausibly the same person as the cert name.\n" +
-  "- auto_approve: true only when name_match AND hours_match AND profile_consistent are all true.\n" +
+  "- extracted_cert_name: the volunteer name printed on the certificate, or null if truly not readable.\n" +
+  "- extracted_cert_hours: total hours printed on the certificate as a decimal (e.g. 2.5), or null if not present.\n" +
+  "- name_match: true if the cert name plausibly refers to the same person as the user's account name. " +
+  "Be GENEROUS: allow case, accent, middle-name, hyphenation, nickname (e.g. Sam/Samuel), and Latin/native-script variations.\n" +
+  "- hours_match: true if the cert hours are within 0.1 of the user-reported hours.\n" +
+  "- profile_consistent: true if the username slug in the profile URL plausibly belongs to the cert name. " +
+  "Be GENEROUS: Zooniverse usernames are often nicknames, initials, or shorthand — don't require an exact substring match.\n" +
+  "- auto_approve: true when name_match AND hours_match AND profile_consistent are all true.\n" +
   "- reasoning: one short sentence explaining the verdict.\n" +
-  "Be conservative — if anything is unclear, return false.";
+  "Default to TRUE on the three match flags when the evidence is reasonably consistent. Reserve FALSE for clear mismatches " +
+  "(different person entirely, wildly different hours, obviously unrelated profile). Volunteers will see your decisions and " +
+  "be asked to fix issues — over-rejecting wastes their time.";
 
 interface ZooniverseAiInput {
   userFullName: string;
@@ -276,6 +347,7 @@ function coerceZoonVerdict(raw: unknown): ZooniverseAiVerdict {
     hours_match: o.hours_match === true,
     profile_consistent: o.profile_consistent === true,
     reasoning: typeof o.reasoning === "string" ? o.reasoning : "No reasoning provided.",
+    ai_succeeded: true,
   };
 }
 
@@ -293,12 +365,6 @@ export async function aiVerifyZooniverseCertificate(
   input: ZooniverseAiInput
 ): Promise<ZooniverseAiVerdict> {
   if (!input.apiKey) return ZOON_AI_FALLBACK;
-  if (input.cert.mime === "application/pdf") {
-    return {
-      ...ZOON_AI_FALLBACK,
-      reasoning: "Certificate is a PDF — auto-verification only runs on image uploads. Manual review required.",
-    };
-  }
 
   const content: unknown[] = [
     {
@@ -325,7 +391,7 @@ export async function aiVerifyZooniverseCertificate(
         "X-Title": input.appName ?? "colift",
       },
       body: JSON.stringify({
-        model: input.model ?? "google/gemini-2.0-flash-exp:free",
+        model: input.model ?? "google/gemini-2.5-flash-lite",
         response_format: { type: "json_object" },
         max_tokens: 512,
         messages: [

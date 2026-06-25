@@ -97,7 +97,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
 
   const triggerInner =
     "flex h-full w-full items-center gap-2 px-4 text-left text-[14px] font-medium text-ink " +
-    "rounded-lg transition-colors hover:bg-paper-deep " +
+    "rounded-lg transition-colors hover:bg-gray-100 " +
     "focus:outline-none focus-visible:outline-none";
 
   return (
@@ -116,7 +116,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
           </PopoverTrigger>
         </div>
         <PopoverContent className="w-[260px] p-2">
-          <div className="rounded-md bg-paper px-3 py-2 text-[14px] font-medium text-ink">
+          <div className="rounded-md bg-gray-100 px-3 py-2 text-[14px] font-medium text-ink">
             ✓ Volunteer tasks
           </div>
           <p className="px-3 py-2 text-[12px] text-slate">
@@ -148,7 +148,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
             type="button"
             onClick={clearQuery}
             aria-label="Clear search"
-            className="absolute right-2 grid size-7 place-items-center rounded-full text-slate hover:bg-paper-deep hover:text-ink focus:outline-none focus-visible:outline-none focus-visible:bg-paper-deep focus-visible:text-ink"
+            className="absolute right-2 grid size-7 place-items-center rounded-full text-slate hover:bg-gray-100 hover:text-ink focus:outline-none focus-visible:outline-none focus-visible:bg-gray-100 focus-visible:text-ink"
           >
             <X className="size-4" />
           </button>
@@ -171,7 +171,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
           {LOCATIONS.map((l) => (
             <label
               key={l.value}
-              className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 hover:bg-paper"
+              className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 hover:bg-gray-100"
             >
               <input
                 type="checkbox"
@@ -187,7 +187,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
             <button
               type="button"
               onClick={clearLoc}
-              className="mt-1 w-full rounded-md px-3 py-2 text-left text-[13px] font-medium text-civic-blue hover:bg-paper"
+              className="mt-1 w-full rounded-md px-3 py-2 text-left text-[13px] font-medium text-civic-blue hover:bg-gray-100"
             >
               Clear location
             </button>

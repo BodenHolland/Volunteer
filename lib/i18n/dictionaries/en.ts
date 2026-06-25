@@ -104,9 +104,9 @@ export const en = {
   },
   landing: {
     skipToContent: "Skip to content",
-    heroTitle1: "Help people,",
-    heroTitle2: "from anywhere",
-    heroParagraph: "colift lists real civic tasks from local nonprofits and public agencies, count trees, translate a flyer, map a sidewalk, audit a website. Do it on your own time. Every task ships a free public dataset when it's done.",
+    heroTitle1: "Welcome to",
+    heroTitle2: "colift.",
+    heroParagraph: "colift connects you with civic tasks from local nonprofits and public agencies. Choose a task when you have time. Complete it on your own schedule. Each task adds to a public dataset that anyone can use.",
     heroCta: "Find a task",
     heroCtaSecondary: "How it works",
     trustFree: "Free & nonprofit-run",

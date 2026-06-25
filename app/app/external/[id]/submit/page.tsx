@@ -138,12 +138,12 @@ export default async function SubmitCertificatePage({
             id="certificate"
             name="certificate"
             type="file"
-            accept="application/pdf,image/png,image/jpeg"
+            accept="image/png,image/jpeg"
             required
           />
           <p className="mt-1 text-xs text-meta">
-            The certificate Zooniverse generated for this month. PNG or JPG is auto-verified; PDF goes to manual review.
-            Max 15 MB.
+            A screenshot or image export of the certificate Zooniverse generated this month.
+            PNG or JPG — max 15 MB.
           </p>
         </div>
 

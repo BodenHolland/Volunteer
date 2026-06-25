@@ -99,7 +99,7 @@ export function TaskFilters({
           isSidebar && "w-full justify-between",
           count > 0
             ? "border-civic-blue bg-civic-blue-soft text-civic-blue"
-            : "border-civic-line bg-white text-ink hover:bg-paper-deep",
+            : "border-civic-line bg-white text-ink hover:bg-gray-100",
         )}
       >
         {icon}
