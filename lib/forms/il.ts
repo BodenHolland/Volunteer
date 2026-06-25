@@ -270,11 +270,9 @@ export async function buildILPdf(data: StateFormData): Promise<Uint8Array> {
     color: INK,
   });
 
-  // Recipient signature row (top)
+  // Recipient signature row (top) — recipient signs this themselves.
   draw("Recipient Signature", LEFT + 6, sigTop + 9, reg, 9);
   draw("Date", midX + 6, sigTop + 9, reg, 9);
-  if (data.signatureName) draw(data.signatureName, LEFT + 12, sigTop + 19, ital, 13);
-  if (data.dateSigned) draw(data.dateSigned, midX + 10, sigTop + 19, reg, 10.5);
 
   // Org representative signature row (bottom)
   draw("Organization Representative Signature", LEFT + 6, sigMidY + 9, reg, 9);

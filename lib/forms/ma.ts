@@ -122,6 +122,7 @@ export async function buildMAPdf(data: StateFormData): Promise<Uint8Array> {
   [[278, "Public"], [345, "Non-Profit"], [435, "Neither"]].forEach(([x, label]) => {
     rect(p2, x as number, 241, 9, 9); draw(p2, label as string, (x as number) + 13, 250, bold, 10);
   });
+  draw(p2, "X", 347, 249, bold, 7.5);  // Non-Profit
   draw(p2, "What is the start date and total hours per month this individual will volunteer?", L, 290, bold, 10.5);
   line(p2, 412, 292, 470); line(p2, 482, 292, 552);
   draw(p2, data.startDate ?? "", 414, 289, reg, 9); draw(p2, String(data.hours), 490, 289, reg, 9);

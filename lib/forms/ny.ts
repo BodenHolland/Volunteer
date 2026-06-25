@@ -61,10 +61,14 @@ export async function buildNYPdf(data: StateFormData): Promise<Uint8Array> {
   field(p2, "Organization name:", data.orgName, p); p += 24;
   field(p2, "Organization address:", data.orgAddress.filter(Boolean).join(", "), p); p += 25;
   draw(p2, "Is this organization public or non-profit?", L, p, 10.8);
-  box(p2, 337, p - 13); draw(p2, "Public", 362, p, 10.8); box(p2, 431, p - 13); draw(p2, "Non-Profit", 456, p, 10.8); box(p2, 537, p - 13); draw(p2, "Other", 562, p, 10.8); p += 70;
+  box(p2, 337, p - 13); draw(p2, "Public", 362, p, 10.8); box(p2, 431, p - 13); draw(p2, "Non-Profit", 456, p, 10.8); box(p2, 537, p - 13); draw(p2, "Other", 562, p, 10.8);
+  draw(p2, "X", 434, p - 2, 12, bold);  // Non-Profit
+  p += 70;
   field(p2, "Date participant began or will begin program:", data.startDate ?? "", p); p += 24;
   field(p2, "Report month/year (previous month):", data.month, p); p += 24;
-  draw(p2, "Is the participant still volunteering in the program?", L, p, 10.8); box(p2, 59, p + 10); draw(p2, "Yes", 84, p + 22, 10.8); box(p2, 117, p + 10); draw(p2, "No", 142, p + 22, 10.8); p += 66;
+  draw(p2, "Is the participant still volunteering in the program?", L, p, 10.8); box(p2, 59, p + 10); draw(p2, "Yes", 84, p + 22, 10.8); box(p2, 117, p + 10); draw(p2, "No", 142, p + 22, 10.8);
+  draw(p2, "X", 62, p + 20, 12, bold);  // Yes — ongoing
+  p += 66;
   field(p2, "Date participant expects to complete program:", "", p); p += 27;
   draw(p2, "If the participant is already volunteering in the program, indicate how many hours per", L, p, 10.8); draw(p2, "month they have completed below:", L, p + 15, 10.8); p += 42;
   draw(p2, "Month/Year", L, p, 11.5, bold); draw(p2, "Hours Completed", 360, p, 11.5, bold); line(p2, L, p + 17, 260); line(p2, 360, p + 17, 495); draw(p2, data.month, L + 3, p + 14, 10.5); draw(p2, String(data.hours), 363, p + 14, 10.5); p += 125;

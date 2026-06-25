@@ -23,7 +23,9 @@ export async function buildVTPdf(data: StateFormData): Promise<Uint8Array> {
   const lineField = (p: typeof page, label: string, value: string, x: number, top: number, lineStart: number, lineEnd: number) => { text(p, label, x, top, 10); rule(p, lineStart, top + 3, lineEnd); if (value) text(p, value, lineStart + 3, top, 10); };
 
   // Header closely follows the official form's small Vermont mark and barcode.
-  text(page, "⌁", L, 46, 38, bold);
+  // "⌁" (U+2301) is outside WinAnsi — use a plain vertical bar as a
+  // decorative stand-in that the standard Helvetica font can render.
+  text(page, "|", L, 46, 38, bold);
   text(page, "VERMONT", 108, 48, 23, regular);
   text(page, "Department for Children and Families", L, 74, 8);
   text(page, "Economic Services Division", L, 86, 8);
@@ -34,7 +36,7 @@ export async function buildVTPdf(data: StateFormData): Promise<Uint8Array> {
   lineField(page, "Customer name:", data.participantName, 64, 145, 158, 406);
   lineField(page, "Last 4 of SSN:", "", 410, 145, 488, 562);
   lineField(page, "Customer phone number:", data.participantPhone ?? "", 64, 172, 176, 394);
-  lineField(page, "Number of hours customer must complete:", "", 64, 199, 300, 364);
+  lineField(page, "Number of hours customer must complete:", String(data.hours), 64, 199, 300, 364);
   text(page, "You must provide the information to Economic Services at your initial approval and recertification.", 64, 229, 9.8, bold);
 
   const tableX = 118, tableY = 248, tableW = 370, split = 304, rowH = 23;
@@ -45,16 +47,19 @@ export async function buildVTPdf(data: StateFormData): Promise<Uint8Array> {
   text(page, "Hours volunteered in month", split + 29, tableY + 14, 10, bold);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const selectedMonth = (data.month || "").split(" ")[0].toLowerCase();
+  const selectedYear = data.monthIso ? data.monthIso.slice(0, 4) : "";
   months.forEach((month, index) => {
     const top = tableY + rowH * (index + 1) + 15;
-    const label = `${month}, 20________`;
+    const isSelected = month.toLowerCase() === selectedMonth;
+    const label = isSelected && selectedYear ? `${month}, ${selectedYear}` : `${month}, 20________`;
     text(page, label, tableX + 49, top, 10);
-    if (month.toLowerCase() === selectedMonth) text(page, String(data.hours), split + 32, top, 10, bold);
+    if (isSelected) text(page, String(data.hours), split + 32, top, 10, bold);
   });
   text(page, "If this is your first month volunteering, are you planning to continue volunteering at this", 64, 569, 9.7);
   text(page, "volunteer site moving forward?", 64, 584, 9.7);
   rect(page, 280, 576, 11, 11); text(page, "Yes", 298, 584, 9.5);
   rect(page, 328, 576, 11, 11); text(page, "No", 346, 584, 9.5);
+  text(page, "X", 282, 583, 9, bold);  // Yes — ongoing volunteer
   rule(page, 64, 610, R, 1.2);
   text(page, "To be completed by local organization staff after completion of monthly volunteer hours.", 64, 623, 9.7, bold);
   lineField(page, "Organization Name:", data.orgName, 64, 649, 167, R);
@@ -64,6 +69,7 @@ export async function buildVTPdf(data: StateFormData): Promise<Uint8Array> {
   text(page, "Is your organization a non-profit?", 76, 728, 9.7);
   rect(page, 280, 720, 11, 11); text(page, "Yes", 298, 728, 9.5);
   rect(page, 328, 720, 11, 11); text(page, "No", 346, 728, 9.5);
+  text(page, "X", 282, 727, 9, bold);  // Yes — non-profit org
   lineField(page, "Printed name of volunteer supervisor:", data.representativeName, 64, 758, 258, R);
   // Page one matches the official static reverse-side information and keeps
   // the supervisor signature genuinely blank for an authorized signer.

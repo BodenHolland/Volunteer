@@ -169,13 +169,15 @@ export async function buildLetterPdf(
   y += 14;
   draw(`Date: ${data.dateSigned}`, LEFT, y, reg, 10, MUTED);
 
-  // Footer with submission notes (if provided)
+  // Footer with submission notes (if provided).
+  // Use raw PDF y-coordinates (y=0 is the page bottom) so the footer sits
+  // just above the Tended attribution line at y=32.
   if (opts?.submissionLine) {
     const lines = wrap(opts.submissionLine, RIGHT - LEFT, reg, 9);
-    let fy = PAGE_H - 60;
+    let fy = 56 + lines.length * 11;
     page.drawLine({
-      start: { x: LEFT, y: fy + 14 },
-      end: { x: RIGHT, y: fy + 14 },
+      start: { x: LEFT, y: fy + 8 },
+      end: { x: RIGHT, y: fy + 8 },
       thickness: 0.6,
       color: LINE_GREY,
     });

@@ -51,13 +51,13 @@ export async function buildRIPdf(data: StateFormData): Promise<Uint8Array> {
   rule(84, 215, R);
   text(data.participantAddress.filter(Boolean).join(", "), 88, 212, 10);
   text("Phone Number:", L, 239, 10);
-  rule(111, 242, 166);
+  rule(111, 242, 192);
   text(data.participantPhone ?? "", 115, 239, 10);
-  text("RIBridges Case # (if known):", 169, 239, 10);
-  rule(311, 242, 397);
-  text(data.caseNumber ?? "", 315, 239, 10);
-  text("Email (optional):", 400, 239, 10);
-  rule(474, 242, R);
+  text("RI Bridges Case # (if known):", 196, 239, 9.5);
+  rule(350, 242, 422);
+  text(data.caseNumber ?? "", 353, 239, 9.5);
+  text("Email (optional):", 426, 239, 9);
+  rule(510, 242, R);
 
   text("Section 2: Work / School / Training / Volunteer Activity Log", L, 271, 11, bold);
   const intro = [
@@ -99,10 +99,10 @@ export async function buildRIPdf(data: StateFormData): Promise<Uint8Array> {
   text("Section 4: Submission Instructions", L, 646, 11, bold);
   text("Submit the completed and signed form through the following pathways:", L, 668, 9.2);
   const instructions = [
-    "♦ Mail to RI Department of Human Services, P.O. Box 8709, Cranston, RI 02920-8787;",
-    "♦ Drop off in person or at a Drop Box Office location listed at https://dhs.ri.gov/about-us/dhs-offices;",
-    "♦ Log in and upload to your Customer Portal account at http://www.healthyrhode.ri.gov; or",
-    "♦ Access through the HealthyRhode Mobile App in the APP store or Google Play",
+    "- Mail to RI Department of Human Services, P.O. Box 8709, Cranston, RI 02920-8787;",
+    "- Drop off in person or at a Drop Box Office location listed at https://dhs.ri.gov/about-us/dhs-offices;",
+    "- Log in and upload to your Customer Portal account at http://www.healthyrhode.ri.gov; or",
+    "- Access through the HealthyRhode Mobile App in the APP store or Google Play",
     "For questions, call: 1-855-MY-RIDHS (1-855-697-4347)",
     "Note: If you are applying or recertifying at this time, you may submit this completed and signed form with your DHS",
     "application or renewal documents.",

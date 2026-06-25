@@ -24,6 +24,11 @@ export interface StateFormData {
   month: string;                // human label, e.g. "June 2026"
   monthIso: string;             // "2026-06"
   hours: number;
+  /**
+   * "ongoing"  — volunteer worked multiple sessions spread across the month.
+   *              Derive from submission: timeLog.sessions.length > 1.
+   * "one_time" — a single session or event. Use when sessions.length === 1.
+   */
   activity: "ongoing" | "one_time";
   positionDescription?: string; // MO-style "what did they do"
   startDate?: string;           // mm/dd/yyyy — some states ask

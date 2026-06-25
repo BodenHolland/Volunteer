@@ -44,16 +44,18 @@ export async function buildPAPdf(data: StateFormData): Promise<Uint8Array> {
   text("See reverse for detailed directions. Questions? Call the Statewide Customer Service Center at 1-877-395-8930.", 22, 142, 8.8);
   band("SECTION I.  Volunteer | Agency Information", 152);
   field("Name of volunteer:", data.participantName, 22, 180, 505); field("Birthdate:", data.birthdate, 511, 180, 625); field("Last 4 digits of SSN:", "", 631, 180, 770);
-  field("Address of volunteer:", data.participantAddress[0] ?? "", 22, 197, 397); field("City:", data.participantAddress[1]?.split(",")[0] ?? "", 402, 197, 555); field("State:", "", 562, 197, 610); field("ZIP code:", "", 616, 197, 770);
+  const csz = (line: string) => { const [city = "", stateZip = ""] = line.split(", "); const [st = "", zip = ""] = stateZip.split(" "); return { city, st, zip }; };
+  const pcsz = csz(data.participantAddress[1] ?? ""); const ocsz = csz(data.orgAddress[1] ?? "");
+  field("Address of volunteer:", data.participantAddress[0] ?? "", 22, 197, 397); field("City:", pcsz.city, 402, 197, 555); field("State:", pcsz.st, 562, 197, 610); field("ZIP code:", pcsz.zip, 616, 197, 770);
   field("Name of agency:", data.orgName, 22, 214, 505); field("Agency Phone Number:", data.orgPhone, 510, 214, 770);
-  field("Address of agency:", data.orgAddress[0] ?? "", 22, 231, 397); field("City:", data.orgAddress[1]?.split(",")[0] ?? "", 402, 231, 555); field("State:", "", 562, 231, 610); field("ZIP code:", "", 616, 231, 770);
+  field("Address of agency:", data.orgAddress[0] ?? "", 22, 231, 397); field("City:", ocsz.city, 402, 231, 555); field("State:", ocsz.st, 562, 231, 610); field("ZIP code:", ocsz.zip, 616, 231, 770);
   band("SECTION II.  Community Service Activity Information", 246);
   // Three source-form table groups.
   cell(36, 268, 217, 110); cell(36, 268, 110, 30, true); cell(146, 268, 107, 30, true); cell(36, 298, 110, 30, true); cell(146, 298, 107, 30, true); cell(36, 328, 110, 50, true); cell(146, 328, 107, 50, true);
   text("Start Date of Service", 42, 285, 9.4, bold); text(data.startDate ?? "", 151, 285, 8.4); text("Expected", 72, 310, 9.2, bold); text("End Date of Service*", 46, 323, 9.2, bold); text("Transportation", 52, 345, 9, bold); text("Provided by Agency", 45, 357, 9, bold); text("at No Cost?", 65, 369, 9, bold); text("YES       NO", 170, 354, 9.2, bold); text("(Circle one)", 180, 386, 8.2);
   cell(288, 268, 218, 110); cell(288, 268, 218, 19, true); text("Monthly Schedule of Service", 329, 282, 9.2, bold); cell(288, 287, 109, 27); cell(397, 287, 109, 27); text("Estimated", 457, 301, 9, bold); text("Weekly Hours", 446, 312, 9, bold);
   const weekly = (Math.round(data.hours / 4 * 10) / 10).toString();
-  ["Week 1", "Week 2", "Week 3", "Week 4", "Total Monthly", "Estimated Hours"].forEach((label, i) => { const top = 314 + i * 18; cell(288, top, 109, 18, i >= 4); cell(397, top, 109, 18, i >= 4); text(label, 292, top + 13, 8.8, i >= 4 ? bold : reg); if (i < 4) text(weekly, 400, top + 13, 8.5); if (i === 5) text(String(data.hours), 400, top + 13, 8.8, bold); });
+  ["Week 1", "Week 2", "Week 3", "Week 4", "Total Monthly", "Estimated Hours"].forEach((label, i) => { const top = 314 + i * 18; cell(288, top, 109, 18, i >= 4); cell(397, top, 109, 18, i >= 4); text(label, 292, top + 13, 8.8, i >= 4 ? bold : reg); if (i < 4) text(weekly, 400, top + 13, 8.5); if (i >= 4) text(String(data.hours), 400, top + 13, 8.8, bold); });
   cell(540, 268, 213, 110); cell(540, 268, 213, 37, true); text("Description of", 606, 283, 9.5, bold); text("Tasks Performed:", 602, 296, 9.5, bold); [305, 342, 378].forEach(t => rule(540, t, 753)); text("1.)", 544, 326, 8.8); text("2.)", 544, 363, 8.8); text("3.)", 544, 391, 8.8); const task = truncate(data.positionDescription ?? "Volunteer community service", reg, 8.1, 188); text(task, 561, 326, 8.1);
   band("SECTION III.  Agency Certification", 386);
   text("COMMUNITY SERVICE AGENCY CERTIFICATION:", 22, 409, 10.2, bold);

@@ -128,8 +128,7 @@ export async function buildMOPdf(data: StateFormData): Promise<Uint8Array> {
   page.drawLine({ start: { x: LEFT, y: T(sig1Top + 14) }, end: { x: RIGHT, y: T(sig1Top + 14) }, thickness: 0.8, color: INK });
   draw("Participant Signature", LEFT + 6, sig1Top + 11, reg, 10);
   draw("Date Signed", mid1 + 6, sig1Top + 11, reg, 10);
-  if (data.signatureName) draw(data.signatureName, LEFT + 12, sig1Top + 30, ital, 14);
-  if (data.dateSigned) draw(data.dateSigned, mid1 + 10, sig1Top + 30, reg, 11);
+  // Participant signs Section 1 themselves — leave blank in generated form.
 
   // ---- SECTION 2 — Volunteer Agency ----
   band("SECTION 2. VOLUNTEER AGENCY INFORMATION", 478);
@@ -156,8 +155,11 @@ export async function buildMOPdf(data: StateFormData): Promise<Uint8Array> {
   const mid2 = 360;
   page.drawRectangle({ x: LEFT, y: T(sig2Bot), width: RIGHT - LEFT, height: sig2Bot - sig2Top, borderColor: INK, borderWidth: 0.8 });
   page.drawLine({ start: { x: mid2, y: T(sig2Top) }, end: { x: mid2, y: T(sig2Bot) }, thickness: 0.8, color: INK });
-  draw("Supervisor Signature", LEFT + 6, sig2Top + 9, reg, 9);
-  draw("Date Signed", mid2 + 6, sig2Top + 9, reg, 9);
+  page.drawLine({ start: { x: LEFT, y: T(sig2Top + 12) }, end: { x: RIGHT, y: T(sig2Top + 12) }, thickness: 0.4, color: INK });
+  draw("Supervisor Signature", LEFT + 6, sig2Top + 9, reg, 8.5);
+  draw("Date Signed", mid2 + 6, sig2Top + 9, reg, 8.5);
+  if (data.signatureName) draw(data.signatureName, LEFT + 6, sig2Top + 20, ital, 9);
+  if (data.dateSigned) draw(data.dateSigned, mid2 + 6, sig2Top + 20, reg, 9);
 
   // ---- Footer (two stacked rows so the form-id and the submit address never
   // collide on the same baseline) ----

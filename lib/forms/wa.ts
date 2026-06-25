@@ -43,9 +43,10 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
     text(p, "DEPARTMENT OF SOCIAL", 120, 59, 4.8);
     text(p, "AND HEALTH SERVICES", 120, 65, 4.8);
     const title1 = "Able Bodied Adults Without Dependents (ABAWD)";
-    text(p, title1, (W - bold.widthOfTextAtSize(title1, 15)) / 2 + 30, 48, 15, bold);
+    // Clamp so the title never overlaps the DSHS logo block on the left (~x 165).
+    text(p, title1, Math.max((W - bold.widthOfTextAtSize(title1, 15)) / 2 + 30, 200), 48, 15, bold);
     const title2 = "Activity Report";
-    text(p, title2, (W - bold.widthOfTextAtSize(title2, 15)) / 2 + 30, 65, 15, bold);
+    text(p, title2, Math.max((W - bold.widthOfTextAtSize(title2, 15)) / 2 + 30, 200), 65, 15, bold);
   };
   const pageHeading = (p: ReturnType<typeof doc.addPage>) => {
     text(p, "ABAWD ACTIVITY REPORT", 78, 24, 8, bold);
