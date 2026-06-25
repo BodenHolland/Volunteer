@@ -36,7 +36,7 @@ export default async function LandingPage() {
     category: task.category,
     location: task.location_kind,
     createdAt: task.created_at,
-    featured: i === 0,
+    featured: ["task_food_audit", "task_gov_audit", "task_zooniverse", "task_ems_rates"].includes(task.id),
   }));
 
   return (

@@ -57,7 +57,7 @@ export default async function OpportunitiesPage({
     listingType: t.listing_type ?? "native",
     createdAt: t.created_at,
     closesAt: t.closes_at,
-    featured: i === 0 && t.id !== "task_food_audit",
+    featured: ["task_food_audit", "task_gov_audit", "task_zooniverse", "task_ems_rates"].includes(t.id),
   }));
 
   return (
