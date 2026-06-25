@@ -12,9 +12,9 @@ import type { TaskCategory } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Public deliverables — free civic work | colift",
+  title: "Public deliverables, free civic work | colift",
   description:
-    "Browse the free, public-domain civic work produced by colift volunteers — translations, neighborhood documentation, and civic data, given away free under CC0.",
+    "Browse the free, public-domain civic work produced by colift volunteers, translations, neighborhood documentation, and civic data, given away free under CC0.",
 };
 
 function snippet(text: string | null, max = 220): string {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { destroyCurrentSession } from "@/lib/auth";
 
 /**
- * GET is intentionally INERT — it must never revoke a session. Next.js <Link>
+ * GET is intentionally INERT, it must never revoke a session. Next.js <Link>
  * prefetch, browser predictive prefetch, and link scanners all issue GETs, and
  * a destructive GET here was silently logging people out (then bouncing the
  * next click to /login). Sign-out happens via the POST-only `signOut` server

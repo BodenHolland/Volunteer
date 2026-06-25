@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const d = await getPublishedDeliverable(id);
   return {
-    title: d ? `${d.taskTitle} — free public deliverable | colift` : "Deliverable — colift",
+    title: d ? `${d.taskTitle}, free public deliverable | colift` : "Deliverable | colift",
   };
 }
 
@@ -114,7 +114,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
             </p>
           </div>
 
-          {/* Public output (no PII — never the recipient's name) */}
+          {/* Public output (no PII, never the recipient's name) */}
           <div className="mt-8 space-y-6">
             {d.userNotes && (
               <div>

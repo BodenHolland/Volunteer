@@ -9,7 +9,7 @@ import { relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review queue — colift" };
+export const metadata = { title: "Review queue | colift" };
 
 export default async function OrgQueuePage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const sp = await searchParams;

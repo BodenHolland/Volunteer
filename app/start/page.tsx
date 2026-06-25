@@ -13,7 +13,7 @@ import { getDict } from "@/lib/i18n";
 import { submitLocation, submitPii, submitOrgPick } from "./actions";
 import { AddressFields, DobInput, NameFields, PhoneInput } from "./pii-fields";
 
-export const metadata = { title: "Finish setting up — colift" };
+export const metadata = { title: "Finish setting up | colift" };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (

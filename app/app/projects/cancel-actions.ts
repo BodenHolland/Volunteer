@@ -6,13 +6,13 @@ import { getCurrentUser } from "@/lib/session";
 import type { Submission } from "@/lib/types";
 
 /**
- * Cancel an un-submitted task — "I claimed this by accident, take it off my
+ * Cancel an un-submitted task, "I claimed this by accident, take it off my
  * dashboard." Deletes the submission and any files/flags attached to it. Only
  * allowed while the work is still in the recipient's court (committed /
  * in_progress / needs_changes); once submitted it lives under completed work.
  *
  * This lives at /app/projects/ (not inside the [id] dynamic segment) so the
- * client cancel button — defined in components/ outside the app/ tree — can
+ * client cancel button, defined in components/ outside the app/ tree, can
  * import it via a stable path the Workers bundler resolves cleanly.
  */
 export async function cancelWork(formData: FormData) {

@@ -5,7 +5,7 @@ import { WelcomeChooser } from "@/components/welcome-chooser";
 import { homeForUser, requireUser } from "@/lib/session";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "Get started — colift" };
+export const metadata = { title: "Get started | colift" };
 export const dynamic = "force-dynamic";
 
 export default async function GetStartedPage() {
@@ -13,7 +13,7 @@ export default async function GetStartedPage() {
   const { t } = await getDict();
 
   // If this account already has a role + intent set, send them to their home or
-  // back into the /start wizard — the chooser is only for fresh accounts.
+  // back into the /start wizard, the chooser is only for fresh accounts.
   if (user.role === "org_member") {
     redirect(user.org_id ? "/org" : "/start?step=orgpick");
   }

@@ -131,7 +131,7 @@ export function EmsRateForm({ assignment, defaults }: Props) {
         <legend className="text-sm font-semibold text-ink">Rates</legend>
         <p className="text-xs text-meta">
           For each rate, enter the dollar amount and the URL that proves it. If the provider doesn&apos;t
-          publish a rate, check &ldquo;Couldn&apos;t find&rdquo; — that&apos;s also useful data.
+          publish a rate, check &ldquo;Couldn&apos;t find&rdquo;, that&apos;s also useful data.
         </p>
         <RateRow
           prefix="bls"
@@ -189,7 +189,7 @@ export function EmsRateForm({ assignment, defaults }: Props) {
           <Input
             id="ems_zip_codes"
             name="ems_zip_codes"
-            placeholder="78701, 78702… — or: all city limits"
+            placeholder="78701, 78702…, or: all city limits"
             defaultValue={d.zip_codes}
           />
         </div>

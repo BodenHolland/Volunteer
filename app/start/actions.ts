@@ -50,7 +50,7 @@ export async function addressAutocompleteAction(query: string): Promise<AddressS
     detail: { query, hits_count: hits.length, first: hits[0]?.address ?? null },
   });
   return hits.map((h) => {
-    // h.address is "house_number street, city state, zip" — split apart with a
+    // h.address is "house_number street, city state, zip", split apart with a
     // forgiving regex so we can repopulate the form even when Nominatim returns
     // an incomplete address.
     const parts = h.address.split(",").map((s) => s.trim());
@@ -93,7 +93,7 @@ export async function submitPii(formData: FormData) {
     const legalName = [firstName, lastName].filter(Boolean).join(" ");
     const caseNumber = String(formData.get("case_number") ?? "").trim();
     const dob = String(formData.get("dob") ?? "").trim();
-    // Store phone as digits only — the formatted "(916) 555-0142" the user typed
+    // Store phone as digits only, the formatted "(916) 555-0142" the user typed
     // is a display detail, not the source of truth.
     const phone = String(formData.get("phone") ?? "").replace(/\D/g, "").slice(0, 10);
     const address: Record<string, string | number | undefined> = {

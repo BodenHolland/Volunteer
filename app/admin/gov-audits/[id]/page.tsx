@@ -60,15 +60,15 @@ export default async function AdminGovAuditDetailPage({ params }: { params: Prom
       <header className="mb-6 mt-3">
         <h1 className="text-2xl font-semibold">Review · {session.id.slice(0, 16)}…</h1>
         <p className="text-body mt-1">
-          {volunteer?.full_name ?? "—"} ({volunteer?.email}) · {session.device} ·{" "}
-          {session.certified_minutes ?? 0} min certified · integrity {integrityPct ?? "—"}%
+          {volunteer?.full_name ?? ""} ({volunteer?.email}) · {session.device} ·{" "}
+          {session.certified_minutes ?? 0} min certified · integrity {integrityPct ?? ""}%
         </p>
         <p className="mt-1 text-sm text-body">Target: {session.target_descriptor}</p>
       </header>
 
       {session.status === "flagged" && (
         <div className="mb-4 rounded-md border border-brick bg-brick-subtle px-4 py-3 text-sm text-brick">
-          Flagged — non-desktop device or self-report contradicted by automated checks. Review before crediting.
+          Flagged, non-desktop device or self-report contradicted by automated checks. Review before crediting.
         </div>
       )}
 
@@ -78,9 +78,9 @@ export default async function AdminGovAuditDetailPage({ params }: { params: Prom
           <ul className="grid grid-cols-2 gap-1 text-sm text-body">
             <li>Official domain: {fmtBool(site.official_domain)}</li>
             <li>HTTPS: {fmtBool(site.https)}</li>
-            <li>Mobile responsive: {site.mobile_responsive ?? "—"}</li>
+            <li>Mobile responsive: {site.mobile_responsive ?? ""}</li>
             <li>Language access: {fmtBool(site.language_access)}</li>
-            <li>Site search: {site.site_search ?? "—"}</li>
+            <li>Site search: {site.site_search ?? ""}</li>
           </ul>
         </section>
       )}
@@ -93,8 +93,8 @@ export default async function AdminGovAuditDetailPage({ params }: { params: Prom
             <p className="mb-3 text-xs text-body">{p.url}</p>
 
             <div className="mb-3 rounded-md bg-section px-3 py-2 text-sm">
-              <span className="font-medium">Auto-check ({chk?.check_mode ?? "—"}):</span>{" "}
-              HTTP {chk?.http_status ?? "—"} · axe violations{" "}
+              <span className="font-medium">Auto-check ({chk?.check_mode ?? ""}):</span>{" "}
+              HTTP {chk?.http_status ?? ""} · axe violations{" "}
               <span className={chk && (chk.axe_violations ?? 0) > 0 ? "font-semibold text-brick" : ""}>
                 {chk?.axe_violations ?? "n/a"}
               </span>
@@ -106,31 +106,31 @@ export default async function AdminGovAuditDetailPage({ params }: { params: Prom
             <div className="grid grid-cols-2 gap-1 text-sm text-body">
               {OBSERVABLE_ITEMS.map((it) => (
                 <div key={it.id}>
-                  {it.label}: <span className="text-ink">{(p[it.id] as string | null) ?? "—"}</span>
+                  {it.label}: <span className="text-ink">{(p[it.id] as string | null) ?? ""}</span>
                 </div>
               ))}
               <div>
-                Overall accessibility: <span className="text-ink">{p.accessibility ?? "—"}</span>
+                Overall accessibility: <span className="text-ink">{p.accessibility ?? ""}</span>
               </div>
             </div>
 
             <div className="mt-3 flex flex-wrap gap-4 text-sm text-body">
               {LIKERT_ITEMS.map((it) => (
                 <span key={it.id}>
-                  {it.prompt}: <span className="text-ink">{(p[it.id] as number | null) ?? "—"}/5</span>
+                  {it.prompt}: <span className="text-ink">{(p[it.id] as number | null) ?? ""}/5</span>
                 </span>
               ))}
             </div>
 
             <div className="mt-3 space-y-1 text-sm">
               <p>
-                <span className="text-body">Intent:</span> {p.intent_text || <em className="text-body">—</em>}
+                <span className="text-body">Intent:</span> {p.intent_text || <em className="text-body"></em>}
               </p>
               <p>
-                <span className="text-body">Blocker:</span> {p.blocker_text || <em className="text-body">—</em>}
+                <span className="text-body">Blocker:</span> {p.blocker_text || <em className="text-body"></em>}
               </p>
               <p>
-                <span className="text-body">Fix:</span> {p.fix_text || <em className="text-body">—</em>}
+                <span className="text-body">Fix:</span> {p.fix_text || <em className="text-body"></em>}
               </p>
               <p className="text-xs text-body">Text moderation: {p.text_moderation_status}</p>
             </div>
@@ -151,5 +151,5 @@ export default async function AdminGovAuditDetailPage({ params }: { params: Prom
 }
 
 function fmtBool(v: number | null): string {
-  return v == null ? "—" : v ? "Yes" : "No";
+  return v == null ? "" : v ? "Yes" : "No";
 }

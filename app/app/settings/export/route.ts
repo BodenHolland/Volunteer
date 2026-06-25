@@ -6,7 +6,7 @@ import { parseNotifyPrefs } from "../notify-prefs";
 export const dynamic = "force-dynamic";
 
 /**
- * GET /app/settings/export — downloads the user's account data as JSON.
+ * GET /app/settings/export, downloads the user's account data as JSON.
  * requireRecipient gates access; the file is returned as an attachment.
  */
 export async function GET() {

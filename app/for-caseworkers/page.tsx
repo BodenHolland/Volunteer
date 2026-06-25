@@ -16,7 +16,7 @@ import { getDict } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "For caseworkers — colift",
+  title: "For caseworkers | colift",
   description:
     "A plain-language methodology overview for county welfare caseworkers and benefits staff reviewing CF 888 or equivalent state forms signed by colift.",
 };

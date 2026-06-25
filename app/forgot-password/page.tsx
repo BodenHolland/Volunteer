@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { forgotPassword } from "@/app/auth-actions";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "Reset password — colift" };
+export const metadata = { title: "Reset password | colift" };
 
 export const dynamic = "force-dynamic";
 

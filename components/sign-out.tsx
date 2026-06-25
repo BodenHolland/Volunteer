@@ -6,7 +6,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/app/auth-actions";
 
 /**
- * Sign-out controls that submit a POST (server action) — never a GET link.
+ * Sign-out controls that submit a POST (server action), never a GET link.
  *
  * A GET-based logout (the old `<Link href="/signout">`) was being fired by
  * Next.js <Link> prefetch and browser predictive prefetch, silently revoking

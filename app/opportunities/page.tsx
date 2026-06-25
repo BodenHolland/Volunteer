@@ -9,7 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Volunteer — colift" };
+export const metadata = { title: "Volunteer | colift" };
 
 export default async function OpportunitiesPage({
   searchParams,
@@ -109,7 +109,7 @@ export default async function OpportunitiesPage({
                 <EmptyState
                   icon={<Sprout />}
                   title="No opportunities open right now"
-                  body="New civic tasks from sponsoring nonprofits are posted regularly. Check back soon — or see how colift works in the meantime."
+                  body="New civic tasks from sponsoring nonprofits are posted regularly. Check back soon, or see how colift works in the meantime."
                   ctaLabel="How colift works"
                   ctaHref="/how-it-works"
                 />

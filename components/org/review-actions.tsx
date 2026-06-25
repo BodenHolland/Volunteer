@@ -21,7 +21,7 @@ export function ReviewActions({
 }) {
   const [panel, setPanel] = useState<"none" | "changes" | "reject">("none");
   // Credit defaults to measured engagement, capped. Reviewers may only reduce
-  // for quality — never credit above the volunteer's actual measured time.
+  // for quality, never credit above the volunteer's actual measured time.
   const ceiling = Math.min(measuredHours, capHours);
   const round = (n: number) => Math.round(n * 10) / 10;
 
@@ -42,7 +42,7 @@ export function ReviewActions({
         <p className="mt-2 text-xs text-meta">
           Defaults to the volunteer&apos;s measured active time. You can reduce it for quality, but
           never credit above measured time. The {round(estHours)}h task estimate is a ceiling and
-          flag only — it is not the credited number. Reject to credit zero.
+          flag only, it is not the credited number. Reject to credit zero.
         </p>
         <Button type="submit" className="mt-4 w-full"><Check /> Approve and certify</Button>
       </form>

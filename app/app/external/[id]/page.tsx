@@ -9,10 +9,21 @@ import { StatusPill } from "@/components/status-pill";
 import { Markdown } from "@/components/markdown";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Zooniverse task — colift" };
+export const metadata = { title: "Zooniverse task | colift" };
 
-export default async function ExternalHubPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ExternalHubPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ notice?: string }>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
+  const notice =
+    sp.notice === "duplicate"
+      ? "This certificate file matches a previous upload, so we sent it to a reviewer to take a look."
+      : sp.notice;
   const me = await requireRecipient();
   const sub = await getSubmission(id);
   if (!sub) notFound();
@@ -22,11 +33,11 @@ export default async function ExternalHubPage({ params }: { params: Promise<{ id
   }
 
   const canSubmit = sub.status === "committed" || sub.status === "in_progress" || sub.status === "needs_changes";
-  const cap = sub.task.monthly_minutes_cap ?? 600;
+  const capMinutes = sub.task.monthly_minutes_cap;
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/app/tasks" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
+      <Link href="/opportunities" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline">
         <ArrowLeft className="size-4" /> All tasks
       </Link>
 
@@ -36,6 +47,13 @@ export default async function ExternalHubPage({ params }: { params: Promise<{ id
       </div>
       <p className="mt-1 text-sm text-body">{sub.org.name}</p>
 
+      {notice && (
+        <p className="mt-4 rounded-md border border-amber/30 bg-amber-subtle p-3 text-sm text-body">
+          <AlertCircle className="mr-1 inline size-4 align-text-bottom text-amber" />
+          {notice} A reviewer will get to it shortly.
+        </p>
+      )}
+
       <p className="mt-6 rounded-md bg-amber-subtle p-3 text-xs text-body">
         <ShieldCheck className="mr-1 inline size-3.5 align-text-bottom text-amber" />
         {ZOONIVERSE_TASK_DETAIL_DISCLAIMER}
@@ -43,9 +61,9 @@ export default async function ExternalHubPage({ params }: { params: Promise<{ id
 
       <section className="mt-6 space-y-4">
         <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-sm font-medium text-ink">Step 1 — Pick a project and do the work</p>
+          <p className="text-sm font-medium text-ink">Step 1, Pick a project and do the work</p>
           <p className="mt-1 text-sm text-body">
-            Open Zooniverse, sign into your own account, and pick any project that interests you —
+            Open Zooniverse, sign into your own account, and pick any project that interests you 
             wildlife, weather diaries, galaxies, historical documents, anything. Classify as much as you
             want in one session. When you stop for the month, generate a Volunteer Certificate from your
             Zooniverse profile.
@@ -61,9 +79,10 @@ export default async function ExternalHubPage({ params }: { params: Promise<{ id
         </div>
 
         <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-sm font-medium text-ink">Step 2 — Upload your certificate</p>
+          <p className="text-sm font-medium text-ink">Step 2, Upload your certificate</p>
           <p className="mt-1 text-sm text-body">
-            colift verifies the certificate and credits the hours Zooniverse recorded, up to {Math.round(cap / 60)} hours per month per project.
+            colift verifies the certificate and credits the hours Zooniverse recorded
+            {capMinutes != null ? `, up to ${Math.round(capMinutes / 60)} hours per month per project` : ", no artificial cap"}.
           </p>
           {canSubmit ? (
             <Link href={`/app/external/${id}/submit`} className="mt-4 inline-flex">
@@ -77,7 +96,7 @@ export default async function ExternalHubPage({ params }: { params: Promise<{ id
             </p>
           ) : sub.status === "approved" ? (
             <p className="mt-4 flex items-center gap-1.5 text-sm text-forest">
-              <CheckCircle2 className="size-4" /> Approved — {sub.hours_credited ?? 0}h credited.
+              <CheckCircle2 className="size-4" /> Approved, {sub.hours_credited ?? 0}h credited.
             </p>
           ) : sub.status === "rejected" ? (
             <p className="mt-4 flex items-center gap-1.5 text-sm text-brick">

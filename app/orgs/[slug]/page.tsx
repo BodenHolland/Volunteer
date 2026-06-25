@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const org = await getOrgBySlug(slug);
-  return { title: org ? `${org.name} — colift` : "Organization — colift" };
+  return { title: org ? `${org.name}, colift` : "Organization | colift" };
 }
 
 export default async function OrgProfilePage({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,6 +1,6 @@
 import { StatusPage } from "@/components/status-page";
 
-export const metadata = { title: "Not found — colift" };
+export const metadata = { title: "Not found | colift" };
 
 export default function NotFound() {
   return (
@@ -9,7 +9,7 @@ export default function NotFound() {
       title="Page not found"
       body="That page doesn't exist or may have moved."
       primary={{ href: "/", label: "Back to home" }}
-      secondary={{ href: "/app/tasks", label: "Browse tasks" }}
+      secondary={{ href: "/opportunities", label: "Browse tasks" }}
     />
   );
 }

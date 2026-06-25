@@ -17,7 +17,7 @@ export function Notes({
   copy?: { placeholder: string; saving: string; saved: string; autosaves: string };
 }) {
   const c = copy ?? {
-    placeholder: "Jot notes as you work — what you found, where you are, anything to remember.",
+    placeholder: "Jot notes as you work, what you found, where you are, anything to remember.",
     saving: "Saving…",
     saved: "Saved",
     autosaves: "Autosaves when you click away.",

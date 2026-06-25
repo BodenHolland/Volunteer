@@ -4,10 +4,10 @@ import { rateLimit } from "@/lib/ratelimit";
 import { requireDatasetAccess } from "@/lib/dataset-access";
 
 /**
- * Signed-in CSV export — EMS ambulance billing rates.
+ * Signed-in CSV export, EMS ambulance billing rates.
  *
  * DATA PRINCIPLE (CLAUDE.md): this endpoint reads ONLY the public cluster
- * (ems_rate_reports). It NEVER touches submissions or users — there is no
+ * (ems_rate_reports). It NEVER touches submissions or users, there is no
  * FK to a person in this table, so the export is safe by construction. Only
  * rows with published_at IS NOT NULL surface (gated on org reviewer approval).
  *

@@ -9,11 +9,11 @@ import type {
 } from "@/lib/gov-audit";
 
 /**
- * Signed-in CSV export — government website audits.
+ * Signed-in CSV export, government website audits.
  *
  * DATA PRINCIPLE (CLAUDE.md): this endpoint reads ONLY the public cluster
  * (gov_audit_page_evaluations, gov_audit_site_evaluations, gov_audit_auto_checks).
- * It NEVER touches gov_audit_sessions or users — there is no FK to a person here,
+ * It NEVER touches gov_audit_sessions or users, there is no FK to a person here,
  * so the export is safe by construction. One row per page evaluation; a page
  * evaluation only exists in the public cluster once a session is finalized, so
  * every public row is publishable.

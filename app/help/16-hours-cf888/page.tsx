@@ -4,7 +4,7 @@ import { getDict, getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Your hours and how to download your CF 888 — Help Center" };
+export const metadata = { title: "Your hours and how to download your CF 888 | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();
@@ -30,10 +30,10 @@ export default async function Page() {
           <p>{t.helpHoursCf888.whereToSeePara2Es}</p>
           <ul>
             <li>
-              <strong>{t.helpHoursCf888.statePendingEs}</strong> — {t.helpHoursCf888.statePendingDescEs}
+              <strong>{t.helpHoursCf888.statePendingEs}</strong>: {t.helpHoursCf888.statePendingDescEs}
             </li>
             <li>
-              <strong>{t.helpHoursCf888.stateCertifiedEs}</strong> — {t.helpHoursCf888.stateCertifiedDescEs}
+              <strong>{t.helpHoursCf888.stateCertifiedEs}</strong>: {t.helpHoursCf888.stateCertifiedDescEs}
             </li>
           </ul>
 
@@ -93,10 +93,10 @@ export default async function Page() {
           <p>{t.helpHoursCf888.whereToSeePara2}</p>
           <ul>
             <li>
-              <strong>{t.helpHoursCf888.statePending}</strong> — {t.helpHoursCf888.statePendingDesc}
+              <strong>{t.helpHoursCf888.statePending}</strong>: {t.helpHoursCf888.statePendingDesc}
             </li>
             <li>
-              <strong>{t.helpHoursCf888.stateCertified}</strong> — {t.helpHoursCf888.stateCertifiedDesc}
+              <strong>{t.helpHoursCf888.stateCertified}</strong>: {t.helpHoursCf888.stateCertifiedDesc}
             </li>
           </ul>
 

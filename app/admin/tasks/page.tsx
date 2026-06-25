@@ -9,7 +9,7 @@ import { approveTaskGate } from "./actions";
 import type { TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Task approval — colift admin" };
+export const metadata = { title: "Task approval, colift admin" };
 
 interface TaskRow extends TaskTemplate {
   org_name: string | null;

@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { relativeTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Website audits — colift admin" };
+export const metadata = { title: "Website audits, colift admin" };
 
 interface Row {
   id: string;
@@ -37,7 +37,7 @@ export default async function AdminGovAuditsPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Website audits — review</h1>
+        <h1 className="text-2xl font-semibold">Website audits, review</h1>
         <p className="text-body mt-1">
           Submitted government-website audits awaiting review. Approving credits the volunteer&apos;s
           certified time (capped, auto-corroborated) as hours.
@@ -64,14 +64,14 @@ export default async function AdminGovAuditsPage() {
                 <tr key={r.id} className="border-t border-line hover:bg-section">
                   <td className="px-4 py-2">
                     <Link href={`/admin/gov-audits/${r.id}`} className="font-medium text-navy underline underline-offset-4">
-                      {r.full_name ?? "—"}
+                      {r.full_name ?? ""}
                     </Link>
                   </td>
                   <td className="max-w-[20rem] truncate px-4 py-2 text-body">{r.target_descriptor}</td>
-                  <td className="px-4 py-2 text-body">{r.submitted_at ? relativeTime(r.submitted_at) : "—"}</td>
+                  <td className="px-4 py-2 text-body">{r.submitted_at ? relativeTime(r.submitted_at) : ""}</td>
                   <td className="px-4 py-2 tabular-nums">{r.certified_minutes ?? 0} min</td>
                   <td className="px-4 py-2 tabular-nums">
-                    {r.integrity_score != null ? `${Math.round(r.integrity_score * 100)}%` : "—"}
+                    {r.integrity_score != null ? `${Math.round(r.integrity_score * 100)}%` : ""}
                   </td>
                   <td className="px-4 py-2">
                     <span className={r.status === "flagged" ? "text-brick" : "text-body"}>{r.status}</span>

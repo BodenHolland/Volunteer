@@ -1,27 +1,30 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import { requireRecipient } from "@/lib/session";
 import { getSubmission } from "@/lib/queries";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ZOONIVERSE_ATTESTATION, reportingMonth } from "@/lib/zooniverse";
+import { CertificateSubmitButton } from "./submit-button";
 import { submitCertificate } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Upload certificate — colift" };
+export const metadata = { title: "Upload certificate | colift" };
 
 export default async function SubmitCertificatePage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  // Next.js delivers repeated query params as string[], that's how we surface
+  // multiple AI-mismatch issues to the user at once.
+  searchParams: Promise<{ error?: string | string[] }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
+  const errors = Array.isArray(sp.error) ? sp.error : sp.error ? [sp.error] : [];
   const me = await requireRecipient();
   const sub = await getSubmission(id);
   if (!sub) notFound();
@@ -41,16 +44,29 @@ export default async function SubmitCertificatePage({
         <ArrowLeft className="size-4" /> Back to task
       </Link>
 
-      <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload your Zooniverse evidence</h1>
+      <h1 className="text-[28px] font-semibold leading-tight text-ink">Upload your Zooniverse certificate</h1>
       <p className="mt-1 text-sm text-body">
-        Three pieces of evidence make verification fast and resistant to forgery. A reviewer cross-checks them
-        and credits the hours Zooniverse recorded.
+        We&apos;ll auto-check the certificate against your profile and self-reported hours. If everything
+        matches, hours land in your ledger immediately. If anything looks off, a reviewer takes a look.
       </p>
 
-      {sp.error && (
-        <p className="mt-4 rounded-md border border-brick/30 bg-brick-subtle p-3 text-sm text-brick">
-          {sp.error}
-        </p>
+      {errors.length > 0 && (
+        <div className="mt-4 rounded-md border border-brick/30 bg-brick-subtle p-4 text-sm text-brick">
+          <p className="mb-2 flex items-center gap-1.5 font-semibold">
+            <AlertCircle className="size-4" />
+            {errors.length === 1
+              ? "We couldn't auto-verify this submission"
+              : `${errors.length} things to fix before we can auto-verify`}
+          </p>
+          <ul className="ml-5 list-disc space-y-1">
+            {errors.map((e, i) => (
+              <li key={i}>{e}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-brick/80">
+            Adjust the fields below and resubmit. Nothing was saved yet.
+          </p>
+        </div>
       )}
 
       <form action={submitCertificate} encType="multipart/form-data" className="mt-6 space-y-5">
@@ -94,22 +110,25 @@ export default async function SubmitCertificatePage({
             placeholder="https://www.zooniverse.org/users/your-username"
           />
           <p className="mt-1 text-xs text-meta">
-            Find this by clicking your avatar on Zooniverse → &quot;Profile&quot;. We open the page to confirm the account matches.
+            Click your avatar on Zooniverse → &quot;Profile&quot; and copy the URL.
           </p>
         </div>
 
         <div>
-          <Label htmlFor="profile_screenshot" className="mb-1.5">Profile dashboard screenshot</Label>
+          <Label htmlFor="reported_hours" className="mb-1.5">Hours you volunteered this month</Label>
           <Input
-            id="profile_screenshot"
-            name="profile_screenshot"
-            type="file"
-            accept="image/png,image/jpeg"
+            id="reported_hours"
+            name="reported_hours"
+            type="number"
+            min="0.1"
+            max="9.99"
+            step="0.1"
             required
+            placeholder="e.g. 2.5"
+            className="w-32"
           />
           <p className="mt-1 text-xs text-meta">
-            Screenshot of your Zooniverse profile dashboard showing your username and total classifications.
-            PNG or JPG · max 15 MB
+            Type the same number that appears on your certificate. Up to 9.99 in 0.1 increments.
           </p>
         </div>
 
@@ -123,7 +142,8 @@ export default async function SubmitCertificatePage({
             required
           />
           <p className="mt-1 text-xs text-meta">
-            The certificate Zooniverse generated for this month. PDF, PNG, or JPG · max 15 MB
+            The certificate Zooniverse generated for this month. PNG or JPG is auto-verified; PDF goes to manual review.
+            Max 15 MB.
           </p>
         </div>
 
@@ -136,7 +156,7 @@ export default async function SubmitCertificatePage({
             minLength={25}
             maxLength={500}
             rows={4}
-            placeholder="A few sentences about what you saw and how the session went. 25–500 characters."
+            placeholder="A few sentences about what you saw and how the session went. 25500 characters."
           />
         </div>
 
@@ -147,7 +167,7 @@ export default async function SubmitCertificatePage({
           </label>
         </div>
 
-        <Button type="submit" className="w-full">Submit for review</Button>
+        <CertificateSubmitButton />
       </form>
     </div>
   );

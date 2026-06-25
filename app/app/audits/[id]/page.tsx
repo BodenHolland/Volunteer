@@ -16,7 +16,7 @@ import { previewCreditForAudit } from "@/lib/audit-pipeline";
 import { AuditClient, type AuditCopy } from "./audit-client";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Food price audit — colift" };
+export const metadata = { title: "Food price audit | colift" };
 
 export default async function AuditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,7 +41,7 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
 
   // Compute the credit preview server-side so the submit step shows the
   // volunteer exactly what they're being credited and why. Safe even when the
-  // audit is still incomplete — items count and commute reflect current state.
+  // audit is still incomplete, items count and commute reflect current state.
   const creditPreview = await previewCreditForAudit(audit.id);
 
   return (

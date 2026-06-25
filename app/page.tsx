@@ -19,7 +19,7 @@ import { listActiveTasks } from "@/lib/queries";
 import { getDict } from "@/lib/i18n";
 
 export const metadata = {
-  title: "colift — Civic work that counts",
+  title: "colift, Civic work that counts",
 };
 
 export const dynamic = "force-dynamic";
@@ -164,7 +164,7 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── VERIFICATION (Sage — SNAP/EBT generic) ─────────────────── */}
+        {/* ─── VERIFICATION (Sage, SNAP/EBT generic) ─────────────────── */}
         <section className="mode-verify border-b border-civic-line">
           <div className="mx-auto max-w-[1280px] px-5 py-20 md:px-8 md:py-24">
             <div className="grid gap-10 md:grid-cols-12 md:gap-12">

@@ -6,7 +6,7 @@ import { createTask } from "@/app/org/tasks/task-form-actions";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Create a task — colift" };
+export const metadata = { title: "Create a task | colift" };
 
 export default async function NewTaskPage() {
   await requireOrgAdmin();

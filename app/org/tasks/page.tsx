@@ -10,7 +10,7 @@ import { getDict } from "@/lib/i18n";
 import type { TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Tasks — colift" };
+export const metadata = { title: "Tasks | colift" };
 
 const STATUS_STYLES: Record<TaskTemplate["status"], string> = {
   draft: "bg-section text-meta",
@@ -112,7 +112,7 @@ export default async function OrgTasksPage() {
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-meta">
                     <span>{CATEGORY_LABELS[task.category] ?? task.category}</span>
                     <span className="inline-flex items-center gap-1"><MapPin className="size-3.5" /> {LOCATION_LABELS[task.location_kind] ?? task.location_kind}</span>
-                    <span className="inline-flex items-center gap-1"><Clock className="size-3.5" /> {formatHours(task.est_hours)}–{formatHours(task.max_hours)}h</span>
+                    <span className="inline-flex items-center gap-1"><Clock className="size-3.5" /> {formatHours(task.est_hours)}{formatHours(task.max_hours)}h</span>
                     <span className="inline-flex items-center gap-1"><Users className="size-3.5" /> {count} {count === 1 ? t.orgTasks.submission : t.orgTasks.submissions}</span>
                   </div>
                 </div>

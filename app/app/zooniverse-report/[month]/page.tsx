@@ -8,7 +8,7 @@ import { PrintButton } from "@/components/print-button";
 import type { Submission, CertificateReview } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Zooniverse activity record — colift" };
+export const metadata = { title: "Zooniverse activity record | colift" };
 
 interface Row {
   sub: Submission;
@@ -129,7 +129,7 @@ export default async function ZooniverseReportPage({
             label="Projects"
             value={
               rows.length === 0
-                ? "—"
+                ? ""
                 : Array.from(new Set(rows.map((r) => r.projectName))).join(", ")
             }
           />
@@ -139,13 +139,13 @@ export default async function ZooniverseReportPage({
           <Field label="colift credited hours" value={`${totalHours}h (ledger: ${ledgerHours}h)`} />
           <Field
             label="colift reviewer"
-            value={Array.from(new Set(rows.map((r) => r.reviewerName).filter(Boolean))).join(", ") || "—"}
+            value={Array.from(new Set(rows.map((r) => r.reviewerName).filter(Boolean))).join(", ") || ""}
           />
           <Field
             label="Decision date"
-            value={latestReviewedAt ? new Date(latestReviewedAt).toISOString().slice(0, 10) : "—"}
+            value={latestReviewedAt ? new Date(latestReviewedAt).toISOString().slice(0, 10) : ""}
           />
-          <Field label="Submission IDs" value={rows.map((r) => r.sub.id).join(", ") || "—"} />
+          <Field label="Submission IDs" value={rows.map((r) => r.sub.id).join(", ") || ""} />
         </div>
 
         {rows.length > 0 && (
@@ -167,7 +167,7 @@ export default async function ZooniverseReportPage({
                       {r.projectSlug && <span className="ml-2 text-xs text-meta">{r.projectSlug}</span>}
                     </td>
                     <td className="py-2">
-                      {r.sub.reviewed_at ? new Date(r.sub.reviewed_at).toISOString().slice(0, 10) : "—"}
+                      {r.sub.reviewed_at ? new Date(r.sub.reviewed_at).toISOString().slice(0, 10) : ""}
                     </td>
                     <td className="py-2 text-right tabular-nums">{r.review?.credited_minutes ?? 0}</td>
                   </tr>

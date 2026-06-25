@@ -9,7 +9,7 @@ import { relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "My work — colift" };
+export const metadata = { title: "My work | colift" };
 
 export default async function MyWorkPage() {
   const user = await requireRecipient();
@@ -28,7 +28,7 @@ export default async function MyWorkPage() {
           icon={<FolderKanban />}
           title={t.app.myWork.empty}
           ctaLabel={t.app.myWork.browse}
-          ctaHref="/app/tasks"
+          ctaHref="/opportunities"
         />
       ) : (
         <ul className="space-y-3">

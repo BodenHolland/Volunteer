@@ -278,7 +278,7 @@ export async function savePageEvalAction(formData: FormData) {
   revalidatePath(`/app/gov-audits/${sessionId}`);
 }
 
-/** Cancel an unsubmitted gov-audit — clears the private session and its still-open
+/** Cancel an unsubmitted gov-audit, clears the private session and its still-open
  *  submission. No public rows exist yet (materialized only on finalize) and no
  *  hours were credited, so nothing to orphan or claw back. */
 export async function cancelGovAuditAction(formData: FormData) {
@@ -302,13 +302,13 @@ export async function submitGovAuditAction(formData: FormData) {
       throw err;
     }
     await logError("submitGovAuditAction", err, { sessionId });
-    return { ok: false, error: "Couldn't submit the audit. The error is logged — try again." };
+    return { ok: false, error: "Couldn't submit the audit. The error is logged, try again." };
   }
 }
 
 async function submitInner(formData: FormData, sessionId: string) {
   const row = (await loadOwnedRaw(sessionId)) as (GovAuditSessionRow & { draft_json: string }) | null;
-  if (!row) redirect("/app/tasks");
+  if (!row) redirect("/opportunities");
   if (row!.status !== "in_progress") redirect(`/app/gov-audits/${sessionId}/done`);
 
   const draft = parseDraft(row);
@@ -322,7 +322,7 @@ async function submitInner(formData: FormData, sessionId: string) {
     return a && isPageRubricComplete(a as unknown as Record<string, unknown>);
   });
   if (completeAnchors.length === 0) {
-    return { ok: false, error: "Answer every observable and 1–5 rating on the page before submitting." };
+    return { ok: false, error: "Answer every observable and 15 rating on the page before submitting." };
   }
 
   const db = getDb();
@@ -330,8 +330,8 @@ async function submitInner(formData: FormData, sessionId: string) {
   const ref = row!.public_session_ref;
 
   // Materialize the public page_evaluations rows synchronously. Auto-checks
-  // (Browser Rendering + axe-core) are deferred into ctx.waitUntil() below —
-  // they take 15–30s per anchor and would otherwise blow Workers' wall-clock
+  // (Browser Rendering + axe-core) are deferred into ctx.waitUntil() below 
+  // they take 1530s per anchor and would otherwise blow Workers' wall-clock
   // budget, leaving the volunteer staring at a stuck "Submitting…" button.
   // Rubric-only corroboration is computed now; the score is recomputed once
   // auto-checks land.
@@ -452,15 +452,15 @@ async function submitInner(formData: FormData, sessionId: string) {
 
   // Kick off the slow server-side auto-checks in the background so the submit
   // request returns immediately. waitUntil lets the worker keep running for up
-  // to ~30s after the response — plenty for one or two anchor's axe-core runs.
+  // to ~30s after the response, plenty for one or two anchor's axe-core runs.
   // If the worker dies before the checks finish, axe_violations stays null
-  // (treated as neutral by integrityScore) — never penalises the volunteer.
+  // (treated as neutral by integrityScore), never penalises the volunteer.
   try {
     getCloudflareContext().ctx.waitUntil(
       runGovAuditAutoChecks(sessionId, ref, anchorUrlsForCheck, row!.device === "desktop")
     );
   } catch {
-    /* outside Workers runtime — auto-check just doesn't run */
+    /* outside Workers runtime, auto-check just doesn't run */
   }
 
   redirect(`/app/gov-audits/${sessionId}/done`);
@@ -474,7 +474,7 @@ async function submitInner(formData: FormData, sessionId: string) {
  *     the session row.
  *
  * This runs via ctx.waitUntil after the submit response has been sent, so the
- * volunteer is already on /done by the time it starts. Never throws — failures
+ * volunteer is already on /done by the time it starts. Never throws, failures
  * leave axe_violations null, which integrityScore treats as neutral.
  */
 async function runGovAuditAutoChecks(
@@ -616,7 +616,7 @@ export async function adminApproveGovAuditAction(formData: FormData) {
 
 /**
  * Right to erasure (PRD §9): delete the PRIVATE session row only. The public
- * page/site/auto-check rows orphan under a ref that now maps to no user — the
+ * page/site/auto-check rows orphan under a ref that now maps to no user, the
  * work product survives, the link to a person is gone. We deliberately do NOT
  * delete the public rows.
  */

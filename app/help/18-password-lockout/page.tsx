@@ -4,7 +4,7 @@ import { getDict, getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Forgot your password or locked out — Help Center" };
+export const metadata = { title: "Forgot your password or locked out | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();
@@ -24,9 +24,9 @@ export default async function Page() {
             Ve a <strong>/forgot-password</strong>, {d.resetPara1Es.replace("Ve a /forgot-password, ", "")}
           </p>
           <p>
-            {d.resetPara2Es.replace(d.resetPara2BoldEs, "").split("——")[0]}
+            {d.resetPara2Es.replace(d.resetPara2BoldEs, "").split("")[0]}
             <strong>{d.resetPara2BoldEs}</strong>
-            {" — tendrás que iniciar sesión nuevamente en cada dispositivo donde estuvieras conectado."}
+            {", tendrás que iniciar sesión nuevamente en cada dispositivo donde estuvieras conectado."}
           </p>
           <p>{d.resetPara3Es}</p>
           <p>
@@ -72,7 +72,7 @@ export default async function Page() {
           </p>
           <p>
             The link is single-use and expires after a short time. Click it, enter a new password (minimum 10 characters), and submit the form. After a successful reset,{" "}
-            <strong>{d.resetPara2BoldEn}</strong> — you&apos;ll need to sign in again on every device where you were logged in.
+            <strong>{d.resetPara2BoldEn}</strong>: you&apos;ll need to sign in again on every device where you were logged in.
           </p>
           <p>{d.resetPara3En}</p>
           <p>

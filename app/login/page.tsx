@@ -10,7 +10,7 @@ import { ensureSeeded } from "@/lib/seed";
 import { getDict } from "@/lib/i18n";
 import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
-export const metadata = { title: "Sign in — colift" };
+export const metadata = { title: "Sign in | colift" };
 
 export const dynamic = "force-dynamic";
 

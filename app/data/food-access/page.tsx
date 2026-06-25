@@ -11,13 +11,13 @@ import { requireUser } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Food access dashboard — colift",
+  title: "Food access dashboard | colift",
   description:
     "Volunteer-collected shelf prices for 6 neighborhood staples. Free, public, updated continuously.",
 };
 
 function fmtUsd(n: number | null): string {
-  if (n == null) return "—";
+  if (n == null) return "";
   return `$${n.toFixed(2)}`;
 }
 

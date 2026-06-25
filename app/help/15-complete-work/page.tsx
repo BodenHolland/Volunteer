@@ -4,7 +4,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "How to complete and submit your work — Help Center" };
+export const metadata = { title: "How to complete and submit your work | Help Center" };
 
 export default async function Page() {
   const { locale, t } = await getDict();
@@ -25,8 +25,8 @@ export default async function Page() {
       <h2>{c.s2Heading}</h2>
       <p>{c.s2Body}</p>
       <ul>
-        <li><strong>{c.s2RequiredLabel}</strong> — {c.s2RequiredBody}</li>
-        <li><strong>{c.s2OptionalLabel}</strong> — {c.s2OptionalBody}</li>
+        <li><strong>{c.s2RequiredLabel}</strong>: {c.s2RequiredBody}</li>
+        <li><strong>{c.s2OptionalLabel}</strong>: {c.s2OptionalBody}</li>
       </ul>
       <p>{c.s2Footer}</p>
 
@@ -90,9 +90,9 @@ export default async function Page() {
       <h2>{c.s7Heading}</h2>
       <p>{c.s7Body}</p>
       <ul>
-        <li><strong>{c.s7PendingLabel}</strong> — {c.s7PendingBody}</li>
-        <li><strong>{c.s7NeedsChangesLabel}</strong> — {c.s7NeedsChangesBody}</li>
-        <li><strong>{c.s7RejectedLabel}</strong> — {c.s7RejectedBody}</li>
+        <li><strong>{c.s7PendingLabel}</strong>: {c.s7PendingBody}</li>
+        <li><strong>{c.s7NeedsChangesLabel}</strong>: {c.s7NeedsChangesBody}</li>
+        <li><strong>{c.s7RejectedLabel}</strong>: {c.s7RejectedBody}</li>
       </ul>
 
       <h2>{c.s8Heading}</h2>

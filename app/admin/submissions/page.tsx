@@ -7,7 +7,7 @@ import { relativeTime, formatHours } from "@/lib/time";
 import type { SubmissionStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Submissions — colift admin" };
+export const metadata = { title: "Submissions, colift admin" };
 
 interface SubRow {
   id: string;
@@ -56,7 +56,7 @@ export default async function AdminSubmissionsPage() {
                 <span className="flex-1 truncate font-medium text-ink">{s.title}</span>
                 <span className="w-44 truncate text-sm text-body">{s.full_name ?? "A volunteer"}</span>
                 <span className="w-44"><StatusPill status={s.status} /></span>
-                <span className="w-20 text-sm text-body">{s.hours_credited != null ? `${formatHours(s.hours_credited)}h` : "—"}</span>
+                <span className="w-20 text-sm text-body">{s.hours_credited != null ? `${formatHours(s.hours_credited)}h` : ""}</span>
                 <span className="w-32 text-sm text-meta">{relativeTime(s.submitted_at ?? s.committed_at)}</span>
               </li>
             ))}

@@ -10,7 +10,7 @@ import { getDict } from "@/lib/i18n";
 import { createOrgSignup } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Become a partner — colift" };
+export const metadata = { title: "Become a partner | colift" };
 
 export default async function OrgSignupPage({
   searchParams,

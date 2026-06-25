@@ -11,7 +11,7 @@ import { getDict } from "@/lib/i18n";
 import { AddressFields, DobInput, NameFields } from "@/app/start/pii-fields";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "SNAP profile — colift" };
+export const metadata = { title: "SNAP profile | colift" };
 
 export default async function ProfilePage({
   searchParams,

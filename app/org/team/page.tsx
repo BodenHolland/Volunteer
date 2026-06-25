@@ -11,7 +11,7 @@ import { inviteMember, revokeInvite, removeMember, changeMemberRole } from "./ac
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Team — colift" };
+export const metadata = { title: "Team | colift" };
 
 interface TeamMember {
   id: string;

@@ -26,7 +26,7 @@ export async function approveSubmission(formData: FormData) {
   if (!ctx) redirect("/org/submissions");
   const { user, sub, task, db } = ctx;
 
-  // Change 4 — hard line #1: credited hours are the volunteer's MEASURED ACTIVE
+  // Change 4, hard line #1: credited hours are the volunteer's MEASURED ACTIVE
   // engagement (idle-aware), capped at the calibrated cap. The reviewer may only
   // reduce for quality, never credit above measured time. The estimate is never
   // the source.

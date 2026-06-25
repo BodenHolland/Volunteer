@@ -10,7 +10,7 @@ import { getDict } from "@/lib/i18n";
 import { submitContact } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Contact — colift" };
+export const metadata = { title: "Contact | colift" };
 
 export default async function ContactPage({
   searchParams,

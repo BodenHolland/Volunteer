@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ListChecks, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ListChecks, CheckCircle2, ExternalLink, ShieldCheck } from "lucide-react";
 
 const TASK_IMAGES: Record<string, string> = {
   task_ems_rates: "/ems-rates-icon.ico",
   task_food_audit: "/food-audit-icon.jpg",
   task_gov_audit: "/gov-audit-icon.png",
+  task_zooniverse: "/zooniverse-icon.png",
 };
 import { getTask } from "@/lib/queries";
 import { commitToTask } from "@/app/app/project-actions";
@@ -19,13 +20,14 @@ import { SiteFooter } from "@/components/site-footer";
 import { parseJson, type ChecklistItem } from "@/lib/types";
 import { getDict } from "@/lib/i18n";
 import { getCurrentUser } from "@/lib/session";
+import { ZOONIVERSE_TASK_DETAIL_DISCLAIMER, ZOONIVERSE_HOMEPAGE_URL } from "@/lib/zooniverse";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = await getTask(id);
-  return { title: task ? `${task.title} — colift` : "Opportunity — colift" };
+  return { title: task ? `${task.title}, colift` : "Opportunity | colift" };
 }
 
 export default async function PublicTaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +39,7 @@ export default async function PublicTaskDetailPage({ params }: { params: Promise
   const { locale, t } = await getDict();
   const viewer = await getCurrentUser();
   const nextUrl = encodeURIComponent(`/opportunities/${task.id}`);
+  const isExternalCert = task.evidence_mode === "external_certificate";
 
   return (
     <>
@@ -96,7 +99,44 @@ export default async function PublicTaskDetailPage({ params }: { params: Promise
             </div>
 
             <aside className="lg:sticky lg:top-20 lg:self-start">
-              {task.listing_type === "external" ? (
+              {isExternalCert ? (
+                <div className="rounded-lg border border-line bg-white p-5 space-y-4">
+                  <p className="rounded-md bg-amber-subtle p-3 text-xs text-body">
+                    <ShieldCheck className="mr-1 inline size-3.5 align-text-bottom text-amber" />
+                    {ZOONIVERSE_TASK_DETAIL_DISCLAIMER}
+                  </p>
+                  <a
+                    href={ZOONIVERSE_HOMEPAGE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-md bg-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-forest/90 transition-colors"
+                  >
+                    <ExternalLink className="size-4" /> Open Zooniverse
+                  </a>
+                  {viewer ? (
+                    <form action={commitToTask}>
+                      <input type="hidden" name="task_id" value={task.id} />
+                      <Button type="submit" variant="secondary" className="w-full">
+                        Return with certificate
+                      </Button>
+                    </form>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button asChild variant="secondary" className="w-full">
+                        <Link href={`/login?next=${nextUrl}`}>Sign in to upload certificate</Link>
+                      </Button>
+                      <Button asChild variant="secondary" className="w-full">
+                        <Link href={`/start?next=${nextUrl}`}>Sign up</Link>
+                      </Button>
+                    </div>
+                  )}
+                  <p className="text-xs text-meta">
+                    {task.monthly_minutes_cap != null
+                      ? `Hours are credited from the certificate, up to ${Math.round(task.monthly_minutes_cap / 60)} per month per Zooniverse project.`
+                      : "Hours are credited from the certificate, whatever Zooniverse recorded."}
+                  </p>
+                </div>
+              ) : task.listing_type === "external" ? (
                 <div className="rounded-lg border border-line bg-white p-5 space-y-4">
                   <p className="rounded-md bg-section p-3 text-xs text-body">
                     This opportunity is organized by <strong>{task.org.name}</strong>. Sign up directly on their website.

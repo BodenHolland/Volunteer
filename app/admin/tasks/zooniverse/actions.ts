@@ -22,7 +22,8 @@ export async function addZooniverseCatalogEntry(formData: FormData) {
   const slug = String(formData.get("external_project_slug") ?? "").trim();
   const url = String(formData.get("project_url") ?? "").trim();
   const taskTypeLabel = String(formData.get("task_type_label") ?? "").trim();
-  const cap = Math.max(0, Number(formData.get("monthly_minutes_cap") ?? 600));
+  const capRaw = String(formData.get("monthly_minutes_cap") ?? "").trim();
+  const cap: number | null = capRaw === "" ? null : Math.max(0, Number(capRaw));
   const benefit = String(formData.get("public_benefit_summary") ?? "").trim();
 
   if (!title || !shortDesc || !projectId || !slug || !url || !taskTypeLabel || !benefit) {
@@ -100,7 +101,7 @@ export async function addZooniverseCatalogEntry(formData: FormData) {
       JSON.stringify({ kind: "citizen-science" }),
       "Reviewer confirms the Zooniverse Volunteer Certificate is legible, in scope, and matches the volunteer; credits the hours Zooniverse reports up to the monthly cap.",
       1,
-      Math.max(1, Math.round(cap / 60)),
+      cap != null ? Math.max(1, Math.round(cap / 60)) : 999,
       "online",
       status,
       now,
@@ -140,7 +141,7 @@ export async function addZooniverseCatalogEntry(formData: FormData) {
   revalidatePath("/admin/tasks/zooniverse");
   redirect(
     `/admin/tasks/zooniverse?ok=${encodeURIComponent(
-      allGates ? "Added and activated." : "Added as draft — complete the 4-part gate to activate."
+      allGates ? "Added and activated." : "Added as draft, complete the 4-part gate to activate."
     )}`
   );
 }

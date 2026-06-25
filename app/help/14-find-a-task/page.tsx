@@ -4,7 +4,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "How to find and commit to a task — Help Center" };
+export const metadata = { title: "How to find and commit to a task | Help Center" };
 
 export default async function Page() {
   const { locale, t } = await getDict();

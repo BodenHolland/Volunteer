@@ -5,11 +5,11 @@ import { rateLimit } from "@/lib/ratelimit";
 import { requireDatasetAccess } from "@/lib/dataset-access";
 
 /**
- * Signed-in CSV export — food access price audits.
+ * Signed-in CSV export, food access price audits.
  *
  * DATA PRINCIPLE (CLAUDE.md): this endpoint reads ONLY the public cluster
  * (audit_public_summaries + audit_item_captures, joined on public_session_ref).
- * It NEVER touches `audits`, `users`, `submissions`, or any row carrying PII —
+ * It NEVER touches `audits`, `users`, `submissions`, or any row carrying PII 
  * the public tables have no FK to a person, so the export is safe by
  * construction. Only rows with verified_at IS NOT NULL surface (gated on the
  * fraud / spot-review pipeline).

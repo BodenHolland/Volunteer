@@ -5,7 +5,7 @@ import { isDemoMode } from "@/lib/cf";
 import { ResetButton } from "@/components/admin/reset-button";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Reset data — colift admin" };
+export const metadata = { title: "Reset data, colift admin" };
 
 export default async function AdminResetPage() {
   await requireAdmin();
@@ -23,7 +23,7 @@ export default async function AdminResetPage() {
         </p>
         <p className="mt-2 text-sm text-body">
           Resetting deletes <strong>all</strong> users, organizations, tasks, submissions,
-          uploaded files metadata, hours, work-hours certification records, and feedback — then reinserts the
+          uploaded files metadata, hours, work-hours certification records, and feedback, then reinserts the
           original dataset. Anything created or changed during this session is permanently
           lost. There is no undo.
         </p>

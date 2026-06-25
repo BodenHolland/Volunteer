@@ -107,7 +107,7 @@ export function HoursCalculator() {
   const stateName = STATE_LIST.find((s) => s.code === sel.state)?.name ?? sel.state;
   const isWorkfare = result.formula === "workfare_allotment_over_minwage";
   const exemptionReason = outOfAgeRange
-    ? "You're outside the 18–64 ABAWD age range — the work requirement doesn't apply to you."
+    ? "You're outside the 1864 ABAWD age range, the work requirement doesn't apply to you."
     : `You qualify for an ABAWD exemption: ${exemptKeys
         .map((k) => EXEMPTIONS.find((e) => e.key === k)?.label.toLowerCase())
         .filter(Boolean)
@@ -134,13 +134,13 @@ export function HoursCalculator() {
         <fieldset className="mt-5 border-t border-line pt-5">
           <legend className="text-sm font-medium text-ink">Are you between ages 18 and 64?</legend>
           <p className="mt-1 text-xs text-meta">
-            OBBBA (2025) expanded ABAWD from 18–54 to 18–64. People outside that range aren't
+            OBBBA (2025) expanded ABAWD from 1854 to 1864. People outside that range aren't
             subject to the work requirement.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {[
-              { v: "in_range" as const, label: "Yes, 18–64" },
-              { v: "out_of_range" as const, label: "No, outside 18–64" },
+              { v: "in_range" as const, label: "Yes, 1864" },
+              { v: "out_of_range" as const, label: "No, outside 1864" },
               { v: "unset" as const, label: "Skip for now" },
             ].map((opt) => {
               const active = sel.ageAnswer === opt.v;
@@ -220,12 +220,12 @@ export function HoursCalculator() {
                 >
                   {jurisdictions.jurisdictions.map((j) => (
                     <option key={j.key} value={j.key}>
-                      {j.label} — ${j.minimum_wage_usd.toFixed(2)}/hr
+                      {j.label}, ${j.minimum_wage_usd.toFixed(2)}/hr
                     </option>
                   ))}
                 </select>
                 <span className="mt-1.5 block text-xs text-meta">
-                  {stateName} has multiple minimum-wage zones — pick yours.
+                  {stateName} has multiple minimum-wage zones, pick yours.
                 </span>
               </label>
             )}
@@ -328,7 +328,7 @@ export function HoursCalculator() {
               <p className="mt-1.5 text-xs text-meta">
                 SNAP allotments come from USDA FNS (FY2026). Minimum wage figures from each
                 state's labor department. Exemption checks reflect the federal 7 CFR §273.24(b)
-                list — some states add categories beyond this.
+                list, some states add categories beyond this.
               </p>
             </div>
           </div>
@@ -478,7 +478,7 @@ function StateStatusPanel({
           <p className="text-sm font-medium text-ink">{status.shortLabel}</p>
           <p className="mt-1 text-xs text-meta">
             {status.administration === "county"
-              ? `Administered at the county level${status.countyVariation ? " — implementation varies" : ""}.`
+              ? `Administered at the county level${status.countyVariation ? ", implementation varies" : ""}.`
               : "Administered at the state level."}{" "}
             <span className="font-medium text-forest underline-offset-2 group-open:underline">
               View waiver detail
@@ -507,7 +507,7 @@ function ExemptResult({ reason, stateName }: { reason: string; stateName: string
           </p>
           <p className="mt-3 text-sm leading-relaxed text-body">{reason}</p>
           <p className="mt-3 text-xs text-meta">
-            You may still benefit from volunteering — colift welcomes anyone, exempt or not. But
+            You may still benefit from volunteering, colift welcomes anyone, exempt or not. But
             you don't need a work-hours verification form to keep your SNAP benefits.
           </p>
         </div>

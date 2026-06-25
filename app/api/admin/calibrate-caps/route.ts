@@ -5,7 +5,7 @@ import { writeAudit } from "@/lib/audit";
 
 /**
  * Cap-calibration methodology (Change 5). For each active task, derive the cap
- * from the *observed median of real, quality-passing (approved) sessions* —
+ * from the *observed median of real, quality-passing (approved) sessions* 
  * never an uncaught AI guess. Records `cap_calibrated_at` + `cap_sample_size`,
  * and (only with a meaningful sample) tightens `max_hours` toward the median.
  * Run on a schedule (quarterly). Admin-only. The written methodology + this audit

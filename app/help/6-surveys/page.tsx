@@ -5,14 +5,14 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Surveys & community-research contributions — Help Center" };
+export const metadata = { title: "Surveys & community-research contributions | Help Center" };
 
 export default async function Page() {
   const { locale, t } = await getDict();
   const { prev, next } = neighbors(6, locale);
   const title =
     locale === "es"
-      ? "Encuestas y contribuciones de investigación comunitaria — cómo las abordamos"
+      ? "Encuestas y contribuciones de investigación comunitaria, cómo las abordamos"
       : t.helpSurveys.title;
 
   return (

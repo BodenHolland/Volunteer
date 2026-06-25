@@ -50,8 +50,8 @@ export function TimeLog({
     sessions: "sessions",
     stop: "Stop session",
     start: "Start session",
-    measuring: "Measuring active time — only counts while this tab is open and you're working.",
-    onlyActive: "Only active time is credited — never idle time or estimates.",
+    measuring: "Measuring active time, only counts while this tab is open and you're working.",
+    onlyActive: "Only active time is credited, never idle time or estimates.",
   };
   const open = sessions.find((s) => s.end === null);
   const [pending, start] = useTransition();
@@ -147,7 +147,7 @@ export function TimeLog({
         <p className="mt-2 flex items-center gap-1.5 text-sm text-amber" aria-live="polite">
           <span className="inline-block size-2 animate-colift-pulse rounded-full bg-amber" />
           {mode === "wall_clock"
-            ? "Timer running — keeps counting while you research on other tabs."
+            ? "Timer running, keeps counting while you research on other tabs."
             : c.measuring}
         </p>
       )}

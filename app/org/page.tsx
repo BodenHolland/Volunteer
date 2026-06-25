@@ -9,7 +9,7 @@ import { formatHours, monthLabel, relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Organization — colift" };
+export const metadata = { title: "Organization | colift" };
 
 function Stat({ icon, value, label, href }: { icon: React.ReactNode; value: string | number; label: string; href?: string }) {
   const inner = (

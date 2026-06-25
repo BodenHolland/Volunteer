@@ -320,7 +320,7 @@ function CustomCommute({
           name="minutes"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder={`0 – ${capMinutes}`}
+          placeholder={`0, ${capMinutes}`}
           className="w-28 rounded-md border border-line px-3 py-1.5 text-sm"
         />
         <button
@@ -423,7 +423,7 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
     }
     let cancelled = false;
     setLoading(true);
-    // Debounce 350ms — Nominatim's policy is ≤1 req/sec, and the longer pause
+    // Debounce 350ms, Nominatim's policy is ≤1 req/sec, and the longer pause
     // also avoids firing on every keystroke mid-word.
     const t = setTimeout(async () => {
       const r = await searchStoresAction(query, hint);
@@ -867,12 +867,12 @@ function CaptureForm({
             fd.set("exif_ts", String(new Date(parsed.DateTimeOriginal).getTime()));
           }
         } catch {
-          /* no exif — pipeline will skip the geotag check */
+          /* no exif, pipeline will skip the geotag check */
         }
       }
     }
     // A thrown server action (e.g. body-size rejection, network drop) would
-    // skip setSubmitting(false) and leave the button stuck on "Saving…" —
+    // skip setSubmitting(false) and leave the button stuck on "Saving…" 
     // catch it so the user sees an error and can retry.
     try {
       const r = await captureItemAction(fd);
@@ -1097,7 +1097,7 @@ function SubmitStep({
     setSubmitting(true);
     const fd = new FormData();
     fd.set("audit_id", auditId);
-    // Session timer was removed — credit is items × 5 min + commute, both capped.
+    // Session timer was removed, credit is items × 5 min + commute, both capped.
     fd.set("session_seconds", "0");
     const result = await submitAuditAction(fd);
     setSubmitting(false);

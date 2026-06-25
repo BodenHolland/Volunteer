@@ -4,7 +4,7 @@ import { getLocale, getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Community guidelines — Help Center" };
+export const metadata = { title: "Community guidelines | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();
@@ -35,7 +35,7 @@ export default async function Page() {
 
           <h2>No inventes hallazgos</h2>
           <p>
-            Si no pudiste completar un ítem —el artículo no tenía etiqueta de precio, la página que debías revisar estaba caída, el documento estaba ilegible— anótalo honestamente. Casi todas las especificaciones de tarea prevén este tipo de resultado. &ldquo;No disponible&rdquo; o &ldquo;no se pudo determinar&rdquo; es un hallazgo válido. Un número inventado no lo es.
+            Si no pudiste completar un ítem el artículo no tenía etiqueta de precio, la página que debías revisar estaba caída, el documento estaba ilegible anótalo honestamente. Casi todas las especificaciones de tarea prevén este tipo de resultado. &ldquo;No disponible&rdquo; o &ldquo;no se pudo determinar&rdquo; es un hallazgo válido. Un número inventado no lo es.
           </p>
 
           <h2>Las herramientas de IA están permitidas, con límites</h2>
@@ -43,12 +43,12 @@ export default async function Page() {
             Puedes usar herramientas de IA durante el trabajo: buscar algo, resumir un documento largo, pulir la redacción de tus notas. Lo que no puedes hacer es usar IA para generar tu envío completo sin haber realizado la tarea tú mismo.
           </p>
           <p>
-            La pregunta que hace el validador es: ¿participaste genuinamente en la tarea? Si la respuesta es sí y usaste IA como ayuda, no hay ningún problema. Si la respuesta es no —si le pediste a una IA que inventara los resultados y los enviaste como propios— eso es una falsificación.
+            La pregunta que hace el validador es: ¿participaste genuinamente en la tarea? Si la respuesta es sí y usaste IA como ayuda, no hay ningún problema. Si la respuesta es no si le pediste a una IA que inventara los resultados y los enviaste como propios eso es una falsificación.
           </p>
 
           <h2>Honestidad con el registro de tiempo</h2>
           <p>
-            El temporizador del proyecto mide tu tiempo activo de trabajo. No lo dejes corriendo mientras no estás trabajando. Las sesiones que no se corresponden con el trabajo entregado —por ejemplo, varias horas registradas para un envío que solo podría tomar veinte minutos— se marcan por anomalía de velocidad y van a revisión humana.
+            El temporizador del proyecto mide tu tiempo activo de trabajo. No lo dejes corriendo mientras no estás trabajando. Las sesiones que no se corresponden con el trabajo entregado por ejemplo, varias horas registradas para un envío que solo podría tomar veinte minutos se marcan por anomalía de velocidad y van a revisión humana.
           </p>
           <p>
             Solo se te acredita el tiempo activo real, con un tope máximo por tarea. Si tu tiempo medido es menor que el tope, eso es lo que recibes. No hay ganancia en dejar correr el reloj.
@@ -65,13 +65,13 @@ export default async function Page() {
           </p>
           <ul>
             <li>
-              <strong>Aprobar</strong> — las horas se acreditan (la cantidad puede reducirse si la calidad es parcial).
+              <strong>Aprobar</strong>: las horas se acreditan (la cantidad puede reducirse si la calidad es parcial).
             </li>
             <li>
-              <strong>Solicitar cambios</strong> — puedes revisar y volver a enviar.
+              <strong>Solicitar cambios</strong>: puedes revisar y volver a enviar.
             </li>
             <li>
-              <strong>Rechazar</strong> — el trabajo rechazado recibe cero horas. No hay crédito parcial.
+              <strong>Rechazar</strong>: el trabajo rechazado recibe cero horas. No hay crédito parcial.
             </li>
           </ul>
           <p>

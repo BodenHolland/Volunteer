@@ -8,7 +8,7 @@ import type { GovAuditSessionRow } from "@/lib/gov-audit";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Audit submitted — colift" };
+export const metadata = { title: "Audit submitted | colift" };
 
 export default async function GovAuditDonePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -46,7 +46,7 @@ export default async function GovAuditDonePage({ params }: { params: Promise<{ i
         <div className="rounded-lg border border-line bg-white p-4">
           <dt className="text-[13px] text-body">{t.govAuditDone.integrityScore}</dt>
           <dd className="mt-1 text-2xl font-semibold tabular-nums text-ink">
-            {integrityPct != null ? `${integrityPct}%` : "—"}
+            {integrityPct != null ? `${integrityPct}%` : ""}
           </dd>
           <p className="mt-1 text-xs text-body">{t.govAuditDone.integrityScoreCaption}</p>
         </div>
@@ -69,7 +69,7 @@ export default async function GovAuditDonePage({ params }: { params: Promise<{ i
           <Button type="submit">{t.govAuditDone.auditAnother}</Button>
         </form>
         <Button asChild variant="ghost">
-          <Link href="/app/tasks">{t.govAuditDone.findDifferentTask}</Link>
+          <Link href="/opportunities">{t.govAuditDone.findDifferentTask}</Link>
         </Button>
       </div>
     </div>

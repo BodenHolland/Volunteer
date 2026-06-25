@@ -59,24 +59,26 @@ export async function approveExternalSubmission(formData: FormData) {
   const projectSlug = String(formData.get("project_slug") ?? "").trim() || fileMeta.project_slug || "";
 
   const requestedMinutes = Math.max(0, Number(formData.get("credited_minutes") ?? 0));
-  const cap = task.monthly_minutes_cap ?? 600;
-  const remaining = await remainingMonthlyMinutes(sub.user_id, task.id, reportingMonth, cap);
-  const clamped = Math.min(requestedMinutes, remaining);
-
-  if (clamped < requestedMinutes) {
-    await db
-      .prepare(
-        "INSERT INTO submission_flags (id, submission_id, kind, severity, evidence_json, created_at) VALUES (?,?,?,?,?,?)"
-      )
-      .bind(
-        newId("flag"),
-        id,
-        "monthly_cap_exceeded",
-        "warn",
-        JSON.stringify({ requested: requestedMinutes, granted: clamped, cap_minutes: cap }),
-        Date.now()
-      )
-      .run();
+  const cap = task.monthly_minutes_cap; // null = no cap
+  let clamped = requestedMinutes;
+  if (cap != null) {
+    const remaining = await remainingMonthlyMinutes(sub.user_id, task.id, reportingMonth, cap);
+    clamped = Math.min(requestedMinutes, remaining);
+    if (clamped < requestedMinutes) {
+      await db
+        .prepare(
+          "INSERT INTO submission_flags (id, submission_id, kind, severity, evidence_json, created_at) VALUES (?,?,?,?,?,?)"
+        )
+        .bind(
+          newId("flag"),
+          id,
+          "monthly_cap_exceeded",
+          "warn",
+          JSON.stringify({ requested: requestedMinutes, granted: clamped, cap_minutes: cap }),
+          Date.now()
+        )
+        .run();
+    }
   }
 
   const nameMatch = triple(formData, "cert_name_matches_user");
@@ -148,9 +150,9 @@ export async function approveExternalSubmission(formData: FormData) {
     .bind(newId("ledger"), sub.user_id, reportingMonth, creditedHours, task.org_id)
     .run();
 
-  // PUBLIC cluster — keyed by submissions.public_session_ref. NO user_id ever
+  // PUBLIC cluster, keyed by submissions.public_session_ref. NO user_id ever
   // enters this row by construction. Skip silently if the submission predates
-  // the public_session_ref column (defensive — should never happen).
+  // the public_session_ref column (defensive, should never happen).
   if (sub.public_session_ref) {
     await writePublicActivityRow({
       public_session_ref: sub.public_session_ref,
@@ -175,7 +177,7 @@ export async function approveExternalSubmission(formData: FormData) {
       project_name: projectName,
       project_slug: projectSlug,
       reporting_month: reportingMonth,
-      cap_minutes: cap,
+      cap_minutes: cap ?? null,
       requested_minutes: requestedMinutes,
       credited_minutes: clamped,
       credited_hours: creditedHours,

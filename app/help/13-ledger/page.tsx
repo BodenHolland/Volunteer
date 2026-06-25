@@ -5,7 +5,7 @@ import { getDict, getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Audit & methodology ledger — Help Center" };
+export const metadata = { title: "Audit & methodology ledger | Help Center" };
 
 export default async function Page() {
   const { t } = await getDict();

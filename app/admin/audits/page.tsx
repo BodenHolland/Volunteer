@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { relativeTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Food audits — colift admin" };
+export const metadata = { title: "Food audits, colift admin" };
 
 interface Row {
   id: string;
@@ -39,7 +39,7 @@ export default async function AdminAuditsPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Food audits — spot review</h1>
+        <h1 className="text-2xl font-semibold">Food audits, spot review</h1>
         <p className="text-body mt-1">
           Audits awaiting verification or human review. Approving credits the volunteer&apos;s measured
           time as hours.
@@ -71,7 +71,7 @@ export default async function AdminAuditsPage() {
                       ) : null}
                     </div>
                     <div className="text-sm text-body">
-                      {r.full_name ?? "—"} · {r.store_address ?? "—"}
+                      {r.full_name ?? ""} · {r.store_address ?? ""}
                     </div>
                   </div>
                   <div className="text-right text-sm text-body">

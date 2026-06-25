@@ -24,7 +24,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
   if (!sub) notFound();
   if (sub.user_id !== user.id) redirect("/unauthorized");
 
-  // Audit-typed tasks each have their own flow — the generic project hub has
+  // Audit-typed tasks each have their own flow, the generic project hub has
   // no audit UI. Bounce to the right place so a back-button or stale link
   // doesn't trap the volunteer on a page that can't progress the work.
   if (sub.auditId) redirect(`/app/audits/${sub.auditId}`);
@@ -35,13 +35,13 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
         : `/app/gov-audits/${sub.govAuditId}/done`
     );
   }
-  // ems-rate-research has no hub UI either — the structured form on /submit
+  // ems-rate-research has no hub UI either, the structured form on /submit
   // is the work. Don't strand the volunteer here if they hit Back.
   if (sub.task.category === "ems-rate-research" && ["committed", "in_progress", "needs_changes"].includes(sub.status)) {
     redirect(`/app/projects/${id}/submit`);
   }
   // External-certificate tasks (Zooniverse) have their own hub at /app/external/[id]
-  // — the generic timer + checklist doesn't apply because the work happens
+  //, the generic timer + checklist doesn't apply because the work happens
   // off-platform and is verified via certificate.
   if (sub.task.evidence_mode === "external_certificate") {
     redirect(`/app/external/${id}`);

@@ -6,7 +6,7 @@ import { getDict, getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "For caseworkers — a one-page methodology — Help Center" };
+export const metadata = { title: "For caseworkers, a one-page methodology | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();

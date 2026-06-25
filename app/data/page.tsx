@@ -12,7 +12,7 @@ import { requireUser } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Datasets — colift",
+  title: "Datasets | colift",
   description:
     "Datasets produced by colift volunteers, available to signed-in users as CSV and JSON downloads.",
 };
@@ -94,7 +94,7 @@ export default async function DataIndexPage() {
           <li>
             <DatasetCard
               title="Citizen-science classifications (Zooniverse)"
-              body="Verified hours volunteers contributed to public-interest research projects on Zooniverse, aggregated by project and reporting month. No PII — keyed only by an opaque per-submission reference."
+              body="Verified hours volunteers contributed to public-interest research projects on Zooniverse, aggregated by project and reporting month. No PII, keyed only by an opaque per-submission reference."
               count={`${zoonRows.toLocaleString()} ${t.dataIndex.rows}`}
               dashboardHref={null}
               dashboardLabel={t.dataIndex.viewDashboard}

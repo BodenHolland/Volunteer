@@ -9,7 +9,7 @@ import type { TaskTemplate } from "@/lib/types";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Edit task — colift" };
+export const metadata = { title: "Edit task | colift" };
 
 export default async function EditTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

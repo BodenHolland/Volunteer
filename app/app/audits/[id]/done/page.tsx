@@ -8,7 +8,7 @@ import type { AuditRow } from "@/lib/food-audit";
 import { DonePolling, type DoneCopy } from "./done-polling";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Audit submitted — colift" };
+export const metadata = { title: "Audit submitted | colift" };
 
 export default async function AuditDonePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,7 +38,7 @@ export default async function AuditDonePage({ params }: { params: Promise<{ id: 
           <Link href="/app">{t.auditDone.backToDashboard}</Link>
         </Button>
         <Button asChild variant="secondary">
-          <Link href="/app/tasks">{t.auditDone.findAnother}</Link>
+          <Link href="/opportunities">{t.auditDone.findAnother}</Link>
         </Button>
       </div>
     </div>

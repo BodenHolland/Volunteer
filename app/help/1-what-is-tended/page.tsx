@@ -4,7 +4,7 @@ import { getLocale, getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "What is colift? — Help Center" };
+export const metadata = { title: "What is colift? | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();

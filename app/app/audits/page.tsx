@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "My food audits — colift" };
+export const metadata = { title: "My food audits | colift" };
 
 interface AuditMineRow {
   id: string;
@@ -86,7 +86,7 @@ export default async function MyAuditsPage() {
           </p>
         </div>
         <Button asChild variant="secondary">
-          <Link href="/app/tasks">{t.myAudits.findAudit} <ArrowRight /></Link>
+          <Link href="/opportunities">{t.myAudits.findAudit} <ArrowRight /></Link>
         </Button>
       </div>
 
@@ -96,7 +96,7 @@ export default async function MyAuditsPage() {
           title={t.myAudits.emptyTitle}
           body={t.myAudits.emptyBody}
           ctaLabel={t.myAudits.findAudit}
-          ctaHref="/app/tasks"
+          ctaHref="/opportunities"
         />
       ) : (
         <ul className="space-y-3">
@@ -129,7 +129,7 @@ export default async function MyAuditsPage() {
                   {statusLabel[r.validation_status] ?? r.validation_status}
                 </span>
                 <div className="hidden shrink-0 text-right text-xs text-meta sm:block">
-                  {r.submitted_at ? relativeTime(r.submitted_at) : "—"}
+                  {r.submitted_at ? relativeTime(r.submitted_at) : ""}
                 </div>
                 <ArrowRight className="size-4 shrink-0 text-meta" aria-hidden />
               </Link>

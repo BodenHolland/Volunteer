@@ -3,11 +3,11 @@ import { rateLimit } from "@/lib/ratelimit";
 import { requireDatasetAccess } from "@/lib/dataset-access";
 
 /**
- * Signed-in JSON export — EMS ambulance billing rates.
+ * Signed-in JSON export, EMS ambulance billing rates.
  *
  * Same data, same moderation gate, and same public-cluster-only guarantee as
  * the CSV export (app/api/data/ems-rates.csv/route.ts). Reads ONLY
- * ems_rate_reports — never submissions or users.
+ * ems_rate_reports, never submissions or users.
  */
 
 interface EmsRateExportRow {

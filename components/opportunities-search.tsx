@@ -14,7 +14,7 @@ const LOCATIONS = [
 ];
 
 /**
- * Prominent search row for /opportunities — each segment is its own
+ * Prominent search row for /opportunities, each segment is its own
  * independent pill. Hover/focus state is local to the segment that owns it;
  * the row itself has no shared border or shell.
  */
@@ -125,7 +125,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
         </PopoverContent>
       </Popover>
 
-      {/* Keyword input pill — flexes to take remaining width */}
+      {/* Keyword input pill, flexes to take remaining width */}
       <div className={cn(pillBase, "relative flex flex-1 items-center")}>
         <Search className="pointer-events-none absolute left-4 size-5 text-slate-soft" aria-hidden />
         <input
@@ -195,7 +195,7 @@ export function OpportunitiesSearch({ locationCounts = {} }: { locationCounts?: 
         </PopoverContent>
       </Popover>
 
-      {/* Submit — its own independent button, no shared shell */}
+      {/* Submit, its own independent button, no shared shell */}
       <Button type="submit" size="lg" className="h-12 gap-1.5 md:px-6">
         <Search className="size-4" /> Search
       </Button>

@@ -151,7 +151,7 @@ export function TaskForm({
           <GateCheckbox
             name="gate_external_beneficiary"
             label="External beneficiary"
-            hint="A third party or the community benefits — not just the volunteer."
+            hint="A third party or the community benefits, not just the volunteer."
             defaultChecked={!!task?.gate_external_beneficiary}
           />
           <GateCheckbox
@@ -178,10 +178,10 @@ export function TaskForm({
       {/* Publish */}
       <section className="space-y-4 rounded-lg border border-line bg-white p-5">
         <h2 className="text-lg font-semibold text-ink">Status</h2>
-        <Field label="Visibility" htmlFor="status" hint="Drafts stay private. A task can only go active once all four gate criteria pass and an admin approves it — otherwise it stays a draft.">
+        <Field label="Visibility" htmlFor="status" hint="Drafts stay private. A task can only go active once all four gate criteria pass and an admin approves it, otherwise it stays a draft.">
           <select id="status" name="status" required defaultValue={task?.status === "active" ? "active" : "draft"} className={selectClass}>
-            <option value="draft">Draft — not visible to volunteers</option>
-            <option value="active">Active — open for volunteers</option>
+            <option value="draft">Draft, not visible to volunteers</option>
+            <option value="active">Active, open for volunteers</option>
           </select>
         </Field>
       </section>

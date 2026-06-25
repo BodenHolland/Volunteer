@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "About — colift" };
+export const metadata = { title: "About | colift" };
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* ─── WHY (Community Lilac — story / motivation mode) ──────── */}
+        {/* ─── WHY (Community Lilac, story / motivation mode) ──────── */}
         <section className="mode-community border-b border-civic-line">
           <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-24">
             <div className="grid gap-10 md:grid-cols-12 md:gap-16">
@@ -53,7 +53,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* ─── HOW (white — methodical, operational) ────────────────── */}
+        {/* ─── HOW (white, methodical, operational) ────────────────── */}
         <section className="border-b border-civic-line bg-white">
           <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-24">
             <div className="grid gap-10 md:grid-cols-12 md:gap-16">
@@ -69,7 +69,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* ─── VALUES (Verification Sage — principles / trust) ──────── */}
+        {/* ─── VALUES (Verification Sage, principles / trust) ──────── */}
         <section className="mode-verify border-b border-civic-line">
           <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-24">
             <h2 className="text-[28px] font-semibold leading-tight tracking-tight text-ink md:text-[34px]">

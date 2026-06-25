@@ -15,7 +15,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "For organizations — colift" };
+export const metadata = { title: "For organizations | colift" };
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +69,7 @@ export default async function ForOrganizationsPage() {
           </div>
         </section>
 
-        {/* ─── STEPS (white — operational / methodical) ─────────────── */}
+        {/* ─── STEPS (white, operational / methodical) ─────────────── */}
         <section className="border-b border-civic-line bg-white">
           <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-24">
             <div className="max-w-[720px]">
@@ -99,7 +99,7 @@ export default async function ForOrganizationsPage() {
           </div>
         </section>
 
-        {/* ─── ELIGIBILITY (Warm Sand — partner / institutional mode) ── */}
+        {/* ─── ELIGIBILITY (Warm Sand, partner / institutional mode) ── */}
         <section className="mode-partner border-b border-civic-line">
           <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-24">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
@@ -136,7 +136,7 @@ export default async function ForOrganizationsPage() {
           </div>
         </section>
 
-        {/* ─── CTA (Ink — strong institutional close) ───────────────── */}
+        {/* ─── CTA (Ink, strong institutional close) ───────────────── */}
         <section className="bg-ink text-paper">
           <div className="mx-auto max-w-[1200px] px-5 py-16 md:px-8 md:py-20">
             <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

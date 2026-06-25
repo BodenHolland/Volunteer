@@ -8,7 +8,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Help Center — colift" };
+export const metadata = { title: "Help Center | colift" };
 
 const SECTION_ICONS: Record<string, typeof Info> = {
   about: Info,

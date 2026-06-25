@@ -2,7 +2,7 @@ export function DraftBanner() {
   return (
     <div className="border-b border-amber-300 bg-amber-50 text-amber-900">
       <div className="mx-auto max-w-[1200px] px-4 py-3 text-sm md:px-6">
-        <strong className="font-semibold">DRAFT —</strong> pending counsel review
+        <strong className="font-semibold">DRAFT </strong> pending counsel review
         and 501(c)(3) determination. Content describes colift's incolift
         operating posture and is not yet live.
       </div>

@@ -907,7 +907,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   // project passes the 4-part gate by construction (public-interest research
   // curated by Adler Planetarium with a free public dataset).
   const zoonInstructions =
-    "## What you'll do\nZooniverse hosts dozens of real research projects across biology, climate, astronomy, history, and medicine. Every project produces a public dataset researchers actually use. You pick whichever one looks interesting, classify on your own account, and your hours count toward your colift record.\n\n1. **Open Zooniverse** and either sign in or create a free account.\n2. **Pick a project** — anything that catches your eye. Whales, galaxies, weather diaries, rainforest sounds, whatever.\n3. **Classify**. Do as much or as little as you want in one session.\n4. When you're ready to log hours (typically end-of-month), **generate your Volunteer Certificate** from your Zooniverse profile.\n5. Come back to colift, upload the certificate, tell us which project you worked on, and a reviewer will credit the hours within a few days.\n\n## Why this counts\nEvery Zooniverse project is real public-interest research with a free public output — exactly the kind of work colift is built to recognize. We don't need to pre-approve which project you pick.\n\n## Hours credit\nUp to 10 hours per month per Zooniverse project, based on what the certificate says.";
+    "## What you'll do\nZooniverse hosts dozens of real research projects across biology, climate, astronomy, history, and medicine. Every project produces a public dataset researchers actually use. You pick whichever one looks interesting, classify on your own account, and your hours count toward your colift record.\n\n1. **Open Zooniverse** and either sign in or create a free account.\n2. **Pick a project** — anything that catches your eye. Whales, galaxies, weather diaries, rainforest sounds, whatever.\n3. **Classify**. Do as much or as little as you want in one session.\n4. When you're ready to log hours (typically end-of-month), **generate your Volunteer Certificate** from your Zooniverse profile.\n5. Come back to colift, upload the certificate, tell us which project you worked on, and a reviewer will credit the hours within a few days.\n\n## Why this counts\nEvery Zooniverse project is real public-interest research with a free public output — exactly the kind of work colift is built to recognize. We don't need to pre-approve which project you pick.\n\n## Hours credit\nWe credit the hours your Zooniverse certificate shows. No artificial cap.";
   const zoonRubric =
     "A complete submission has a legible Zooniverse Volunteer Certificate that names the volunteer, lists the reporting period, and shows the project + hours. Any Zooniverse project qualifies as long as the certificate is authentic and matches the submitting volunteer.";
   const zoonCheck: ChecklistItem[] = [
@@ -921,19 +921,20 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       TASK_ZOONIVERSE, ORG_CITIZEN_SCIENCE, USER_ADMIN,
       "Volunteer on Zooniverse",
       "citizen-science",
-      "Pick any project on Zooniverse — wildlife photos, historical documents, deep-space images, weather records — classify what you can in a session, then upload your monthly Zooniverse Volunteer Certificate. colift verifies the certificate and credits the hours.",
+      "Pick any project on Zooniverse — wildlife photos, historical documents, deep-space images, weather records — classify what you can, then upload your monthly Zooniverse Volunteer Certificate. colift verifies the certificate and credits the hours.",
       zoonInstructions, JSON.stringify(zoonCheck),
       JSON.stringify({ kind: "citizen-science" }),
       zoonRubric,
-      1, 10, "online", "active", now - 14 * DAY, null, "native", null
+      1, 999, "online", "active", now - 14 * DAY, null, "native", null
     )
   );
 
   // External provider columns aren't in the base INSERT — set them after.
+  // monthly_minutes_cap = NULL means no artificial cap; we credit what the cert says.
   stmts.push(
     db.prepare(
-      "UPDATE task_templates SET external_provider = ?, evidence_mode = ?, monthly_minutes_cap = ? WHERE id = ?"
-    ).bind("zooniverse", "external_certificate", 600, TASK_ZOONIVERSE)
+      "UPDATE task_templates SET external_provider = ?, evidence_mode = ?, monthly_minutes_cap = NULL WHERE id = ?"
+    ).bind("zooniverse", "external_certificate", TASK_ZOONIVERSE)
   );
 
   // ---- submissions ----

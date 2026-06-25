@@ -8,7 +8,7 @@ import type { ZooniversePublicActivity } from "@/lib/types";
  * Citizen-science activity dataset (Zooniverse-verified).
  *
  * DATA PRINCIPLE: reads ONLY zooniverse_public_activity. That table has no
- * FK to users or submissions — the only link is an opaque public_session_ref
+ * FK to users or submissions, the only link is an opaque public_session_ref
  * the requester cannot dereference. The export is safe by construction
  * because the public table simply does not have PII columns to leak.
  *

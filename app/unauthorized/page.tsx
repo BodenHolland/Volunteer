@@ -3,7 +3,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Not allowed — colift" };
+export const metadata = { title: "Not allowed | colift" };
 
 export default async function UnauthorizedPage() {
   const { t } = await getDict();

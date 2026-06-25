@@ -297,7 +297,7 @@ export async function captureItemAction(formData: FormData): Promise<{ ok: boole
     return await captureItemInner(formData, auditId, itemId);
   } catch (err) {
     await logError("captureItemAction", err, { auditId, itemId });
-    return { ok: false, error: "Couldn't save that item. The error is logged — try again." };
+    return { ok: false, error: "Couldn't save that item. The error is logged, try again." };
   }
 }
 
@@ -367,7 +367,7 @@ async function captureItemInner(
   const err = validateAndStore(cap, itemId);
   if (err) return { ok: false, error: err };
 
-  // Upsert capture — keyed by (public_session_ref, basket_item_id).
+  // Upsert capture, keyed by (public_session_ref, basket_item_id).
   const db = getDb();
   const existing = await db
     .prepare("SELECT id FROM audit_item_captures WHERE public_session_ref = ? AND basket_item_id = ?")
@@ -442,7 +442,7 @@ function validateAndStore(cap: CaptureInput, itemId: string): string | null {
 }
 
 /**
- * Cancel a claimed-but-unsubmitted audit — "I picked this up by accident."
+ * Cancel a claimed-but-unsubmitted audit, "I picked this up by accident."
  * Deletes the audit, its captured items/photos/flags, and the still-open
  * submission row so the task fully leaves the recipient's queue. No hours were
  * ever credited (nothing is submitted), so there is nothing to claw back.
@@ -456,7 +456,7 @@ export async function cancelAuditAction(formData: FormData) {
 
   const db = getDb();
   // Wipe the public cluster via public_session_ref. EXIF rows orphan when their
-  // photo rows go — clean them up directly using the photo ids we're about to drop.
+  // photo rows go, clean them up directly using the photo ids we're about to drop.
   await db
     .prepare(
       `DELETE FROM audit_photo_exif WHERE photo_id IN (SELECT id FROM audit_photos WHERE public_session_ref = ?)`
@@ -486,13 +486,13 @@ export async function submitAuditAction(formData: FormData) {
       throw err;
     }
     await logError("submitAuditAction", err, { auditId, sessionSeconds });
-    return { ok: false, error: "Couldn't submit the audit. The error is logged — try again." };
+    return { ok: false, error: "Couldn't submit the audit. The error is logged, try again." };
   }
 }
 
 async function submitAuditInner(formData: FormData, auditId: string, sessionSeconds: number) {
   const a = await loadOwnedAudit(auditId);
-  if (!a) redirect("/app/tasks");
+  if (!a) redirect("/opportunities");
   if (!a.store_id || !a.store_type_observed || !a.ebt_observation) {
     return { ok: false, error: "Finish the location, store type, and EBT steps first." };
   }
@@ -637,7 +637,7 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
   try {
     getCloudflareContext().ctx.waitUntil(processAudit(a.id));
   } catch {
-    /* outside Workers runtime (e.g. local node test) — pipeline runs lazily via the status poll. */
+    /* outside Workers runtime (e.g. local node test), pipeline runs lazily via the status poll. */
   }
 
   redirect(`/app/audits/${auditId}/done`);

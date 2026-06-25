@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { getDict } from "@/lib/i18n";
 
-export const metadata = { title: "Get Started — colift" };
+export const metadata = { title: "Get Started | colift" };
 
 export const dynamic = "force-dynamic";
 

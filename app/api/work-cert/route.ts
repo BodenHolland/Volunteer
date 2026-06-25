@@ -2,7 +2,7 @@
  * GET /api/work-cert?month=YYYY-MM
  *
  * State-agnostic work-hours certification PDF endpoint. Routes on the
- * recipient's state — CA → CF 888, other named-form states → their own
+ * recipient's state, CA → CF 888, other named-form states → their own
  * generator, fallback states → generic colift verification letter. Gated
  * on state-level pre-clearance (DEMO_MODE / cleared county / shipped
  * named-form state). Replaces the legacy CA-specific /api/cf888 path,

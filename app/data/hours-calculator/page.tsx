@@ -7,7 +7,7 @@ import { HoursCalculator } from "./calculator";
 import { getDict } from "@/lib/i18n";
 
 export const metadata = {
-  title: "ABAWD hours calculator — colift",
+  title: "ABAWD hours calculator | colift",
   description:
     "How many monthly volunteer hours does a SNAP recipient need to satisfy the ABAWD work requirement in their state? Computed from current SNAP allotments and state minimum wages.",
 };

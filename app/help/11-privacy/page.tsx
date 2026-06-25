@@ -4,7 +4,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Privacy, PII, and what we publish — Help Center" };
+export const metadata = { title: "Privacy, PII, and what we publish | Help Center" };
 
 export default async function Page() {
   const { locale, t } = await getDict();

@@ -41,7 +41,7 @@ export async function SiteFooter() {
         </div>
 
         <div className="mt-12 border-t border-paper/15 pt-6 flex flex-col gap-2 text-xs text-paper/60 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} colift. Datasets released under CC0 — free for libraries, government, and the public.</span>
+          <span>© {new Date().getFullYear()} colift. Datasets released under CC0, free for libraries, government, and the public.</span>
           <span className="text-paper/45">Unlisted pilot</span>
         </div>
       </div>

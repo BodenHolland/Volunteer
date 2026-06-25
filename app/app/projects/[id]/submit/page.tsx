@@ -15,7 +15,7 @@ import { getDict } from "@/lib/i18n";
 import type { AiVerdict } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Submit work — colift" };
+export const metadata = { title: "Submit work | colift" };
 
 export default async function SubmitPage({
   params,
@@ -54,7 +54,7 @@ export default async function SubmitPage({
   return (
     <div className="mx-auto max-w-[720px]">
       <Link
-        href={cat === "ems-rate-research" ? "/app/tasks" : `/app/projects/${id}`}
+        href={cat === "ems-rate-research" ? "/opportunities" : `/app/projects/${id}`}
         className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-forest hover:underline"
       >
         <ArrowLeft className="size-4" /> {cat === "ems-rate-research" ? "All opportunities" : t.submitWork.backToProject}
@@ -124,7 +124,7 @@ export default async function SubmitPage({
           <div className="space-y-4">
             <div className="rounded-md border border-line bg-section p-4 text-sm text-body">
               <p className="mb-1 font-medium text-ink">{t.submitWork.sourceEnglish}</p>
-              <p>Free flu shots are available at all county public health clinics this fall. No appointment or insurance is required. Bring photo ID if you have one. Clinics are open weekdays 9am–5pm. For locations, call your county health line.</p>
+              <p>Free flu shots are available at all county public health clinics this fall. No appointment or insurance is required. Bring photo ID if you have one. Clinics are open weekdays 9am5pm. For locations, call your county health line.</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="content" className={notesError ? "text-brick" : undefined}>{t.submitWork.yourSpanish}</Label>
@@ -178,7 +178,7 @@ export default async function SubmitPage({
               <div className="space-y-2">
                 <Label>Screenshot of rate schedule (optional)</Label>
                 <p className="text-xs text-meta">
-                  Helpful as backup proof — the per-rate URLs above are the primary source.
+                  Helpful as backup proof, the per-rate URLs above are the primary source.
                 </p>
                 <PhotoUpload
                   min={0}

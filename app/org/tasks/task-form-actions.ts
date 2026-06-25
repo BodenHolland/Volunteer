@@ -129,7 +129,7 @@ export async function createTask(formData: FormData) {
       data.est_hours,
       data.max_hours,
       data.location_kind,
-      // New tasks always start as draft — only an admin gate-review (see
+      // New tasks always start as draft, only an admin gate-review (see
       // /admin/tasks) may set them active. Org self-attestation isn't enough.
       "draft",
       Date.now(),

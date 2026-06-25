@@ -4,7 +4,7 @@ import { getDb } from "@/lib/cf";
 import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Users — colift admin" };
+export const metadata = { title: "Users, colift admin" };
 
 interface UserRow {
   id: string;
@@ -53,11 +53,11 @@ export default async function AdminUsersPage() {
           <ul className="divide-y divide-line">
             {rows.map((u) => (
               <li key={u.id} className="flex flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:gap-4">
-                <span className="flex-1 font-medium text-ink">{u.full_name ?? "—"}</span>
+                <span className="flex-1 font-medium text-ink">{u.full_name ?? ""}</span>
                 <span className="w-56 truncate text-sm text-body">{u.email}</span>
                 <span className="w-32 text-sm text-body">{roleLabel(u.role, u.org_role)}</span>
                 <span className="w-32 text-sm text-body">{u.intent}</span>
-                <span className="w-44 truncate text-sm text-body">{u.org_name ?? "—"}</span>
+                <span className="w-44 truncate text-sm text-body">{u.org_name ?? ""}</span>
               </li>
             ))}
           </ul>

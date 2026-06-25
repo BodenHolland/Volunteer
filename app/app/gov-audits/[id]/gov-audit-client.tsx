@@ -81,7 +81,7 @@ export function GovAuditClient({
   const isDesktop = device === "desktop";
 
   // ---- per-anchor time tracking (20-min soft certification cap) ----
-  // The clock runs regardless of whether our tab is focused — auditing requires
+  // The clock runs regardless of whether our tab is focused, auditing requires
   // looking at the live page in another tab, so penalizing tab-switches would
   // be hostile and dishonest. The 20-min cap + integrity score (rubric
   // completeness × axe-core corroboration) are the floor on integrity.
@@ -189,7 +189,7 @@ export function GovAuditClient({
       const res = await submitGovAuditAction(fd);
       // On success the action redirects (we never get here). An error result
       // comes back as {ok:false,error}; a network/worker timeout returns
-      // undefined — surface a retry message in both cases so the button
+      // undefined, surface a retry message in both cases so the button
       // can't get stuck "Submitting…" forever.
       if (!res) {
         setSubmitError("Submit didn't go through. Check your connection and try again.");
@@ -199,7 +199,7 @@ export function GovAuditClient({
         setSubmitting(false);
       }
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Couldn't submit — try again.");
+      setSubmitError(err instanceof Error ? err.message : "Couldn't submit, try again.");
       setSubmitting(false);
     }
   }
@@ -211,7 +211,7 @@ export function GovAuditClient({
       <header className="space-y-2">
         <h1 className="text-[28px] font-semibold leading-tight text-ink">{targetDescriptor}</h1>
         <p className="text-body">
-          Pick any government, nonprofit, or public-service page worth auditing — your city site, a state agency, a
+          Pick any government, nonprofit, or public-service page worth auditing, your city site, a state agency, a
           public library, a community clinic. Open the page in a new tab and explore it in your real browser
           (you&apos;ll need native Tab and zoom for the accessibility checks), then come back here and answer the short
           rubric. Your timer keeps running while you switch between tabs.
@@ -222,7 +222,7 @@ export function GovAuditClient({
         <div className="rounded-md border border-brick bg-brick-subtle px-4 py-3 text-sm text-brick">
           This looks like a {device} device. Accessibility checks need a real keyboard and screen, so{" "}
           <strong>this session won&apos;t certify hours</strong>. Switch to a desktop or laptop to earn credit. You can
-          still complete the audit — it just won&apos;t count.
+          still complete the audit, it just won&apos;t count.
         </div>
       )}
 
@@ -248,7 +248,7 @@ export function GovAuditClient({
           </div>
           {overCap && (
             <p className="mt-2 text-xs text-terracotta">
-              You&apos;ve passed the 20-minute mark. Keep going if you need to — time past 20 minutes just doesn&apos;t
+              You&apos;ve passed the 20-minute mark. Keep going if you need to, time past 20 minutes just doesn&apos;t
               add more certified minutes.
             </p>
           )}
@@ -265,7 +265,7 @@ export function GovAuditClient({
         />
       )}
 
-      {/* Audit panel — server-side snapshot + open in new tab + lock-as-anchor. */}
+      {/* Audit panel, server-side snapshot + open in new tab + lock-as-anchor. */}
       {(anchor || pickedUrl) && (
         <AuditPanel
           sessionId={sessionId}
@@ -337,7 +337,7 @@ export function GovAuditClient({
             />
           </div>
 
-          <h3 className="mt-6 text-sm font-semibold text-ink">Your ratings (1–5)</h3>
+          <h3 className="mt-6 text-sm font-semibold text-ink">Your ratings (15)</h3>
           <div className="mt-2 space-y-4">
             {LIKERT_ITEMS.map((item) => (
               <LikertRow
@@ -355,7 +355,7 @@ export function GovAuditClient({
             In your words <span className="text-xs font-normal text-meta">(optional)</span>
           </h3>
           <p className="mt-1 text-xs text-body">
-            Skip these if you&apos;d rather just submit your ratings — they don&apos;t affect whether you get credit.
+            Skip these if you&apos;d rather just submit your ratings, they don&apos;t affect whether you get credit.
           </p>
           <div className="mt-2 space-y-4">
             {FREE_TEXT_ITEMS.map((item) => (
@@ -385,7 +385,7 @@ export function GovAuditClient({
           {submitError && <p className="text-sm text-brick">{submitError}</p>}
           {!rubricComplete && (
             <p className="text-sm text-body">
-              Answer every accessibility check and all four 1–5 ratings to submit.
+              Answer every accessibility check and all four 15 ratings to submit.
             </p>
           )}
           <div className="flex items-center gap-3">

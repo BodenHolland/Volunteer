@@ -15,11 +15,11 @@ import {
  * Pre-anchor chooser: lets the volunteer pick what to audit instead of being
  * sent to hunt for a specific page. Three paths:
  *
- *   1. "My local government" — sites scoped to the viewer's city/state, with
+ *   1. "My local government", sites scoped to the viewer's city/state, with
  *      the single best local match preselected (their city, else state portal).
- *   2. "Random government page" — one pull from the full registry; reroll on
+ *   2. "Random government page", one pull from the full registry; reroll on
  *      demand. Encourages broad coverage of the catalog.
- *   3. "Enter your own" — any US gov / nonprofit / public-service URL.
+ *   3. "Enter your own", any US gov / nonprofit / public-service URL.
  *
  * The picked URL is handed back to the parent, which kicks the live embed to it.
  */
@@ -61,7 +61,7 @@ export function GovAuditChooser({
     <section className="rounded-lg border border-line bg-white p-4">
       <h2 className="text-base font-semibold text-ink">Pick what to audit</h2>
       <p className="mt-1 text-sm text-body">
-        Audit a US government, nonprofit, or public-service website — any one. Your findings join the free public
+        Audit a US government, nonprofit, or public-service website, any one. Your findings join the free public
         dataset.
       </p>
 
@@ -89,7 +89,7 @@ export function GovAuditChooser({
           >
             {localSites.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name} — {s.description}
+                {s.name}, {s.description}
               </option>
             ))}
           </select>

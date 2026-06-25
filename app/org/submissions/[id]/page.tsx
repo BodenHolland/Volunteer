@@ -18,7 +18,7 @@ import { formatHours, relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Review submission — colift" };
+export const metadata = { title: "Review submission | colift" };
 
 export default async function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { t } = await getDict();
@@ -40,14 +40,21 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
   const decided = ["approved", "rejected", "needs_changes"].includes(sub.status);
   const isExternal = sub.task.evidence_mode === "external_certificate";
 
-  // External-certificate review: compute remaining monthly cap so the reviewer
-  // sees how many minutes are still available before they enter the credit.
-  let remainingMinutes = 0;
+  // External-certificate review: if the task has a monthly cap, compute the
+  // remaining minutes so the reviewer sees how many are still available
+  // before entering the credit. Null cap = uncapped, no math needed.
+  let remainingMinutes: number | null = null;
   let defaultProjectName = "";
   let defaultProjectSlug = "";
+  let defaultCreditedMinutes: number | null = null;
   if (isExternal) {
     const certMeta = files.find((f) => f.kind === "zooniverse_certificate")?.metadata_json;
-    let m: { reporting_month?: string; project_name?: string; project_slug?: string } = {};
+    let m: {
+      reporting_month?: string;
+      project_name?: string;
+      project_slug?: string;
+      reported_hours?: number;
+    } = {};
     try {
       m = JSON.parse(certMeta ?? "{}");
     } catch {
@@ -55,7 +62,10 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
     }
     defaultProjectName = m.project_name ?? "";
     defaultProjectSlug = m.project_slug ?? "";
-    if (!decided) {
+    if (typeof m.reported_hours === "number") {
+      defaultCreditedMinutes = Math.round(m.reported_hours * 60);
+    }
+    if (!decided && sub.task.monthly_minutes_cap != null) {
       let month = m.reporting_month ?? "";
       if (!/^\d{4}-\d{2}$/.test(month)) {
         const d = new Date(sub.submitted_at ?? Date.now());
@@ -65,7 +75,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         sub.user_id,
         sub.task.id,
         month,
-        sub.task.monthly_minutes_cap ?? 600
+        sub.task.monthly_minutes_cap
       );
     }
   }
@@ -136,10 +146,11 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
           ) : isExternal ? (
             <ExternalReviewActions
               submissionId={sub.id}
-              monthlyCapMinutes={sub.task.monthly_minutes_cap ?? 600}
+              monthlyCapMinutes={sub.task.monthly_minutes_cap}
               remainingCapMinutes={remainingMinutes}
               defaultProjectName={defaultProjectName}
               defaultProjectSlug={defaultProjectSlug}
+              defaultCreditedMinutes={defaultCreditedMinutes}
             />
           ) : (
             <ReviewActions submissionId={sub.id} measuredHours={logged} capHours={sub.task.max_hours} estHours={sub.task.est_hours} />

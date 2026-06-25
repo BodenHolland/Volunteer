@@ -23,13 +23,13 @@ export async function commitToTask(formData: FormData) {
     .prepare("SELECT id, category, deliverable_spec_json, short_description FROM task_templates WHERE id = ?")
     .bind(taskId)
     .first<{ id: string; category: string; deliverable_spec_json: string; short_description: string }>();
-  if (!task) redirect("/app/tasks");
+  if (!task) redirect("/opportunities");
 
   const db = getDb();
 
   // Resume an existing unfinished draft for this task instead of spawning a
   // duplicate every time "Commit" is clicked. A *new* instance is created only
-  // once the prior one is submitted — doing the task again (e.g. auditing a
+  // once the prior one is submitted, doing the task again (e.g. auditing a
   // different store) is intentional, accumulating empty drafts is not.
   if (task.category === "food-audit") {
     const draft = await db
@@ -116,7 +116,7 @@ export async function commitToTask(formData: FormData) {
       );
       const remaining = targets.filter((t) => !usedProviders.has(t.provider_name));
       // If the user has exhausted every provider in the pool, fall back to the
-      // full pool — they can repeat the oldest assignment. Better than failing
+      // full pool, they can repeat the oldest assignment. Better than failing
       // the commit and trapping the user.
       const pool = remaining.length > 0 ? remaining : targets;
 
@@ -163,7 +163,7 @@ export async function commitToTask(formData: FormData) {
   }
 
   if (task.category === "ems-rate-research") {
-    // The structured form is the work — there's no checklist, no time floor,
+    // The structured form is the work, there's no checklist, no time floor,
     // nothing to do on a generic project hub. Jump straight to the form.
     redirect(`/app/projects/${id}/submit`);
   }
@@ -171,7 +171,7 @@ export async function commitToTask(formData: FormData) {
   if (task.category === "citizen-science") {
     // External-certificate flow: stamp an opaque public_session_ref on the
     // submission so the future public-cluster row (zooniverse_public_activity)
-    // has its cross-boundary key from day one. No project hub, no timer —
+    // has its cross-boundary key from day one. No project hub, no timer 
     // the work happens off-platform.
     const publicRef = crypto.randomUUID();
     await db
@@ -188,7 +188,7 @@ export async function commitToTask(formData: FormData) {
     const ua = (await headers()).get("user-agent");
     const spec = parseJson<{ target_descriptor?: string }>(task.deliverable_spec_json, {});
     const generic = spec.target_descriptor ?? task.short_description;
-    // If we know the user's city, point the task at their city specifically —
+    // If we know the user's city, point the task at their city specifically 
     // local government, nonprofit, and public-service sites are the audit
     // surface most likely to be neglected and most useful to publish on.
     const target = user.city

@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = await getTask(id);
-  return { title: task ? `${task.title} — colift` : "Task — colift" };
+  return { title: task ? `${task.title}, colift` : "Task | colift" };
 }
 
 export default async function TaskPreviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,7 +52,7 @@ export default async function TaskPreviewPage({ params }: { params: Promise<{ id
                 <HeadlineTag>{LOCATION_LABEL[task.location_kind]}</HeadlineTag>
                 <SecondaryTag>{CATEGORY_LABEL[task.category]}</SecondaryTag>
                 <DeviceTag category={task.category} />
-                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}–{formatHours(task.max_hours)} {t.taskPreview.hrs}</SecondaryTag>
+                <SecondaryTag><Clock className="mr-1 size-3" />{formatHours(task.est_hours)}{formatHours(task.max_hours)} {t.taskPreview.hrs}</SecondaryTag>
               </div>
 
               <section className="mt-8">

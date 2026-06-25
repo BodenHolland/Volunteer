@@ -13,7 +13,7 @@ import { monthLabel } from "@/lib/time";
 import { decryptField } from "@/lib/crypto";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Settings — colift" };
+export const metadata = { title: "Settings | colift" };
 
 const INTENT_VALUES = ["snap_cert", "casual_volunteer", "other"] as const;
 const NOTIFY_NAMES = ["submission_updates", "cf888_ready"] as const;

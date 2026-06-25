@@ -8,12 +8,12 @@ import type {
 } from "@/lib/gov-audit";
 
 /**
- * Signed-in JSON export — government website audits.
+ * Signed-in JSON export, government website audits.
  *
  * Same data, same moderation gate, and same public-cluster-only guarantee as
  * the CSV export (app/api/data/gov-audits.csv/route.ts). Reads ONLY
  * gov_audit_page_evaluations / gov_audit_site_evaluations / gov_audit_auto_checks
- * — never gov_audit_sessions or users.
+ *, never gov_audit_sessions or users.
  */
 
 interface GovAuditExportRow

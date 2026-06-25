@@ -8,7 +8,7 @@ import { parseJson } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Audit log — colift admin" };
+export const metadata = { title: "Audit log, colift admin" };
 
 // The common actions written across the app (per lib/audit.ts call sites).
 const FILTERS: { value: string; label: string }[] = [
@@ -38,7 +38,7 @@ function actionChipClass(action: string): string {
 function summarize(detailJson: string | null): string {
   const detail = parseJson<Record<string, unknown>>(detailJson, {});
   const keys = Object.keys(detail);
-  if (keys.length === 0) return "—";
+  if (keys.length === 0) return "";
   // Prefer a few well-known keys, else show up to 3 key=value pairs.
   const preferred = ["month", "hours", "hours_credited", "reason", "email", "ip", "status", "org"];
   const ordered = [
@@ -120,7 +120,7 @@ export default async function AdminAuditPage({
                   {actorLabel(r)}
                 </span>
                 <span className="w-36 shrink-0 truncate text-sm text-body">
-                  {r.entity_type ? r.entity_type : "—"}
+                  {r.entity_type ? r.entity_type : ""}
                 </span>
                 <span className="flex-1 truncate text-sm text-body">{summarize(r.detail_json)}</span>
               </li>

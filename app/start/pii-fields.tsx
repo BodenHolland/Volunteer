@@ -9,7 +9,7 @@ import { addressAutocompleteAction, type AddressSuggestion } from "./actions";
 /**
  * Formats raw digits into the US phone shape `(XXX) XXX-XXXX`. We strip
  * everything non-numeric on each keystroke and rebuild, so paste, backspace,
- * and mid-string edits all stay tidy. Caret handling is deliberately simple —
+ * and mid-string edits all stay tidy. Caret handling is deliberately simple 
  * the cursor jumps to the end after each format pass, which is fine for the
  * onboarding flow (people type top-to-bottom).
  */
@@ -41,7 +41,7 @@ export function PhoneInput({ defaultValue = "" }: { defaultValue?: string }) {
 
 /**
  * Date-of-birth input. `<input type="date">` quietly lets users type 5+ digit
- * years (Chrome especially) — the value parses fine but no human has a year
+ * years (Chrome especially), the value parses fine but no human has a year
  * "12345". We clip the year segment to 4 digits on every change, and enforce a
  * reasonable date range via `min` / `max` for HTML form validation as a belt.
  */
@@ -110,7 +110,7 @@ export function NameFields({
  * Street address with autocomplete suggestions powered by OpenStreetMap
  * Nominatim (free, US-scoped). The user types in `line1`; after 350ms of idle
  * we fetch up to 5 matches and render a dropdown. Clicking a suggestion fills
- * line1, city, state, and zip — state still lives in a hidden field so the
+ * line1, city, state, and zip, state still lives in a hidden field so the
  * server action sees it (the PII step doesn't render a state control of its
  * own; the user picked it back on the location step).
  *
@@ -135,7 +135,7 @@ export function AddressFields({
   defaultState: string;
   defaultZip: string;
   /** When true, state renders as a visible 2-char editable input alongside
-   *  city/zip. When false (onboarding default), state is a hidden input — the
+   *  city/zip. When false (onboarding default), state is a hidden input, the
    *  user already picked it on a prior step. */
   showStateField?: boolean;
   labelStreet?: string;
@@ -158,7 +158,7 @@ export function AddressFields({
   useEffect(() => {
     const q = line1.trim();
     // Only autocomplete once the user has typed something with a number + a
-    // word in it — avoids burning Nominatim quota on "1" or "main".
+    // word in it, avoids burning Nominatim quota on "1" or "main".
     // Trigger once the input looks like the start of a street address. 4 chars
     // is permissive enough to fire on "123 m" mid-type without blasting
     // Nominatim on every single character.
@@ -184,7 +184,7 @@ export function AddressFields({
     if (s.zip) setZip(s.zip);
     setOpen(false);
     setSuggestions([]);
-    // Block the next autocomplete fetch — applying a suggestion shouldn't
+    // Block the next autocomplete fetch, applying a suggestion shouldn't
     // immediately re-query for the now-completed string.
     lastFetchedRef.current = s.line1 || s.display;
   }

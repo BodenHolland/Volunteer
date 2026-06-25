@@ -70,7 +70,7 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Spot review · audit {audit.id.slice(0, 12)}…</h1>
         <p className="text-body mt-1">
-          {volunteer?.full_name ?? "—"} ({volunteer?.email}) ·{" "}
+          {volunteer?.full_name ?? ""} ({volunteer?.email}) ·{" "}
           {Math.floor(audit.session_time_seconds / 60)}m {audit.session_time_seconds % 60}s measured
         </p>
       </header>
@@ -78,14 +78,14 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
       <section className="rounded-lg border border-line bg-white p-5 mb-4">
         <h2 className="font-semibold mb-2">Store</h2>
         <p>
-          {store?.name ?? "—"} · {store?.address ?? "—"}
+          {store?.name ?? ""} · {store?.address ?? ""}
         </p>
         <p className="text-sm text-body mt-1">
-          GPS: {store?.geocode_lat?.toFixed(4) ?? "—"}, {store?.geocode_lng?.toFixed(4) ?? "—"}
+          GPS: {store?.geocode_lat?.toFixed(4) ?? ""}, {store?.geocode_lng?.toFixed(4) ?? ""}
         </p>
         <p className="text-sm text-body mt-1">
-          Type: {STORE_TYPES.find((t) => t.value === audit.store_type_observed)?.label ?? "—"} · EBT:{" "}
-          {EBT_OBSERVATIONS.find((e) => e.value === audit.ebt_observation)?.label ?? "—"}
+          Type: {STORE_TYPES.find((t) => t.value === audit.store_type_observed)?.label ?? ""} · EBT:{" "}
+          {EBT_OBSERVATIONS.find((e) => e.value === audit.ebt_observation)?.label ?? ""}
         </p>
       </section>
 
@@ -140,9 +140,9 @@ export default async function AdminAuditDetailPage({ params }: { params: Promise
             {contribs.map((c) => (
               <li key={c.basket_item_id} className="flex justify-between">
                 <span>
-                  <strong>{c.basket_item_id}</strong> — {c.status}
+                  <strong>{c.basket_item_id}</strong>: {c.status}
                   {c.attempt_count ? ` (${c.attempt_count} attempt${c.attempt_count > 1 ? "s" : ""})` : ""}
-                  {c.last_error ? <span className="text-brick"> — {c.last_error}</span> : null}
+                  {c.last_error ? <span className="text-brick">, {c.last_error}</span> : null}
                 </span>
                 {c.open_prices_id ? (
                   <a

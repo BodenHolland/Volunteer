@@ -11,7 +11,7 @@ import { updateOrg } from "./actions";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Organization profile — colift" };
+export const metadata = { title: "Organization profile | colift" };
 
 export default async function OrgProfilePage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { t } = await getDict();

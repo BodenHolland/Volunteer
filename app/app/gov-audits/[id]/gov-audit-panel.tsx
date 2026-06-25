@@ -8,7 +8,7 @@ import type { AnchorDraft } from "@/lib/gov-audit";
 import { previewPageAction } from "./gov-audit-actions";
 
 /**
- * Auditing surface — replaces the in-app browser with a clear new-tab workflow.
+ * Auditing surface, replaces the in-app browser with a clear new-tab workflow.
  *
  * Why no embed: the rubric's accessibility checks (Tab focus, 200% zoom,
  * contrast, alt-text inspection) genuinely require the volunteer's real

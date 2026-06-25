@@ -177,7 +177,7 @@ export async function forgotPassword(formData: FormData) {
   } else if (!rl.ok) {
     logEvent("forgot_password_rate_limited", { ip });
   }
-  // Always the same response — never reveal whether an account exists.
+  // Always the same response, never reveal whether an account exists.
   redirect("/forgot-password?sent=1");
 }
 
@@ -210,7 +210,7 @@ export async function resetPassword(formData: FormData) {
 
 /**
  * Sign out. This is a POST-only server action precisely so it can NEVER be
- * triggered by a GET — Next.js <Link> prefetch, browser predictive prefetch,
+ * triggered by a GET, Next.js <Link> prefetch, browser predictive prefetch,
  * and link scanners all issue GETs, and a GET-based logout was silently
  * revoking sessions in the background (so the next click bounced to /login).
  */

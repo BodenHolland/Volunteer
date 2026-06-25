@@ -5,7 +5,7 @@ import type { ZooniversePublicActivity } from "@/lib/types";
 
 /**
  * Citizen-science activity dataset, JSON form. Same source rows as the CSV
- * sibling — reads ONLY zooniverse_public_activity. No PII columns exist on
+ * sibling, reads ONLY zooniverse_public_activity. No PII columns exist on
  * that table by construction.
  */
 

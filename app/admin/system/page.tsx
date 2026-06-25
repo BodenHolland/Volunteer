@@ -11,7 +11,7 @@ import {
 import { formatHours } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "System health — colift admin" };
+export const metadata = { title: "System health, colift admin" };
 
 function Stat({ icon, value, label, hint }: { icon: React.ReactNode; value: string | number; label: string; hint?: string }) {
   return (
@@ -63,7 +63,7 @@ function MonitorPanel({
 export default async function AdminSystemPage() {
   await requireAdmin();
 
-  // (a) AI validator availability — presence only, never the key itself.
+  // (a) AI validator availability, presence only, never the key itself.
   let aiKeyPresent = false;
   try {
     aiKeyPresent = Boolean(getEnv().OPENROUTER_API_KEY);
@@ -103,13 +103,13 @@ export default async function AdminSystemPage() {
       <section className="space-y-3">
         <div className="flex items-center gap-2 text-ink [&_svg]:size-5">
           <Scale />
-          <h2 className="text-[22px] font-semibold">Hard line #1 — credited never exceeds measured</h2>
+          <h2 className="text-[22px] font-semibold">Hard line #1, credited never exceeds measured</h2>
         </div>
         <MonitorPanel
           ok={invariantViolations.length === 0}
-          okTitle="No violations — credited never exceeds measured"
+          okTitle="No violations, credited never exceeds measured"
           okBody="Every approved submission credits hours at or below the volunteer's measured active time. The work-hours attestation holds."
-          failTitle={`${invariantViolations.length} violation${invariantViolations.length === 1 ? "" : "s"} — credited exceeds measured time`}
+          failTitle={`${invariantViolations.length} violation${invariantViolations.length === 1 ? "" : "s"}, credited exceeds measured time`}
         >
           <p className="mt-1 text-sm text-body">
             These approved submissions credit more hours than the volunteer actually worked. This is false attestation
@@ -131,11 +131,11 @@ export default async function AdminSystemPage() {
       <section className="space-y-3">
         <div className="flex items-center gap-2 text-ink [&_svg]:size-5">
           <ListChecks />
-          <h2 className="text-[22px] font-semibold">Hard line #2 — no task ships without a gate review</h2>
+          <h2 className="text-[22px] font-semibold">Hard line #2, no task ships without a gate review</h2>
         </div>
         <MonitorPanel
           ok={gateViolations.length === 0}
-          okTitle="No violations — every active task passed the 4-part gate"
+          okTitle="No violations, every active task passed the 4-part gate"
           okBody="No task template is live without a completed beneficiary-gate review."
           failTitle={`${gateViolations.length} active task${gateViolations.length === 1 ? "" : "s"} without a gate review`}
         >
@@ -146,7 +146,7 @@ export default async function AdminSystemPage() {
             {gateViolations.map((g: GateViolation) => (
               <li key={g.id} className="flex flex-col gap-1 px-3 py-2 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <span className="font-medium text-ink">{g.title}</span>
-                <span className="text-body">{g.org_name ?? "—"}</span>
+                <span className="text-body">{g.org_name ?? ""}</span>
               </li>
             ))}
           </ul>

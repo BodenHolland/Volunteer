@@ -11,7 +11,7 @@ import { ORG_CITIZEN_SCIENCE } from "@/lib/zooniverse";
 import type { ExternalProjectCatalog, TaskTemplate } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Zooniverse catalog — colift admin" };
+export const metadata = { title: "Zooniverse catalog, colift admin" };
 
 interface CatalogRow extends ExternalProjectCatalog {
   title: string;
@@ -86,10 +86,10 @@ export default async function ZooniverseCatalogPage({
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-ink">{r.title}</p>
                       <p className="mt-1 text-xs text-meta">
-                        {r.external_project_slug} · cap {Math.round((r.monthly_minutes_cap ?? 600) / 60)}h/mo
+                        {r.external_project_slug} · {r.monthly_minutes_cap != null ? `cap ${Math.round(r.monthly_minutes_cap / 60)}h/mo` : "no monthly cap"}
                       </p>
                       <p className="mt-1 text-xs text-meta">
-                        4-part gate: {gateOk ? "✓ all four attested" : "✗ incomplete — task cannot go active"}
+                        4-part gate: {gateOk ? "✓ all four attested" : "✗ incomplete, task cannot go active"}
                       </p>
                       <a
                         href={r.project_url}
@@ -162,16 +162,16 @@ export default async function ZooniverseCatalogPage({
               <Input id="task_type_label" name="task_type_label" required placeholder="Image classification" />
             </div>
             <div>
-              <Label htmlFor="monthly_minutes_cap" className="mb-1.5">Monthly minutes cap</Label>
+              <Label htmlFor="monthly_minutes_cap" className="mb-1.5">Monthly minutes cap (optional)</Label>
               <Input
                 id="monthly_minutes_cap"
                 name="monthly_minutes_cap"
                 type="number"
                 min="0"
                 step="30"
-                defaultValue={600}
-                required
+                placeholder="Leave blank for no cap"
               />
+              <p className="mt-1 text-xs text-meta">Leave blank to credit whatever the certificate shows.</p>
             </div>
           </div>
           <div>

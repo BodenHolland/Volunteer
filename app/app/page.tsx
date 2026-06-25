@@ -12,7 +12,7 @@ import { formatHours, formatDate, monthLabel } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Dashboard — colift" };
+export const metadata = { title: "Dashboard | colift" };
 
 export default async function DashboardPage() {
   const user = await requireRecipient();
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
             icon={<FolderKanban />}
             title={t.app.dashboard.emptyTitle}
             ctaLabel={t.app.dashboard.browseTasks}
-            ctaHref="/app/tasks"
+            ctaHref="/opportunities"
           />
         ) : (
           <ul className="service-panel divide-y divide-line overflow-hidden">

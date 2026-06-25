@@ -36,15 +36,21 @@ export function ExternalReviewActions({
   remainingCapMinutes,
   defaultProjectName,
   defaultProjectSlug,
+  defaultCreditedMinutes,
 }: {
   submissionId: string;
-  monthlyCapMinutes: number;
-  remainingCapMinutes: number;
+  /** null = uncapped; reviewer credits whatever the certificate says */
+  monthlyCapMinutes: number | null;
+  /** null when uncapped; otherwise the remaining minutes for the month */
+  remainingCapMinutes: number | null;
   defaultProjectName: string;
   defaultProjectSlug: string;
+  /** Reported hours converted to minutes, used to prefill the credit input. */
+  defaultCreditedMinutes: number | null;
 }) {
   const [panel, setPanel] = useState<"none" | "changes" | "reject">("none");
-  const remainingHours = Math.round((remainingCapMinutes / 60) * 10) / 10;
+  const capped = monthlyCapMinutes != null && remainingCapMinutes != null;
+  const remainingHours = capped ? Math.round((remainingCapMinutes! / 60) * 10) / 10 : null;
 
   return (
     <div className="service-panel space-y-4 p-5">
@@ -61,11 +67,10 @@ export function ExternalReviewActions({
 
         <TripleField name="cert_name_matches_user" label="Name on certificate matches volunteer" />
         <TripleField name="date_range_present" label="Date range is present" />
-        <TripleField name="hours_present" label="Total hours are present" />
+        <TripleField name="hours_present" label="Total hours match the volunteer-reported hours" />
         <TripleField name="project_scope_match" label="Project matches what volunteer described" />
         <TripleField name="signature_present" label="Zooniverse identity / signature present" />
         <TripleField name="profile_url_matches" label="Profile URL opens an account that matches the certificate name" />
-        <TripleField name="screenshot_supports_certificate" label="Dashboard screenshot is consistent with the certificate" />
 
         <div>
           <Label htmlFor="project_name" className="mb-1.5">Project (confirm or correct)</Label>
@@ -95,14 +100,20 @@ export function ExternalReviewActions({
             name="credited_minutes"
             type="number"
             min="0"
-            max={remainingCapMinutes}
+            {...(capped ? { max: remainingCapMinutes! } : {})}
             step="1"
             required
+            defaultValue={defaultCreditedMinutes ?? undefined}
             placeholder="e.g. 180"
             className="w-32"
           />
           <p className="mt-1 text-xs text-meta">
-            Remaining this month: {remainingHours}h ({remainingCapMinutes} min) · monthly cap {Math.round(monthlyCapMinutes / 60)}h
+            {defaultCreditedMinutes != null
+              ? `Pre-filled from volunteer's reported hours. `
+              : ""}
+            {capped
+              ? `Remaining this month: ${remainingHours}h (${remainingCapMinutes} min) · monthly cap ${Math.round(monthlyCapMinutes! / 60)}h`
+              : "No monthly cap, credit whatever the certificate shows."}
           </p>
         </div>
 

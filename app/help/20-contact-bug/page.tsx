@@ -5,7 +5,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Report a bug or contact us — Help Center" };
+export const metadata = { title: "Report a bug or contact us | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();

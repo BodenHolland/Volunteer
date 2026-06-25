@@ -17,7 +17,7 @@ import { formatHours } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Submission — colift" };
+export const metadata = { title: "Submission | colift" };
 
 export default async function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,7 +26,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
   if (!sub) notFound();
   if (sub.user_id !== user.id) redirect("/unauthorized");
 
-  // Audit-typed tasks have their own detail/done routes — bounce stale links.
+  // Audit-typed tasks have their own detail/done routes, bounce stale links.
   if (sub.auditId) redirect(`/app/audits/${sub.auditId}`);
   if (sub.task.evidence_mode === "external_certificate") {
     redirect(`/app/external/${id}`);
@@ -75,7 +75,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
                 <p className="text-sm font-semibold text-ink">{t.submissionDetail.emsThanks}</p>
                 <p className="mt-1 text-sm text-body">{t.submissionDetail.emsNext}</p>
                 <Button asChild className="mt-3">
-                  <Link href={`/app/tasks/${sub.task.id}`}>{t.submissionDetail.emsCta}</Link>
+                  <Link href={`/opportunities/${sub.task.id}`}>{t.submissionDetail.emsCta}</Link>
                 </Button>
               </div>
             </div>

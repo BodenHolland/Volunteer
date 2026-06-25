@@ -20,7 +20,7 @@ export const ARTICLES: ArticleMeta[] = [
   { number: 9, slug: "9-calibrate", title: "How we calibrate hour caps", title_es: "Cómo calibramos los topes de horas" },
   { number: 10, slug: "10-certifier", title: "Who certifies your hours, and how", title_es: "Quién certifica tus horas, y cómo" },
   { number: 11, slug: "11-privacy", title: "Privacy, PII, and what we publish", title_es: "Privacidad, datos personales y lo que publicamos" },
-  { number: 12, slug: "12-caseworkers", title: "For caseworkers — a one-page methodology", title_es: "Para trabajadores sociales — una metodología de una página", starred: true },
+  { number: 12, slug: "12-caseworkers", title: "For caseworkers, a one-page methodology", title_es: "Para trabajadores sociales, una metodología de una página", starred: true },
   { number: 13, slug: "13-ledger", title: "Audit & methodology ledger", title_es: "Registro de auditoría y metodología" },
   { number: 14, slug: "14-find-a-task", title: "How to find and commit to a task", title_es: "Cómo encontrar y comprometerte con una tarea" },
   { number: 15, slug: "15-complete-work", title: "How to complete and submit your work", title_es: "Cómo completar y enviar tu trabajo" },

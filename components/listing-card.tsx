@@ -9,6 +9,7 @@ const TASK_IMAGES: Record<string, string> = {
   task_ems_rates: "/ems-rates-icon.ico",
   task_food_audit: "/food-audit-icon.jpg",
   task_gov_audit: "/gov-audit-icon.png",
+  task_zooniverse: "/zooniverse-icon.png",
 };
 
 export interface ListingCardData {
@@ -27,7 +28,7 @@ export interface ListingCardData {
 }
 
 /**
- * Task card — bulletin-board feel with a quiet Civic Blue left rail.
+ * Task card, bulletin-board feel with a quiet Civic Blue left rail.
  */
 export function ListingCard({ task }: { task: ListingCardData }) {
   return (

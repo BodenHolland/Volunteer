@@ -4,7 +4,7 @@ import { getDict, getLocale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Who certifies your hours — Help Center" };
+export const metadata = { title: "Who certifies your hours | Help Center" };
 
 export default async function Page() {
   const locale = await getLocale();

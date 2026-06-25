@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     ? "/start?step=location"
     : homeForUser(user);
   const response = NextResponse.json({ ok: true, next });
-  // Set the cookie directly on this response — relying on cookies().set() from
+  // Set the cookie directly on this response, relying on cookies().set() from
   // next/headers to attach to a fetch-style NextResponse has been unreliable
   // (mobile Safari occasionally drops the Set-Cookie, producing an auth loop).
   response.cookies.set(SESSION_COOKIE, token, SESSION_COOKIE_OPTIONS);

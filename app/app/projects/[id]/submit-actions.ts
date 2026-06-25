@@ -66,7 +66,7 @@ export async function rerollEmsAssignment(formData: FormData) {
   const merged = {
     ...existing,
     assignment: next,
-    // Reset rate fields — the volunteer is researching a different provider now.
+    // Reset rate fields, the volunteer is researching a different provider now.
     bls: { amount: "", source_url: "", not_found: false },
     als: { amount: "", source_url: "", not_found: false },
     mileage: { amount: "", source_url: "", not_found: false },
@@ -99,7 +99,7 @@ export async function submitWork(formData: FormData) {
     redirect(`/app/submissions/${id}`);
   }
 
-  // Look up the task category once — it gates several category-specific paths
+  // Look up the task category once, it gates several category-specific paths
   // below (engagement floor, written-content storage, EMS form handling).
   const taskRow = await db
     .prepare("SELECT category FROM task_templates WHERE id = ?")
@@ -107,7 +107,7 @@ export async function submitWork(formData: FormData) {
     .first<{ category: string }>();
   const isEms = taskRow?.category === "ems-rate-research";
 
-  // Hours integrity: minimum-engagement floor — can't submit before genuine
+  // Hours integrity: minimum-engagement floor, can't submit before genuine
   // work. Skipped for ems-rate-research: that work happens almost entirely on
   // external pages and the structured form itself is the proof-of-effort.
   if (!isEms) {
@@ -157,7 +157,7 @@ export async function submitWork(formData: FormData) {
     const rateRows = [emsData.bls, emsData.als, emsData.mileage, emsData.tnt];
     // Every rate must be either filled in (has an amount) or explicitly marked
     // not-found, AND at least one must be filled. "All four marked not-found"
-    // is a degenerate case we reject — it means the volunteer skipped without
+    // is a degenerate case we reject, it means the volunteer skipped without
     // doing the work; a real "couldn't find anything" submission still finds
     // at least one rate or is rare enough to handle case-by-case in review.
     const everyAddressed = rateRows.every((r) => r.not_found || r.amount !== "");
@@ -170,7 +170,7 @@ export async function submitWork(formData: FormData) {
       .bind(JSON.stringify(emsData), id)
       .run();
 
-    // PUBLIC CLUSTER WRITE — physically separate row, no user_id / submission_id
+    // PUBLIC CLUSTER WRITE, physically separate row, no user_id / submission_id
     // columns. The only cross-boundary key is public_session_ref. Created here
     // (not at approve time) so the public dataset reflects the volunteer's
     // submitted state; published_at gates whether the export endpoint surfaces

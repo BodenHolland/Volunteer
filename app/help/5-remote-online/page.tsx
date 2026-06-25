@@ -5,7 +5,7 @@ import { getDict } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Why remote and online volunteer hours count — Help Center" };
+export const metadata = { title: "Why remote and online volunteer hours count | Help Center" };
 
 export default async function Page() {
   const { locale, t } = await getDict();
@@ -19,29 +19,29 @@ export default async function Page() {
     <ArticleShell number={5} starred title={title} prev={prev} next={next}>
       {locale === "es" ? (
         <>
-          <p>El gobierno federal ya reconoce el voluntariado remoto y en línea como una forma legítima de servicio. La autoridad de SNAP para contar el trabajo voluntario se aplica al trabajo no remunerado verificable — no al lugar donde se realiza.</p>
+          <p>El gobierno federal ya reconoce el voluntariado remoto y en línea como una forma legítima de servicio. La autoridad de SNAP para contar el trabajo voluntario se aplica al trabajo no remunerado verificable, no al lugar donde se realiza.</p>
 
           <h2>El reconocimiento federal de la contribución remota es explícito</h2>
-          <p><AuthorityBadge level="direct" /> La <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) ordena a las agencias federales usar la ciencia ciudadana, definida para incluir la participación pública en la que los voluntarios &ldquo;contribuyen con datos&rdquo; al trabajo del gobierno. Esto es una ley federal vigente — no analogía, no inferencia — que trata la contribución remota de voluntarios como una forma reconocida de servicio.</p>
+          <p><AuthorityBadge level="direct" /> La <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) ordena a las agencias federales usar la ciencia ciudadana, definida para incluir la participación pública en la que los voluntarios &ldquo;contribuyen con datos&rdquo; al trabajo del gobierno. Esto es una ley federal vigente, no analogía, no inferencia, que trata la contribución remota de voluntarios como una forma reconocida de servicio.</p>
           <p>Las agencias federales han implementado esto en programas a gran escala:</p>
           <ul>
-            <li><strong>EPA Participatory Science</strong> — los voluntarios remotos contribuyen con datos de calidad del aire y del agua que respaldan decisiones reglamentarias.</li>
-            <li><strong>USDA Forest Service</strong> y <strong>National Park Service</strong> — los voluntarios remotos registran observaciones de vida silvestre y mapeo del paisaje que alimentan la gestión federal de tierras.</li>
-            <li><strong>NASA Citizen Science</strong> — los voluntarios remotos clasifican datos astronómicos para misiones financiadas con fondos federales.</li>
+            <li><strong>EPA Participatory Science</strong>: los voluntarios remotos contribuyen con datos de calidad del aire y del agua que respaldan decisiones reglamentarias.</li>
+            <li><strong>USDA Forest Service</strong> y <strong>National Park Service</strong>: los voluntarios remotos registran observaciones de vida silvestre y mapeo del paisaje que alimentan la gestión federal de tierras.</li>
+            <li><strong>NASA Citizen Science</strong>: los voluntarios remotos clasifican datos astronómicos para misiones financiadas con fondos federales.</li>
           </ul>
           <p>Fuente: <a href="https://www.epa.gov/participatory-science" target="_blank" rel="noopener noreferrer">EPA Participatory Science</a>; <a href="https://www.citizenscience.gov/" target="_blank" rel="noopener noreferrer">CitizenScience.gov</a>.</p>
 
           <h2>El texto de SNAP cubre todo el trabajo no remunerado verificado, en cualquier lugar</h2>
           <p><AuthorityBadge level="direct" /> <strong>7 CFR §273.24(a)(2)(iii)</strong> cuenta &ldquo;el trabajo no remunerado, verificado conforme a los estándares establecidos por la agencia estatal.&rdquo; El texto del reglamento no distingue el trabajo presencial del remoto. El único requisito operativo es un estándar de verificación. California (ACL 25-34, formulario CF 888) y Nueva York lo tienen.</p>
-          <p>El formulario CF 888 de California describe &ldquo;la organización donde la persona hace voluntariado&rdquo; — sin requisito de presencia física. La organización certificadora atestigua las horas reales de trabajo; el formulario es neutral respecto a la ubicación.</p>
+          <p>El formulario CF 888 de California describe &ldquo;la organización donde la persona hace voluntariado&rdquo;, sin requisito de presencia física. La organización certificadora atestigua las horas reales de trabajo; el formulario es neutral respecto a la ubicación.</p>
 
           <h2>El voluntariado remoto sin fines de lucro es servicio establecido</h2>
           <p><AuthorityBadge level="direct" /> Grandes programas sin fines de lucro han operado con voluntarios remotos durante años, aceptados por instituciones culturales federales y reconocidos como servicio benéfico legítimo:</p>
           <ul>
-            <li><strong>Smithsonian Transcription Center</strong> — los voluntarios transcriben las colecciones del Smithsonian (una institución apoyada por el gobierno federal) desde cualquier lugar.</li>
-            <li><strong>Library of Congress &ldquo;By the People&rdquo;</strong> — transcripción colaborativa remota de los fondos de la Biblioteca del Congreso.</li>
-            <li><strong>Zooniverse</strong> — ciencia ciudadana a gran escala financiada en parte con becas federales.</li>
-            <li><strong>Tarjimly</strong> — traducción voluntaria remota para refugiados, reconocida en programas de servicio social.</li>
+            <li><strong>Smithsonian Transcription Center</strong>: los voluntarios transcriben las colecciones del Smithsonian (una institución apoyada por el gobierno federal) desde cualquier lugar.</li>
+            <li><strong>Library of Congress &ldquo;By the People&rdquo;</strong>: transcripción colaborativa remota de los fondos de la Biblioteca del Congreso.</li>
+            <li><strong>Zooniverse</strong>: ciencia ciudadana a gran escala financiada en parte con becas federales.</li>
+            <li><strong>Tarjimly</strong>: traducción voluntaria remota para refugiados, reconocida en programas de servicio social.</li>
           </ul>
           <p>Una persona que revisa una traducción generada por IA desde su casa está realizando el mismo tipo de trabajo voluntario que alguien que la revisa en la oficina de un centro comunitario. La forma del servicio es lo que importa, no el código postal del voluntario.</p>
 
@@ -49,7 +49,7 @@ export default async function Page() {
           <p>colift es una organización sin fines de lucro 501(c)(3) que coordina voluntarios remotos para producir entregables públicos gratuitos. La plataforma:</p>
           <ul>
             <li>Mide la participación activa por sesión, no estima.</li>
-            <li>Produce entregables verificables dentro de la plataforma — datos cívicos, traducciones, auditorías de accesibilidad.</li>
+            <li>Produce entregables verificables dentro de la plataforma, datos cívicos, traducciones, auditorías de accesibilidad.</li>
             <li>Distribuye gratuitamente todos los resultados al público, las bibliotecas y al gobierno.</li>
             <li>Publica su metodología de verificación de forma abierta.</li>
             <li>Realiza conversaciones de pre-autorización con los departamentos de bienestar estatales y del condado.</li>
@@ -63,12 +63,12 @@ export default async function Page() {
           <p>{t.helpRemoteOnline.introPara}</p>
 
           <h2>{t.helpRemoteOnline.h2Federal}</h2>
-          <p><AuthorityBadge level="direct" /> The <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) directs federal agencies to use citizen science, defined to include public participation where volunteers &ldquo;contribute data&rdquo; to government work. This is standing federal law — not analogy, not inference — that treats remote volunteer contribution as a recognized form of service.</p>
+          <p><AuthorityBadge level="direct" /> The <strong>Crowdsourcing and Citizen Science Act of 2016</strong> (15 U.S.C. §3724) directs federal agencies to use citizen science, defined to include public participation where volunteers &ldquo;contribute data&rdquo; to government work. This is standing federal law, not analogy, not inference, that treats remote volunteer contribution as a recognized form of service.</p>
           <p>{t.helpRemoteOnline.federalImplemented}</p>
           <ul>
-            <li><strong>EPA Participatory Science</strong> — remote volunteers contribute air- and water-quality data that supports regulatory decisions.</li>
-            <li><strong>USDA Forest Service</strong> and <strong>National Park Service</strong> — remote volunteers log wildlife observations and landscape mapping that feed federal land management.</li>
-            <li><strong>NASA Citizen Science</strong> — remote volunteers classify astronomical data for federally-funded missions.</li>
+            <li><strong>EPA Participatory Science</strong>: remote volunteers contribute air- and water-quality data that supports regulatory decisions.</li>
+            <li><strong>USDA Forest Service</strong> and <strong>National Park Service</strong>: remote volunteers log wildlife observations and landscape mapping that feed federal land management.</li>
+            <li><strong>NASA Citizen Science</strong>: remote volunteers classify astronomical data for federally-funded missions.</li>
           </ul>
           <p>Source: <a href="https://www.epa.gov/participatory-science" target="_blank" rel="noopener noreferrer">EPA Participatory Science</a>; <a href="https://www.citizenscience.gov/" target="_blank" rel="noopener noreferrer">CitizenScience.gov</a>.</p>
 
@@ -79,10 +79,10 @@ export default async function Page() {
           <h2>{t.helpRemoteOnline.h2Nonprofit}</h2>
           <p><AuthorityBadge level="direct" /> Large nonprofit programs have run on remote volunteers for years, accepted by federal cultural institutions and recognized as legitimate charitable service:</p>
           <ul>
-            <li><strong>Smithsonian Transcription Center</strong> — volunteers transcribe Smithsonian collections (a federally-supported institution) from anywhere.</li>
-            <li><strong>Library of Congress &ldquo;By the People&rdquo;</strong> — remote crowdsourced transcription of LoC holdings.</li>
-            <li><strong>Zooniverse</strong> — large-scale citizen science funded in part by federal grants.</li>
-            <li><strong>Tarjimly</strong> — remote volunteer translation for refugees, recognized in social-service programs.</li>
+            <li><strong>Smithsonian Transcription Center</strong>: volunteers transcribe Smithsonian collections (a federally-supported institution) from anywhere.</li>
+            <li><strong>Library of Congress &ldquo;By the People&rdquo;</strong>: remote crowdsourced transcription of LoC holdings.</li>
+            <li><strong>Zooniverse</strong>: large-scale citizen science funded in part by federal grants.</li>
+            <li><strong>Tarjimly</strong>: remote volunteer translation for refugees, recognized in social-service programs.</li>
           </ul>
           <p>{t.helpRemoteOnline.nonprofitClosingPara}</p>
 

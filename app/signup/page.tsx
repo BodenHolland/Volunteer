@@ -8,7 +8,7 @@ import { signup } from "@/app/auth-actions";
 import { getDict } from "@/lib/i18n";
 import { FirebaseAuthForm } from "@/components/firebase-auth-form";
 
-export const metadata = { title: "Create account — colift" };
+export const metadata = { title: "Create account | colift" };
 
 const ERRORS: Record<string, string> = {
   name: "Please enter your name.",
