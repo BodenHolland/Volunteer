@@ -43,6 +43,11 @@ yarn-error.log*
 # database backups (D1 dumps contain PII — never commit)
 /backups/
 
+# working artifacts — not source (kept on disk, untracked)
+/tmp/
+/research/
+/audit/
+
 # vercel
 .vercel
 
