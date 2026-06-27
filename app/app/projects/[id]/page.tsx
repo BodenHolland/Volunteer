@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { TimeLog } from "@/components/project/time-log";
 import { Checklist } from "@/components/project/checklist";
 import { Notes } from "@/components/project/notes";
+import { AiPrivacyNotice } from "@/components/ai-privacy-notice";
 import { parseJson, type ChecklistItem, type ChecklistProgress, type TimeLogSession, type EmsRateAssignment } from "@/lib/types";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
 import { formatHours } from "@/lib/time";
@@ -219,6 +220,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ id:
             <h2 className="mb-3 flex items-center gap-2 text-[22px] font-semibold text-ink">
               <StickyNote className="size-5 text-forest" /> {c.notes}
             </h2>
+            {editable && <AiPrivacyNotice locale={locale} className="mb-3" />}
             <Notes submissionId={sub.id} initial={sub.user_notes ?? ""} locked={!editable} copy={{ placeholder: c.notesPlaceholder, saving: c.saving, saved: c.saved, autosaves: c.autosaves }} />
           </section>
         </div>

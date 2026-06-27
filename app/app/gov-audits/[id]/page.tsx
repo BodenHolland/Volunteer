@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/lib/cf";
 import { requireUser } from "@/lib/session";
+import { getLocale } from "@/lib/i18n";
 import { parseJson } from "@/lib/types";
+import { AiPrivacyNotice } from "@/components/ai-privacy-notice";
 import {
   type GovAuditSessionRow,
   type GovAuditDraft,
@@ -31,9 +33,11 @@ export default async function GovAuditPage({ params }: { params: Promise<{ id: s
   const spec = parseJson<{ target_url?: string }>(task?.deliverable_spec_json ?? "{}", {});
 
   const draft = parseJson<GovAuditDraft>(session.draft_json, {});
+  const locale = await getLocale();
 
   return (
     <div className="mx-auto max-w-3xl pb-24">
+      <AiPrivacyNotice locale={locale} className="mb-6" />
       <GovAuditClient
         sessionId={session.id}
         device={session.device}

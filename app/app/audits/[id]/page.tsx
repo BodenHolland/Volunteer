@@ -13,6 +13,7 @@ import {
 } from "@/lib/food-audit";
 import { previewCreditForAudit } from "@/lib/audit-pipeline";
 import { AuditClient, type AuditCopy } from "./audit-client";
+import { AiPrivacyNotice } from "@/components/ai-privacy-notice";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Food price audit — Tended" };
@@ -201,6 +202,7 @@ export default async function AuditPage({ params }: { params: Promise<{ id: stri
       <header className="mb-6">
         <h1 className="text-[28px] font-semibold text-ink">{c.title}</h1>
         <p className="mt-2 text-body">{c.intro}</p>
+        <AiPrivacyNotice locale={locale} className="mt-4" />
       </header>
       <AuditClient
         audit={audit}

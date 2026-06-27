@@ -7,6 +7,7 @@ import { submitWork } from "@/app/app/projects/[id]/submit-actions";
 import { PhotoUpload } from "@/components/submit/photo-upload";
 import { EmsRateForm } from "@/components/submit/ems-rate-form";
 import { SubmitButton } from "@/components/submit/submit-button";
+import { AiPrivacyNotice } from "@/components/ai-privacy-notice";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { parseJson, totalLoggedHours, type DeliverableSpec, type EmsRateData, type TimeLogSession } from "@/lib/types";
@@ -133,6 +134,8 @@ export default async function SubmitPage({
 
       <h1 className="text-[28px] font-semibold text-ink">{c.submitYourWork}</h1>
       <p className="mt-1 text-body">{sub.task.title} · {sub.org.name}</p>
+
+      <AiPrivacyNotice locale={locale} className="mt-4" />
 
       {errorParam === "incomplete" && (
         <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
