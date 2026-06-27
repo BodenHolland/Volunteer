@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Typecheck & test
+  build:
+    name: Typecheck, lint, test & build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,14 +20,24 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.22.3
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm exec tsc --noEmit
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
 
       - name: Run tests
         run: pnpm test
+
+      # The OpenNext/Cloudflare build is the key gate: it catches changes that
+      # break the Workers bundle even when typecheck/lint/test stay green.
+      # The build does not require any secrets — runtime bindings (D1, R2,
+      # API keys) are injected at deploy/runtime, not at build time.
+      - name: Build (OpenNext / Cloudflare)
+        run: pnpm build
