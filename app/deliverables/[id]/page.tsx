@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { OrgThumb } from "@/components/org-thumb";
 import { getPublishedDeliverable } from "@/lib/deliverables";
-import { monthLabel } from "@/lib/time";
+import { monthLabel, toYearMonth } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
 import type { TaskCategory } from "@/lib/types";
 
@@ -78,11 +78,6 @@ const COPY = {
   },
 } as const;
 
-function ymOf(ts: number): string {
-  const d = new Date(ts);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const d = await getPublishedDeliverable(id);
@@ -128,7 +123,7 @@ export default async function DeliverableDetailPage({ params }: { params: Promis
                 <Link href={`/orgs/${d.org.slug}`} className="font-medium text-forest hover:underline">
                   {d.org.name}
                 </Link>{" "}
-                · {monthLabel(ymOf(d.monthTs))}
+                · {monthLabel(toYearMonth(d.monthTs))}
               </p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { putFile } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 import { processSubmissionAi } from "@/lib/process";
 import { MIN_ENGAGEMENT_SECONDS } from "@/lib/engagement";
+import { validateImageUploads } from "@/lib/images";
 import { parseJson, type Submission } from "@/lib/types";
 
 /**
@@ -220,6 +221,17 @@ export async function submitWork(formData: FormData) {
 
   // ---- File uploads ----
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+
+  // Authoritative memory/payload guard. The client downscales photos before
+  // upload (canvas re-encode), but that can be bypassed or unavailable, so we
+  // enforce per-file / count / total-bytes caps here BEFORE reading any body
+  // into the 128 MB Worker isolate. File.size is known without arrayBuffer().
+  // Reject early via the page's ?error= convention.
+  const photoCheck = validateImageUploads(photos);
+  if (!photoCheck.ok) {
+    redirect(`/app/projects/${id}/submit?error=photos`);
+  }
+
   const metaRaw = parseJson<{ lat?: number; lng?: number; captured_at?: number }[]>(
     String(formData.get("photo_meta") ?? "[]"),
     []
@@ -229,6 +241,11 @@ export async function submitWork(formData: FormData) {
     const buf = await file.arrayBuffer();
     const hash = await sha256Hex(buf);
     const key = `submissions/${id}/${newId("f")}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    // NOTE: stored raw. Server-side re-encode to shrink the byte footprint would
+    // require Cloudflare Images (not provisioned) or an in-Worker image lib
+    // (none installed; slow + memory-heavy in a 128 MB isolate). So the chosen
+    // approach is client-side downscale (lib/images.downscaleImageFile) plus the
+    // server caps above.
     await putFile(key, buf, file.type || "image/jpeg");
     const m = metaRaw[idx] ?? {};
     const metadata = {

@@ -13,6 +13,7 @@
  * imported, on purpose.
  */
 import { getFile } from "./r2";
+import { toBase64 } from "./encoding";
 
 export interface BenefitsCalResult {
   verified: boolean;
@@ -56,16 +57,6 @@ function manualReview(reasoning: string): BenefitsCalResult {
     reasoning,
     matched: { name: false, case_number: false, calfresh_mention: false },
   };
-}
-
-function toBase64(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
-  let bin = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(bin);
 }
 
 function coerceResult(raw: unknown): BenefitsCalResult {

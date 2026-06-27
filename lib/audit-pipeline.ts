@@ -14,6 +14,12 @@
 
 import { getDb, getEnv, getFiles } from "./cf";
 import { newId } from "./ids";
+import { creditHoursStmt } from "./ledger";
+import {
+  pendingFlagInsertStmts,
+  routePendingFlags,
+  type PendingFlag,
+} from "./pipeline";
 import { validateAuditPhoto, visionPasses, type VisionResult } from "./audit-vision";
 import { decryptField, encryptJson } from "./crypto";
 import { nominatimGeocode, osrmRoute } from "./places";
@@ -30,6 +36,8 @@ import {
   type TravelMode,
 } from "./food-audit";
 import { nextTier, rollSample, strictnessForTier, type TrustRow } from "./audit-trust";
+import { toBase64 } from "./encoding";
+import { haversineMeters } from "./geo";
 import {
   isoDate,
   MAX_RETRY_ATTEMPTS,
@@ -43,24 +51,21 @@ import {
 const TERMINAL_STATUSES = new Set(["verified", "flagged", "rejected"]);
 const PHOTO_GEO_RADIUS_M = 100;
 
-interface PendingFlag {
-  flag_type: string;
-  flag_severity: "block" | "review";
-  flag_reason: string;
-  metadata?: unknown;
-}
-
 export async function processAudit(auditId: string): Promise<void> {
   const db = getDb();
   const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(auditId).first<AuditRow>();
   if (!audit) return;
   if (TERMINAL_STATUSES.has(audit.validation_status)) return;
 
-  // Mark as validating (idempotent — only flips submitted → validating)
-  await db
+  // Atomic single-flight claim. processAudit is invoked from BOTH the submit
+  // action (via waitUntil) AND lazily from the status-poll route, so two runs
+  // can race. Gate on the claim's row-count: only the run that actually flips
+  // submitted → validating proceeds; the loser bails before any double-credit.
+  const claim = await db
     .prepare("UPDATE audits SET validation_status = 'validating' WHERE id = ? AND validation_status = 'submitted'")
     .bind(auditId)
     .run();
+  if (claim.meta.changes !== 1) return;
 
   const ref = audit.public_session_ref;
 
@@ -256,78 +261,76 @@ export async function processAudit(auditId: string): Promise<void> {
     });
   }
 
-  // ---- Persist flags ----
+  // ---- Persist flags (shared INSERT builder; same rows as before) ----
   const now = Date.now();
-  for (const f of pendingFlags) {
-    await db
-      .prepare(
-        `INSERT INTO audit_validation_flags
-         (id, audit_id, flag_type, flag_severity, flag_reason, flag_metadata_json, created_at, resolution_status)
-         VALUES (?,?,?,?,?,?,?, 'open')`
-      )
-      .bind(
-        newId("flag"),
-        auditId,
-        f.flag_type,
-        f.flag_severity,
-        f.flag_reason,
-        f.metadata ? JSON.stringify(f.metadata) : null,
-        now
-      )
-      .run();
+  for (const stmt of pendingFlagInsertStmts(db, auditId, pendingFlags, now)) {
+    await stmt.run();
   }
 
-  const totalFlags = audit.validation_flag_count + pendingFlags.length;
-  const hasBlocker = pendingFlags.some((f) => f.flag_severity === "block");
-
-  let nextStatus: "verified" | "flagged" | "rejected" = "verified";
+  // Shared block/review → terminal-status routing (lib/pipeline.ts).
+  const { status: nextStatus, totalFlags } = routePendingFlags(
+    pendingFlags,
+    audit.validation_flag_count
+  );
   let credited: number | null = null;
-  if (hasBlocker) {
-    nextStatus = "rejected";
-  } else if (totalFlags > 0) {
-    nextStatus = "flagged";
-  } else {
-    nextStatus = "verified";
+  if (nextStatus === "verified") {
     credited = await computeCreditedHoursForAudit(auditId);
   }
 
-  await db
-    .prepare(
-      `UPDATE audits
-       SET validation_status = ?, validation_flag_count = ?, credited_hours = ?
-       WHERE id = ?`
-    )
-    .bind(nextStatus, totalFlags, credited, auditId)
-    .run();
-
-  // Update parent submission
-  if (nextStatus === "verified") {
-    await db
+  // Terminal side-effects are grouped into one db.batch() so the audit's
+  // validation_status, the parent submission flip, the public-summary publish,
+  // and the ledger credit all commit together or roll back together. The
+  // irreversible status='approved' flip can never land without its credited
+  // hours (D1 runs a batch as an implicit transaction).
+  const batch: D1PreparedStatement[] = [
+    db
       .prepare(
-        `UPDATE submissions
-         SET status = 'approved', reviewer_id = NULL, reviewed_at = ?, hours_credited = ?
+        `UPDATE audits
+         SET validation_status = ?, validation_flag_count = ?, credited_hours = ?
          WHERE id = ?`
       )
-      .bind(now, credited, audit.submission_id)
-      .run();
+      .bind(nextStatus, totalFlags, credited, auditId),
+  ];
+
+  if (nextStatus === "verified") {
+    batch.push(
+      db
+        .prepare(
+          `UPDATE submissions
+           SET status = 'approved', reviewer_id = NULL, reviewed_at = ?, hours_credited = ?
+           WHERE id = ?`
+        )
+        .bind(now, credited, audit.submission_id)
+    );
     // Flip the public summary to verified so the public export surfaces this row.
-    await db
-      .prepare("UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?")
-      .bind(now, ref)
-      .run();
-    if (credited) await addCreditedHoursToLedger(audit.user_id, credited);
+    batch.push(
+      db
+        .prepare("UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?")
+        .bind(now, ref)
+    );
+    if (credited) {
+      batch.push(creditHoursStmt(db, { userId: audit.user_id, hours: credited, certifiedOrgId: "org_food_access" }));
+    }
+  } else if (nextStatus === "rejected") {
+    batch.push(
+      db
+        .prepare(
+          `UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_notes = ? WHERE id = ?`
+        )
+        .bind(now, pendingFlags.map((f) => f.flag_reason).join(" "), audit.submission_id)
+    );
+  }
+  // 'flagged' stays in pending_review for human spot-review (already set on submit).
+
+  await db.batch(batch);
+
+  // Open Prices contribution is a network side-effect (queued on failure) — kept
+  // out of the atomic batch so a remote outage can't roll back the approval.
+  if (nextStatus === "verified") {
     await contributeAuditToOpenPrices(auditId).catch(() => {
       /* contribution failures are queued, not surfaced */
     });
-  } else if (nextStatus === "rejected") {
-    await db
-      .prepare(
-        `UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_notes = ? WHERE id = ?`
-      )
-      .bind(now, pendingFlags.map((f) => f.flag_reason).join(" "), audit.submission_id)
-      .run();
   }
-  // 'flagged' stays in pending_review for human spot-review (already set on submit).
 
   await recomputeTrust(audit.user_id);
 }
@@ -569,42 +572,10 @@ export async function recomputeTrust(userId: string, nowMs: number = Date.now())
   };
 }
 
-async function addCreditedHoursToLedger(userId: string, hours: number, certOrg = "org_food_access"): Promise<void> {
-  const db = getDb();
-  const now = Date.now();
-  const d = new Date(now);
-  const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  const existing = await db
-    .prepare(`SELECT id, total_hours FROM hours_ledger WHERE user_id = ? AND month = ? AND certified_org_id = ?`)
-    .bind(userId, ym, certOrg)
-    .first<{ id: string; total_hours: number }>();
-  if (existing) {
-    await db
-      .prepare(`UPDATE hours_ledger SET total_hours = ? WHERE id = ?`)
-      .bind(existing.total_hours + hours, existing.id)
-      .run();
-  } else {
-    await db
-      .prepare(
-        `INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?)`
-      )
-      .bind(newId("ledger"), userId, ym, hours, certOrg)
-      .run();
-  }
-}
-
 // ---- pure helpers ----
 
-export function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const R = 6_371_000;
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const lat1 = toRad(a.lat);
-  const lat2 = toRad(b.lat);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+// Re-exported from the shared geo module; kept here for existing import paths.
+export { haversineMeters };
 
 // ---------------------------------------------------------------------------
 // Open Prices contribution (Slice 3)
@@ -840,12 +811,3 @@ export async function retryOpenPricesQueue(limit = 25): Promise<{ tried: number;
   return { tried: rows.length, sent, failed };
 }
 
-function toBase64(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
-  let bin = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(bin);
-}

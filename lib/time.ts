@@ -30,9 +30,14 @@ export function monthLabel(ym: string): string {
   return `${names[(m ?? 1) - 1]} ${y}`;
 }
 
-export function currentMonth(now: number = Date.now()): string {
-  const d = new Date(now);
+/** Date | unix-ms → "YYYY-MM" (UTC). */
+export function toYearMonth(date: Date | number): string {
+  const d = typeof date === "number" ? new Date(date) : date;
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+export function currentMonth(now: number = Date.now()): string {
+  return toYearMonth(now);
 }
 
 export function formatDob(dob: string | null): string {

@@ -4,6 +4,8 @@
  * Slice 1: sync validation only. Async vision validation and trust tiers land in Slice 2.
  */
 
+import type { PendingFlag } from "./pipeline";
+
 export const BASKET_TEMPLATE_ID = "usda-thrifty-6";
 export const BASKET_TEMPLATE_VERSION = "2026.1";
 
@@ -345,13 +347,10 @@ export function validateCapture(itemId: string, c: CaptureInput): string | null 
   return null;
 }
 
-/** Returns flag-objects to insert (sync, pre-submission). Empty = clean. */
-export interface PendingFlag {
-  flag_type: string;
-  flag_severity: "block" | "review";
-  flag_reason: string;
-  metadata?: unknown;
-}
+// PendingFlag now lives in lib/pipeline.ts (shared by both audit pipelines).
+// Re-exported here so existing `from "@/lib/food-audit"` imports keep working.
+// (Import + re-export are hoisted to the top of the file.)
+export type { PendingFlag } from "./pipeline";
 
 export interface SubmitCheckInput {
   captures: { item_id: string; capture: CaptureInput }[];

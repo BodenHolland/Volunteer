@@ -12,6 +12,8 @@
  * back to manual entry.
  */
 
+import { haversineMeters } from "./geo";
+
 export interface NearbyStore {
   source: "db" | "osm";
   /** Set when this is an existing D1 store row. */
@@ -25,16 +27,9 @@ export interface NearbyStore {
   distance_m: number;
 }
 
-const EARTH_RADIUS_M = 6_371_000;
-
-export function haversineMeters(aLat: number, aLng: number, bLat: number, bLng: number): number {
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const dLat = toRad(bLat - aLat);
-  const dLng = toRad(bLng - aLng);
-  const lat1 = toRad(aLat);
-  const lat2 = toRad(bLat);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return Math.round(2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h))));
+/** Great-circle distance in whole meters between two positional lat/lng pairs. */
+function distanceMeters(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  return Math.round(haversineMeters({ lat: aLat, lng: aLng }, { lat: bLat, lng: bLng }));
 }
 
 // Retail categories that plausibly sell the basket.
@@ -111,7 +106,7 @@ out center ${limit};`;
       address: buildAddress(tags) || `Near ${elLat.toFixed(4)}, ${elLng.toFixed(4)}`,
       lat: elLat,
       lng: elLng,
-      distance_m: haversineMeters(lat, lng, elLat, elLng),
+      distance_m: distanceMeters(lat, lng, elLat, elLng),
     });
   }
   return out;
@@ -266,7 +261,7 @@ export async function nominatimSearch(
       address,
       lat,
       lng,
-      distance_m: hint ? haversineMeters(hint.lat, hint.lng, lat, lng) : 0,
+      distance_m: hint ? distanceMeters(hint.lat, hint.lng, lat, lng) : 0,
     });
   }
   return out;

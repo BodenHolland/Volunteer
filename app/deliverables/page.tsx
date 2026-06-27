@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { OrgThumb } from "@/components/org-thumb";
 import { EmptyState } from "@/components/empty-state";
 import { listPublishedDeliverables } from "@/lib/deliverables";
-import { monthLabel, currentMonth } from "@/lib/time";
+import { monthLabel, currentMonth, toYearMonth } from "@/lib/time";
 import { getLocale } from "@/lib/i18n";
 import type { TaskCategory } from "@/lib/types";
 
@@ -79,11 +79,6 @@ function snippet(text: string | null, max = 220): string {
   return t.length > max ? t.slice(0, max).trimEnd() + "…" : t;
 }
 
-function ymOf(ts: number): string {
-  const d = new Date(ts);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
 export default async function DeliverablesPage() {
   const deliverables = await listPublishedDeliverables();
   const locale = await getLocale();
@@ -129,7 +124,7 @@ export default async function DeliverablesPage() {
                         <OrgThumb name={d.org.name} slug={d.org.slug} size={40} className="h-10 w-10" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-ink">{d.org.name}</p>
-                          <p className="text-xs text-meta">{monthLabel(ymOf(d.monthTs))}</p>
+                          <p className="text-xs text-meta">{monthLabel(toYearMonth(d.monthTs))}</p>
                         </div>
                       </div>
 

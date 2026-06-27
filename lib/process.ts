@@ -17,6 +17,7 @@ import {
   type LatLng,
 } from "./fraud";
 import { newId } from "./ids";
+import { toBase64 } from "./encoding";
 import {
   parseJson,
   type EmsRateData,
@@ -33,9 +34,39 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(submissionId).first<Submission>();
   if (!sub || sub.status !== "ai_reviewing") return;
 
+  // Single-flight lease. This runs from BOTH the submit action (via waitUntil)
+  // AND the status-poll fallback, so two invocations can race. We can't add a
+  // distinct "processing" status (submissions.status has a CHECK constraint), so
+  // we claim atomically on the ai_verdict_json column instead: set a lease
+  // sentinel only while status is still ai_reviewing AND no verdict/lease is
+  // present. Only the run whose UPDATE actually changes a row proceeds; the
+  // loser bails before the expensive AI/fraud work, avoiding double-processing
+  // and duplicate flag rows. The terminal UPDATE overwrites the sentinel with
+  // the real verdict.
+  const LEASE_SENTINEL = '{"_lease":true}';
+  const claim = await db
+    .prepare(
+      "UPDATE submissions SET ai_verdict_json = ? WHERE id = ? AND status = 'ai_reviewing' AND ai_verdict_json IS NULL"
+    )
+    .bind(LEASE_SENTINEL, submissionId)
+    .run();
+  if (claim.meta.changes !== 1) return;
+
+  // Release the lease (sentinel → NULL) so the poll fallback can retry if this
+  // run can't complete. Called on the missing-row early return and on any throw.
+  const releaseLease = () =>
+    db
+      .prepare("UPDATE submissions SET ai_verdict_json = NULL WHERE id = ? AND ai_verdict_json = ?")
+      .bind(submissionId, LEASE_SENTINEL)
+      .run();
+
+  try {
   const task = await db.prepare("SELECT * FROM task_templates WHERE id = ?").bind(sub.task_template_id).first<TaskTemplate>();
   const user = await db.prepare("SELECT * FROM users WHERE id = ?").bind(sub.user_id).first<User>();
-  if (!task || !user) return;
+  if (!task || !user) {
+    await releaseLease();
+    return;
+  }
 
   const files = (await db.prepare("SELECT * FROM submission_files WHERE submission_id = ?").bind(submissionId).all<SubmissionFile>()).results ?? [];
 
@@ -74,10 +105,31 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
   // ---- Fraud signals ----
   const flags: FraudFlag[] = [];
 
-  // a. duplicates vs all prior files (other submissions)
+  // a. duplicates vs prior files in OTHER submissions. Instead of scanning the
+  // whole submission_files table, fetch only rows whose sha256 matches one of
+  // this submission's file hashes — served by the expression index on
+  // json_extract(metadata_json,'$.sha256') (migration 0017). Bounded by this
+  // submission's file count, not by table size.
   const current = files.map((f) => ({ fileId: f.id, hash: parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "" })).filter((x) => x.hash);
-  const priorRows = (await db.prepare("SELECT * FROM submission_files WHERE submission_id != ?").bind(submissionId).all<SubmissionFile>()).results ?? [];
-  const prior = priorRows.map((f) => ({ submissionId: f.submission_id, fileId: f.id, hash: parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "" })).filter((x) => x.hash);
+  const currentHashes = [...new Set(current.map((c) => c.hash))];
+  let prior: { submissionId: string; fileId: string; hash: string }[] = [];
+  if (currentHashes.length > 0) {
+    const placeholders = currentHashes.map(() => "?").join(",");
+    const priorRows =
+      (
+        await db
+          .prepare(
+            `SELECT id, submission_id, metadata_json FROM submission_files
+             WHERE json_extract(metadata_json, '$.sha256') IN (${placeholders})
+               AND submission_id != ?`
+          )
+          .bind(...currentHashes, submissionId)
+          .all<SubmissionFile>()
+      ).results ?? [];
+    prior = priorRows
+      .map((f) => ({ submissionId: f.submission_id, fileId: f.id, hash: parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "" }))
+      .filter((x) => x.hash);
+  }
   flags.push(...detectDuplicateImages(current, prior));
 
   // b. AI content
@@ -92,18 +144,28 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
   // d. velocity
   flags.push(...detectVelocityAnomaly(sub.submitted_at ?? Date.now(), sub.first_started_at, task.est_hours));
 
-  for (const fl of flags) {
-    await db
-      .prepare("INSERT INTO submission_flags (id, submission_id, kind, severity, evidence_json, created_at) VALUES (?,?,?,?,?,?)")
-      .bind(newId("flag"), submissionId, fl.kind, fl.severity, JSON.stringify(fl.evidence ?? {}), Date.now())
-      .run();
-  }
-
+  // Persist the flags and the routed terminal status atomically. The terminal
+  // UPDATE overwrites the lease sentinel with the real verdict and flips status
+  // off ai_reviewing (gated on status='ai_reviewing' so it stays idempotent).
+  const now = Date.now();
   const nextStatus = routeStatus(verdict, flags);
-  await db
-    .prepare("UPDATE submissions SET status = ?, ai_verdict_json = ? WHERE id = ? AND status = 'ai_reviewing'")
-    .bind(nextStatus, JSON.stringify(verdict), submissionId)
-    .run();
+  const batch: D1PreparedStatement[] = flags.map((fl) =>
+    db
+      .prepare("INSERT INTO submission_flags (id, submission_id, kind, severity, evidence_json, created_at) VALUES (?,?,?,?,?,?)")
+      .bind(newId("flag"), submissionId, fl.kind, fl.severity, JSON.stringify(fl.evidence ?? {}), now)
+  );
+  batch.push(
+    db
+      .prepare("UPDATE submissions SET status = ?, ai_verdict_json = ? WHERE id = ? AND status = 'ai_reviewing'")
+      .bind(nextStatus, JSON.stringify(verdict), submissionId)
+  );
+  await db.batch(batch);
+  } catch (err) {
+    // Release the lease so the poll fallback can retry, then rethrow so the
+    // caller's logging still sees the failure.
+    await releaseLease().catch(() => {});
+    throw err;
+  }
 }
 
 function formatNotesForAi(category: string, notes: string | null): string {
@@ -138,12 +200,3 @@ function formatNotesForAi(category: string, notes: string | null): string {
     .join("\n");
 }
 
-function toBase64(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
-  let bin = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(bin);
-}

@@ -7,9 +7,13 @@ import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { requireUser } from "@/lib/session";
 import { putFile } from "@/lib/r2";
+import { validateImageUploads } from "@/lib/images";
 import { computeCreditedHoursForAudit, processAudit, recomputeTrust } from "@/lib/audit-pipeline";
 import { logError } from "@/lib/audit";
-import { fetchOsmNearby, haversineMeters, nominatimSearch, type NearbyStore } from "@/lib/places";
+import { creditHoursStmt } from "@/lib/ledger";
+import { pendingFlagInsertStmts } from "@/lib/pipeline";
+import { fetchOsmNearby, nominatimSearch, type NearbyStore } from "@/lib/places";
+import { haversineMeters } from "@/lib/geo";
 import {
   ANTI_DUP_WINDOW_DAYS,
   detectPii,
@@ -84,7 +88,7 @@ export async function searchStoresAction(
     lng: s.geocode_lng ?? 0,
     distance_m:
       hint && s.geocode_lat != null && s.geocode_lng != null
-        ? haversineMeters(hint.lat, hint.lng, s.geocode_lat, s.geocode_lng)
+        ? Math.round(haversineMeters({ lat: hint.lat, lng: hint.lng }, { lat: s.geocode_lat, lng: s.geocode_lng }))
         : 0,
   }));
 
@@ -138,7 +142,7 @@ export async function nearbyStoresAction(lat: number, lng: number): Promise<Near
       address: s.address,
       lat: s.geocode_lat,
       lng: s.geocode_lng,
-      distance_m: haversineMeters(lat, lng, s.geocode_lat, s.geocode_lng),
+      distance_m: Math.round(haversineMeters({ lat: lat, lng: lng }, { lat: s.geocode_lat, lng: s.geocode_lng })),
     }))
     .filter((s) => s.distance_m <= 25_000);
 
@@ -331,6 +335,17 @@ async function captureItemInner(
     const photo = formData.get("photo");
     if (!(photo instanceof File) || photo.size === 0) {
       return { ok: false, error: "Photo of the item and shelf tag is required." };
+    }
+    // Authoritative per-file byte cap, enforced BEFORE arrayBuffer() pulls the
+    // body into the 128 MB Worker isolate. The client downscales the camera
+    // capture first (see audit-client PhotoCapture); this is the backstop if
+    // that's bypassed/unavailable. One photo per item, so count/total are moot
+    // here — the per-file cap is the relevant guard. Server-side re-encode would
+    // need Cloudflare Images (not provisioned) or an in-Worker image lib (none
+    // installed), so client downscale + this cap is the chosen approach.
+    const photoCheck = validateImageUploads([photo], { maxCount: 1 });
+    if (!photoCheck.ok) {
+      return { ok: false, error: photoCheck.error };
     }
     const buf = await photo.arrayBuffer();
     const sha = await sha256Hex(buf);
@@ -551,15 +566,8 @@ async function submitAuditInner(formData: FormData, auditId: string, sessionSeco
   if (!result.ok) return { ok: false, error: result.reason };
 
   const now = Date.now();
-  for (const f of result.flags) {
-    await db
-      .prepare(
-        `INSERT INTO audit_validation_flags
-         (id, audit_id, flag_type, flag_severity, flag_reason, flag_metadata_json, created_at, resolution_status)
-         VALUES (?,?,?,?,?,?,?, 'open')`
-      )
-      .bind(newId("flag"), a.id, f.flag_type, f.flag_severity, f.flag_reason, f.metadata ? JSON.stringify(f.metadata) : null, now)
-      .run();
+  for (const stmt of pendingFlagInsertStmts(db, a.id, result.flags, now)) {
+    await stmt.run();
   }
 
   await db
@@ -652,55 +660,37 @@ export async function adminApproveAuditAction(formData: FormData) {
 
   const credited = await computeCreditedHoursForAudit(a.id);
   const now = Date.now();
-  await db
-    .prepare(
-      `UPDATE audits SET validation_status = 'verified', credited_hours = ? WHERE id = ?`
-    )
-    .bind(credited, a.id)
-    .run();
-  // Publish the public summary row by stamping verified_at.
-  await db
-    .prepare(`UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?`)
-    .bind(now, a.public_session_ref)
-    .run();
-  await db
-    .prepare(
-      `UPDATE submissions
-       SET status = 'approved', reviewer_id = ?, reviewed_at = ?, hours_credited = ?
-       WHERE id = ?`
-    )
-    .bind(user.id, now, credited, a.submission_id)
-    .run();
 
+  // Read the recipient first so the ledger credit can ride in the same batch.
   const sub = await db
     .prepare("SELECT user_id FROM submissions WHERE id = ?")
     .bind(a.submission_id)
     .first<{ user_id: string }>();
-  const ym = (() => {
-    const d = new Date(now);
-    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  })();
-  const certOrg = "org_food_access";
-  if (sub?.user_id) {
-    const existing = await db
+
+  // Atomic batch: the audit verify, the public-summary publish, the
+  // irreversible submission status='approved' flip, and the ledger credit all
+  // commit together or roll back together (D1 implicit transaction).
+  const batch: D1PreparedStatement[] = [
+    db
+      .prepare(`UPDATE audits SET validation_status = 'verified', credited_hours = ? WHERE id = ?`)
+      .bind(credited, a.id),
+    db
+      .prepare(`UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?`)
+      .bind(now, a.public_session_ref),
+    db
       .prepare(
-        `SELECT id, total_hours FROM hours_ledger WHERE user_id = ? AND month = ? AND certified_org_id = ?`
+        `UPDATE submissions
+         SET status = 'approved', reviewer_id = ?, reviewed_at = ?, hours_credited = ?
+         WHERE id = ?`
       )
-      .bind(sub.user_id, ym, certOrg)
-      .first<{ id: string; total_hours: number }>();
-    if (existing) {
-      await db
-        .prepare(`UPDATE hours_ledger SET total_hours = ? WHERE id = ?`)
-        .bind(existing.total_hours + credited, existing.id)
-        .run();
-    } else {
-      await db
-        .prepare(
-          `INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?)`
-        )
-        .bind(newId("ledger"), sub.user_id, ym, credited, certOrg)
-        .run();
-    }
+      .bind(user.id, now, credited, a.submission_id),
+  ];
+  if (sub?.user_id && credited > 0) {
+    batch.push(creditHoursStmt(db, { userId: sub.user_id, hours: credited, certifiedOrgId: "org_food_access" }));
+  }
+  await db.batch(batch);
+
+  if (sub?.user_id) {
     await recomputeTrust(sub.user_id);
   }
   revalidatePath("/admin/audits");

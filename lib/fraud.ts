@@ -3,6 +3,7 @@
  * be unit-tested without a DB or network.
  */
 import type { AiVerdict } from "./ai";
+import { haversineMiles } from "./geo";
 
 export type FlagKind =
   | "duplicate_image"
@@ -38,17 +39,8 @@ export const CITY_CENTROIDS: Record<string, LatLng> = {
   Fresno: { lat: 36.7378, lng: -119.7871 },
 };
 
-export function haversineMiles(a: LatLng, b: LatLng): number {
-  const R = 3958.8;
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const lat1 = toRad(a.lat);
-  const lat2 = toRad(b.lat);
-  const h =
-    Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
-}
+// Re-exported from the shared geo module; kept here for existing import paths.
+export { haversineMiles };
 
 export interface CurrentFile {
   fileId: string;

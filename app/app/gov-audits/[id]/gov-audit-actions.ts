@@ -7,8 +7,9 @@ import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { requireUser } from "@/lib/session";
 import { logError } from "@/lib/audit";
+import { creditHoursStmt } from "@/lib/ledger";
 import {
-  runAutoCheck,
+  runAutoChecksBatch,
   renderPagePreview,
   type PagePreviewResult,
 } from "@/lib/gov-audit-browser";
@@ -487,20 +488,30 @@ async function runGovAuditAutoChecks(
   const now = Date.now();
   const corroborations: AnchorCorroboration[] = [];
 
-  for (const a of anchors) {
-    let check;
-    try {
-      check = await runAutoCheck(a.url);
-    } catch (err) {
-      await logError("runGovAuditAutoChecks", err, { sessionId, url: a.url });
-      corroborations.push({
-        accessibility: a.accessibility,
-        axeViolations: null,
-        loadOk: null,
-        rubricComplete: a.rubricComplete,
-      });
-      continue;
-    }
+  // Cap auto-checks per run to fit the waitUntil wall-clock budget (each
+  // Browser Rendering + axe-core pass is 15–30s). Anchors beyond the cap leave
+  // axe_violations null, which integrityScore treats as neutral — never a
+  // penalty. (Browser reuse is handled in gov-audit-browser.ts.)
+  const MAX_ANCHORS_PER_RUN = 3;
+  if (anchors.length > MAX_ANCHORS_PER_RUN) {
+    await logError("runGovAuditAutoChecks:anchorCap", new Error("anchor cap hit"), {
+      sessionId,
+      total: anchors.length,
+      cap: MAX_ANCHORS_PER_RUN,
+    });
+  }
+  const cappedAnchors = anchors.slice(0, MAX_ANCHORS_PER_RUN);
+
+  // Single Browser Rendering session for all anchors (one launch/close), instead
+  // of one session per anchor. runAutoChecksBatch never throws and returns
+  // results in input order; binding is left undefined so the helper resolves the
+  // BROWSER binding itself (same binding the per-URL path used) and degrades to
+  // fetch when it's absent.
+  const checks = await runAutoChecksBatch(undefined, cappedAnchors.map((a) => a.url));
+
+  for (let i = 0; i < cappedAnchors.length; i++) {
+    const a = cappedAnchors[i];
+    const check = checks[i];
 
     try {
       await db
@@ -576,41 +587,29 @@ export async function adminApproveGovAuditAction(formData: FormData) {
 
   const credited = Math.round(((s.certified_minutes ?? 0) / 60) * 100) / 100;
   const now = Date.now();
-  await db
-    .prepare("UPDATE gov_audit_sessions SET status = 'finalized', finalized_at = ? WHERE id = ?")
-    .bind(now, sessionId)
-    .run();
-  await db
-    .prepare(
-      `UPDATE submissions SET status = 'approved', reviewer_id = ?, reviewed_at = ?, hours_credited = ? WHERE id = ?`
-    )
-    .bind(user.id, now, credited, s.submission_id)
-    .run();
 
+  // Read the recipient before the batch so the ledger credit can ride along.
   const sub = await db
     .prepare("SELECT user_id FROM submissions WHERE id = ?")
     .bind(s.submission_id)
     .first<{ user_id: string }>();
-  const d = new Date(now);
-  const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  const certOrg = "org_gov_digital";
+
+  // The finalize, the irreversible submission status='approved' flip, and the
+  // ledger credit commit together in one db.batch() (D1 implicit transaction).
+  const batch: D1PreparedStatement[] = [
+    db
+      .prepare("UPDATE gov_audit_sessions SET status = 'finalized', finalized_at = ? WHERE id = ?")
+      .bind(now, sessionId),
+    db
+      .prepare(
+        `UPDATE submissions SET status = 'approved', reviewer_id = ?, reviewed_at = ?, hours_credited = ? WHERE id = ?`
+      )
+      .bind(user.id, now, credited, s.submission_id),
+  ];
   if (sub?.user_id && credited > 0) {
-    const existing = await db
-      .prepare("SELECT id, total_hours FROM hours_ledger WHERE user_id = ? AND month = ? AND certified_org_id = ?")
-      .bind(sub.user_id, ym, certOrg)
-      .first<{ id: string; total_hours: number }>();
-    if (existing) {
-      await db
-        .prepare("UPDATE hours_ledger SET total_hours = ? WHERE id = ?")
-        .bind(existing.total_hours + credited, existing.id)
-        .run();
-    } else {
-      await db
-        .prepare("INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?)")
-        .bind(newId("ledger"), sub.user_id, ym, credited, certOrg)
-        .run();
-    }
+    batch.push(creditHoursStmt(db, { userId: sub.user_id, hours: credited, certifiedOrgId: "org_gov_digital" }));
   }
+  await db.batch(batch);
   revalidatePath("/admin/audits");
 }
 

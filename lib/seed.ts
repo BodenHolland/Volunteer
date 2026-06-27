@@ -11,10 +11,15 @@
  *   uses the task's org — see README.)
  */
 import { parseJson, totalLoggedHours, type ChecklistItem, type DeliverableSpec, type TimeLogSession } from "./types";
-import { hashPassword } from "./auth";
 import { EMS_TARGETS } from "./ems-targets";
+import { creditHoursStmt } from "./ledger";
+import { toYearMonth } from "./time";
 
-/** All seeded sample accounts share this password so they are loginnable. */
+/**
+ * Shared password for the seeded demo accounts. This is their *Firebase* Auth
+ * password (sign in at /login with the account email + this value); no password
+ * is stored in D1. Kept here as the canonical reference for the demo script.
+ */
 export const SEED_PASSWORD = "tended-sample-2026";
 
 export interface Persona {
@@ -58,11 +63,6 @@ export const PERSONAS: Persona[] = [
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
-
-function ym(now: number): string {
-  const d = new Date(now);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
 
 // ---- task content ----
 interface SeedTask {
@@ -313,7 +313,7 @@ function addr(o: { line1: string; line2?: string; city: string; state: string; z
 type Stmt = D1PreparedStatement;
 
 export async function seedDatabase(db: D1Database, now: number = Date.now()): Promise<void> {
-  const month = ym(now);
+  const month = toYearMonth(now);
 
   // ---- wipe (children before parents; remote D1 enforces foreign keys) ----
   const wipeTables = [
@@ -637,10 +637,16 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   }
 
   // ---- hours ledger (Marisol: certified 8 this month via Civic Data Collective) ----
-  const ledgerIns = db.prepare(
-    `INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?)`
+  // Routed through the shared atomic upsert helper; fixed id keeps the seed idempotent.
+  stmts.push(
+    creditHoursStmt(db, {
+      id: "ledger_m_sfcdc",
+      userId: USER_MARISOL,
+      month,
+      hours: 8,
+      certifiedOrgId: ORG_SFCDC,
+    })
   );
-  stmts.push(ledgerIns.bind("ledger_m_sfcdc", USER_MARISOL, month, 8, ORG_SFCDC));
 
   // ---- counties (per-county pre-clearance): Sacramento cleared (sample) ----
   const countyIns = db.prepare(
@@ -675,12 +681,16 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
 
   await db.batch(stmts);
 
-  // Give every seeded account a real (hashed) password + verified email so the
-  // sample accounts are loginnable with SEED_PASSWORD. Production accounts set their own.
-  const seedHash = await hashPassword(SEED_PASSWORD);
+  // Mark every seeded account's email as verified so the email-verification gate
+  // (lib/session.ts) never blocks the demo accounts once they adopt their
+  // Firebase identity on first sign-in. Auth itself is Firebase: the sample
+  // accounts sign in at /login with their email + the shared SEED_PASSWORD
+  // (which is their *Firebase* password); /api/auth/session then links the
+  // Firebase identity to the seeded D1 row by email. There is no password stored
+  // in D1 anymore.
   await db
-    .prepare("UPDATE users SET password_hash = ?, email_verified_at = ? WHERE password_hash IS NULL")
-    .bind(seedHash, now)
+    .prepare("UPDATE users SET email_verified_at = ? WHERE email_verified_at IS NULL")
+    .bind(now)
     .run();
 
   // Backfill measured active engagement from seeded wall-clock sessions (treat
