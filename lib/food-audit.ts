@@ -441,31 +441,39 @@ export function creditedHoursFromSeconds(seconds: number): number {
  *  timer: a measured countdown stops if a volunteer backgrounds the app to
  *  open the camera, so we credit per-task instead and bound it with a cap. */
 export const CREDIT_MINUTES_PER_ITEM = 5;
-/** Upper bound on commute time credited per audit, in minutes. Bounds the
- *  total even when OSRM returns an unreasonably long round-trip estimate. */
-export const COMMUTE_CAP_MINUTES = 90;
+/** Absolute backstop on commute time credited per audit, in minutes (round-trip).
+ *  Travel credit is ALSO capped at the on-task audit time (proportionality) in
+ *  creditedHoursFromAuditInputs, so for a normal 6-item audit this backstop
+ *  rarely binds — it only matters for unusually large audits. */
+export const COMMUTE_CAP_MINUTES = 45;
 /** Upper bound on total credited time per audit, in minutes. */
-export const AUDIT_CAP_MINUTES = 120;
+export const AUDIT_CAP_MINUTES = 75;
 
 /**
  * Credited hours = (5 min × items documented) + round-trip commute minutes,
- * each side bounded, then total bounded by AUDIT_CAP_MINUTES. Returns hours
- * (rounded to 2 decimals).
+ * where commute credit is capped at the on-task audit time (proportionality)
+ * and by an absolute backstop, then the total is bounded by AUDIT_CAP_MINUTES.
+ * Returns hours (rounded to 2 decimals).
  *
  *  - itemsDocumented: count of audit_item_captures with a non-null stock_status
  *    on this audit (typically 6).
  *  - oneWayCommuteSeconds: OSRM duration from home → store (or null when we
  *    have no home geocode or routing failed; commute contributes 0).
+ *
+ * Proportionality cap: travel credit can never exceed the on-task audit time, so
+ * a distant store with a brief visit cannot become a mostly-commute credit
+ * (e.g. a 6-item / 30-min audit credits at most 30 min of travel → 60 min total,
+ * not the old 2-hour ceiling).
  */
 export function creditedHoursFromAuditInputs(
   itemsDocumented: number,
   oneWayCommuteSeconds: number | null
 ): number {
   const docMin = Math.max(0, itemsDocumented) * CREDIT_MINUTES_PER_ITEM;
-  const commuteMin =
-    oneWayCommuteSeconds == null
-      ? 0
-      : Math.min(COMMUTE_CAP_MINUTES, Math.max(0, (oneWayCommuteSeconds * 2) / 60));
+  const roundTripMin =
+    oneWayCommuteSeconds == null ? 0 : Math.max(0, (oneWayCommuteSeconds * 2) / 60);
+  // Commute credit ≤ on-task time (docMin) AND ≤ the absolute backstop.
+  const commuteMin = Math.min(roundTripMin, docMin, COMMUTE_CAP_MINUTES);
   const total = Math.min(AUDIT_CAP_MINUTES, docMin + commuteMin);
   return Math.round((total / 60) * 100) / 100;
 }

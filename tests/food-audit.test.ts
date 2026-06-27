@@ -2,6 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert";
 import {
   ANTI_DUP_WINDOW_DAYS,
+  AUDIT_CAP_MINUTES,
+  COMMUTE_CAP_MINUTES,
+  CREDIT_MINUTES_PER_ITEM,
+  creditedHoursFromAuditInputs,
   creditedHoursFromSeconds,
   detectPii,
   isInCalifornia,
@@ -46,6 +50,31 @@ test("Hard rule: hour credit is measured time, capped at the calibrated cap", ()
   assert.strictEqual(capped, Math.round((SESSION_CAP_MINUTES / 60) * 100) / 100);
   // measured 0 → 0
   assert.strictEqual(creditedHoursFromSeconds(0), 0);
+});
+
+test("Hard rule: travel credit is capped at on-task time (proportionality) — a far store can't inflate hours", () => {
+  const items = 6;
+  const docMin = items * CREDIT_MINUTES_PER_ITEM; // 30 min of real work
+  const hrs = (min: number) => Math.round((min / 60) * 100) / 100;
+
+  // No commute → just the on-task time.
+  assert.strictEqual(creditedHoursFromAuditInputs(items, null), hrs(docMin));
+
+  // Short local trip (10 min one-way = 20 round-trip, under docMin) credits fully.
+  assert.strictEqual(creditedHoursFromAuditInputs(items, 10 * 60), hrs(docMin + 20));
+
+  // Far store: 90 min one-way (180 round-trip) is clamped to the on-task time
+  // (30 min), NOT 180. Total = 60 min, not the old ~2-hour ceiling.
+  assert.strictEqual(creditedHoursFromAuditInputs(items, 90 * 60), hrs(docMin + docMin));
+
+  // Even an absurd distance can never make commute exceed on-task time.
+  const absurd = creditedHoursFromAuditInputs(items, 5 * 3600); // 5h one-way
+  assert.strictEqual(absurd, hrs(docMin + docMin));
+
+  // Absolute backstops still bind for unusually large audits: 20 items → 100 min
+  // on-task, but commute is capped at COMMUTE_CAP_MINUTES and total at AUDIT_CAP.
+  const big = creditedHoursFromAuditInputs(20, 60 * 60); // 120-min round trip
+  assert.strictEqual(big, hrs(Math.min(AUDIT_CAP_MINUTES, 20 * CREDIT_MINUTES_PER_ITEM + COMMUTE_CAP_MINUTES)));
 });
 
 test("Hard rule: in-stock items require photo + price + size", () => {
