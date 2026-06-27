@@ -448,14 +448,13 @@ export async function previewCreditForAudit(auditId: string): Promise<AuditCredi
       if (route) {
         modeEstimates = {
           drive: commuteSecondsForMode("drive", route),
-          walk: commuteSecondsForMode("walk", route),
           transit: commuteSecondsForMode("transit", route),
         };
         const mode = (audit.commute_mode as TravelMode | null) ?? DEFAULT_TRAVEL_MODE;
         // User override (round-trip minutes) wins when set, but is clamped to
         // the slowest per-mode estimate so a typo can't run hours away.
         if (userMinutes != null && userMinutes > 0) {
-          const slowestOneWay = Math.max(modeEstimates.drive, modeEstimates.walk, modeEstimates.transit);
+          const slowestOneWay = Math.max(modeEstimates.drive, modeEstimates.transit);
           const slowestRoundTripMin = (slowestOneWay * 2) / 60;
           const clamped = Math.min(userMinutes, slowestRoundTripMin);
           oneWaySeconds = (clamped * 60) / 2;

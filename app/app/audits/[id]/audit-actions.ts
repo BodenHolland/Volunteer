@@ -252,7 +252,7 @@ export async function setStoreTypeAction(formData: FormData) {
 export async function setCommuteModeAction(formData: FormData) {
   const auditId = String(formData.get("audit_id") ?? "");
   const mode = String(formData.get("commute_mode") ?? "");
-  if (!["drive", "walk", "transit"].includes(mode)) return;
+  if (!["drive", "transit"].includes(mode)) return;
   const a = await loadOwnedAudit(auditId);
   if (!a) return;
   await getDb().prepare("UPDATE audits SET commute_mode = ? WHERE id = ?").bind(mode, auditId).run();

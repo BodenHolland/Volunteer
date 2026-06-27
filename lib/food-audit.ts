@@ -45,34 +45,33 @@ export const EBT_OBSERVATIONS: { value: EbtObservation; label: string }[] = [
   { value: "not-visible", label: "Couldn't tell — no signage and didn't ask" },
 ];
 
-export type TravelMode = "drive" | "walk" | "transit";
+export type TravelMode = "drive" | "transit";
 
 export const TRAVEL_MODES: { value: TravelMode; label: string }[] = [
   { value: "drive", label: "Drove" },
-  { value: "walk", label: "Walked" },
   { value: "transit", label: "Public transit" },
 ];
 
 export const DEFAULT_TRAVEL_MODE: TravelMode = "drive";
 
-// The OSRM public router only routes driving, so walking/transit durations are
-// estimated from the driving route's distance. Walking ≈ 5 km/h; transit ≈
-// 21 km/h plus a flat wait/transfer allowance.
-const WALK_SPEED_MPS = 1.4;
+// The OSRM public router only routes driving, so the transit duration is
+// estimated from the driving route's distance: transit ≈ 21 km/h plus a flat
+// wait/transfer allowance.
 const TRANSIT_SPEED_MPS = 6;
 const TRANSIT_WAIT_SECONDS = 300;
 
 /**
  * One-way commute seconds for the chosen travel mode, from a driving route's
- * distance and duration. "drive" uses the routed duration directly; "walk" and
- * "transit" are distance-based estimates. The value is still clamped by
+ * distance and duration. "drive" uses the routed duration directly; "transit"
+ * is a distance-based estimate. The value is still clamped by
  * COMMUTE_CAP_MINUTES downstream in {@link creditedHoursFromAuditInputs}.
+ * (A legacy "walk" value from before that mode was removed falls through to the
+ * driving duration.)
  */
 export function commuteSecondsForMode(
   mode: TravelMode,
   route: { distanceMeters: number; durationSeconds: number }
 ): number {
-  if (mode === "walk") return route.distanceMeters / WALK_SPEED_MPS;
   if (mode === "transit") return route.distanceMeters / TRANSIT_SPEED_MPS + TRANSIT_WAIT_SECONDS;
   return route.durationSeconds;
 }

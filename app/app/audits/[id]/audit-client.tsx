@@ -229,12 +229,11 @@ function CommutePanel({
   const modeRoundTripMin = modeEstimates
     ? {
         drive: Math.round((modeEstimates.drive * 2) / 60),
-        walk: Math.round((modeEstimates.walk * 2) / 60),
         transit: Math.round((modeEstimates.transit * 2) / 60),
       }
     : null;
   const capMinutes = modeRoundTripMin
-    ? Math.max(modeRoundTripMin.drive, modeRoundTripMin.walk, modeRoundTripMin.transit)
+    ? Math.max(modeRoundTripMin.drive, modeRoundTripMin.transit)
     : null;
 
   return (
