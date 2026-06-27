@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "./auth";
+import { isDemoMode } from "./cf";
 import type { User } from "./types";
 
 /** Current authenticated user (real session), or null. */
@@ -10,6 +11,11 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function requireUser(): Promise<User> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  // Production gate: app access requires a verified email. The verify-email flow
+  // (password users) and the Firebase session route (verified-email claim) both
+  // set email_verified_at, so properly-provisioned users are unaffected. Skipped
+  // in DEMO_MODE so seeded sample accounts still work without a verification step.
+  if (!isDemoMode() && !user.email_verified_at) redirect("/login?error=verify");
   return user;
 }
 

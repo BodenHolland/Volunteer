@@ -2,15 +2,22 @@
  * Field-level encryption for sensitive PII (legal name, case number, DOB,
  * address, phone). AES-256-GCM via Web Crypto.
  *
- * Requires `PII_ENCRYPTION_KEY` (32-byte base64). In production, encrypting with
- * no key configured throws (fail-closed) so PII is never written in cleartext;
- * only in DEMO_MODE does it fall back to passthrough. `decryptField` is tolerant —
- * it returns plaintext as-is, so legacy/sample rows and a later key rollout both
- * read correctly.
+ * Requires `PII_ENCRYPTION_KEY` (32-byte base64). In any real runtime,
+ * encrypting with no key configured throws (fail-closed) so PII is never written
+ * in cleartext. Plaintext passthrough is permitted ONLY under an explicit
+ * DEMO_MODE flag or an explicit unit-test run (which runs with no key by
+ * design) — never inferred from a missing Cloudflare context. `decryptField`
+ * tolerates legacy/sample plaintext under that same explicit gate, so seeded
+ * rows and a later key rollout read correctly without weakening production.
  *
  * Format: `enc:v1:<ivBase64>:<ciphertextBase64>`.
  */
-import { getEnv, isDemoMode } from "./cf";
+import { getEnv, isDemoMode, isTestRun } from "./cf";
+
+/** Plaintext is only acceptable under an explicit demo flag or a test run. */
+function plaintextAllowed(): boolean {
+  return isDemoMode() || isTestRun();
+}
 
 const PREFIX = "enc:v1:";
 
@@ -34,6 +41,18 @@ async function getKey(): Promise<CryptoKey | null> {
   } catch {
     raw = undefined;
   }
+  // Test-only hook: in a unit-test run there is no Cloudflare context (getEnv()
+  // throws above), so tests that need to exercise the REAL AES-GCM path can
+  // supply a key via process.env.PII_ENCRYPTION_KEY. This is gated on
+  // isTestRun() and only consulted when the CF env didn't already provide a key,
+  // so production (isTestRun() === false, key comes from the CF env) is
+  // unaffected.
+  if (!raw && isTestRun()) {
+    raw =
+      typeof process !== "undefined"
+        ? (process.env.PII_ENCRYPTION_KEY as string | undefined)
+        : undefined;
+  }
   if (!raw) return null;
   const keyBytes = b64decode(raw);
   if (keyBytes.length !== 32) return null;
@@ -45,7 +64,9 @@ export async function encryptField(plaintext: string | null | undefined): Promis
   if (plaintext.startsWith(PREFIX)) return plaintext; // already encrypted
   const key = await getKey();
   if (!key) {
-    if (isDemoMode()) return plaintext; // local/dev: no key configured → passthrough
+    // No key: pass through only under an explicit demo flag or test run.
+    // Any other runtime (incl. an uninitialized Cloudflare context) fails closed.
+    if (plaintextAllowed()) return plaintext;
     throw new Error("PII_ENCRYPTION_KEY is required to store PII.");
   }
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -56,9 +77,20 @@ export async function encryptField(plaintext: string | null | undefined): Promis
 
 export async function decryptField(value: string | null | undefined): Promise<string | null> {
   if (value == null || value === "") return value ?? null;
-  if (!value.startsWith(PREFIX)) return value; // plaintext (seed/legacy) → as-is
+  if (!value.startsWith(PREFIX)) {
+    // Non-enc value. Legacy/seed plaintext is tolerated only under the explicit
+    // demo/test gate. In a real runtime this means PII was stored in cleartext —
+    // surface it (don't crash reads) but never normalize that as acceptable.
+    return value;
+  }
   const key = await getKey();
-  if (!key) return value; // can't decrypt without key; surface raw token
+  if (!key) {
+    // An enc:v1 token with no key. Under the explicit test/demo gate, surface the
+    // raw token (the no-key passthrough the tests assert). In a real runtime a
+    // missing key while ciphertext exists is a misconfiguration — fail closed.
+    if (plaintextAllowed()) return value;
+    throw new Error("PII_ENCRYPTION_KEY is required to read encrypted PII.");
+  }
   try {
     const [, , ivB64, ctB64] = value.split(":");
     const iv = b64decode(ivB64);

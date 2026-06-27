@@ -8,6 +8,10 @@
  */
 
 import type { BasketItemCategory } from "./food-audit";
+import { logEvent } from "./log";
+
+/** Upstream calls can hang on the :free tier; cap the fetch at 20s. */
+const OPENROUTER_TIMEOUT_MS = 20_000;
 
 export interface VisionResult {
   contains_price_tag: boolean;
@@ -122,14 +126,22 @@ export async function validateAuditPhoto(input: VisionInput): Promise<VisionResu
           },
         ],
       }),
+      // Without a timeout a slow upstream pins the Worker until the platform
+      // kills it; degrade to human review instead.
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
-    if (!res.ok) return VISION_FALLBACK;
+    if (!res.ok) {
+      logEvent("audit_vision_failed", { status: res.status });
+      return VISION_FALLBACK;
+    }
     const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     const text = json.choices?.[0]?.message?.content;
     if (!text) return VISION_FALLBACK;
     const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     return coerceVision(JSON.parse(cleaned));
-  } catch {
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? "timeout" : "error";
+    logEvent("audit_vision_failed", { reason });
     return VISION_FALLBACK;
   }
 }
