@@ -1,8 +1,8 @@
 /**
- * Outbound email. Auth emails (signup verification, password reset) are sent by
- * Firebase client-side; this server path covers org team invites and the legacy
- * D1 password fallback. It sends via Resend when `RESEND_API_KEY` + `EMAIL_FROM`
- * are configured, and otherwise logs the message so flows stay testable locally.
+ * Outbound email. All auth emails (signup verification, password reset) are sent
+ * by Firebase client-side; this server path covers org team invites only. It
+ * sends via Resend when `RESEND_API_KEY` + `EMAIL_FROM` are configured, and
+ * otherwise logs the message so flows stay testable locally.
  */
 import { headers } from "next/headers";
 import { getEnv } from "./cf";
@@ -62,20 +62,4 @@ export async function appOrigin(): Promise<string> {
     /* not in request context */
   }
   return "http://localhost:3000";
-}
-
-export function verifyEmailMessage(to: string, link: string): OutboundEmail {
-  return {
-    to,
-    subject: "Confirm your Tended email",
-    text: `Welcome to Tended. Confirm your email to finish setting up your account:\n\n${link}\n\nThis link expires in 24 hours. If you didn't sign up, ignore this message.`,
-  };
-}
-
-export function resetPasswordMessage(to: string, link: string): OutboundEmail {
-  return {
-    to,
-    subject: "Reset your Tended password",
-    text: `We received a request to reset your Tended password. Use this link within the next hour:\n\n${link}\n\nIf you didn't request this, you can ignore it — your password won't change.`,
-  };
 }

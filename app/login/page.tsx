@@ -1,10 +1,5 @@
 import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
 import { AuthShell } from "@/components/auth-shell";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { login } from "@/app/auth-actions";
 import { getDb, isDemoMode } from "@/lib/cf";
 import { ensureSeeded } from "@/lib/seed";
 import { getDict } from "@/lib/i18n";
@@ -23,7 +18,6 @@ export default async function LoginPage({
   if (isDemoMode()) await ensureSeeded(getDb());
   const { t } = await getDict();
   const a = t.auth;
-  const useFirebase = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   return (
     <AuthShell
       title={a.signInTitle}
@@ -35,32 +29,14 @@ export default async function LoginPage({
         </span>
       }
     >
+      {sp.error === "verify" && (
+        <p className="mb-4 rounded-md bg-clay-subtle px-3 py-2 text-sm text-clay">
+          Please verify your email — check the link we sent you, then sign in again. You can resend it below.
+        </p>
+      )}
       {sp.reset && <p className="mb-4 rounded-md bg-forest-subtle px-3 py-2 text-sm text-forest">Your password was reset. Sign in with your new password.</p>}
       {sp.verified && <p className="mb-4 rounded-md bg-forest-subtle px-3 py-2 text-sm text-forest">Your email is verified.</p>}
-      {useFirebase ? (
-        <FirebaseAuthForm mode="login" next={sp.next} />
-      ) : (
-      <form action={login} className="space-y-4">
-        <input type="hidden" name="next" value={sp.next ?? ""} />
-        <div className="space-y-1.5">
-          <Label htmlFor="email">{a.email}</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required autoFocus leadingIcon={<Mail />} />
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">{a.password}</Label>
-            <Link href="/forgot-password" className="text-sm font-medium text-forest hover:underline">{a.forgot}</Link>
-          </div>
-          <Input id="password" name="password" type="password" autoComplete="current-password" required leadingIcon={<Lock />} />
-        </div>
-        {sp.error === "locked" ? (
-          <p className="text-sm text-brick" role="alert">{a.locked}</p>
-        ) : sp.error ? (
-          <p className="text-sm text-brick" role="alert">{a.badCreds}</p>
-        ) : null}
-        <Button type="submit" className="w-full">{a.signInBtn}</Button>
-      </form>
-      )}
+      <FirebaseAuthForm mode="login" next={sp.next} />
     </AuthShell>
   );
 }

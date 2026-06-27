@@ -64,7 +64,20 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
           /* non-fatal */
         }
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        // The app gates access on a verified email (see lib/session.ts). If the
+        // user hasn't verified yet, don't mint a session that would just bounce
+        // them to /login?error=verify — resend the link and tell them.
+        if (!cred.user.emailVerified) {
+          try {
+            await sendEmailVerification(cred.user);
+          } catch {
+            /* non-fatal */
+          }
+          setInfo("Please verify your email — we just sent a fresh link. Open it, then sign in again.");
+          setBusy(false);
+          return;
+        }
       }
       await exchange();
     } catch (err) {
