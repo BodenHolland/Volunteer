@@ -185,18 +185,22 @@ export async function loadVerifiedAudits(): Promise<StateReport> {
         )
         .all<Omit<AuditRowAgg, "store_zip">>()
     ).results?.map((r) => ({ ...r, store_zip: null })) ?? [];
-  const refs = audits.map((a) => a.id);
-  if (refs.length === 0) return aggregate([], []);
-  const placeholders = refs.map(() => "?").join(",");
+  if (audits.length === 0) return aggregate([], []);
+  // Captures for verified audits, via a single JOIN against the verified
+  // summaries — NOT a `WHERE public_session_ref IN (?,?,...)` list, which emits
+  // one bound parameter per ref and throws past SQLite's parameter limit once
+  // the verified-audit count grows. Both tables are public-cluster.
   const caps =
     (
       await db
         .prepare(
-          `SELECT public_session_ref, basket_item_id, stock_status, price_usd, size_value, size_unit
-           FROM audit_item_captures
-           WHERE public_session_ref IN (${placeholders})`
+          `SELECT c.public_session_ref, c.basket_item_id, c.stock_status,
+                  c.price_usd, c.size_value, c.size_unit
+           FROM audit_item_captures c
+           JOIN audit_public_summaries s
+             ON s.public_session_ref = c.public_session_ref
+           WHERE s.verified_at IS NOT NULL`
         )
-        .bind(...refs)
         .all<CaptureRowAgg>()
     ).results ?? [];
   return aggregate(audits, caps);

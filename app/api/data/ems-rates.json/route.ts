@@ -8,9 +8,20 @@ import { requireDatasetAccess } from "@/lib/dataset-access";
  * Same data, same moderation gate, and same public-cluster-only guarantee as
  * the CSV export (app/api/data/ems-rates.csv/route.ts). Reads ONLY
  * ems_rate_reports — never submissions or users.
+ *
+ * Free-text gate: `notes` AND `zip_codes` (migration 0015 marks zip_codes "free
+ * text — moderation status below gates publishing") publish only when
+ * text_moderation_status = 'approved'.
+ *
+ * Streaming + keyset pagination: rows are streamed as a valid JSON array
+ * (`[`, comma-separated objects, `]`), paged by a keyset cursor on
+ * ems_rate_reports.id so memory stays bounded regardless of row count.
  */
 
+const PAGE_SIZE = 1000;
+
 interface EmsRateExportRow {
+  id: string;
   public_session_ref: string;
   provider_name: string;
   city: string;
@@ -42,6 +53,29 @@ function shapeRate(amount: string | null, sourceUrl: string | null, notFound: nu
   return { found: true as const, amount, source_url: sourceUrl };
 }
 
+function shapeRow(r: EmsRateExportRow) {
+  // Free text (notes + zip_codes) publishes only when explicitly approved.
+  const textApproved = r.text_moderation_status === "approved";
+  return {
+    public_session_ref: r.public_session_ref,
+    provider: { name: r.provider_name, city: r.city, state: r.state },
+    rates: {
+      bls_base: shapeRate(r.bls_amount, r.bls_source_url, r.bls_not_found),
+      als_base: shapeRate(r.als_amount, r.als_source_url, r.als_not_found),
+      per_mile: shapeRate(r.mileage_amount, r.mileage_source_url, r.mileage_not_found),
+      tnt: {
+        ...shapeRate(r.tnt_amount, r.tnt_source_url, r.tnt_not_found),
+        description: r.tnt_description,
+      },
+    },
+    effective_date: r.effective_date,
+    zip_codes: textApproved ? r.zip_codes : null,
+    notes: textApproved ? r.notes : null,
+    created_at: new Date(r.created_at).toISOString(),
+    published_at: new Date(r.published_at).toISOString(),
+  };
+}
+
 export async function GET(req: Request) {
   const denied = await requireDatasetAccess(req);
   if (denied) return denied;
@@ -51,51 +85,56 @@ export async function GET(req: Request) {
   if (!rl.ok) return new Response("rate limited", { status: 429 });
 
   const db = getDb();
-  const rows =
-    (
-      await db
-        .prepare(
-          `SELECT public_session_ref, provider_name, city, state,
-                  bls_amount, bls_source_url, bls_not_found,
-                  als_amount, als_source_url, als_not_found,
-                  mileage_amount, mileage_source_url, mileage_not_found,
-                  tnt_amount, tnt_source_url, tnt_not_found, tnt_description,
-                  effective_date, zip_codes, notes, text_moderation_status,
-                  created_at, published_at
-           FROM ems_rate_reports
-           WHERE published_at IS NOT NULL
-           ORDER BY published_at DESC`
-        )
-        .all<EmsRateExportRow>()
-    ).results ?? [];
+  const encoder = new TextEncoder();
 
-  const data = rows.map((r) => {
-    const notesApproved = r.text_moderation_status === "approved";
-    return {
-      public_session_ref: r.public_session_ref,
-      provider: { name: r.provider_name, city: r.city, state: r.state },
-      rates: {
-        bls_base: shapeRate(r.bls_amount, r.bls_source_url, r.bls_not_found),
-        als_base: shapeRate(r.als_amount, r.als_source_url, r.als_not_found),
-        per_mile: shapeRate(r.mileage_amount, r.mileage_source_url, r.mileage_not_found),
-        tnt: {
-          ...shapeRate(r.tnt_amount, r.tnt_source_url, r.tnt_not_found),
-          description: r.tnt_description,
-        },
-      },
-      effective_date: r.effective_date,
-      zip_codes: r.zip_codes,
-      notes: notesApproved ? r.notes : null,
-      created_at: new Date(r.created_at).toISOString(),
-      published_at: new Date(r.published_at).toISOString(),
-    };
+  const stream = new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      controller.enqueue(encoder.encode("["));
+      let cursor = "";
+      let first = true;
+      for (;;) {
+        const page =
+          (
+            await db
+              .prepare(
+                `SELECT id, public_session_ref, provider_name, city, state,
+                        bls_amount, bls_source_url, bls_not_found,
+                        als_amount, als_source_url, als_not_found,
+                        mileage_amount, mileage_source_url, mileage_not_found,
+                        tnt_amount, tnt_source_url, tnt_not_found, tnt_description,
+                        effective_date, zip_codes, notes, text_moderation_status,
+                        created_at, published_at
+                 FROM ems_rate_reports
+                 WHERE published_at IS NOT NULL AND id > ?
+                 ORDER BY id ASC
+                 LIMIT ?`
+              )
+              .bind(cursor, PAGE_SIZE)
+              .all<EmsRateExportRow>()
+          ).results ?? [];
+        if (page.length === 0) break;
+        let chunk = "";
+        for (const r of page) {
+          chunk += (first ? "" : ",") + JSON.stringify(shapeRow(r));
+          first = false;
+        }
+        controller.enqueue(encoder.encode(chunk));
+        cursor = page[page.length - 1].id;
+        if (page.length < PAGE_SIZE) break;
+      }
+      controller.enqueue(encoder.encode("]"));
+      controller.close();
+    },
   });
 
-  return new Response(JSON.stringify({ count: data.length, rows: data }, null, 2), {
+  return new Response(stream, {
     status: 200,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "private, no-store",
+      // Public-cluster data (no PII) — cacheable at the CDN. NOTE: the
+      // requireDatasetAccess auth gate above forces a per-user response today,
+      // so CDN caching only fully takes effect once/if that gate is removed.
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
     },
   });
 }
