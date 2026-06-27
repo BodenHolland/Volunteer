@@ -94,8 +94,14 @@ Real **email + password** accounts. No demo gate, no identity-swap.
 - Account **lockout** after 8 failed logins (15 min).
 - `middleware.ts` redirects unauthenticated `/app|/org|/admin` to `/login`; role is
   enforced in layouts/pages via `require*` (`lib/session.ts`).
+- **Two auth paths.** The email+password flow above is the default. There is also
+  a live **Firebase client-auth** path (`lib/firebase-client.ts` /
+  `lib/firebase-verify.ts`), env-switched on by `NEXT_PUBLIC_FIREBASE_API_KEY`.
+  Both converge on the same opaque server-side session (`sessions` table,
+  `tended_session` cookie), so the rest of the app is auth-path-agnostic. Which
+  one becomes canonical is still pending.
 
-**Demo accounts** (seeded, all share password `tended-demo-2026`):
+**Demo accounts** (seeded, all share password `tended-sample-2026`):
 `marisol.reyes@example.com` (recipient, snap_cert), `trevor.nakamura@example.com`
 (recipient, casual), `priya.venkatesan@example.com` (SFCDC org_admin),
 `daniel.okafor@example.com` (FUF reviewer), `alex.mercado@example.com` (admin).
@@ -179,7 +185,9 @@ On submit (server action):
 review required", ...}` → `pending_review`. Demo works with no API key.
 
 **Performance:** AI must never block the UI. Submit navigates immediately to the
-"AI reviewing…" screen and polls. `/enter` fires a tiny pre-warm call.
+"AI reviewing…" screen and polls. A tiny pre-warm call
+(`prewarmOpenRouter()` in `lib/ai.ts`) is fired ahead of the first real call so
+it starts warm. (There is no `/enter` route — auth is at `/login`.)
 
 ---
 

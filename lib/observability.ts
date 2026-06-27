@@ -122,3 +122,18 @@ export async function getAiBacklog(): Promise<number> {
     .first<{ n: number }>();
   return row?.n ?? 0;
 }
+
+/**
+ * Count of Open Prices contributions still waiting to be sent upstream
+ * (pending or failed-but-retryable). A proxy for the retry-queue-drain cron's
+ * backlog; a steadily growing number means the drain isn't running. Cheap:
+ * served by idx_op_contrib_retry(status, next_retry_at).
+ */
+export async function getOpenPricesBacklog(): Promise<number> {
+  const row = await getDb()
+    .prepare(
+      "SELECT COUNT(*) AS n FROM open_prices_contributions WHERE status IN ('pending','failed')"
+    )
+    .first<{ n: number }>();
+  return row?.n ?? 0;
+}

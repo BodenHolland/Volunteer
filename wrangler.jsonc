@@ -41,6 +41,19 @@
     "OPENROUTER_APP_NAME": "Tended",
     "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9",
     "APP_ORIGIN": "https://tended.xkbtrjm2bm.workers.dev"
+  },
+  // Scheduled maintenance jobs (UTC). NOTE: the current @opennextjs/cloudflare
+  // build does NOT emit a `scheduled()` handler — its generated
+  // `.open-next/worker.js` default-exports `fetch` only — so declaring these
+  // crons is necessary but NOT sufficient. They must be wired to an
+  // authenticated internal route (the cron worker GETs it) before they fire.
+  // See the "Scheduled jobs / cron" section of README.md for the exact wiring
+  // (the route is not yet implemented — these crons are a documented no-op
+  // until then).
+  //   08:00 UTC daily   → Open Prices retry-queue drain (lib/audit-pipeline.ts:retryOpenPricesQueue)
+  //   03:30 UTC Mondays → cap calibration (app/api/admin/calibrate-caps)
+  "triggers": {
+    "crons": ["0 8 * * *", "30 3 * * MON"]
   }
   // Secrets (NOT here — set with `wrangler secret put`): PII_ENCRYPTION_KEY (required —
   // PII storage throws without it), OPENROUTER_API_KEY (AI review; falls back to manual),

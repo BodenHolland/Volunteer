@@ -40,11 +40,18 @@ pnpm db:migrate:local         # apply migrations to local D1
 pnpm dev                      # http://localhost:3000
 ```
 
-- **Demo login:** any seeded account with password `tended-demo-2026` —
+- **Demo login:** sign in at `/login` with any seeded account, all sharing
+  password `tended-sample-2026` —
   `marisol.reyes@example.com` (recipient), `daniel.okafor@example.com` (reviewer),
   `priya.venkatesan@example.com` (org admin), `alex.mercado@example.com` (admin).
 - The database **auto-seeds** on first visit to `/login`, or reseed at
   **`/admin/reset`** (admin only; empty-DB bootstrap allowed).
+- **Auth paths:** there are two. The documented **email+password** flow
+  (`lib/auth.ts`) is the default. There is also a live **Firebase client-auth**
+  path (`lib/firebase-client.ts` / `lib/firebase-verify.ts`), env-switched on by
+  setting `NEXT_PUBLIC_FIREBASE_API_KEY`. Both converge on the same opaque
+  server-side session (`sessions` table, `tended_session` cookie); the rest of
+  the app is auth-path-agnostic. Which becomes canonical is still pending.
 - **OpenRouter key is optional.** Without it, AI validation returns a graceful
   "needs a human look" fallback and the demo still works end-to-end. With a key,
   submissions get a real vision-model verdict. Default model
@@ -54,8 +61,9 @@ pnpm dev                      # http://localhost:3000
 
 | Var | Where | Notes |
 |---|---|---|
-| `SITE_PASSWORD` | `.dev.vars` / `wrangler secret` | Password gate at `/enter` |
 | `OPENROUTER_API_KEY` | `.dev.vars` / `wrangler secret` | Optional; enables real AI verdicts |
+| `PII_ENCRYPTION_KEY` | `.dev.vars` / `wrangler secret` | Required in prod; PII storage throws without it |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | `.dev.vars` / build env | Optional; switches on the Firebase client-auth path |
 | `OPENROUTER_MODEL` | `wrangler.jsonc` vars | Defaults to gemini flash free |
 | `OPENROUTER_SITE_URL` | `wrangler.jsonc` vars | Sent as `HTTP-Referer` |
 | `OPENROUTER_APP_NAME` | `wrangler.jsonc` vars | Sent as `X-Title` ("Tended Demo") |
@@ -76,11 +84,57 @@ wrangler d1 create tended-db          # paste the id into wrangler.jsonc
 wrangler r2 bucket create tended-files
 ```
 
+## Scheduled jobs / cron
+
+Two maintenance jobs are meant to run on a schedule:
+
+- **Open Prices retry-queue drain** — `retryOpenPricesQueue()` in
+  `lib/audit-pipeline.ts` (re-sends pending/failed upstream contributions).
+- **Cap calibration** — `app/api/admin/calibrate-caps` (recomputes per-task
+  `max_hours` from the observed median of approved sessions).
+
+The cron schedules are declared in `wrangler.jsonc` under `triggers.crons`
+(`0 8 * * *` daily for the drain, `30 3 * * MON` weekly for calibration, both
+UTC).
+
+**Important — these crons do not fire anything yet.** The current
+`@opennextjs/cloudflare` adapter (v1.19.x) generates `.open-next/worker.js` with
+a **`fetch`-only** default export and provides no supported hook to add a
+`scheduled()` handler. The build regenerates that file, so hand-editing it is
+not durable. (Cloudflare documents custom server entrypoints for cron only for
+frameworks like TanStack Start, not for the OpenNext/Next.js adapter.)
+Additionally, both jobs call `getDb()`/`getEnv()` (`lib/cf.ts`), which depend on
+OpenNext's request context — they are not safe to call from a bare worker
+`scheduled()` invocation.
+
+**To wire them (one of two ways):**
+
+1. **Cron-invoked authenticated internal route (recommended for OpenNext).** Add
+   a route, e.g. `app/api/cron/route.ts`, that authenticates a shared
+   `CRON_SECRET` (Bearer header), then `await`s `retryOpenPricesQueue()` and/or
+   the calibration logic — dispatching on a `?job=` query param so a single
+   route serves both crons. Because OpenNext has no `scheduled()` hook, the
+   Cloudflare cron itself can't reach this route directly; pair the cron with a
+   thin standalone cron Worker (its own `wrangler.jsonc` + `scheduled()` handler)
+   whose `scheduled()` does a `fetch(APP_ORIGIN + "/api/cron?job=...", { headers:
+   { Authorization: "Bearer " + env.CRON_SECRET }})`. Set `CRON_SECRET` via
+   `wrangler secret put` on both Workers. This keeps the existing functions
+   running inside a real Next.js request context.
+2. **Standalone maintenance Worker.** Move the drain/calibration logic behind a
+   D1/R2-bound Worker with a native `scheduled()` handler. This avoids the
+   OpenNext request-context limitation but duplicates DB access code.
+
+Until one of these lands, the `triggers.crons` config is a documented no-op:
+deploys succeed, Cloudflare registers the schedules, but no handler responds.
+Run both jobs manually in the meantime — `POST /api/admin/calibrate-caps`
+(admin) for calibration, and call `retryOpenPricesQueue()` from an admin action
+for the drain.
+
 ## Deploy (Cloudflare Workers / .pages.dev)
 
 ```bash
 # 1. set production secrets
-wrangler secret put SITE_PASSWORD
+wrangler secret put PII_ENCRYPTION_KEY     # required — PII storage throws without it
 wrangler secret put OPENROUTER_API_KEY     # optional
 
 # 2. run migrations against the remote DB
