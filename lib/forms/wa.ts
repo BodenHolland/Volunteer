@@ -1,14 +1,16 @@
 /**
  * Washington DSHS 01-205, ABAWD Activity Report (REV. 03/2026).
  *
- * Recreated with pdf-lib primitives only. The actual state PDF is never
- * fetched or embedded at runtime, so this remains safe for Workers.
+ * Four-page form. Rendered via the shared form engine (Workers-safe — the state
+ * PDF is never fetched/embedded). Folds in the latest table layout: a narrower
+ * week column (47px) so the five week columns + Total fit, and the monthly
+ * "Total hours" value placed beside its label in the First-Provider column.
  */
-import { PDFDocument, PDFFont, StandardFonts, rgb } from "pdf-lib";
+import { createForm } from "./state-form";
+import { rgb, type PDFFont } from "pdf-lib";
 import type { StateFormData } from "./types";
 
 const W = 612;
-const H = 792;
 const L = 72;
 const R = 576;
 const INK = rgb(0, 0, 0);
@@ -16,67 +18,51 @@ const BLUE = rgb(0.12, 0.42, 0.66);
 const PALE_BLUE = rgb(0.84, 0.9, 0.95);
 
 export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
-  doc.setTitle("DSHS 01-205 - ABAWD Activity Report");
-  doc.setProducer("Tended");
-  const regular = await doc.embedFont(StandardFonts.Helvetica);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  const T = (top: number) => H - top;
-  const text = (p: ReturnType<typeof doc.addPage>, value: string, x: number, top: number, size = 10, font: PDFFont = regular) => p.drawText(value, { x, y: T(top), size, font, color: INK });
-  const rule = (p: ReturnType<typeof doc.addPage>, x1: number, top: number, x2: number, thickness = .5, color = INK) => p.drawLine({ start: { x: x1, y: T(top) }, end: { x: x2, y: T(top) }, thickness, color });
-  const rect = (p: ReturnType<typeof doc.addPage>, x: number, top: number, width: number, height: number, fill?: ReturnType<typeof rgb>) => p.drawRectangle({ x, y: T(top + height), width, height, borderColor: INK, borderWidth: .5, ...(fill ? { color: fill } : {}) });
-  const label = (p: ReturnType<typeof doc.addPage>, value: string, x: number, top: number) => text(p, value, x, top, 7.2);
-  const checkbox = (p: ReturnType<typeof doc.addPage>, x: number, top: number) => rect(p, x, top, 10, 10);
-  const footer = (p: ReturnType<typeof doc.addPage>) => {
+  const f = await createForm({ title: "DSHS 01-205 - ABAWD Activity Report" });
+  type P = ReturnType<typeof f.addPage>;
+  const regular = f.reg, bold = f.bold;
+  const text = (p: P, v: string, x: number, top: number, size = 10, fnt: PDFFont = regular) => p.text(v, x, top, { font: fnt, size, color: INK });
+  const rule = (p: P, x1: number, top: number, x2: number, thickness = .5, color = INK) => p.line(x1, top, x2, thickness, color);
+  const rect = (p: P, x: number, top: number, w: number, h: number, fill?: ReturnType<typeof rgb>) => p.rect(x, top, w, h, { border: INK, borderWidth: .5, ...(fill ? { fill } : {}) });
+  const label = (p: P, v: string, x: number, top: number) => text(p, v, x, top, 7.2);
+  const checkbox = (p: P, x: number, top: number) => rect(p, x, top, 10, 10);
+  const footer = (p: P) => {
     text(p, "ABAWD ACTIVITY REPORT", 78, 757, 8, bold);
     text(p, "DSHS 01-205 (REV. 03/2026)", 78, 767, 8, bold);
     rect(p, 310, 752, 128, 39); text(p, "Barcode label", 338, 776, 11, regular);
     for (let x = 462; x < 570; x += 4) rule(p, x, 755, x, x % 8 === 0 ? 1.7 : .75);
     text(p, "01205", 510, 782, 5.5);
   };
-  const logoAndTitle = (p: ReturnType<typeof doc.addPage>) => {
-    // A small drawn mark preserves hierarchy without carrying a raster/state asset.
-    p.drawRectangle({ x: 81, y: T(43 + 20), width: 37, height: 20, borderColor: INK, borderWidth: 1 });
-    p.drawCircle({ x: 92, y: T(53), size: 3, borderColor: INK, borderWidth: 1 });
-    p.drawCircle({ x: 104, y: T(53), size: 3, borderColor: INK, borderWidth: 1 });
+  const logoAndTitle = (p: P) => {
+    p.rect(81, 43, 37, 20, { border: INK, borderWidth: 1 });
+    p.page.drawCircle({ x: 92, y: f.T(53), size: 3, borderColor: INK, borderWidth: 1 });
+    p.page.drawCircle({ x: 104, y: f.T(53), size: 3, borderColor: INK, borderWidth: 1 });
     text(p, "DSHS", 120, 48, 15, bold);
     text(p, "DEPARTMENT OF SOCIAL", 120, 59, 4.8);
     text(p, "AND HEALTH SERVICES", 120, 65, 4.8);
     const title1 = "Able Bodied Adults Without Dependents (ABAWD)";
-    // Clamp so the title never overlaps the DSHS logo block on the left (~x 165).
     text(p, title1, Math.max((W - bold.widthOfTextAtSize(title1, 15)) / 2 + 30, 200), 48, 15, bold);
     const title2 = "Activity Report";
     text(p, title2, Math.max((W - bold.widthOfTextAtSize(title2, 15)) / 2 + 30, 200), 65, 15, bold);
   };
-  const pageHeading = (p: ReturnType<typeof doc.addPage>) => {
+  const pageHeading = (p: P) => {
     text(p, "ABAWD ACTIVITY REPORT", 78, 24, 8, bold);
     text(p, "DSHS 01-205 (REV. 03/2026)", 78, 34, 8, bold);
   };
-  const wrap = (p: ReturnType<typeof doc.addPage>, value: string, x: number, top: number, maxWidth: number, size = 9.6, font: PDFFont = regular, lineHeight = 12) => {
-    const words = value.split(/\s+/);
-    let current = "";
-    let y = top;
-    for (const word of words) {
-      const candidate = current ? `${current} ${word}` : word;
-      if (font.widthOfTextAtSize(candidate, size) > maxWidth && current) { text(p, current, x, y, size, font); y += lineHeight; current = word; }
-      else current = candidate;
-    }
-    if (current) { text(p, current, x, y, size, font); y += lineHeight; }
-    return y;
-  };
+  const wrap = (p: P, v: string, x: number, top: number, maxWidth: number, size = 9.6, fnt: PDFFont = regular, lineHeight = 12) =>
+    p.wrap(v, x, top, maxWidth, { size, font: fnt, leading: lineHeight, color: INK });
 
-  // Page 1 — instructions and participant explanation.
-  const p1 = doc.addPage([W, H]);
+  // Page 1.
+  const p1 = f;
   logoAndTitle(p1);
   rect(p1, L, 86, R - L, 40);
   rule(p1, 416, 86, 416);
   label(p1, "CLIENT’S NAME", L + 7, 94); text(p1, data.participantName, L + 7, 113, 10);
   label(p1, "CLIENT NUMBER", 422, 94); text(p1, data.caseNumber ?? "", 422, 113, 10);
   rect(p1, L, 126, R - L, 570);
-  const intro = "Please complete this form to help us review your ABAWD status. Work and training activities help you stay eligible for food benefits while gaining experience or education or seeking employment.";
-  wrap(p1, intro, L + 7, 145, R - L - 14, 9.8);
+  wrap(p1, "Please complete this form to help us review your ABAWD status. Work and training activities help you stay eligible for food benefits while gaining experience or education or seeking employment.", L + 7, 145, R - L - 14, 9.8);
   text(p1, "Instructions:", L + 7, 178, 10, bold);
-  const instructions = [
+  [
     "1.    Provide this form to the agencies you’re working with for them to complete.",
     "2.    This form must be signed by you and the agencies you’re working with.",
     "3.    Provide this form monthly by the 10th of the following month.",
@@ -86,16 +72,14 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
     "      •    Mailing to:   DSHS CSD Customer Service Center",
     "                         PO Box 11699",
     "                         Tacoma WA 98411-6699",
-  ];
-  instructions.forEach((line, index) => text(p1, line, L + 7, 198 + index * 20, 9.7));
+  ].forEach((line, index) => text(p1, line, L + 7, 198 + index * 20, 9.7));
   text(p1, "Important Things to Know:", L + 7, 397, 10, bold);
-  const things = [
+  [
     "•    You must complete 80 hours per month of approved work or training activities, or",
     "•    If participating in Workfare, your referral letter has the number of hours you must complete.",
     "•    Weeks start on Sunday and end the following Saturday. Total monthly hours start from the first of the",
     "     month to the last day of the month. See last page for examples.",
-  ];
-  things.forEach((line, index) => text(p1, line, L + 7, 418 + index * 20, 9.5));
+  ].forEach((line, index) => text(p1, line, L + 7, 418 + index * 20, 9.5));
   rule(p1, L, 490, R, 3.5, BLUE);
   text(p1, "If you couldn’t finish all the required hours (working plus other work related activities), please share the", L + 7, 509, 9.6);
   text(p1, "reason(s) why.", L + 7, 523, 9.6);
@@ -104,17 +88,14 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   text(p1, "Please see the next page for the month report.", L + 7, 685, 9.4);
   footer(p1);
 
-  // Page 2 — monthly report. With only monthly aggregate time available, we
-  // intentionally leave the weekly cells blank rather than inventing a weekly
-  // distribution. The verified measured total is placed in Unpaid Work.
-  const p2 = doc.addPage([W, H]);
+  // Page 2 — monthly report.
+  const p2 = f.addPage();
   pageHeading(p2);
   rect(p2, L, 37, R - L, 40); label(p2, "MONTH", L + 7, 45); text(p2, data.month, L + 7, 65, 10);
   rect(p2, L, 77, R - L, 40); rule(p2, 416, 77, 416); label(p2, "CLIENT’S NAME", L + 7, 85); text(p2, data.participantName, L + 7, 105, 10); label(p2, "CLIENT NUMBER", 422, 85); text(p2, data.caseNumber ?? "", 422, 105, 10);
-  const tx = L, ty = 117, tw = R - L, leftCol = 202, weekW = 55, totalCol = 439;
+  const tx = L, ty = 117, tw = R - L, leftCol = 202, weekW = 47, totalCol = 439;
   rect(p2, tx, ty, tw, 294, PALE_BLUE);
-  // white table body
-  p2.drawRectangle({ x: tx + .5, y: T(164 + 247) + .5, width: tw - 1, height: 246, color: rgb(1, 1, 1) });
+  p2.page.drawRectangle({ x: tx + .5, y: f.T(164 + 247) + .5, width: tw - 1, height: 246, color: rgb(1, 1, 1) });
   rule(p2, tx, 164, R); rule(p2, leftCol + tx, ty, leftCol + tx);
   for (let i = 1; i < 5; i += 1) rule(p2, tx + leftCol + i * weekW, ty + 26, tx + leftCol + i * weekW);
   rule(p2, tx + totalCol, ty, tx + totalCol);
@@ -129,7 +110,9 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   ];
   activities.forEach(([value, top]) => text(p2, value, tx + 7, Number(top), 8.9));
   text(p2, String(data.hours), tx + totalCol + 18, 389, 10, bold);
-  text(p2, "Total hours", 206, 428, 9.5, bold); text(p2, String(data.hours), tx + totalCol + 18, 428, 10, bold);
+  // Total belongs with the First Provider (the org that did the work); keep it
+  // next to its label rather than drifting into the empty Additional Provider column.
+  text(p2, "Total hours", 206, 428, 9.5, bold); text(p2, String(data.hours), 264, 428, 10, bold);
   rule(p2, tx, 414, R, 3.5, BLUE);
   rule(p2, tx + 269, 414, tx + 269);
   text(p2, "First Provider:", tx + 7, 432, 9.5); text(p2, "Additional Provider:", tx + 276, 432, 9.5);
@@ -149,8 +132,8 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   label(p2, "CLIENT’S SIGNATURE", tx + 7, 741); label(p2, "DATE OF SIGNATURE", 440, 741);
   footer(p2);
 
-  // Page 3 — the form's printed activity definitions.
-  const p3 = doc.addPage([W, H]); pageHeading(p3);
+  // Page 3 — descriptions.
+  const p3 = f.addPage(); pageHeading(p3);
   text(p3, "ABAWD Activity Report Descriptions and Examples", L, 63, 13, bold);
   wrap(p3, "The descriptions below help identify activities that count toward your participation. Activities only count if an approved program supervises them. Find out more about these programs by visiting: https://www.dshs.wa.gov/ABAWDprograms.", L, 87, R - L, 9.5);
   const descriptions: Array<[string, string[]]> = [
@@ -164,11 +147,11 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
     ["Unpaid Work", ["is an opportunity for an ABAWD to meet participation requirements by volunteering with a State, local, religious, or community non-profit organization. Unpaid work can also occur in other formats within the community."]],
   ];
   let dy = 135;
-  descriptions.forEach(([head, lines]) => { text(p3, `${head} -`, L, dy, 9.5, bold); let x = L + bold.widthOfTextAtSize(`${head} -`, 9.5) + 4; lines.forEach((line, index) => { if (index === 0) { text(p3, line, x, dy, 9.5); dy += 14; } else { text(p3, line, L + 8, dy, 9.5); dy += 14; } }); dy += 8; });
+  descriptions.forEach(([head, lines]) => { text(p3, `${head} -`, L, dy, 9.5, bold); const x = L + bold.widthOfTextAtSize(`${head} -`, 9.5) + 4; lines.forEach((line, index) => { if (index === 0) { text(p3, line, x, dy, 9.5); dy += 14; } else { text(p3, line, L + 8, dy, 9.5); dy += 14; } }); dy += 8; });
   footer(p3);
 
-  // Page 4 — compacted official examples, retaining the two example tables.
-  const p4 = doc.addPage([W, H]); pageHeading(p4);
+  // Page 4 — examples.
+  const p4 = f.addPage(); pageHeading(p4);
   text(p4, "Examples of how to complete form DSHS 01-205", L, 61, 13, bold);
   text(p4, "Example One:  One activity with one provider.", L, 91, 10, bold);
   text(p4, "If June 1 is on Saturday, week 1 will have one day. The next four (4) weeks will all have seven (7) days.", L, 108, 9.2);
@@ -176,7 +159,7 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   const exampleTable = (top: number, second = false) => {
     const x = L, split = 220, ww = 49, total = 465;
     rect(p4, x, top, R - L, second ? 123 : 98, PALE_BLUE);
-    p4.drawRectangle({ x: x + .5, y: T(top + (second ? 123 : 98)) + .5, width: R - L - 1, height: (second ? 95 : 70), color: rgb(1, 1, 1) });
+    p4.page.drawRectangle({ x: x + .5, y: f.T(top + (second ? 123 : 98)) + .5, width: R - L - 1, height: (second ? 95 : 70), color: rgb(1, 1, 1) });
     rule(p4, x, top + 27, R); rule(p4, x + split, top, x + split); for (let i = 1; i < 5; i += 1) rule(p4, x + split + i * ww, top, x + split + i * ww); rule(p4, x + total, top, x + total);
     ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"].forEach((v, i) => text(p4, v, x + split + 7 + i * ww, top + 19, 8.4, bold)); text(p4, "Total", x + total + 11, top + 13, 8.4, bold); text(p4, "hours", x + total + 11, top + 23, 8.4, bold);
     if (!second) { text(p4, "Education Activities to include:", x + 7, top + 43, 8.7); text(p4, "• General Education Degree (GED)     • Basic Education     • English as a Second Language (ESL)", x + 12, top + 57, 7.8); ["2", "13", "33", "20", "15", "85"].forEach((v, i) => text(p4, v, x + split + 17 + i * ww, top + 75, 9, bold)); }
@@ -193,5 +176,5 @@ export async function buildWAPdf(data: StateFormData): Promise<Uint8Array> {
   text(p4, "ACTIVITIES", 345, 526, 7.2); rule(p4, 345, 535, R - 7); text(p4, "Basic Education", 347, 532, 9);
   text(p4, "SIGNATURE", 345, 568, 7.2); rule(p4, 345, 577, R - 7);
   footer(p4);
-  return doc.save();
+  return f.save();
 }

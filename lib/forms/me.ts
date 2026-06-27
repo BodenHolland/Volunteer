@@ -12,55 +12,33 @@
  * Source:
  *   https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/ABAWD%20Volunteer%20Form%20Fillable%2011.24.25.pdf
  *
- * Hand-drawn with pdf-lib (no template loading) for Cloudflare Workers runtime.
+ * Rendered via the shared form engine (Workers-safe: no fs, no template load).
  */
-import { PDFDocument, StandardFonts, rgb, PDFFont } from "pdf-lib";
+import { createForm, palette } from "./state-form";
 import type { StateFormData } from "./types";
 
-const PAGE_W = 612;
-const PAGE_H = 792;
 const LEFT = 56;
 const RIGHT = 556;
-const INK = rgb(0.04, 0.04, 0.04);
-const LINK_BLUE = rgb(0.05, 0.32, 0.66);
-const BAND = rgb(0.85, 0.86, 0.86);
-const LINE_GREY = rgb(0.45, 0.45, 0.45);
 
 export async function buildMEPdf(data: StateFormData): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
-  doc.setTitle("ABAWD Volunteer Form — SNAP Community Service Volunteer/Workfare Verification");
-  doc.setProducer("Tended");
-  const page = doc.addPage([PAGE_W, PAGE_H]);
-  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  const reg = await doc.embedFont(StandardFonts.Helvetica);
-  const ital = await doc.embedFont(StandardFonts.TimesRomanItalic);
+  const f = await createForm({ title: "ABAWD Volunteer Form — SNAP Community Service Volunteer/Workfare Verification" });
+  const { ink, lineGrey, linkBlue } = palette;
+  const BAND = { left: LEFT, right: RIGHT };
+  const fld = (label: string, value: string, top: number) => f.field(label, value, top, { labelX: 70, valX: 262, end: RIGHT, size: 11 });
+  const blankLine = (top: number) => f.line(262, top + 3, RIGHT, 0.8, lineGrey);
 
-  // top-origin helper
-  const T = (top: number) => PAGE_H - top;
-  const draw = (
-    text: string,
-    x: number,
-    top: number,
-    font: PDFFont,
-    size: number,
-    color = INK
-  ) => page.drawText(text, { x, y: T(top), size, font, color });
-
-  // ---- Header row ----
-  draw("Maine Department of Health and Human Services", LEFT, 60, reg, 11);
-  const rightHeader = "Office for Family Independence";
-  draw(rightHeader, RIGHT - reg.widthOfTextAtSize(rightHeader, 11), 60, reg, 11);
+  // ---- Header ----
+  f.text("Maine Department of Health and Human Services", LEFT, 60, { size: 11 });
+  f.text("Office for Family Independence", RIGHT, 60, { size: 11, align: "right", maxX: RIGHT });
 
   // ---- Title ----
-  draw("SNAP COMMUNITY SERVICE", LEFT, 92, bold, 16);
-  draw("VOLUNTEER/WORKFARE VERIFICATION", LEFT, 112, bold, 16);
-  draw("- ACTION REQUIRED -", LEFT, 132, bold, 13);
+  f.text("SNAP COMMUNITY SERVICE", LEFT, 92, { font: f.bold, size: 16 });
+  f.text("VOLUNTEER/WORKFARE VERIFICATION", LEFT, 112, { font: f.bold, size: 16 });
+  f.text("- ACTION REQUIRED -", LEFT, 132, { font: f.bold, size: 13 });
+  f.line(LEFT, 144, RIGHT, 1.2, ink);
+  f.line(LEFT, 147, RIGHT, 0.6, ink);
 
-  // double rule
-  page.drawLine({ start: { x: LEFT, y: T(144) }, end: { x: RIGHT, y: T(144) }, thickness: 1.2, color: INK });
-  page.drawLine({ start: { x: LEFT, y: T(147) }, end: { x: RIGHT, y: T(147) }, thickness: 0.6, color: INK });
-
-  // ---- Intro paragraph ----
+  // ---- Intro ----
   const intro = [
     "Maine SNAP rules require some recipients (Able-Bodied Adults Without Dependents) to complete",
     "qualifying work activity hours each month. Volunteer or community service hours at an approved",
@@ -70,122 +48,61 @@ export async function buildMEPdf(data: StateFormData): Promise<Uint8Array> {
     "eligibility review.",
   ];
   let y = 170;
-  for (const ln of intro) {
-    draw(ln, LEFT, y, reg, 11);
-    y += 15;
-  }
-  // tint the email + portal mentions
-  const emailLinePrefix = "below, e-mail it to ";
-  const emailX = LEFT + reg.widthOfTextAtSize(emailLinePrefix, 11);
-  draw("Farmington.DHHS@Maine.gov", emailX, 170 + 15 * 3, reg, 11, LINK_BLUE);
-  draw("MyMaineConnection.gov", LEFT, 170 + 15 * 4, reg, 11, LINK_BLUE);
+  for (const ln of intro) { f.text(ln, LEFT, y, { size: 11 }); y += 15; }
+  f.text("Farmington.DHHS@Maine.gov", LEFT + f.reg.widthOfTextAtSize("below, e-mail it to ", 11), 170 + 15 * 3, { size: 11, color: linkBlue });
+  f.text("MyMaineConnection.gov", LEFT, 170 + 15 * 4, { size: 11, color: linkBlue });
 
-  // ---- helper: section band ----
-  const band = (label: string, top: number) => {
-    page.drawRectangle({ x: LEFT, y: T(top + 14), width: RIGHT - LEFT, height: 18, color: BAND });
-    draw(label, LEFT + 6, top + 11, bold, 11.5);
-  };
-  // ---- helper: labeled field with value on an underline ----
-  const labelX = 70;
-  const valX = 262;
-  const valEnd = RIGHT;
-  const field = (label: string, value: string, top: number) => {
-    draw(label, labelX, top, bold, 11);
-    page.drawLine({ start: { x: valX, y: T(top + 3) }, end: { x: valEnd, y: T(top + 3) }, thickness: 0.8, color: LINE_GREY });
-    if (value) draw(value, valX + 4, top, reg, 11);
-  };
-  const blankLine = (top: number) => {
-    page.drawLine({ start: { x: valX, y: T(top + 3) }, end: { x: valEnd, y: T(top + 3) }, thickness: 0.8, color: LINE_GREY });
-  };
-
-  // ---- SECTION 1: SNAP recipient ----
-  band("SECTION 1. SNAP RECIPIENT INFORMATION", 280);
-  draw("This section must be completed by the SNAP recipient.", LEFT, 310, reg, 11);
-
-  field("Name of SNAP Recipient", data.participantName, 336);
-  field("Date of Birth", data.birthdate, 362);
-  if (data.caseNumber) {
-    field("Case Number", data.caseNumber, 388);
-  } else {
-    field("Case Number", "", 388);
-  }
-  field("Phone Number", data.participantPhone || "", 414);
-  draw("Address", labelX, 440, bold, 11);
-  blankLine(440);
-  if (data.participantAddress[0]) draw(data.participantAddress[0], valX + 4, 440, reg, 11);
+  // ---- SECTION 1 ----
+  f.band("SECTION 1. SNAP RECIPIENT INFORMATION", 280, BAND);
+  f.text("This section must be completed by the SNAP recipient.", LEFT, 310, { size: 11 });
+  fld("Name of SNAP Recipient", data.participantName, 336);
+  fld("Date of Birth", data.birthdate, 362);
+  fld("Case Number", data.caseNumber || "", 388);
+  fld("Phone Number", data.participantPhone || "", 414);
+  f.text("Address", 70, 440, { font: f.bold, size: 11 }); blankLine(440);
+  if (data.participantAddress[0]) f.text(data.participantAddress[0], 266, 440, { size: 11 });
   blankLine(458);
-  if (data.participantAddress[1]) draw(data.participantAddress[1], valX + 4, 458, reg, 11);
+  if (data.participantAddress[1]) f.text(data.participantAddress[1], 266, 458, { size: 11 });
 
-  // ---- SECTION 2: Organization ----
-  band("SECTION 2. VOLUNTEER ORGANIZATION INFORMATION", 482);
-  draw("This section must be completed by a representative of the non-profit organization where the", LEFT, 512, reg, 11);
-  draw("person named above volunteers or performs community service.", LEFT, 527, reg, 11);
-
-  field("Name of Organization", data.orgName, 553);
-  field("Name of Representative", data.representativeName, 579);
-  field("Title of Representative", data.representativeTitle || "", 605);
-  field("Telephone Number", data.orgPhone, 631);
+  // ---- SECTION 2 ----
+  f.band("SECTION 2. VOLUNTEER ORGANIZATION INFORMATION", 482, BAND);
+  f.text("This section must be completed by a representative of the non-profit organization where the", LEFT, 512, { size: 11 });
+  f.text("person named above volunteers or performs community service.", LEFT, 527, { size: 11 });
+  fld("Name of Organization", data.orgName, 553);
+  fld("Name of Representative", data.representativeName, 579);
+  fld("Title of Representative", data.representativeTitle || "", 605);
+  fld("Telephone Number", data.orgPhone, 631);
 
   // ---- Certification sentence with inline filled values ----
-  const certTop = 662;
   let cx = LEFT;
-  const seg = (t: string, font: PDFFont, color = INK) => {
-    draw(t, cx, certTop, font, 11, color);
-    cx += font.widthOfTextAtSize(t, 11);
+  const seg = (t: string, b: boolean, top: number, underline = false) => {
+    const font = b ? f.bold : f.reg;
+    f.text(t, cx, top, { font, size: 11 });
+    const w = font.widthOfTextAtSize(t, 11);
+    if (underline) f.line(cx, top + 2, cx + w, 0.7, lineGrey);
+    cx += w;
   };
-  seg("For the month of ", reg);
-  const monthText = data.month || "______________";
-  seg(monthText, bold);
-  page.drawLine({
-    start: { x: cx - bold.widthOfTextAtSize(monthText, 11), y: T(certTop + 2) },
-    end: { x: cx, y: T(certTop + 2) },
-    thickness: 0.7,
-    color: LINE_GREY,
-  });
-  seg(", I certify that the person named above completed", reg);
-
-  // line 2
+  seg("For the month of ", false, 662);
+  seg(data.month || "______________", true, 662, true);
+  seg(", I certify that the person named above completed", false, 662);
   cx = LEFT;
-  const certTop2 = 679;
-  const seg2 = (t: string, font: PDFFont) => {
-    draw(t, cx, certTop2, font, 11);
-    cx += font.widthOfTextAtSize(t, 11);
-  };
-  const hoursText = Number.isFinite(data.hours) ? `${data.hours}` : "______";
-  seg2(hoursText, bold);
-  page.drawLine({
-    start: { x: cx - bold.widthOfTextAtSize(hoursText, 11), y: T(certTop2 + 2) },
-    end: { x: cx, y: T(certTop2 + 2) },
-    thickness: 0.7,
-    color: LINE_GREY,
-  });
-  seg2(" hours of volunteer/community service for the organization I represent.", reg);
+  seg(Number.isFinite(data.hours) ? `${data.hours}` : "______", true, 679, true);
+  seg(" hours of volunteer/community service for the organization I represent.", false, 679);
 
   // checkboxes
-  draw("The volunteer activity is:", LEFT, 702, reg, 11);
-  const checkbox = (label: string, x: number, top: number, checked: boolean) => {
-    page.drawRectangle({ x, y: T(top + 10), width: 11, height: 11, borderColor: INK, borderWidth: 1 });
-    if (checked) draw("X", x + 2.5, top - 0.5, bold, 11);
-    draw(label, x + 20, top, reg, 11);
-  };
-  checkbox("Ongoing", labelX + 12, 720, data.activity === "ongoing");
-  checkbox("One Time", labelX + 132, 720, data.activity === "one_time");
+  f.text("The volunteer activity is:", LEFT, 702, { size: 11 });
+  f.checkbox("Ongoing", 82, 720, data.activity === "ongoing");
+  f.checkbox("One Time", 202, 720, data.activity === "one_time");
 
   // ---- Signature table ----
-  const tableTop = 738;
-  const tableBottom = 770;
-  const midX = 300;
-  page.drawRectangle({ x: LEFT, y: T(tableBottom), width: RIGHT - LEFT, height: tableBottom - tableTop, borderColor: INK, borderWidth: 0.8 });
-  page.drawLine({ start: { x: midX, y: T(tableTop) }, end: { x: midX, y: T(tableBottom) }, thickness: 0.8, color: INK });
-  page.drawLine({ start: { x: LEFT, y: T(tableTop + 12) }, end: { x: RIGHT, y: T(tableTop + 12) }, thickness: 0.8, color: INK });
-  draw("Signature of Representative", LEFT + 6, tableTop + 9, reg, 9);
-  draw("Date Signed", midX + 6, tableTop + 9, reg, 9);
-  if (data.signatureName) draw(data.signatureName, LEFT + 12, tableTop + 26, ital, 14);
-  if (data.dateSigned) draw(data.dateSigned, midX + 10, tableTop + 26, reg, 11);
+  f.signatureBlock({
+    top: 738, left: LEFT, right: RIGHT, height: 32, splits: [300],
+    cells: [
+      { label: "Signature of Representative", value: data.signatureName || undefined, italicValue: true },
+      { label: "Date Signed", value: data.dateSigned || undefined },
+    ],
+  });
 
-  // ---- Footer ----
-  page.drawLine({ start: { x: LEFT, y: T(782) }, end: { x: RIGHT, y: T(782) }, thickness: 0.6, color: INK });
-  draw("ABAWD Volunteer Form (Rev. 11/24/25) - Maine DHHS Office for Family Independence", LEFT, 790, reg, 8.5);
-
-  return doc.save();
+  f.footer({ left: "ABAWD Volunteer Form (Rev. 11/24/25) - Maine DHHS Office for Family Independence", size: 8.5, rule: true });
+  return f.save();
 }
