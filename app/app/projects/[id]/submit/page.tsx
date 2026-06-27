@@ -147,6 +147,18 @@ export default async function SubmitPage({
         </div>
       )}
 
+      {errorParam === "photos" && (
+        <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4 text-brick" aria-hidden="true" />
+            <p className="text-sm font-semibold text-brick">Those photos couldn&apos;t be uploaded</p>
+          </div>
+          <p className="mt-1 text-sm text-ink">
+            Each photo must be under 8&nbsp;MB and you can attach at most 8. Retake or remove a few and try again.
+          </p>
+        </div>
+      )}
+
       {aiVerdict && (
         <div className="mt-4 rounded-lg border border-brick/40 bg-brick-subtle p-4">
           <div className="flex items-center gap-2">

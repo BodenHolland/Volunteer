@@ -57,11 +57,15 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Food-audit captures a rear-camera photo per basket item; modern phones
-      // produce 3–8 MB JPEGs and the default 1 MB cap silently rejects the
-      // upload, leaving the "Save" button spinning. 20 MB covers a high-res
-      // photo with headroom.
-      bodySizeLimit: "20mb",
+      // Phone cameras produce 3–8 MB JPEGs and a submission can carry several.
+      // The client downscales each photo (canvas re-encode, see
+      // lib/images.downscaleImageFile) so real payloads are a few hundred KB,
+      // and the server actions enforce per-file/count/total caps
+      // (lib/images.validateImageUploads) before reading bodies into the 128 MB
+      // Worker isolate. This is the outermost framework-level backstop: keep it
+      // a touch above MAX_TOTAL_BYTES (24 MB) to allow multipart overhead while
+      // still bounding the largest body the runtime will accept.
+      bodySizeLimit: "26mb",
     },
   },
   async headers() {

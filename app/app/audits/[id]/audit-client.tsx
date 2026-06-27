@@ -20,6 +20,7 @@ import type {
 /* Store is still used by Props from the server component, but the search list now
  * deals in NearbyStore so DB hits and Nominatim hits can share one render path. */
 import type { NearbyStore } from "@/lib/places";
+import { downscaleImageFile } from "@/lib/images";
 import {
   captureItemAction,
   createStoreAction,
@@ -786,6 +787,11 @@ function CaptureForm({
         } catch {
           /* no exif — pipeline will skip the geotag check */
         }
+        // Downscale before upload to keep phone photos off the 128MB Worker
+        // memory ceiling. EXIF was already read above from the original, since
+        // the canvas re-encode strips it.
+        const small = await downscaleImageFile(photo);
+        if (small !== photo) fd.set("photo", small);
       }
     }
     // A thrown server action (e.g. body-size rejection, network drop) would
