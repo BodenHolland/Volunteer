@@ -41,9 +41,35 @@
     "OPENROUTER_APP_NAME": "colift",
     "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9",
     "APP_ORIGIN": "https://colift.xkbtrjm2bm.workers.dev"
+  },
+  // Scheduled maintenance (UTC). IMPORTANT: @opennextjs/cloudflare's generated
+  // `.open-next/worker.js` default-exports `fetch` ONLY — it does NOT emit a
+  // `scheduled()` handler — so declaring these crons here is necessary but NOT
+  // sufficient on the OpenNext worker. They must be wired to a tiny STANDALONE
+  // cron Worker that, on each trigger, GETs the authenticated internal route
+  // `/api/cron?key=$CRON_SECRET` (or sends `Authorization: Bearer $CRON_SECRET`)
+  // against APP_ORIGIN. That route drains the Open Prices retry queue and runs
+  // the retention/expiry sweep (lib/sweep.ts). Set the secret on BOTH workers:
+  //   wrangler secret put CRON_SECRET
+  //
+  // Minimal standalone cron worker (separate wrangler project) — sketch:
+  //   export default {
+  //     async scheduled(_e, env) {
+  //       await fetch(`${env.APP_ORIGIN}/api/cron`, {
+  //         headers: { authorization: `Bearer ${env.CRON_SECRET}` },
+  //       });
+  //     },
+  //   };
+  //   # its own wrangler.jsonc: "triggers": { "crons": ["0 8 * * *"] }
+  //
+  // Suggested cadence:
+  //   08:00 UTC daily → Open Prices retry-queue drain + retention sweep
+  "triggers": {
+    "crons": ["0 8 * * *"]
   }
   // Secrets (NOT here — set with `wrangler secret put`): PII_ENCRYPTION_KEY (required —
   // PII storage throws without it), OPENROUTER_API_KEY (AI review; falls back to manual),
-  // RESEND_API_KEY + EMAIL_FROM (org team-invite email). DEMO_MODE is intentionally unset
+  // RESEND_API_KEY + EMAIL_FROM (org team-invite email), CRON_SECRET (gates /api/cron;
+  // the route fails closed with 503 until it is set). DEMO_MODE is intentionally unset
   // so production has no seeding, no /admin/reset, and no onboarding skips. See docs/DEPLOYMENT.md.
 }

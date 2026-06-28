@@ -13,6 +13,24 @@ import {
 } from "./types";
 import { currentMonth } from "./time";
 
+/**
+ * SQLite (and therefore D1) caps a statement's bound parameters at 999. An
+ * unbounded `IN (?, ?, …)` built from a user-sized id list will eventually
+ * blow that limit (H7), so split the list into fixed-size chunks and run one
+ * statement per chunk. 90 is well under the limit and leaves room for the
+ * other binds in the surrounding query.
+ */
+export const IN_CHUNK_SIZE = 90;
+
+export function chunkArray<T>(items: T[], size: number = IN_CHUNK_SIZE): T[][] {
+  if (size <= 0) return items.length ? [items] : [];
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    out.push(items.slice(i, i + size));
+  }
+  return out;
+}
+
 export interface SubmissionWithTask extends Submission {
   task: TaskTemplate;
   org: Org;
@@ -61,13 +79,19 @@ export async function getUserById(id: string): Promise<User | null> {
 export async function getDisplayNames(ids: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(ids)].filter(Boolean);
   if (unique.length === 0) return new Map();
-  const placeholders = unique.map(() => "?").join(",");
-  const rows =
-    (await getDb()
-      .prepare(`SELECT id, full_name FROM users WHERE id IN (${placeholders})`)
-      .bind(...unique)
-      .all<{ id: string; full_name: string }>()).results ?? [];
-  return new Map(rows.map((r) => [r.id, r.full_name ?? "A volunteer"]));
+  const db = getDb();
+  const out = new Map<string, string>();
+  // Chunk the IN-list so a large id set can't exceed SQLite's bound-param cap (H7).
+  for (const chunk of chunkArray(unique)) {
+    const placeholders = chunk.map(() => "?").join(",");
+    const rows =
+      (await db
+        .prepare(`SELECT id, full_name FROM users WHERE id IN (${placeholders})`)
+        .bind(...chunk)
+        .all<{ id: string; full_name: string }>()).results ?? [];
+    for (const r of rows) out.set(r.id, r.full_name ?? "A volunteer");
+  }
+  return out;
 }
 
 export async function getOrg(id: string): Promise<Org | null> {
@@ -147,29 +171,50 @@ export async function getCommittableTask(
 
 async function hydrate(subs: Submission[]): Promise<SubmissionWithTask[]> {
   if (subs.length === 0) return [];
-  const tasks = (await getDb().prepare("SELECT * FROM task_templates").all<TaskTemplate>()).results ?? [];
+  const db = getDb();
+
+  // M12: hydrate only the task templates these submissions actually reference,
+  // not the entire task_templates table (which grows without bound). The
+  // distinct template-id set is at most subs.length, so the lookup stays small.
+  // Orgs are few and bounded, so loading all of them is fine.
+  const templateIds = [...new Set(subs.map((s) => s.task_template_id))].filter(Boolean);
+  const taskById = new Map<string, TaskTemplate>();
+  for (const chunk of chunkArray(templateIds)) {
+    const placeholders = chunk.map(() => "?").join(",");
+    const rows =
+      (await db
+        .prepare(`SELECT * FROM task_templates WHERE id IN (${placeholders})`)
+        .bind(...chunk)
+        .all<TaskTemplate>()).results ?? [];
+    for (const t of rows) taskById.set(t.id, t);
+  }
   const orgs = await listOrgs();
-  const taskById = new Map(tasks.map((t) => [t.id, t]));
   const orgById = new Map(orgs.map((o) => [o.id, o]));
 
   // Food-audit + gov-audit tasks each carry a parallel row keyed by
   // submission_id; attach it so callers can route to the correct flow and show
   // the audit's own status (the submissions.status alone is misleading — e.g. a
   // food-audit's submission stays "committed" while the audit progresses).
+  // Chunk the IN-lists so a large submission set can't exceed the bound-param
+  // cap (H7).
   const ids = subs.map((s) => s.id);
-  const placeholders = ids.map(() => "?").join(",");
-  const [auditRows, govAuditRows] = await Promise.all([
-    getDb()
-      .prepare(`SELECT id, submission_id, validation_status FROM audits WHERE submission_id IN (${placeholders})`)
-      .bind(...ids)
-      .all<{ id: string; submission_id: string; validation_status: string }>(),
-    getDb()
-      .prepare(`SELECT id, submission_id, status FROM gov_audit_sessions WHERE submission_id IN (${placeholders})`)
-      .bind(...ids)
-      .all<{ id: string; submission_id: string; status: string }>(),
-  ]);
-  const auditBySub = new Map((auditRows.results ?? []).map((a) => [a.submission_id, a]));
-  const govAuditBySub = new Map((govAuditRows.results ?? []).map((a) => [a.submission_id, a]));
+  const auditBySub = new Map<string, { id: string; submission_id: string; validation_status: string }>();
+  const govAuditBySub = new Map<string, { id: string; submission_id: string; status: string }>();
+  for (const chunk of chunkArray(ids)) {
+    const placeholders = chunk.map(() => "?").join(",");
+    const [auditRows, govAuditRows] = await Promise.all([
+      db
+        .prepare(`SELECT id, submission_id, validation_status FROM audits WHERE submission_id IN (${placeholders})`)
+        .bind(...chunk)
+        .all<{ id: string; submission_id: string; validation_status: string }>(),
+      db
+        .prepare(`SELECT id, submission_id, status FROM gov_audit_sessions WHERE submission_id IN (${placeholders})`)
+        .bind(...chunk)
+        .all<{ id: string; submission_id: string; status: string }>(),
+    ]);
+    for (const a of auditRows.results ?? []) auditBySub.set(a.submission_id, a);
+    for (const a of govAuditRows.results ?? []) govAuditBySub.set(a.submission_id, a);
+  }
 
   return subs
     .map((s) => {

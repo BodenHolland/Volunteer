@@ -9,6 +9,7 @@
  */
 
 import { getDb } from "./cf";
+import { chunkArray } from "./queries";
 import { USDA_THRIFTY_6 } from "./food-audit";
 
 export interface AuditRowAgg {
@@ -187,24 +188,40 @@ export async function loadVerifiedAudits(): Promise<StateReport> {
     ).results?.map((r) => ({ ...r, store_zip: null })) ?? [];
   const refs = audits.map((a) => a.id);
   if (refs.length === 0) return aggregate([], []);
-  const placeholders = refs.map(() => "?").join(",");
-  const caps =
-    (
-      await db
-        .prepare(
-          `SELECT public_session_ref, basket_item_id, stock_status, price_usd, size_value, size_unit
-           FROM audit_item_captures
-           WHERE public_session_ref IN (${placeholders})`
-        )
-        .bind(...refs)
-        .all<CaptureRowAgg>()
-    ).results ?? [];
+  // Chunk the IN-list: the ref set scales with verified-audit volume and would
+  // otherwise exceed SQLite's bound-param cap (H7).
+  const caps: CaptureRowAgg[] = [];
+  for (const chunk of chunkArray(refs)) {
+    const placeholders = chunk.map(() => "?").join(",");
+    const rows =
+      (
+        await db
+          .prepare(
+            `SELECT public_session_ref, basket_item_id, stock_status, price_usd, size_value, size_unit
+             FROM audit_item_captures
+             WHERE public_session_ref IN (${placeholders})`
+          )
+          .bind(...chunk)
+          .all<CaptureRowAgg>()
+      ).results ?? [];
+    caps.push(...rows);
+  }
   return aggregate(audits, caps);
 }
 
+// CSV formula-injection guard (M2). A spreadsheet treats a cell whose text
+// begins with one of these as a formula, so attacker-controlled free text like
+// `=HYPERLINK(...)` or `+cmd|…` can execute on open. We neutralize it by
+// prefixing a single quote, the standard mitigation (OWASP CSV injection).
+// Tab and CR are included because some importers strip leading whitespace
+// first and then re-evaluate the leading char.
+const CSV_FORMULA_LEAD = /^[=+\-@\t\r]/;
+
 export function csvEscape(v: unknown): string {
   if (v == null) return "";
-  const s = String(v);
+  let s = String(v);
+  // Neutralize before quoting so the apostrophe lands inside the quotes too.
+  if (CSV_FORMULA_LEAD.test(s)) s = `'${s}`;
   if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }

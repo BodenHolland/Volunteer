@@ -45,6 +45,31 @@ import {
 const TERMINAL_STATUSES = new Set(["verified", "flagged", "rejected"]);
 const PHOTO_GEO_RADIUS_M = 100;
 
+// M4: cap how many vision calls run at once. An audit can carry many in-stock
+// photos and each vision job is an OpenRouter request + R2 read; firing them all
+// via Promise.all fans out unbounded concurrency (rate-limit / OOM / timeout
+// risk on the Worker). Run them through a small worker pool instead.
+const VISION_CONCURRENCY = 4;
+
+/**
+ * Run async task thunks with at most `limit` in flight at a time. Tasks are
+ * pulled from a shared cursor by `limit` workers, so each completion frees a
+ * slot for the next task. Rejections propagate (mirrors Promise.all), but the
+ * vision thunks here already swallow their own failures.
+ */
+async function runWithConcurrency(tasks: Array<() => Promise<void>>, limit: number): Promise<void> {
+  if (tasks.length === 0) return;
+  const max = Math.max(1, Math.min(limit, tasks.length));
+  let cursor = 0;
+  const worker = async (): Promise<void> => {
+    while (cursor < tasks.length) {
+      const i = cursor++;
+      await tasks[i]();
+    }
+  };
+  await Promise.all(Array.from({ length: max }, () => worker()));
+}
+
 export async function processAudit(auditId: string): Promise<void> {
   const db = getDb();
   const audit = await db.prepare("SELECT * FROM audits WHERE id = ?").bind(auditId).first<AuditRow>();
@@ -116,10 +141,12 @@ export async function processAudit(auditId: string): Promise<void> {
 
   const pendingFlags: PendingFlag[] = [];
 
-  // ---- 1. Vision validation (parallel per in-stock photo) ----
-  const visionJobs = captures
+  // ---- 1. Vision validation (bounded-concurrency per in-stock photo, M4) ----
+  // Each entry is a lazy thunk so runWithConcurrency controls when it starts;
+  // building them with `.map(async …)` would start every call immediately.
+  const visionJobs: Array<() => Promise<void>> = captures
     .filter((c) => c.stock_status === "in-stock" && c.photo_id)
-    .map(async (cap) => {
+    .map((cap) => async () => {
       const photo = photoById.get(cap.photo_id!);
       if (!photo) return;
       const item = findItem(cap.basket_item_id);
@@ -246,7 +273,7 @@ export async function processAudit(auditId: string): Promise<void> {
       }
     });
 
-  await Promise.all(visionJobs);
+  await runWithConcurrency(visionJobs, VISION_CONCURRENCY);
 
   // ---- 4. Sampling: tier 0 always gets human review; higher tiers chance-flagged ----
   if (pendingFlags.length === 0 && rollSample(strictness.sampleRate)) {

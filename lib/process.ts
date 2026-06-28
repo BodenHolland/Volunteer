@@ -17,6 +17,7 @@ import {
   type LatLng,
 } from "./fraud";
 import { newId } from "./ids";
+import { chunkArray } from "./queries";
 import {
   parseJson,
   type EmsRateData,
@@ -74,10 +75,33 @@ export async function processSubmissionAi(submissionId: string): Promise<void> {
   // ---- Fraud signals ----
   const flags: FraudFlag[] = [];
 
-  // a. duplicates vs all prior files (other submissions)
+  // a. duplicates vs prior files in OTHER submissions. Instead of scanning the
+  // whole submission_files table (a full-table SELECT * that grows without
+  // bound — C7), fetch only rows whose sha256 matches one of THIS submission's
+  // file hashes. Served by the expression index on
+  // json_extract(metadata_json,'$.sha256') (migration 0021); the work is
+  // bounded by this submission's file count, not by table size.
   const current = files.map((f) => ({ fileId: f.id, hash: parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "" })).filter((x) => x.hash);
-  const priorRows = (await db.prepare("SELECT * FROM submission_files WHERE submission_id != ?").bind(submissionId).all<SubmissionFile>()).results ?? [];
-  const prior = priorRows.map((f) => ({ submissionId: f.submission_id, fileId: f.id, hash: parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "" })).filter((x) => x.hash);
+  const currentHashes = [...new Set(current.map((c) => c.hash))];
+  const prior: { submissionId: string; fileId: string; hash: string }[] = [];
+  for (const chunk of chunkArray(currentHashes, 90)) {
+    const placeholders = chunk.map(() => "?").join(",");
+    const priorRows =
+      (
+        await db
+          .prepare(
+            `SELECT id, submission_id, metadata_json FROM submission_files
+             WHERE json_extract(metadata_json, '$.sha256') IN (${placeholders})
+               AND submission_id != ?`
+          )
+          .bind(...chunk, submissionId)
+          .all<SubmissionFile>()
+      ).results ?? [];
+    for (const f of priorRows) {
+      const hash = parseJson<{ sha256?: string }>(f.metadata_json, {}).sha256 ?? "";
+      if (hash) prior.push({ submissionId: f.submission_id, fileId: f.id, hash });
+    }
+  }
   flags.push(...detectDuplicateImages(current, prior));
 
   // b. AI content
