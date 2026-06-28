@@ -66,27 +66,67 @@ export async function deleteAccount(formData: FormData) {
   }
 
   const now = Date.now();
-  // Soft delete + scrub PII columns.
-  await getDb()
-    .prepare(
-      `UPDATE users
-         SET deleted_at = ?,
-             legal_name = NULL,
-             case_number = NULL,
-             address_json = NULL,
-             dob = NULL,
-             phone = NULL
-       WHERE id = ?`
-    )
-    .bind(now, user.id)
-    .run();
+  const db = getDb();
+
+  // Erasure runs as one atomic batch: soft-delete + PII scrub on the user, plus
+  // severing the private↔public re-identification link as far as the CURRENT
+  // schema allows (no-migration subset). The work product (public-cluster rows
+  // keyed only by public_session_ref) is intentionally ORPHANED, never deleted —
+  // it is a public good and must survive erasure; we only cut the link back to a
+  // person.
+  //
+  // Cross-boundary key (public_session_ref) lives in several private-side spots:
+  //   - submissions.user_notes  — a JSON blob that, for EMS / external tasks,
+  //     embeds public_session_ref (see app/app/projects/[id]/submit-actions.ts)
+  //     and may also hold free-text notes; NULL the whole column.
+  //   - submissions.public_session_ref  — nullable (migration 0019); NULL it.
+  //   - audits.public_session_ref       — nullable (migration 0016); NULL it.
+  //   - gov_audit_sessions.public_session_ref — declared NOT NULL (migration
+  //     0013), so it CANNOT be nulled without a table rebuild. That, plus the
+  //     NOT NULL user_id columns on submissions/audits/gov_audit_sessions
+  //     themselves, are deferred to the nullable-column rebuild migration (0022,
+  //     follow-up PR). Until then this residual link remains.
+  await db.batch([
+    // Soft delete + scrub PII columns on the user row.
+    db
+      .prepare(
+        `UPDATE users
+           SET deleted_at = ?,
+               legal_name = NULL,
+               case_number = NULL,
+               address_json = NULL,
+               dob = NULL,
+               phone = NULL
+         WHERE id = ?`
+      )
+      .bind(now, user.id),
+    // Scrub submission notes (carries the embedded public_session_ref + free text).
+    db.prepare("UPDATE submissions SET user_notes = NULL WHERE user_id = ?").bind(user.id),
+    // NULL the nullable cross-boundary refs (schema-permitted today).
+    db
+      .prepare("UPDATE submissions SET public_session_ref = NULL WHERE user_id = ?")
+      .bind(user.id),
+    db.prepare("UPDATE audits SET public_session_ref = NULL WHERE user_id = ?").bind(user.id),
+    // Certification source-of-truth (private cluster) is destroyed outright.
+    db.prepare("DELETE FROM hours_ledger WHERE user_id = ?").bind(user.id),
+    db.prepare("DELETE FROM cf888_forms WHERE user_id = ?").bind(user.id),
+    // feedback.user_id is nullable (migration 0001); orphan the feedback body.
+    db.prepare("UPDATE feedback SET user_id = NULL WHERE user_id = ?").bind(user.id),
+  ]);
 
   await writeAudit({
     actorUserId: user.id,
     action: "account_deleted",
     entityType: "user",
     entityId: user.id,
-    detail: { soft_delete: true, pii_scrubbed: true },
+    detail: {
+      soft_delete: true,
+      pii_scrubbed: true,
+      link_severed: true,
+      // gov_audit_sessions.public_session_ref + NOT NULL user_id columns remain
+      // until the 0022 rebuild migration (follow-up).
+      residual_link_pending_migration: "0022",
+    },
   });
 
   // Revoke all sessions (logs the user out everywhere).
