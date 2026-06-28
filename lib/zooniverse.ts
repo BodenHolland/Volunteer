@@ -10,7 +10,11 @@
  * fenced off behind ZOONIVERSE_DIRECT_API_ENABLED. See docs/prd-zooniverse-verification.md §11.
  */
 import { getDb } from "./cf";
+import { logEvent } from "./log";
 import type { ExternalProjectCatalog, ZooniversePublicActivity } from "./types";
+
+/** Upstream vision calls can hang on the :free tier; cap every fetch at 20s. */
+const OPENROUTER_TIMEOUT_MS = 20_000;
 
 /** Stable id of the reviewer org that owns Zooniverse task templates. */
 export const ORG_CITIZEN_SCIENCE = "org_citizen_science";
@@ -399,14 +403,22 @@ export async function aiVerifyZooniverseCertificate(
           { role: "user", content },
         ],
       }),
+      // Without a timeout a slow upstream pins the Worker; fall back to manual
+      // review (ai_succeeded:false) instead. Never auto-approve on timeout.
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
-    if (!res.ok) return ZOON_AI_FALLBACK;
+    if (!res.ok) {
+      logEvent("zooniverse_ai_verify_failed", { status: res.status });
+      return ZOON_AI_FALLBACK;
+    }
     const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     const text = json.choices?.[0]?.message?.content;
     if (!text) return ZOON_AI_FALLBACK;
     const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     return coerceZoonVerdict(JSON.parse(cleaned));
-  } catch {
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? "timeout" : "error";
+    logEvent("zooniverse_ai_verify_failed", { reason });
     return ZOON_AI_FALLBACK;
   }
 }

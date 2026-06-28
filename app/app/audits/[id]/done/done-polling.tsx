@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Status {
   validation_status: string;
   credited_hours: number | null;
 }
+
+/** Validation states that are terminal — stop polling once we hit one. */
+const TERMINAL_STATUSES = new Set(["verified", "rejected", "flagged"]);
+
+/** Poll cadence: start at the base interval, back off, and cap total attempts. */
+const POLL_BASE_MS = 4_000;
+const POLL_MAX_MS = 20_000;
+const POLL_MAX_ATTEMPTS = 30;
 
 export interface DoneCopy {
   verified: string;
@@ -31,23 +39,45 @@ export function DonePolling({
   copy: DoneCopy;
 }) {
   const [status, setStatus] = useState<Status>({ validation_status: initialStatus, credited_hours: creditedHours });
+  const attemptsRef = useRef(0);
 
   useEffect(() => {
-    if (status.validation_status === "verified" || status.validation_status === "rejected") return;
-    const t = setInterval(async () => {
+    if (TERMINAL_STATUSES.has(status.validation_status)) return;
+    let active = true;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const schedule = () => {
+      // Exponential backoff, capped — don't hammer a slow/stuck validator.
+      const delay = Math.min(POLL_BASE_MS * 2 ** Math.min(attemptsRef.current, 5), POLL_MAX_MS);
+      timer = setTimeout(tick, delay);
+    };
+
+    const tick = async () => {
+      if (!active) return;
+      attemptsRef.current += 1;
       try {
         const r = await fetch(`/api/audits/${auditId}/status`, { cache: "no-store" });
-        if (!r.ok) return;
-        const data = (await r.json()) as Status;
-        setStatus(data);
-        if (data.validation_status === "verified" || data.validation_status === "rejected") {
-          clearInterval(t);
+        if (r.ok) {
+          const data = (await r.json()) as Status;
+          if (!active) return;
+          setStatus(data);
+          // Stop on any terminal state (verified | rejected | flagged).
+          if (TERMINAL_STATUSES.has(data.validation_status)) return;
         }
       } catch {
-        // network blip; keep polling
+        // network blip; keep polling within the attempt cap
       }
-    }, 4000);
-    return () => clearInterval(t);
+      if (!active) return;
+      // Cap total attempts so a wedged validator can't poll forever.
+      if (attemptsRef.current >= POLL_MAX_ATTEMPTS) return;
+      schedule();
+    };
+
+    schedule();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [auditId, status.validation_status]);
 
   if (status.validation_status === "verified") {

@@ -13,6 +13,10 @@
  * imported, on purpose.
  */
 import { getFile } from "./r2";
+import { logEvent } from "./log";
+
+/** Upstream vision calls can hang on the :free tier; cap every fetch at 20s. */
+const OPENROUTER_TIMEOUT_MS = 20_000;
 
 export interface BenefitsCalResult {
   verified: boolean;
@@ -149,9 +153,13 @@ export async function verifyBenefitsCalScreenshot(
           { role: "user", content },
         ],
       }),
+      // Without a timeout a slow upstream pins the Worker; degrade to manual
+      // review instead. Never auto-verify on timeout.
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
 
     if (!res.ok) {
+      logEvent("benefitscal_verify_failed", { status: res.status });
       return manualReview(
         "Enrollment validator returned an error; flagged for manual review."
       );
@@ -171,7 +179,9 @@ export async function verifyBenefitsCalScreenshot(
       .replace(/```$/, "")
       .trim();
     return coerceResult(JSON.parse(cleaned));
-  } catch {
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? "timeout" : "error";
+    logEvent("benefitscal_verify_failed", { reason });
     return manualReview(
       "Enrollment validator could not be reached; flagged for manual review."
     );
