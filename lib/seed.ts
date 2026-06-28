@@ -857,6 +857,26 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       "Sacramento", "CA", "n/a", null, null, null, null, null, null, null, null, null, now - 130 * DAY)
   );
 
+  // ---- org invitations (H1) ----
+  // The /start org-pick flow no longer trusts client-supplied org_role/org_id;
+  // an org join is only valid against a pending org_invites row addressed to the
+  // user's email (mirrors app/auth-actions.ts). The sample org accounts already
+  // have their roles seeded directly, but without a matching invite they would
+  // be locked out if they ever re-traverse org-pick. Seed an unaccepted invite
+  // for each seeded org member so that path keeps working. `invited_by` is the
+  // platform admin; org_role mirrors each member's seeded role.
+  const inviteIns = db.prepare(
+    "INSERT INTO org_invites (id, org_id, email, org_role, invited_by, created_at, accepted_at) VALUES (?,?,?,?,?,?,?)"
+  );
+  const seedInvites: { id: string; orgId: string; email: string; orgRole: "reviewer" | "org_admin" }[] = [
+    { id: "invite_priya", orgId: ORG_SFCDC, email: "priya.venkatesan@example.com", orgRole: "org_admin" },
+    { id: "invite_daniel", orgId: ORG_FUF, email: "daniel.okafor@example.com", orgRole: "reviewer" },
+    { id: "invite_hana", orgId: ORG_CITIZEN_SCIENCE, email: "hana.ishikawa@example.com", orgRole: "reviewer" },
+  ];
+  for (const inv of seedInvites) {
+    stmts.push(inviteIns.bind(inv.id, inv.orgId, inv.email, inv.orgRole, USER_ADMIN, now - 115 * DAY, null));
+  }
+
   // ---- task templates ----
   const taskIns = db.prepare(
     `INSERT INTO task_templates (id, org_id, created_by_user_id, title, category, short_description,

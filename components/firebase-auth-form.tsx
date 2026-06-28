@@ -15,6 +15,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getFirebaseAuth } from "@/lib/firebase-client";
 
+/**
+ * Open-redirect guard for the post-login `next` destination. Only a same-origin
+ * *path* is allowed: it must start with a single "/" and NOT a second "/" (which
+ * would be a protocol-relative URL like "//evil.com" the browser treats as
+ * absolute). This also rejects absolute URLs ("https://evil.com"),
+ * backslash tricks ("/\\evil.com" → "\\evil.com" after normalization), and
+ * scheme payloads ("javascript:…"). Anything that fails falls back to the
+ * default destination instead of bouncing the user off-site.
+ */
+function safeNext(next: string | null | undefined): string | null {
+  if (!next) return null;
+  // Same-origin path only: leading "/" not followed by "/" or "\".
+  if (!/^\/(?![/\\])/.test(next)) return null;
+  return next;
+}
+
 /** Firebase sign-in / sign-up that exchanges the ID token for our D1 session. */
 export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
   const [email, setEmail] = useState("");
@@ -40,7 +56,9 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
     // via fetch, and a hard load guarantees the next request carries it and is
     // server-rendered fresh, a soft navigation can replay a cached logged-out
     // redirect for the destination and bounce the user back to /login (loop).
-    window.location.assign(next || data.next || "/app");
+    // Both `next` (URL param) and `data.next` (server-echoed) are attacker-
+    // controllable, so each is validated to a same-origin path before use.
+    window.location.assign(safeNext(next) || safeNext(data.next) || "/app");
   }
 
   async function onSubmit(e: React.FormEvent) {
