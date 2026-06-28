@@ -6,6 +6,7 @@ import { getDb, getEnv } from "@/lib/cf";
 import { putFile } from "@/lib/r2";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
+import { creditHoursStmt } from "@/lib/ledger";
 import { writeAudit } from "@/lib/audit";
 import {
   sha256Hex,
@@ -52,6 +53,10 @@ export async function submitCertificate(formData: FormData) {
     .bind(sub.task_template_id)
     .first<TaskTemplate>();
   if (!task) redirect(`/app/external/${id}`);
+  // C3: this certificate-upload + auto-approve path is ONLY valid for
+  // external-certificate tasks. An in-app task routed here would auto-credit the
+  // ledger off an unverified file upload, bypassing its measured-time review.
+  if (task.evidence_mode !== "external_certificate") redirect(`/app/external/${id}`);
 
   const file = formData.get("certificate");
   if (!(file instanceof File) || file.size === 0) back(id, "Pick a certificate file to upload.");
@@ -191,61 +196,63 @@ export async function submitCertificate(formData: FormData) {
     const creditedHours = Math.round(reportedHours * 100) / 100;
     const creditedMinutes = Math.round(reportedHours * 60);
 
-    // Record the auto-approval in certificate_reviews so the audit story is
-    // identical to the human-reviewed path. The "reviewer" is the user
-    // themselves; the AI did the cross-check.
-    await db
+    // Single-flight claim (C5): the irreversible status='approved' flip is
+    // compare-and-set (WHERE status != 'approved'). Two concurrent submits of
+    // the same certificate (the AI calls above open a race window) would both
+    // reach here; D1 serializes writes so exactly ONE flips the row, and only
+    // that winner credits the ledger. A loser matches zero rows and skips the
+    // credit batch entirely.
+    const claim = await db
       .prepare(
-        `INSERT INTO certificate_reviews
-           (submission_id, reviewer_id, cert_name_matches_user, date_range_present, hours_present,
-            project_scope_match, signature_present, profile_url_matches, screenshot_supports_certificate,
-            duplicate_file_match, decision, reviewer_note, credited_minutes, reviewed_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-         ON CONFLICT(submission_id) DO UPDATE SET decision = excluded.decision, reviewed_at = excluded.reviewed_at`
+        "UPDATE submissions SET status = 'approved', submitted_at = ?, reviewed_at = ?, reviewer_id = ?, hours_credited = ?, user_notes = ?, published_at = ?, ai_verdict_json = ? WHERE id = ? AND status != 'approved'"
       )
-      .bind(
-        id,
-        me.id,
-        aiVerdict.name_match ? "yes" : "unclear",
-        "unclear",
-        aiVerdict.hours_match ? "yes" : "unclear",
-        "unclear",
-        "unclear",
-        aiVerdict.profile_consistent ? "yes" : "unclear",
-        "unclear",
-        0,
-        "approved",
-        `Auto-approved by AI cross-check: ${aiVerdict.reasoning}`,
-        creditedMinutes,
-        now
-      )
+      .bind(now, now, me.id, creditedHours, description, now, JSON.stringify(aiVerdict), id)
       .run();
 
-    await db
-      .prepare(
-        "UPDATE submissions SET status = 'approved', submitted_at = ?, reviewed_at = ?, reviewer_id = ?, hours_credited = ?, user_notes = ?, published_at = ?, ai_verdict_json = ? WHERE id = ?"
-      )
-      .bind(
-        now,
-        now,
-        me.id,
-        creditedHours,
-        description,
-        now,
-        JSON.stringify(aiVerdict),
-        id
-      )
-      .run();
+    if (claim.meta.changes === 1) {
+      // M9: the auto-approval record + the ledger credit commit together in one
+      // db.batch() (D1 implicit transaction) so the approved submission can never
+      // be left uncredited (or vice versa). The status flip already landed as the
+      // single-flight gate; these two ride together behind it.
+      await db.batch([
+        // Record the auto-approval in certificate_reviews so the audit story is
+        // identical to the human-reviewed path. The "reviewer" is the user
+        // themselves; the AI did the cross-check.
+        db
+          .prepare(
+            `INSERT INTO certificate_reviews
+               (submission_id, reviewer_id, cert_name_matches_user, date_range_present, hours_present,
+                project_scope_match, signature_present, profile_url_matches, screenshot_supports_certificate,
+                duplicate_file_match, decision, reviewer_note, credited_minutes, reviewed_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+             ON CONFLICT(submission_id) DO UPDATE SET decision = excluded.decision, reviewed_at = excluded.reviewed_at`
+          )
+          .bind(
+            id,
+            me.id,
+            aiVerdict.name_match ? "yes" : "unclear",
+            "unclear",
+            aiVerdict.hours_match ? "yes" : "unclear",
+            "unclear",
+            "unclear",
+            aiVerdict.profile_consistent ? "yes" : "unclear",
+            "unclear",
+            0,
+            "approved",
+            `Auto-approved by AI cross-check: ${aiVerdict.reasoning}`,
+            creditedMinutes,
+            now
+          ),
+        creditHoursStmt(db, {
+          userId: me.id,
+          hours: creditedHours,
+          month: reportingMonth,
+          certifiedOrgId: task.org_id,
+        }),
+      ]);
+    }
 
-    await db
-      .prepare(
-        "INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?) " +
-          "ON CONFLICT(user_id, month, certified_org_id) DO UPDATE SET total_hours = total_hours + excluded.total_hours"
-      )
-      .bind(newId("ledger"), me.id, reportingMonth, creditedHours, task.org_id)
-      .run();
-
-    if (sub.public_session_ref) {
+    if (claim.meta.changes === 1 && sub.public_session_ref) {
       await writePublicActivityRow({
         public_session_ref: sub.public_session_ref,
         external_project_id: "",
@@ -258,21 +265,23 @@ export async function submitCertificate(formData: FormData) {
       });
     }
 
-    await writeAudit({
-      actorUserId: me.id,
-      action: "external_certificate_auto_approved",
-      entityType: "submission",
-      entityId: id,
-      detail: {
-        provider: "zooniverse",
-        project_name: projectName,
-        project_slug: projectSlug,
-        reporting_month: reportingMonth,
-        reported_hours: reportedHours,
-        credited_hours: creditedHours,
-        ai_reasoning: aiVerdict.reasoning,
-      },
-    });
+    if (claim.meta.changes === 1) {
+      await writeAudit({
+        actorUserId: me.id,
+        action: "external_certificate_auto_approved",
+        entityType: "submission",
+        entityId: id,
+        detail: {
+          provider: "zooniverse",
+          project_name: projectName,
+          project_slug: projectSlug,
+          reporting_month: reportingMonth,
+          reported_hours: reportedHours,
+          credited_hours: creditedHours,
+          ai_reasoning: aiVerdict.reasoning,
+        },
+      });
+    }
   } else {
     // Informational outcome (or duplicate). Pass a friendly note via the hub
     // page so the volunteer understands why it didn't auto-approve.
@@ -311,6 +320,14 @@ export async function cancelSubmission(formData: FormData) {
   const db = getDb();
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
   if (!sub || sub.user_id !== me.id) redirect("/unauthorized");
+  // C3: this hub route only governs external-certificate tasks. Refuse to act on
+  // a submission whose task isn't external_certificate so an in-app submission
+  // can't be force-rejected through the external endpoint.
+  const task = await db
+    .prepare("SELECT * FROM task_templates WHERE id = ?")
+    .bind(sub.task_template_id)
+    .first<TaskTemplate>();
+  if (!task || task.evidence_mode !== "external_certificate") redirect(`/app/external/${id}`);
 
   const cancellable = new Set([
     "committed",
