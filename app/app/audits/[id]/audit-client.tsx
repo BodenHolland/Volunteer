@@ -99,8 +99,9 @@ export interface AuditCopy {
   commuteTitle: string;
   commuteHint: string;
   commuteRoundTrip: string;
-  commuteUnknown: string;
-  commuteUnknownCta: string;
+  commuteUnknownPre: string;
+  commuteUnknownLink: string;
+  commuteUnknownPost: string;
   customCommuteTitle: string;
   customCommuteHint: string;
   customCommuteClear: string;
@@ -264,10 +265,14 @@ function CommutePanel({
       </div>
       {roundTripMin == null ? (
         <p className="mt-3 text-sm text-body">
-          {copy.commuteUnknown}{" "}
-          <a href="/app/profile" className="font-medium text-forest hover:underline">
-            {copy.commuteUnknownCta}
+          {copy.commuteUnknownPre}
+          <a
+            href="/app/profile"
+            className="font-medium text-forest underline underline-offset-4 hover:text-forest-hover"
+          >
+            {copy.commuteUnknownLink}
           </a>
+          {copy.commuteUnknownPost}
         </p>
       ) : (
         <p className="mt-3 text-sm text-body">
