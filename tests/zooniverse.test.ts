@@ -48,9 +48,11 @@ test("looksLikeZooniverseProfileUrl: rejects non-profile / wrong-host / malforme
 
 test("certificate upload guard rails are tight", () => {
   assert.equal(MAX_CERT_BYTES, 15 * 1024 * 1024);
+  // PDFs are intentionally excluded: vision models can't read PDF content
+  // reliably, so a PDF cert can't auto-verify. Only PNG/JPG are accepted.
   assert.deepEqual(
     [...ALLOWED_CERT_MIMES].sort(),
-    ["application/pdf", "image/jpeg", "image/png"].sort()
+    ["image/jpeg", "image/png"].sort()
   );
 });
 

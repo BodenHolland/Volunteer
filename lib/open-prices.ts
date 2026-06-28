@@ -30,7 +30,7 @@ export const OFF_PRODUCT_CODES: Record<string, string | null> = {
   "eggs-dozen": "0070000000016",
   "bread-loaf": "0073410000030",
   "rice-1lb": "0017400118228",
-  "beans-can": "0024000162780",
+  "peanut-butter": "0051500255162", // creamy peanut butter, 16 oz (OFF-verified)
   "produce-banana-or-apple": null, // skip — region-specific
 };
 
