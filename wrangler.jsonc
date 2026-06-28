@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tended",
+  "name": "colift",
   "main": ".open-next/worker.js",
   "compatibility_date": "2024-12-30",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -12,7 +12,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "tended"
+      "service": "colift"
     }
   ],
   "d1_databases": [
@@ -37,10 +37,10 @@
   },
   "vars": {
     "OPENROUTER_MODEL": "google/gemini-2.5-flash-lite",
-    "OPENROUTER_SITE_URL": "https://tended.xkbtrjm2bm.workers.dev",
-    "OPENROUTER_APP_NAME": "Tended",
+    "OPENROUTER_SITE_URL": "https://colift.xkbtrjm2bm.workers.dev",
+    "OPENROUTER_APP_NAME": "colift",
     "FIREBASE_PROJECT_ID": "volunteer-online-bcfa9",
-    "APP_ORIGIN": "https://tended.xkbtrjm2bm.workers.dev"
+    "APP_ORIGIN": "https://colift.xkbtrjm2bm.workers.dev"
   }
   // Secrets (NOT here — set with `wrangler secret put`): PII_ENCRYPTION_KEY (required —
   // PII storage throws without it), OPENROUTER_API_KEY (AI review; falls back to manual),
