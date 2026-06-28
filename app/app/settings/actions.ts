@@ -69,23 +69,24 @@ export async function deleteAccount(formData: FormData) {
   const db = getDb();
 
   // Erasure runs as one atomic batch: soft-delete + PII scrub on the user, plus
-  // severing the private↔public re-identification link as far as the CURRENT
-  // schema allows (no-migration subset). The work product (public-cluster rows
-  // keyed only by public_session_ref) is intentionally ORPHANED, never deleted —
-  // it is a public good and must survive erasure; we only cut the link back to a
-  // person.
+  // FULL severance of the private↔public re-identification link. The work product
+  // (public-cluster rows keyed only by public_session_ref) is intentionally
+  // ORPHANED, never deleted — it is a public good and must survive erasure; we
+  // only cut the link back to a person.
   //
-  // Cross-boundary key (public_session_ref) lives in several private-side spots:
+  // Cross-boundary / owning links living on private-side rows, all severed here:
   //   - submissions.user_notes  — a JSON blob that, for EMS / external tasks,
   //     embeds public_session_ref (see app/app/projects/[id]/submit-actions.ts)
   //     and may also hold free-text notes; NULL the whole column.
   //   - submissions.public_session_ref  — nullable (migration 0019); NULL it.
   //   - audits.public_session_ref       — nullable (migration 0016); NULL it.
-  //   - gov_audit_sessions.public_session_ref — declared NOT NULL (migration
-  //     0013), so it CANNOT be nulled without a table rebuild. That, plus the
-  //     NOT NULL user_id columns on submissions/audits/gov_audit_sessions
-  //     themselves, are deferred to the nullable-column rebuild migration (0022,
-  //     follow-up PR). Until then this residual link remains.
+  //   - submissions.user_id / audits.user_id — the OWNING link. Made nullable by
+  //     migration 0022 (this column's NOT NULL came from 0001 / 0006). NULL it so
+  //     the public-cluster rows orphan with no path back to the deleted person.
+  //
+  // Residual (deferred): gov_audit_sessions.public_session_ref + .user_id are
+  // declared NOT NULL (migration 0013) and are not yet rebuilt; that table's link
+  // is handled separately. 0022 covers submissions + audits only.
   await db.batch([
     // Soft delete + scrub PII columns on the user row.
     db
@@ -102,11 +103,16 @@ export async function deleteAccount(formData: FormData) {
       .bind(now, user.id),
     // Scrub submission notes (carries the embedded public_session_ref + free text).
     db.prepare("UPDATE submissions SET user_notes = NULL WHERE user_id = ?").bind(user.id),
-    // NULL the nullable cross-boundary refs (schema-permitted today).
+    // NULL the cross-boundary refs first (these predicate on user_id).
     db
       .prepare("UPDATE submissions SET public_session_ref = NULL WHERE user_id = ?")
       .bind(user.id),
     db.prepare("UPDATE audits SET public_session_ref = NULL WHERE user_id = ?").bind(user.id),
+    // Sever the OWNING link last: NULL user_id on the public work-product rows so
+    // they orphan (migration 0022 made these columns nullable). Done after the
+    // ref-clearing statements above, which still need to match on user_id.
+    db.prepare("UPDATE submissions SET user_id = NULL WHERE user_id = ?").bind(user.id),
+    db.prepare("UPDATE audits SET user_id = NULL WHERE user_id = ?").bind(user.id),
     // Certification source-of-truth (private cluster) is destroyed outright.
     db.prepare("DELETE FROM hours_ledger WHERE user_id = ?").bind(user.id),
     db.prepare("DELETE FROM cf888_forms WHERE user_id = ?").bind(user.id),
@@ -123,9 +129,11 @@ export async function deleteAccount(formData: FormData) {
       soft_delete: true,
       pii_scrubbed: true,
       link_severed: true,
-      // gov_audit_sessions.public_session_ref + NOT NULL user_id columns remain
-      // until the 0022 rebuild migration (follow-up).
-      residual_link_pending_migration: "0022",
+      // submissions/audits user_id + public_session_ref are now NULLed (0022).
+      work_product_orphaned: true,
+      // gov_audit_sessions.public_session_ref + .user_id remain NOT NULL (0013);
+      // that table's link is handled separately.
+      residual_link_pending_migration: "gov_audit_sessions",
     },
   });
 
