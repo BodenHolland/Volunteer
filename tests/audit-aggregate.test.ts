@@ -56,7 +56,7 @@ test("aggregate: one audit at one store → one zip, basket cost is sum of per-i
     { public_session_ref: "a1", basket_item_id: "eggs-dozen", stock_status: "in-stock", price_usd: 6.0, size_value: 12, size_unit: "count" },
     { public_session_ref: "a1", basket_item_id: "bread-loaf", stock_status: "in-stock", price_usd: 4.0, size_value: 16, size_unit: "oz" },
     { public_session_ref: "a1", basket_item_id: "rice-1lb", stock_status: "in-stock", price_usd: 2.0, size_value: 1, size_unit: "lb" },
-    { public_session_ref: "a1", basket_item_id: "beans-can", stock_status: "in-stock", price_usd: 1.5, size_value: 15, size_unit: "oz" },
+    { public_session_ref: "a1", basket_item_id: "peanut-butter", stock_status: "in-stock", price_usd: 1.5, size_value: 16, size_unit: "oz" },
     { public_session_ref: "a1", basket_item_id: "produce-banana-or-apple", stock_status: "in-stock", price_usd: 0.79, size_value: 1, size_unit: "lb" },
   ];
   const r = aggregate(audits, caps);
