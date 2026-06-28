@@ -26,6 +26,7 @@ export const en = {
     tagline: "Online volunteering that counts toward your SNAP (EBT) work requirement.",
     deliverables: "Public deliverables",
     privacy: "Privacy",
+    terms: "Terms",
     contact: "Contact",
     help: "Help center",
     snapEbt: "SNAP/EBT",
@@ -54,6 +55,12 @@ export const en = {
     legalNote:
       "By creating an account you confirm Tended pays you nothing and only the County decides eligibility.",
     haveAccount: "Already have an account?",
+    consentPrefix: "I agree to the",
+    consentTerms: "Terms of Service",
+    consentAnd: "and",
+    consentPrivacy: "Privacy Policy",
+    consentSuffix: ".",
+    consentRequired: "Please agree to the Terms of Service and Privacy Policy to continue.",
   },
   app: {
     nav: {

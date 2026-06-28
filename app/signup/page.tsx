@@ -21,7 +21,17 @@ export default async function SignupPage() {
         </span>
       }
     >
-      <FirebaseAuthForm mode="signup" />
+      <FirebaseAuthForm
+        mode="signup"
+        consent={{
+          prefix: a.consentPrefix,
+          terms: a.consentTerms,
+          and: a.consentAnd,
+          privacy: a.consentPrivacy,
+          suffix: a.consentSuffix,
+          required: a.consentRequired,
+        }}
+      />
       <p className="mt-4 text-center text-xs text-meta">{a.legalNote}</p>
     </AuthShell>
   );

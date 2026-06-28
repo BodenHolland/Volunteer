@@ -28,6 +28,7 @@ export const es: typeof en = {
     tagline: "Voluntariado en línea que cuenta para tu requisito de trabajo de SNAP (EBT).",
     deliverables: "Entregables públicos",
     privacy: "Privacidad",
+    terms: "Términos",
     contact: "Contacto",
     help: "Centro de ayuda",
     snapEbt: "SNAP/EBT",
@@ -56,6 +57,12 @@ export const es: typeof en = {
     legalNote:
       "Al crear una cuenta confirmas que Tended no te paga nada y que solo el Condado decide la elegibilidad.",
     haveAccount: "¿Ya tienes una cuenta?",
+    consentPrefix: "Acepto los",
+    consentTerms: "Términos del servicio",
+    consentAnd: "y la",
+    consentPrivacy: "Política de privacidad",
+    consentSuffix: ".",
+    consentRequired: "Acepta los Términos del servicio y la Política de privacidad para continuar.",
   },
   app: {
     nav: {

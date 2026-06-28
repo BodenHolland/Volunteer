@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -15,14 +16,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getFirebaseAuth } from "@/lib/firebase-client";
 
+type ConsentCopy = {
+  prefix: string;
+  terms: string;
+  and: string;
+  privacy: string;
+  suffix: string;
+  required: string;
+};
+
 /** Firebase sign-in / sign-up that exchanges the ID token for our D1 session. */
-export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
+export function FirebaseAuthForm({
+  mode,
+  next,
+  consent,
+}: {
+  mode: "login" | "signup";
+  next?: string;
+  consent?: ConsentCopy;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const requireConsent = mode === "signup" && !!consent;
 
   async function exchange() {
     const auth = getFirebaseAuth();
@@ -48,6 +68,10 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
     setFormError(null);
     setGoogleError(null);
     setInfo(null);
+    if (requireConsent && !agreed) {
+      setFormError(consent!.required);
+      return;
+    }
     setBusy(true);
     const auth = getFirebaseAuth();
     if (!auth) {
@@ -90,6 +114,10 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
   async function onGoogle() {
     setFormError(null);
     setGoogleError(null);
+    if (requireConsent && !agreed) {
+      setGoogleError(consent!.required);
+      return;
+    }
     setBusy(true);
     const auth = getFirebaseAuth();
     if (!auth) {
@@ -140,15 +168,43 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
           </div>
           <Input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 6 : undefined} value={password} onChange={(e) => setPassword(e.target.value)} leadingIcon={<Lock />} />
         </div>
+        {requireConsent && (
+          <label className="flex items-start gap-2 text-sm text-body">
+            <input
+              type="checkbox"
+              className="mt-0.5 size-4 shrink-0 rounded border-line text-forest focus:ring-forest"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              aria-required="true"
+            />
+            <span>
+              {consent!.prefix}{" "}
+              <Link href="/terms" target="_blank" rel="noopener" className="text-forest underline">
+                {consent!.terms}
+              </Link>{" "}
+              {consent!.and}{" "}
+              <Link href="/privacy" target="_blank" rel="noopener" className="text-forest underline">
+                {consent!.privacy}
+              </Link>
+              {consent!.suffix}
+            </span>
+          </label>
+        )}
         {formError && <p className="text-sm text-brick" role="alert">{formError}</p>}
-        <Button type="submit" className="w-full" disabled={busy}>
+        <Button type="submit" className="w-full" disabled={busy || (requireConsent && !agreed)}>
           {busy ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
         </Button>
       </form>
       <div className="flex items-center gap-3 text-xs text-meta">
         <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
       </div>
-      <Button type="button" variant="secondary" className="w-full" onClick={onGoogle} disabled={busy}>
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full"
+        onClick={onGoogle}
+        disabled={busy || (requireConsent && !agreed)}
+      >
         Continue with Google
       </Button>
       {googleError && <p className="text-sm text-brick" role="alert">{googleError}</p>}
