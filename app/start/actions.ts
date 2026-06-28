@@ -176,10 +176,28 @@ export async function submitOrgPick(formData: FormData) {
     redirect("/org");
   }
 
-  const orgRole = String(formData.get("org_role") ?? "reviewer");
+  // PRIVILEGE-ESCALATION FIX (H1): never derive org membership from client-
+  // supplied form fields. A signed-in recipient could otherwise POST any
+  // org_id + org_role ("org_admin") and seize control of an arbitrary org.
+  // Mirror the canonical invite path (app/auth-actions.ts): an org join is only
+  // valid against a pending org_invites row addressed to THIS user's email, and
+  // org_id / org_role come from the invite — not the form. The org_choice the
+  // user picked must match the org they were actually invited to.
+  const invite = await db
+    .prepare(
+      "SELECT id, org_id, org_role FROM org_invites WHERE email = ? AND accepted_at IS NULL ORDER BY created_at DESC LIMIT 1"
+    )
+    .bind(user.email)
+    .first<{ id: string; org_id: string; org_role: string }>();
+  if (!invite || invite.org_id !== choice) {
+    // No matching invite — refuse silently to the org-pick step rather than
+    // granting any membership.
+    redirect("/start?step=orgpick&error=invite");
+  }
   await db
     .prepare("UPDATE users SET role = 'org_member', org_role = ?, org_id = ? WHERE id = ?")
-    .bind(orgRole, choice, user.id)
+    .bind(invite!.org_role, invite!.org_id, user.id)
     .run();
+  await db.prepare("UPDATE org_invites SET accepted_at = ? WHERE id = ?").bind(Date.now(), invite!.id).run();
   redirect("/org");
 }

@@ -99,6 +99,52 @@ export async function getTask(id: string): Promise<(TaskTemplate & { org: Org })
   return { ...t, org };
 }
 
+/** The lifecycle subset of a task template needed to decide if it can be
+ *  committed to. Kept narrow so the guard is cheap and easy to reason about. */
+export interface TaskLifecycle {
+  id: string;
+  status: string;
+  closes_at: number | null;
+  listing_type: string;
+}
+
+/**
+ * Pure server-side gate for whether a task can be committed to (H11). Rejects:
+ *   - tasks not in the 'active' state (draft / paused / archived),
+ *   - tasks whose `closes_at` deadline has passed,
+ *   - directory-only listings (`listing_type !== 'native'`) — those link out to
+ *     the org's own signup and must never spawn a colift submission.
+ * `now` is injectable for tests. Pure: no DB access, so the same logic can be
+ * exercised in unit tests and reused at the action's call site.
+ */
+export function isTaskCommittable(
+  t: Pick<TaskLifecycle, "status" | "closes_at" | "listing_type">,
+  now: number = Date.now()
+): boolean {
+  if (t.status !== "active") return false;
+  if (t.closes_at != null && t.closes_at <= now) return false;
+  if (t.listing_type !== "native") return false;
+  return true;
+}
+
+/**
+ * Fetch a task's lifecycle fields only if it exists AND passes the commit gate.
+ * Returns null when the task is missing, closed, paused/archived/draft, or a
+ * directory-only external listing. The commit action uses this as the single
+ * authoritative server-side guard before inserting a submission.
+ */
+export async function getCommittableTask(
+  id: string,
+  now: number = Date.now()
+): Promise<TaskLifecycle | null> {
+  const t = await getDb()
+    .prepare("SELECT id, status, closes_at, listing_type FROM task_templates WHERE id = ?")
+    .bind(id)
+    .first<TaskLifecycle>();
+  if (!t) return null;
+  return isTaskCommittable(t, now) ? t : null;
+}
+
 async function hydrate(subs: Submission[]): Promise<SubmissionWithTask[]> {
   if (subs.length === 0) return [];
   const tasks = (await getDb().prepare("SELECT * FROM task_templates").all<TaskTemplate>()).results ?? [];

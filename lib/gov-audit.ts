@@ -266,6 +266,125 @@ export function isOfficialDomain(host: string): boolean {
   return /\.(gov|mil)$/.test(h) || /\.us$/.test(h);
 }
 
+// ---------- SSRF gate (hardening: authenticated SSRF with readout) ----------
+//
+// A signed-in user supplies the URL that the server loads in headless Chromium
+// (page.goto) and a fallback fetch, then returns a screenshot + title + status.
+// Before ANY navigation/fetch of a user-supplied URL we run this single gate.
+// It is the *only* place that decides a URL is safe to load server-side.
+
+/** Why a URL was refused, for surfacing in result shapes (never thrown). */
+export type SsrfRefusalReason =
+  | "empty"
+  | "unparseable"
+  | "scheme" // not https
+  | "not_official" // host not on the gov allowlist
+  | "private_host"; // localhost / private / reserved / link-local IP literal
+
+export interface SsrfCheckResult {
+  ok: boolean;
+  /** The parsed, normalized hostname (lowercased, no leading www), if parseable. */
+  host: string;
+  reason?: SsrfRefusalReason;
+}
+
+/**
+ * Decompose an IPv4 hostname into its four octets, or null if it isn't a plain
+ * dotted-quad literal. (Hex / octal / integer IPv4 forms are not valid URL
+ * hostnames in the WHATWG parser path we use, so dotted-quad is sufficient.)
+ */
+function parseIPv4(host: string): [number, number, number, number] | null {
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!m) return null;
+  const octets = [Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])];
+  if (octets.some((o) => o < 0 || o > 255)) return null;
+  return octets as [number, number, number, number];
+}
+
+/** Is this dotted-quad IPv4 in a private/reserved/loopback/link-local range? */
+function isPrivateIPv4(octets: [number, number, number, number]): boolean {
+  const [a, b] = octets;
+  if (a === 10) return true; // 10.0.0.0/8
+  if (a === 127) return true; // 127.0.0.0/8 loopback
+  if (a === 0) return true; // 0.0.0.0/8
+  if (a === 169 && b === 254) return true; // 169.254.0.0/16 link-local
+  if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
+  if (a === 192 && b === 168) return true; // 192.168.0.0/16
+  return false;
+}
+
+/**
+ * Is this hostname an IPv6 literal in a loopback / unique-local / link-local
+ * range? Hostnames from `new URL()` keep IPv6 in bracketed form; we strip the
+ * brackets before calling. Conservative: any IPv6 literal that isn't clearly a
+ * routable global address is rejected by the caller anyway (IP literals can
+ * never be on the gov allowlist), so this is a defense-in-depth belt.
+ */
+function isPrivateIPv6(host: string): boolean {
+  const h = host.toLowerCase();
+  if (h === "::1" || h === "::") return true; // loopback / unspecified
+  // fc00::/7 unique-local (fc.. or fd..) and fe80::/10 link-local.
+  if (/^f[cd][0-9a-f]*:/.test(h)) return true; // fc00::/7
+  if (/^fe[89ab][0-9a-f]*:/.test(h)) return true; // fe80::/10
+  // Any bracketless colon-bearing token is an IPv6 literal; treat unknown
+  // literals as non-allowlistable (handled by host allowlist), but loopback
+  // shorthand is caught above.
+  return false;
+}
+
+/**
+ * THE hard SSRF gate. Returns ok:true only for an https URL whose host is on the
+ * government allowlist AND is not a private/reserved/loopback/link-local IP. Used
+ * before every user-URL navigation and fetch. Never throws.
+ */
+export function checkSsrfUrl(rawUrl: string | null | undefined): SsrfCheckResult {
+  if (!rawUrl) return { ok: false, host: "", reason: "empty" };
+
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return { ok: false, host: "", reason: "unparseable" };
+  }
+
+  // https only — reject http, file, data, ftp, gopher, anything else.
+  if (parsed.protocol !== "https:") {
+    return { ok: false, host: "", reason: "scheme" };
+  }
+
+  // Normalize host: lowercase, strip an IPv6 bracket pair if present.
+  const rawHost = parsed.hostname.toLowerCase();
+  const host = rawHost.replace(/^\[(.*)\]$/, "$1");
+
+  if (!host) return { ok: false, host: "", reason: "unparseable" };
+
+  // localhost (and any *.localhost) is never allowed.
+  if (host === "localhost" || host.endsWith(".localhost")) {
+    return { ok: false, host, reason: "private_host" };
+  }
+
+  // Literal IPs: range-check. IP literals can never be on the gov allowlist,
+  // but we reject private ranges explicitly with a precise reason first.
+  const v4 = parseIPv4(host);
+  if (v4) {
+    if (isPrivateIPv4(v4)) return { ok: false, host, reason: "private_host" };
+    // Public IPv4 literal: still not an official gov *domain*, so refuse.
+    return { ok: false, host, reason: "not_official" };
+  }
+  if (host.includes(":")) {
+    // IPv6 literal.
+    if (isPrivateIPv6(host)) return { ok: false, host, reason: "private_host" };
+    return { ok: false, host, reason: "not_official" };
+  }
+
+  // Host allowlist: must be an official government domain.
+  if (!isOfficialDomain(host)) {
+    return { ok: false, host, reason: "not_official" };
+  }
+
+  return { ok: true, host };
+}
+
 /** Build a nav-trail entry: domain + path only, query string stripped. */
 export function navTrailEntry(rawUrl: string, at: number): { url: string; domain: string; at: number } {
   return { url: stripUrl(rawUrl), domain: urlDomain(rawUrl), at };

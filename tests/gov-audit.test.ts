@@ -3,6 +3,7 @@ import assert from "node:assert";
 import {
   ANCHOR_CAP_SECONDS,
   certifiedMinutes,
+  checkSsrfUrl,
   classifyDevice,
   integrityScore,
   isOfficialDomain,
@@ -49,6 +50,51 @@ test("isOfficialDomain recognizes .gov/.mil/.us", () => {
   assert.equal(isOfficialDomain("army.mil"), true);
   assert.equal(isOfficialDomain("dmv.ca.us"), true);
   assert.equal(isOfficialDomain("example.com"), false);
+});
+
+// ---------- SSRF gate (H2) ----------
+
+test("checkSsrfUrl allows https gov/mil/us hosts", () => {
+  assert.equal(checkSsrfUrl("https://www.usa.gov/food-stamps").ok, true);
+  assert.equal(checkSsrfUrl("https://dmv.ca.gov/").ok, true);
+  assert.equal(checkSsrfUrl("https://army.mil").ok, true);
+  assert.equal(checkSsrfUrl("https://dmv.ca.us/apply").ok, true);
+});
+
+test("checkSsrfUrl rejects non-https schemes", () => {
+  assert.equal(checkSsrfUrl("http://www.usa.gov").reason, "scheme");
+  assert.equal(checkSsrfUrl("ftp://www.usa.gov").reason, "scheme");
+  assert.equal(checkSsrfUrl("file:///etc/passwd").reason, "scheme");
+  assert.equal(checkSsrfUrl("javascript:alert(1)").reason, "scheme");
+});
+
+test("checkSsrfUrl rejects non-official hosts even over https", () => {
+  assert.equal(checkSsrfUrl("https://evil.com").ok, false);
+  assert.equal(checkSsrfUrl("https://evil.com").reason, "not_official");
+  // A gov-looking subdomain on a non-gov registrable domain is not official.
+  assert.equal(checkSsrfUrl("https://www.usa.gov.evil.com").reason, "not_official");
+});
+
+test("checkSsrfUrl blocks localhost and private/loopback/link-local IPs", () => {
+  assert.equal(checkSsrfUrl("https://localhost/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://foo.localhost/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://127.0.0.1/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://10.0.0.5/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://172.16.0.1/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://192.168.1.1/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://169.254.169.254/latest/meta-data/").reason, "private_host"); // cloud metadata
+  assert.equal(checkSsrfUrl("https://[::1]/").reason, "private_host");
+  assert.equal(checkSsrfUrl("https://[fd00::1]/").reason, "private_host");
+});
+
+test("checkSsrfUrl rejects public IP literals (never on the gov allowlist)", () => {
+  assert.equal(checkSsrfUrl("https://8.8.8.8/").reason, "not_official");
+});
+
+test("checkSsrfUrl rejects empty and unparseable input without throwing", () => {
+  assert.equal(checkSsrfUrl("").reason, "empty");
+  assert.equal(checkSsrfUrl(null).reason, "empty");
+  assert.equal(checkSsrfUrl("not a url").reason, "unparseable");
 });
 
 // ---------- Device classification (PRD §11 desktop-only) ----------
