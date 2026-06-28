@@ -52,8 +52,8 @@ Do not cite 29 CFR §553.101 (public-agency volunteers only) for volunteer statu
 > manager.
 
 ### Provisioned Cloudflare resources (account `65fb048fa9b4fb99f6473038c393d6a0`)
-- D1 `colift-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
-- R2 `colift-files`
+- D1 `tended-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
+- R2 `tended-files`
 
 ---
 

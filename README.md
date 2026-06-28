@@ -61,19 +61,19 @@ pnpm dev                      # http://localhost:3000
 | `OPENROUTER_APP_NAME` | `wrangler.jsonc` vars | Sent as `X-Title` ("colift Demo") |
 | `NEXTJS_ENV` | `.dev.vars` | `development` locally |
 
-Bindings (in `wrangler.jsonc`): **`DB`** → D1 `colift-db`, **`FILES`** → R2 `colift-files`.
+Bindings (in `wrangler.jsonc`): **`DB`** → D1 `tended-db`, **`FILES`** → R2 `tended-files`.
 
 ## Cloudflare resources (already provisioned)
 
 - Account `65fb048fa9b4fb99f6473038c393d6a0`
-- D1 `colift-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
-- R2 `colift-files`
+- D1 `tended-db` — id `3a4387f9-9220-40b4-998c-a682565b825c`
+- R2 `tended-files`
 
 To recreate from scratch:
 
 ```bash
-wrangler d1 create colift-db          # paste the id into wrangler.jsonc
-wrangler r2 bucket create colift-files
+wrangler d1 create tended-db          # paste the id into wrangler.jsonc
+wrangler r2 bucket create tended-files
 ```
 
 ## Deploy (Cloudflare Workers / .pages.dev)
@@ -120,7 +120,7 @@ pnpm run backup:verify   # sanity-check the latest dump (exits non-zero on failu
 
 - Run `pnpm run backup` **daily** and **before every deploy/migration**. Dumps land
   in `backups/` (gitignored — they contain PII; never commit them). Keep ≥30 days.
-- `scripts/backup-d1.sh` wraps `wrangler d1 export colift-db --remote`;
+- `scripts/backup-d1.sh` wraps `wrangler d1 export tended-db --remote`;
   `scripts/verify-backup.sh` checks the newest dump exists, is non-empty, and
   contains the core table DDL.
 - Restore, R2 notes, and `PII_ENCRYPTION_KEY` rotation (losing it = unrecoverable
