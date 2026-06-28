@@ -14,21 +14,46 @@ export function getFiles(): R2Bucket {
 }
 
 /**
+ * True ONLY in an explicit unit-test run. Detected from signals the test
+ * runner sets itself, never inferred from a missing Cloudflare context:
+ *
+ *   - `process.env.NODE_TEST_CONTEXT` — set automatically by Node's built-in
+ *     test runner (`node:test` / `node --test`, which is how `pnpm test` runs
+ *     via `tsx --test`). This is the reliable primary signal: present during
+ *     every test execution, absent in dev/build/production.
+ *   - `process.env.NODE_ENV === "test"` and `process.env.TENDED_TEST === "1"`
+ *     — explicit opt-ins for any other test harness.
+ *
+ * This gate exists so the crypto helpers may pass plaintext through *only* in
+ * tests (which run with no PII_ENCRYPTION_KEY by design). It must never be true
+ * in a real runtime, so it deliberately does not consult the Cloudflare env.
+ */
+export function isTestRun(): boolean {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  if (!env) return false;
+  return (
+    typeof env.NODE_TEST_CONTEXT === "string" ||
+    env.NODE_ENV === "test" ||
+    env.TENDED_TEST === "1"
+  );
+}
+
+/**
  * True only when `DEMO_MODE=true`. Enables sample-data seeding, the /admin/reset
  * tool, and onboarding skips. Unset (off) in production so none of that
  * scaffolding is reachable and PII encryption is required.
+ *
+ * IMPORTANT (fail-closed): when the Cloudflare context is unavailable, getEnv()
+ * throws. We must NOT infer demo mode from that — doing so would silently
+ * downgrade PII encryption to plaintext in any runtime where the context isn't
+ * yet initialized. Demo mode is an EXPLICIT flag only; without a readable env we
+ * return false (the secure default) and let the test gate (isTestRun) handle the
+ * narrow no-key test path.
  */
 export function isDemoMode(): boolean {
   try {
     return (getEnv() as unknown as { DEMO_MODE?: string }).DEMO_MODE === "true";
   } catch {
-    // getEnv() only throws when there's no Cloudflare context — i.e. we're NOT
-    // in the Workers runtime (unit tests, build scripts, plain node). Production
-    // always has the context above and reads the real DEMO_MODE flag, so
-    // fail-closed PII encryption is preserved there. Outside the runtime there's
-    // no real env or PII to protect, so treat it as demo (crypto helpers pass
-    // through) rather than fail-closed — otherwise the crypto unit tests, which
-    // run with no key by design, throw and turn CI red.
-    return true;
+    return false;
   }
 }
