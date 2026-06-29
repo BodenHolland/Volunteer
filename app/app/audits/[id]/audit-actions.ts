@@ -156,8 +156,8 @@ export async function nearbyStoresAction(lat: number, lng: number): Promise<Near
  */
 export async function selectNearbyStoreAction(formData: FormData) {
   const auditId = String(formData.get("audit_id") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim().slice(0, MAX_STORE_TEXT);
+  const address = String(formData.get("address") ?? "").trim().slice(0, MAX_STORE_TEXT);
   const lat = Number(formData.get("lat") ?? NaN);
   const lng = Number(formData.get("lng") ?? NaN);
   const placeId = String(formData.get("place_id") ?? "").trim() || null;
@@ -202,8 +202,8 @@ export async function selectNearbyStoreAction(formData: FormData) {
 
 export async function createStoreAction(formData: FormData): Promise<void> {
   const auditId = String(formData.get("audit_id") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim().slice(0, MAX_STORE_TEXT);
+  const address = String(formData.get("address") ?? "").trim().slice(0, MAX_STORE_TEXT);
   const lat = Number(formData.get("lat") ?? NaN);
   const lng = Number(formData.get("lng") ?? NaN);
   if (!name || !address) return;
@@ -291,6 +291,27 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
     .join("");
 }
 
+// Bound the captured item photo (DoS / cost / storage): the file is read fully
+// into Worker memory before the R2 put, so cap its size and restrict to image
+// MIME types — mirrors the submit-actions photo path and the external-cert path.
+const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+const ALLOWED_PHOTO_MIMES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
+
+// Upper bounds on the public food-price numerics + store text. price_usd and
+// size_value flow into the free public CSV/JSON export, so an unbounded value is
+// a data-poisoning vector. These are deliberately generous (a single grocery
+// item never costs $10k or weighs 100k units).
+const MAX_PRICE_USD = 10_000;
+const MAX_SIZE_VALUE = 100_000;
+// Cap public store text (name/address also flow into the public export).
+const MAX_STORE_TEXT = 200;
+
 export async function captureItemAction(formData: FormData): Promise<{ ok: boolean; error?: string }> {
   const auditId = String(formData.get("audit_id") ?? "");
   const itemId = String(formData.get("basket_item_id") ?? "");
@@ -332,6 +353,12 @@ async function captureItemInner(
     const photo = formData.get("photo");
     if (!(photo instanceof File) || photo.size === 0) {
       return { ok: false, error: "Photo of the item and shelf tag is required." };
+    }
+    if (photo.size > MAX_PHOTO_BYTES) {
+      return { ok: false, error: "Photo must be smaller than 15 MB." };
+    }
+    if (photo.type && !ALLOWED_PHOTO_MIMES.has(photo.type)) {
+      return { ok: false, error: "Photo must be a JPEG, PNG, WebP, or HEIC image." };
     }
     const buf = await photo.arrayBuffer();
     const sha = await sha256Hex(buf);
@@ -436,8 +463,14 @@ function validateAndStore(cap: CaptureInput, itemId: string): string | null {
   if (cap.price_usd == null || !Number.isFinite(cap.price_usd) || cap.price_usd < 0) {
     return "Enter a price.";
   }
+  if (cap.price_usd > MAX_PRICE_USD) {
+    return "That price looks too high — double-check it.";
+  }
   if (cap.size_value == null || !Number.isFinite(cap.size_value) || cap.size_value <= 0) {
     return "Enter a size.";
+  }
+  if (cap.size_value > MAX_SIZE_VALUE) {
+    return "That size looks too large — double-check it.";
   }
   if (!cap.size_unit || !item.unit_options.includes(cap.size_unit)) {
     return "Pick a unit from the options.";
