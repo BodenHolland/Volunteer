@@ -8,6 +8,7 @@
  * never touches `audits` or any private-cluster table. See migration 0016.
  */
 
+import { unstable_cache } from "next/cache";
 import { getDb } from "./cf";
 import { chunkArray } from "./queries";
 import { USDA_THRIFTY_6 } from "./food-audit";
@@ -208,6 +209,35 @@ export async function loadVerifiedAudits(): Promise<StateReport> {
   }
   return aggregate(audits, caps);
 }
+
+/**
+ * Cached public food-access report. `loadVerifiedAudits()` pulls the ENTIRE
+ * verified public dataset into the Worker and re-runs `aggregate()` over it —
+ * far too heavy to repeat on every `force-dynamic` page view as the audit
+ * volume grows (Workers have a tight memory + CPU budget).
+ *
+ * We memoize the computed `StateReport` with Next's `unstable_cache` and a
+ * 10-minute revalidation window, so the load+aggregate runs at most once per
+ * ~10 minutes per isolate instead of once per request. The cached function is a
+ * pure thunk over `loadVerifiedAudits` — the aggregate LOGIC is unchanged; only
+ * its result is reused.
+ *
+ * Why this is correct on Cloudflare/OpenNext: under `@opennextjs/cloudflare`,
+ * `getCloudflareContext()` (which `getDb()` uses) reads the bindings from a
+ * global symbol set by the worker entrypoint, not from request-scoped
+ * AsyncLocalStorage — so the D1 query path runs fine inside an `unstable_cache`
+ * callback, which executes outside the request scope. The dataset itself
+ * carries no PII (public cluster only), so caching the aggregate is safe.
+ *
+ * The `audit-aggregate` tag lets a future write path (verify/erase) call
+ * `revalidateTag("audit-aggregate")` to refresh immediately; absent that, the
+ * `revalidate: 600` window bounds staleness.
+ */
+export const getCachedVerifiedReport = unstable_cache(
+  async () => loadVerifiedAudits(),
+  ["audit-aggregate-report"],
+  { revalidate: 600, tags: ["audit-aggregate"] }
+);
 
 // CSV formula-injection guard (M2). A spreadsheet treats a cell whose text
 // begins with one of these as a formula, so attacker-controlled free text like
