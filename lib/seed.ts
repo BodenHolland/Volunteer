@@ -951,21 +951,16 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
 
   // External provider columns aren't in the base INSERT — set them after.
   //
-  // C2 (legal): monthly_minutes_cap must NOT be NULL. A NULL cap means "credit
-  // whatever the cert claims," which lets a single self-uploaded certificate
-  // credit an unbounded number of benefit hours — exactly the self-reported
-  // inflation the hard legal line forbids. Seed a CONSERVATIVE cap so both the
-  // reviewer path and the (env-gated) auto-approve path clamp credited minutes.
-  //
-  // 1200 minutes = 20 hours/month: a deliberately conservative ceiling for a
-  // single citizen-science task against the ~80h/month ABAWD requirement.
-  // TODO(legal-confirm): confirm the per-task monthly ceiling with counsel before
-  // re-activating task_zooniverse in production.
-  const ZOONIVERSE_MONTHLY_MINUTES_CAP = 1200;
+  // DECISION (owner): NO hard monthly cap on external-certificate tasks. The
+  // gate is MANUAL REVIEW (EXTERNAL_CERT_AUTO_APPROVE off by default) plus
+  // delta-vs-cumulative crediting + re-export/dup detection, so a cert cannot
+  // credit unbounded or repeated hours. monthly_minutes_cap stays NULL (the
+  // submit path treats NULL as "no cap"). If auto-approve is ever turned on,
+  // add a review THRESHOLD rather than a hard cap.
   stmts.push(
     db.prepare(
       "UPDATE task_templates SET external_provider = ?, evidence_mode = ?, monthly_minutes_cap = ? WHERE id = ?"
-    ).bind("zooniverse", "external_certificate", ZOONIVERSE_MONTHLY_MINUTES_CAP, TASK_ZOONIVERSE)
+    ).bind("zooniverse", "external_certificate", null, TASK_ZOONIVERSE)
   );
 
   // ---- submissions ----

@@ -101,14 +101,11 @@ ALTER TABLE certificate_reviews ADD COLUMN reported_cumulative_minutes INTEGER;
 
 -- ============================================================================
 -- Backfill a monthly minutes cap for external_certificate task templates that
--- never had one set. A cap is required so external-cert work can't credit
--- unbounded hours toward the federal work requirement.
---
--- 1200 minutes/month = 20 hours/month. This is a CONSERVATIVE placeholder so no
--- row is left uncapped; LEGAL should confirm the correct per-jurisdiction cap
--- before this becomes the operative number. Only touches rows that are NULL.
+-- DECISION (owner): NO hard monthly cap on external-certificate tasks. The gate
+-- is MANUAL REVIEW (EXTERNAL_CERT_AUTO_APPROVE off by default) + delta-vs-
+-- cumulative crediting + re-export/dup detection, so a cert cannot credit
+-- unbounded or repeated hours. monthly_minutes_cap stays NULL (the submit path
+-- treats NULL as "no cap"). If auto-approve is ever enabled, add a review
+-- THRESHOLD here rather than reinstating a hard cap.
 -- ============================================================================
-UPDATE task_templates
-   SET monthly_minutes_cap = 1200
- WHERE evidence_mode = 'external_certificate'
-   AND monthly_minutes_cap IS NULL;
+-- (no cap backfill — left NULL by decision)
