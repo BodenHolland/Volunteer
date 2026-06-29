@@ -11,10 +11,11 @@ import { getDict } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My work | colift" };
 
-export default async function MyWorkPage() {
+export default async function MyWorkPage({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
+  const sp = await searchParams;
   const user = await requireRecipient();
   const { t } = await getDict();
-  const subs = await listSubmissionsForUser(user.id);
+  const { items: subs, nextCursor } = await listSubmissionsForUser(user.id, { cursor: sp.cursor });
 
   return (
     <div className="space-y-6">
@@ -47,6 +48,17 @@ export default async function MyWorkPage() {
             </li>
           ))}
         </ul>
+      )}
+
+      {nextCursor && (
+        <div className="flex justify-center">
+          <Link
+            href={`/app/projects?cursor=${encodeURIComponent(nextCursor)}`}
+            className="inline-flex h-10 items-center rounded-full border border-line bg-white px-5 text-sm font-medium text-ink hover:bg-section"
+          >
+            {t.app.myWork.loadMore}
+          </Link>
+        </div>
       )}
     </div>
   );

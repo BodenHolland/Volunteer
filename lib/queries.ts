@@ -242,25 +242,124 @@ export async function getSubmission(id: string): Promise<SubmissionWithTask | nu
   return (await hydrate([s]))[0] ?? null;
 }
 
-export async function listSubmissionsForUser(userId: string): Promise<SubmissionWithTask[]> {
-  const subs = (await getDb()
-    .prepare("SELECT * FROM submissions WHERE user_id = ? ORDER BY committed_at DESC")
-    .bind(userId)
-    .all<Submission>()).results ?? [];
-  return hydrate(subs);
+/**
+ * Default page size for the paginated list queries (M-perf). Bounds the org
+ * review queue and recipient "My work" reads so they can't hydrate the entire
+ * submissions table once row counts reach the low thousands.
+ */
+export const SUBMISSIONS_PAGE_SIZE = 25;
+
+/**
+ * One page of hydrated submissions plus an opaque keyset cursor for fetching
+ * the next page. `nextCursor` is null when the page reached the end.
+ */
+export interface SubmissionsPage {
+  items: SubmissionWithTask[];
+  nextCursor: string | null;
 }
 
-export async function listSubmissionsForOrg(orgId: string, status?: string): Promise<SubmissionWithTask[]> {
+/**
+ * Keyset cursors are an opaque, URL-safe (base64url) encoding of the sort tuple
+ * of the last row on the current page — its timestamp keys plus the row id as a
+ * stable unique tiebreaker. Encoding it opaquely avoids leaking row internals
+ * into the URL. A null timestamp (an unsubmitted row's `submitted_at`) is
+ * encoded as an empty field; submission ids are opaque strings, never numbers.
+ */
+type CursorParts = { ts: (number | null)[]; id: string };
+
+function encodeCursor(ts: (number | null)[], id: string): string {
+  const payload = [...ts.map((p) => (p == null ? "" : String(p))), id].join("|");
+  return Buffer.from(payload, "utf8").toString("base64url");
+}
+
+function decodeCursor(cursor: string): CursorParts | null {
+  try {
+    const parts = Buffer.from(cursor, "base64url").toString("utf8").split("|");
+    if (parts.length < 2) return null;
+    const id = parts[parts.length - 1];
+    const ts = parts.slice(0, -1).map((s) => (s === "" ? null : Number(s)));
+    if (ts.some((n) => n != null && Number.isNaN(n))) return null;
+    return { ts, id };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Recipient "My work" — one keyset page ordered by `committed_at DESC, id DESC`
+ * (id is a stable unique tiebreaker so the cursor never skips/repeats rows when
+ * two submissions share a timestamp). Pass the previous page's `nextCursor` to
+ * page forward.
+ */
+export async function listSubmissionsForUser(
+  userId: string,
+  opts: { cursor?: string | null; limit?: number } = {}
+): Promise<SubmissionsPage> {
+  const limit = opts.limit ?? SUBMISSIONS_PAGE_SIZE;
+  let sql = "SELECT * FROM submissions WHERE user_id = ?";
+  const binds: (string | number)[] = [userId];
+  if (opts.cursor) {
+    const c = decodeCursor(opts.cursor);
+    if (c && c.ts[0] != null) {
+      // (committed_at, id) strictly after the cursor under DESC ordering.
+      sql += " AND (committed_at < ? OR (committed_at = ? AND id < ?))";
+      binds.push(c.ts[0], c.ts[0], c.id);
+    }
+  }
+  sql += " ORDER BY committed_at DESC, id DESC LIMIT ?";
+  binds.push(limit + 1);
+  const rows = (await getDb().prepare(sql).bind(...binds).all<Submission>()).results ?? [];
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const last = page[page.length - 1];
+  const nextCursor = hasMore && last ? encodeCursor([last.committed_at], last.id) : null;
+  return { items: await hydrate(page), nextCursor };
+}
+
+/**
+ * Org review queue — one keyset page ordered by
+ * `submitted_at DESC, committed_at DESC, id DESC` (matching the prior sort, with
+ * id as a stable unique tiebreaker). `submitted_at` may be null; SQLite sorts
+ * NULLs last under DESC, which we preserve in the keyset comparison via a
+ * sentinel encoding so committed-but-unsubmitted rows page consistently.
+ */
+export async function listSubmissionsForOrg(
+  orgId: string,
+  status?: string,
+  opts: { cursor?: string | null; limit?: number } = {}
+): Promise<SubmissionsPage> {
+  const limit = opts.limit ?? SUBMISSIONS_PAGE_SIZE;
   let sql =
     "SELECT s.* FROM submissions s JOIN task_templates t ON t.id = s.task_template_id WHERE t.org_id = ?";
-  const binds: string[] = [orgId];
+  const binds: (string | number | null)[] = [orgId];
   if (status && status !== "all") {
     sql += " AND s.status = ?";
     binds.push(status);
   }
-  sql += " ORDER BY s.submitted_at DESC, s.committed_at DESC";
-  const subs = (await getDb().prepare(sql).bind(...binds).all<Submission>()).results ?? [];
-  return hydrate(subs);
+  if (opts.cursor) {
+    const c = decodeCursor(opts.cursor);
+    if (c && c.ts[1] != null) {
+      // submitted_at NULLs sort last under DESC. Use COALESCE(...,-1) on both
+      // sides so a row "after" a NULL-cursor (also NULL) falls through to the
+      // committed_at/id tiebreakers, and non-NULL rows are never after a NULL.
+      const sub = c.ts[0];
+      const com = c.ts[1];
+      sql +=
+        " AND (COALESCE(s.submitted_at,-1) < COALESCE(?,-1)" +
+        " OR (COALESCE(s.submitted_at,-1) = COALESCE(?,-1) AND s.committed_at < ?)" +
+        " OR (COALESCE(s.submitted_at,-1) = COALESCE(?,-1) AND s.committed_at = ? AND s.id < ?))";
+      binds.push(sub, sub, com, sub, com, c.id);
+    }
+  }
+  sql += " ORDER BY s.submitted_at DESC, s.committed_at DESC, s.id DESC LIMIT ?";
+  binds.push(limit + 1);
+  const rows = (await getDb().prepare(sql).bind(...binds).all<Submission>()).results ?? [];
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const last = page[page.length - 1];
+  const nextCursor =
+    hasMore && last ? encodeCursor([last.submitted_at, last.committed_at], last.id) : null;
+  return { items: await hydrate(page), nextCursor };
 }
 
 export async function getSubmissionFiles(submissionId: string): Promise<SubmissionFile[]> {
@@ -311,44 +410,87 @@ export interface OrgDashboardData {
 export async function getOrgDashboard(orgId: string, now: number = Date.now()): Promise<OrgDashboardData> {
   const month = currentMonth(now);
   const db = getDb();
-  const subs = await listSubmissionsForOrg(orgId);
-  const pendingCount = subs.filter((s) => s.status === "pending_review" || s.status === "ai_reviewing").length;
-  const activeRow = await db
-    .prepare("SELECT COUNT(*) AS n FROM task_templates WHERE org_id = ? AND status = 'active'")
-    .bind(orgId)
-    .first<{ n: number }>();
-  const ledgerRow = await db
-    .prepare("SELECT COALESCE(SUM(total_hours),0) AS h FROM hours_ledger WHERE certified_org_id = ? AND month = ?")
-    .bind(orgId, month)
-    .first<{ h: number }>();
-  const served = new Set(subs.filter((s) => s.status === "approved").map((s) => s.user_id));
+  // Set-based counts: compute each stat with a SQL aggregate over this org's
+  // submissions instead of loading every row and filtering in JS (M-perf). The
+  // numbers are identical to the prior JS reductions.
+  const [pendingRow, servedRow, activeRow, ledgerRow, recentPage] = await Promise.all([
+    // pendingCount: previously subs.filter(status in {pending_review, ai_reviewing}).
+    db
+      .prepare(
+        "SELECT COUNT(*) AS n FROM submissions s JOIN task_templates t ON t.id = s.task_template_id" +
+          " WHERE t.org_id = ? AND s.status IN ('pending_review','ai_reviewing')"
+      )
+      .bind(orgId)
+      .first<{ n: number }>(),
+    // recipientsServed: previously new Set(approved subs' user_id).size.
+    db
+      .prepare(
+        "SELECT COUNT(DISTINCT s.user_id) AS n FROM submissions s JOIN task_templates t ON t.id = s.task_template_id" +
+          " WHERE t.org_id = ? AND s.status = 'approved'"
+      )
+      .bind(orgId)
+      .first<{ n: number }>(),
+    db
+      .prepare("SELECT COUNT(*) AS n FROM task_templates WHERE org_id = ? AND status = 'active'")
+      .bind(orgId)
+      .first<{ n: number }>(),
+    db
+      .prepare("SELECT COALESCE(SUM(total_hours),0) AS h FROM hours_ledger WHERE certified_org_id = ? AND month = ?")
+      .bind(orgId, month)
+      .first<{ h: number }>(),
+    // recent: same ordering as the (now paginated) list query, capped at 6.
+    listSubmissionsForOrg(orgId, undefined, { limit: 6 }),
+  ]);
   return {
-    pendingCount,
+    pendingCount: pendingRow?.n ?? 0,
     activeTasks: activeRow?.n ?? 0,
     hoursSponsored: ledgerRow?.h ?? 0,
-    recipientsServed: served.size,
-    recent: subs.slice(0, 6),
+    recipientsServed: servedRow?.n ?? 0,
+    recent: recentPage.items,
     month,
   };
 }
 
-const PENDING_STATUSES = new Set(["submitted", "ai_reviewing", "pending_review"]);
 const ACTIVE_STATUSES = new Set(["committed", "in_progress", "submitted", "ai_reviewing", "pending_review", "needs_changes"]);
+
+/**
+ * Upper bound on the recipient dashboard's active/completed list fetch (M-perf).
+ * These lists are a single user's own in-flight + finished work — naturally
+ * bounded in practice — but the dashboard previously loaded the user's entire
+ * history with no LIMIT to classify it in JS. A generous cap bounds the worst
+ * case without truncating any realistic user's lists; the full history remains
+ * available, paginated, on the "My work" page.
+ */
+const RECIPIENT_DASHBOARD_LIST_LIMIT = 100;
 
 export async function getRecipientDashboard(userId: string, now: number = Date.now()): Promise<DashboardData> {
   const month = currentMonth(now);
-  const [ledger, subs] = await Promise.all([
-    getLedgerForUser(userId, month),
-    listSubmissionsForUser(userId),
-  ]);
-  const certified = ledger.reduce((a, r) => a + r.total_hours, 0);
-  let pending = 0;
-  for (const s of subs) {
-    if (PENDING_STATUSES.has(s.status)) {
-      const measured = ((s as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0) / 3600;
-      pending += Math.min(s.hours_credited ?? measured, s.task.max_hours);
-    }
-  }
+  const db = getDb();
+  // certified + pending are scalar reductions — compute them with SQL aggregates
+  // rather than summing hydrated rows in JS (M-perf). The pending sum mirrors the
+  // prior JS exactly: for each in-review submission, min(credited ?? measured
+  // hours, task.max_hours), where measured = measured_active_seconds / 3600.
+  const [certifiedRow, pendingRow, subs] = await Promise.all([
+    db
+      .prepare("SELECT COALESCE(SUM(total_hours),0) AS h FROM hours_ledger WHERE user_id = ? AND month = ?")
+      .bind(userId, month)
+      .first<{ h: number }>(),
+    db
+      .prepare(
+        "SELECT COALESCE(SUM(MIN(" +
+          "COALESCE(s.hours_credited, s.measured_active_seconds / 3600.0), t.max_hours" +
+          ")),0) AS h FROM submissions s JOIN task_templates t ON t.id = s.task_template_id" +
+          " WHERE s.user_id = ? AND s.status IN ('submitted','ai_reviewing','pending_review')"
+      )
+      .bind(userId)
+      .first<{ h: number }>(),
+    // active + completed are rendered lists that depend on hydrated audit /
+    // gov-audit statuses, so they still need real rows; the list query is now
+    // bounded by a LIMIT page instead of loading the whole history.
+    listSubmissionsForUser(userId, { limit: RECIPIENT_DASHBOARD_LIST_LIMIT }),
+  ]).then(([c, p, page]) => [c, p, page.items] as const);
+  const certified = certifiedRow?.h ?? 0;
+  const pending = pendingRow?.h ?? 0;
   // Once work is submitted it leaves "active" and shows under "completed" — even
   // while in review or after approval/rejection. `needs_changes` bounces it back
   // to the recipient, so it counts as active again despite having a submit time.
