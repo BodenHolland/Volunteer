@@ -11,7 +11,7 @@ import { getDict } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Review queue | colift" };
 
-export default async function OrgQueuePage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function OrgQueuePage({ searchParams }: { searchParams: Promise<{ status?: string; cursor?: string }> }) {
   const sp = await searchParams;
   const status = sp.status ?? "pending_review";
   const user = await requireOrgMember();
@@ -28,7 +28,7 @@ export default async function OrgQueuePage({ searchParams }: { searchParams: Pro
 
   if (!org) return <EmptyState icon={<Inbox />} title={t.reviewQueue.noOrgLinked} />;
 
-  const subs = await listSubmissionsForOrg(org.id, status);
+  const { items: subs, nextCursor } = await listSubmissionsForOrg(org.id, status, { cursor: sp.cursor });
   const names = await getDisplayNames(subs.map((s) => s.user_id));
 
   return (
@@ -78,6 +78,17 @@ export default async function OrgQueuePage({ searchParams }: { searchParams: Pro
             );
           })}
         </ul>
+      )}
+
+      {nextCursor && (
+        <div className="flex justify-center">
+          <Link
+            href={`/org/submissions?status=${status}&cursor=${encodeURIComponent(nextCursor)}`}
+            className="inline-flex h-10 items-center rounded-full border border-line bg-white px-5 text-sm font-medium text-ink hover:bg-section"
+          >
+            {t.reviewQueue.loadMore}
+          </Link>
+        </div>
       )}
     </div>
   );

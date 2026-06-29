@@ -94,6 +94,7 @@ export const en = {
       empty: "No tasks committed yet. Browse the catalog to find one to start.",
       browse: "Browse tasks",
       updated: "Updated",
+      loadMore: "Load more",
     },
     tasks: {
       title: "Available tasks",
@@ -882,6 +883,7 @@ export const en = {
     volunteerFallback: "A volunteer",
     submitted: "submitted",
     needsALook: "needs a look",
+    loadMore: "Load more",
   },
 
   orgTasks: {
