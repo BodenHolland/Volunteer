@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { sendEmail } from "@/lib/notify";
+import { rateLimit } from "@/lib/ratelimit";
 
 // Inbox that contact + access-request messages are delivered to.
 const NOTIFY_EMAIL = "hello@bodenholland.com";
@@ -16,6 +18,23 @@ const ContactSchema = z.object({
 });
 
 export async function submitContact(formData: FormData) {
+  // This action is unauthenticated, so throttle by client IP to stop a
+  // feedback-table flood (mirrors the data-export routes' IP derivation +
+  // rateLimit). Cloudflare's cf-connecting-ip is authoritative; fall back to
+  // x-forwarded-for, then a constant.
+  let ip = "anon";
+  try {
+    const h = await headers();
+    ip =
+      h.get("cf-connecting-ip") ||
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "anon";
+  } catch {
+    /* no request headers available — fall through to the shared "anon" bucket */
+  }
+  const rl = await rateLimit(`contact:${ip}`, 5, 60_000).catch(() => ({ ok: true }));
+  if (!rl.ok) redirect("/contact?error=1");
+
   const parsed = ContactSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

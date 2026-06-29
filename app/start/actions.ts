@@ -7,7 +7,22 @@ import { getDb } from "@/lib/cf";
 import { encryptField, encryptJson } from "@/lib/crypto";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
+import { rateLimit } from "@/lib/ratelimit";
 import { nominatimGeocode, nominatimSearch } from "@/lib/places";
+import type { Intent } from "@/lib/types";
+
+// Mirror app/app/settings/actions.ts: validate intent against the allowed enum
+// and bound free-text input so onboarding writes can't store oversized values.
+const VALID_INTENTS: Intent[] = ["snap_cert", "casual_volunteer", "other"];
+const MAX_TEXT = 200;
+// Forgiving plausible-email check (the new-org contact is optional contact info,
+// not an auth credential).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Trim then cap a free-text field to a sane max length. */
+function capText(v: FormDataEntryValue | null, max = MAX_TEXT): string {
+  return String(v ?? "").trim().slice(0, max);
+}
 
 export interface AddressSuggestion {
   place_id: string;
@@ -26,9 +41,18 @@ export interface AddressSuggestion {
 export async function addressAutocompleteAction(query: string): Promise<AddressSuggestion[]> {
   const user = await getCurrentUser();
   if (!user) return [];
+  // Throttle per-user to protect the free external Nominatim endpoint from being
+  // hammered by autocomplete keystrokes (mirrors the status-route rate limit).
+  const rl = await rateLimit(`address-autocomplete:${user.id}`, 30, 60_000).catch(() => ({
+    ok: true,
+  }));
+  if (!rl.ok) return [];
+  // Cap the query length before it ever leaves the Worker.
+  const q = query.trim().slice(0, MAX_TEXT);
+  if (q.length < 2) return [];
   let hits;
   try {
-    hits = await nominatimSearch(query, undefined, 5);
+    hits = await nominatimSearch(q, undefined, 5);
   } catch (err) {
     await writeAudit({
       actorUserId: user.id,
@@ -63,9 +87,12 @@ export async function addressAutocompleteAction(query: string): Promise<AddressS
 export async function submitLocation(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
-  const city = String(formData.get("city") ?? "").trim();
-  const state = String(formData.get("state") ?? "").trim().toUpperCase();
-  const intent = String(formData.get("intent") ?? "casual_volunteer");
+  const city = capText(formData.get("city"));
+  const state = String(formData.get("state") ?? "").trim().toUpperCase().slice(0, 2);
+  const rawIntent = String(formData.get("intent") ?? "casual_volunteer");
+  const intent: Intent = (VALID_INTENTS as string[]).includes(rawIntent)
+    ? (rawIntent as Intent)
+    : "casual_volunteer";
   await getDb()
     .prepare("UPDATE users SET city = ?, state = ?, intent = ? WHERE id = ?")
     .bind(city, state, intent, user.id)
@@ -78,20 +105,21 @@ export async function submitPii(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
   try {
-    const firstName = String(formData.get("first_name") ?? "").trim();
-    const lastName = String(formData.get("last_name") ?? "").trim();
+    // Cap each free-text field so PII writes can't store oversized values.
+    const firstName = capText(formData.get("first_name"));
+    const lastName = capText(formData.get("last_name"));
     const legalName = [firstName, lastName].filter(Boolean).join(" ");
-    const caseNumber = String(formData.get("case_number") ?? "").trim();
-    const dob = String(formData.get("dob") ?? "").trim();
+    const caseNumber = capText(formData.get("case_number"));
+    const dob = capText(formData.get("dob"));
     // Store phone as digits only, the formatted "(916) 555-0142" the user typed
     // is a display detail, not the source of truth.
     const phone = String(formData.get("phone") ?? "").replace(/\D/g, "").slice(0, 10);
     const address: Record<string, string | number | undefined> = {
-      line1: String(formData.get("line1") ?? "").trim(),
-      line2: String(formData.get("line2") ?? "").trim(),
-      city: String(formData.get("city") ?? "").trim(),
-      state: String(formData.get("state") ?? "").trim().toUpperCase(),
-      zip: String(formData.get("zip") ?? "").trim(),
+      line1: capText(formData.get("line1")),
+      line2: capText(formData.get("line2")),
+      city: capText(formData.get("city")),
+      state: String(formData.get("state") ?? "").trim().toUpperCase().slice(0, 2),
+      zip: capText(formData.get("zip")),
     };
 
     const db = getDb();
@@ -146,10 +174,13 @@ export async function submitOrgPick(formData: FormData) {
   const choice = String(formData.get("org_choice") ?? "");
 
   if (choice === "__new__") {
-    const name = String(formData.get("new_org_name") ?? "").trim();
-    const ein = String(formData.get("new_org_ein") ?? "").trim();
-    const contact = String(formData.get("new_org_contact") ?? "").trim();
+    const name = capText(formData.get("new_org_name"));
+    const ein = capText(formData.get("new_org_ein"));
+    const contact = capText(formData.get("new_org_contact"));
     if (!name) redirect("/start?step=orgpick&error=org");
+    // Reject an implausible contact email rather than persisting garbage; an
+    // empty contact stays allowed (stored as NULL below).
+    if (contact && !EMAIL_RE.test(contact)) redirect("/start?step=orgpick&error=org");
     const orgId = newId("org");
     const slug =
       name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || orgId;
