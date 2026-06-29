@@ -1,4 +1,4 @@
-import { loadVerifiedAudits } from "@/lib/audit-aggregate";
+import { getCachedVerifiedReport } from "@/lib/audit-aggregate";
 import { USDA_THRIFTY_6, STORE_TYPES } from "@/lib/food-audit";
 import { relativeTime } from "@/lib/time";
 import { getDict } from "@/lib/i18n";
@@ -27,7 +27,7 @@ function fmtPct(n: number): string {
 
 export default async function FoodAccessDashboardPage() {
   await requireUser();
-  const report = await loadVerifiedAudits();
+  const report = await getCachedVerifiedReport();
   const { locale, t } = await getDict();
 
   return (

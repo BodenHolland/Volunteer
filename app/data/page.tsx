@@ -3,7 +3,6 @@ import { ArrowRight, LockKeyhole } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getDb } from "@/lib/cf";
-import { loadVerifiedAudits } from "@/lib/audit-aggregate";
 import { getDict } from "@/lib/i18n";
 import { requireUser } from "@/lib/session";
 
@@ -21,10 +20,17 @@ export default async function DataIndexPage() {
   await requireUser();
   const { locale, t } = await getDict();
 
-  const report = await loadVerifiedAudits();
-  const foodRows = report.verified_audits;
-
   const db = getDb();
+  // The index card only shows the verified-audit COUNT, so query just that.
+  // Loading the full public dataset to re-aggregate it (loadVerifiedAudits)
+  // here would blow the Worker's memory/CPU budget at scale for one number.
+  const foodCountRow = await db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM audit_public_summaries WHERE verified_at IS NOT NULL`
+    )
+    .first<{ n: number }>();
+  const foodRows = foodCountRow?.n ?? 0;
+
   const govCountRow = await db
     .prepare(`SELECT COUNT(*) AS n FROM gov_audit_page_evaluations`)
     .first<{ n: number }>();
