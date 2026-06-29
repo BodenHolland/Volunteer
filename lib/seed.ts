@@ -780,6 +780,33 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       benefitscal_screenshot_r2_key, benefitscal_verified_at, org_id, created_at)
      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
   );
+  // Anonymous DELETED_USER sentinel (mirrors migration 0022). Account erasure
+  // reassigns a deleted person's private rows to this PII-free row instead of a
+  // destructive nullable-user_id rebuild. Re-seeded here so /admin/reset (which
+  // wipes every table) restores it. firebase_uid is omitted → NULL, so it can
+  // never be logged into.
+  stmts.push(
+    userIns.bind(
+      "user_deleted",
+      "deleted-account@colift.invalid",
+      "recipient",
+      null, // org_role
+      null, // full_name
+      null, // city
+      null, // state
+      "n/a", // intent
+      null, // legal_name
+      null, // case_number
+      null, // address_json
+      null, // dob
+      null, // phone
+      null, // phone_verified_at
+      null, // benefitscal_screenshot_r2_key
+      null, // benefitscal_verified_at
+      null, // org_id
+      0 // created_at
+    )
+  );
   stmts.push(
     userIns.bind(
       USER_MARISOL,

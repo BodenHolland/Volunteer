@@ -68,26 +68,24 @@ export async function deleteAccount(formData: FormData) {
   const now = Date.now();
   const db = getDb();
 
-  // Erasure runs as one atomic batch: soft-delete + PII scrub on the user, plus
-  // severing the private↔public re-identification link as far as the CURRENT
-  // schema allows (no-migration subset). The work product (public-cluster rows
-  // keyed only by public_session_ref) is intentionally ORPHANED, never deleted —
-  // it is a public good and must survive erasure; we only cut the link back to a
-  // person.
+  // Erasure runs as one atomic batch. The work product (public-cluster rows keyed
+  // only by public_session_ref) is intentionally ORPHANED, never deleted — it is a
+  // public good and must survive erasure; we only cut the link back to a person.
   //
-  // Cross-boundary key (public_session_ref) lives in several private-side spots:
-  //   - submissions.user_notes  — a JSON blob that, for EMS / external tasks,
-  //     embeds public_session_ref (see app/app/projects/[id]/submit-actions.ts)
-  //     and may also hold free-text notes; NULL the whole column.
-  //   - submissions.public_session_ref  — nullable (migration 0019); NULL it.
-  //   - audits.public_session_ref       — nullable (migration 0016); NULL it.
-  //   - gov_audit_sessions.public_session_ref — declared NOT NULL (migration
-  //     0013), so it CANNOT be nulled without a table rebuild. That, plus the
-  //     NOT NULL user_id columns on submissions/audits/gov_audit_sessions
-  //     themselves, are deferred to the nullable-column rebuild migration (0022,
-  //     follow-up PR). Until then this residual link remains.
+  // H6 (complete): every private->public re-identification link is severed WITHOUT
+  // a destructive table rebuild. The abandoned nullable-user_id rebuild failed
+  // D1's commit-time FK check; instead the person's private rows are reassigned to
+  // the anonymous DELETED_USER sentinel (migration 0022_erasure_deleted_user_
+  // sentinel). Their NOT NULL user_id columns stay valid but point at a PII-free
+  // row, so no row can be traced back to a person.
+  //
+  // ORDER MATTERS: every per-row scrub/rotate below keys on the ORIGINAL user_id,
+  // so each must run BEFORE that table's user_id is reassigned to the sentinel.
   await db.batch([
-    // Soft delete + scrub PII columns on the user row.
+    // Soft-delete + scrub ALL PII on the user row, incl. email / firebase_uid /
+    // full_name, so the "deleted" row can never re-identify a person nor be
+    // resurrected on re-login. email is UNIQUE NOT NULL → rewrite to a per-id
+    // placeholder rather than NULL.
     db
       .prepare(
         `UPDATE users
@@ -96,17 +94,35 @@ export async function deleteAccount(formData: FormData) {
                case_number = NULL,
                address_json = NULL,
                dob = NULL,
-               phone = NULL
+               phone = NULL,
+               full_name = NULL,
+               firebase_uid = NULL,
+               email = 'deleted+' || id || '@colift.invalid'
          WHERE id = ?`
       )
       .bind(now, user.id),
     // Scrub submission notes (carries the embedded public_session_ref + free text).
     db.prepare("UPDATE submissions SET user_notes = NULL WHERE user_id = ?").bind(user.id),
-    // NULL the nullable cross-boundary refs (schema-permitted today).
+    // NULL the nullable cross-boundary refs (submissions 0019, audits 0016).
     db
       .prepare("UPDATE submissions SET public_session_ref = NULL WHERE user_id = ?")
       .bind(user.id),
     db.prepare("UPDATE audits SET public_session_ref = NULL WHERE user_id = ?").bind(user.id),
+    // gov_audit_sessions.public_session_ref is NOT NULL UNIQUE (migration 0013) and
+    // cannot be nulled. Rotate it to a throwaway value: the public gov rows keep
+    // the OLD ref and become orphaned (link severed), while the private session
+    // satisfies its NOT NULL/UNIQUE constraint. Runs before the user_id reassign.
+    db
+      .prepare(
+        "UPDATE gov_audit_sessions SET public_session_ref = 'del_' || lower(hex(randomblob(16))) WHERE user_id = ?"
+      )
+      .bind(user.id),
+    // Sever the person link: reassign the NOT NULL user_id rows to the sentinel.
+    db.prepare("UPDATE submissions SET user_id = 'user_deleted' WHERE user_id = ?").bind(user.id),
+    db.prepare("UPDATE audits SET user_id = 'user_deleted' WHERE user_id = ?").bind(user.id),
+    db
+      .prepare("UPDATE gov_audit_sessions SET user_id = 'user_deleted' WHERE user_id = ?")
+      .bind(user.id),
     // Certification source-of-truth (private cluster) is destroyed outright.
     db.prepare("DELETE FROM hours_ledger WHERE user_id = ?").bind(user.id),
     db.prepare("DELETE FROM cf888_forms WHERE user_id = ?").bind(user.id),
@@ -123,9 +139,8 @@ export async function deleteAccount(formData: FormData) {
       soft_delete: true,
       pii_scrubbed: true,
       link_severed: true,
-      // gov_audit_sessions.public_session_ref + NOT NULL user_id columns remain
-      // until the 0022 rebuild migration (follow-up).
-      residual_link_pending_migration: "0022",
+      // Full severance via sentinel reassignment (no residual link).
+      method: "sentinel_reassign",
     },
   });
 
