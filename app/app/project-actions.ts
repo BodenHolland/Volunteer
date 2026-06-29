@@ -19,6 +19,11 @@ async function loadOwned(submissionId: string): Promise<Submission | null> {
 export async function commitToTask(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
+  // Only recipients do volunteer work. Server actions are directly POST-invocable,
+  // so the /app layout's requireRecipient() guard alone isn't enough — block an
+  // org_member/admin from becoming a submission owner, which would otherwise let
+  // them later approve and self-credit their own hours onto the CF 888.
+  if (user.role !== "recipient") redirect("/unauthorized");
   const taskId = String(formData.get("task_id") ?? "");
   const task = await getDb()
     .prepare("SELECT id, category, deliverable_spec_json, short_description FROM task_templates WHERE id = ?")

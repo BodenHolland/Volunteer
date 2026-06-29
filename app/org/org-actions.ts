@@ -15,6 +15,11 @@ async function loadReviewable(submissionId: string) {
   const db = getDb();
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(submissionId).first<Submission>();
   if (!sub) return null;
+  // Hard line #1 (no self-certification): a reviewer must never approve/credit
+  // their own work — these hours feed the CF 888 legal attestation. Reject
+  // self-review outright (the task actions also block an org_member from owning a
+  // submission, but defend here too).
+  if (sub.user_id === user.id) return null;
   const task = await db.prepare("SELECT * FROM task_templates WHERE id = ?").bind(sub.task_template_id).first<TaskTemplate>();
   if (!task || task.org_id !== user.org_id) return null;
   return { user, sub, task, db };

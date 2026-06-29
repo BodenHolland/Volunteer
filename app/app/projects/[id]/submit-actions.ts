@@ -91,6 +91,9 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
 export async function submitWork(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect("/start");
+  // Recipients only: server actions are directly POST-invocable, so guard the
+  // role here too (defense-in-depth against an org_member self-crediting).
+  if (user.role !== "recipient") redirect("/unauthorized");
   const id = String(formData.get("submission_id") ?? "");
   const db = getDb();
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
