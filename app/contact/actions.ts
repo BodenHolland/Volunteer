@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
+import { sendEmail } from "@/lib/notify";
+
+// Inbox that contact + access-request messages are delivered to.
+const NOTIFY_EMAIL = "hello@bodenholland.com";
 
 const ContactSchema = z.object({
   name: z.string().trim().min(1).max(120).optional().default(""),
@@ -31,6 +35,14 @@ export async function submitContact(formData: FormData) {
     )
     .bind(newId("fb"), null, email, body, Date.now())
     .run();
+
+  // Notify the owner's inbox. Best-effort (logs until RESEND_API_KEY + EMAIL_FROM
+  // are set); the message is already persisted above, so delivery can never lose it.
+  await sendEmail({
+    to: NOTIFY_EMAIL,
+    subject: `Colift — contact message from ${email}`,
+    text: `${body}\n\nReply directly to ${email}.`,
+  });
 
   redirect("/contact?submitted=1");
 }
