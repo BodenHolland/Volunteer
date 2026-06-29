@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "colift-cron",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat"],
+  // 08:00 UTC daily: drain the Open Prices retry queue + run the retention sweep.
+  "triggers": { "crons": ["0 8 * * *"] },
+  // Public origin of the main colift app. The cron tick POSTs $APP_ORIGIN/api/cron.
+  "vars": { "APP_ORIGIN": "https://colift.org" },
+  "observability": { "enabled": true }
+  // Secret (NOT committed — set with the CLI, must match the value on the colift worker):
+  //   wrangler secret put CRON_SECRET --config workers/cron/wrangler.jsonc
+}
