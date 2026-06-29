@@ -3,6 +3,11 @@
  * Pure module: callers pass credentials so it is testable outside the Worker.
  */
 
+import { logEvent } from "./log";
+
+/** Upstream calls can hang on the :free tier; cap every fetch at 20s. */
+const OPENROUTER_TIMEOUT_MS = 20_000;
+
 export interface AiFieldIssue {
   field: "photos" | "notes" | "overall";
   message: string;
@@ -69,7 +74,12 @@ export function verdictLabel(v: AiVerdict["verdict"]): string {
   }
 }
 
-function coerceVerdict(raw: unknown): AiVerdict {
+/**
+ * Coerce arbitrary/untrusted upstream JSON into a safe, fully-typed AiVerdict.
+ * Exported so the timeout/fallback unit tests can exercise it; runtime callers
+ * still reach it via `validateSubmission`. No behavior change.
+ */
+export function coerceVerdict(raw: unknown): AiVerdict {
   const o = (raw ?? {}) as Record<string, unknown>;
   const verdict =
     o.verdict === "approve" || o.verdict === "reject" ? o.verdict : "flag";
@@ -131,9 +141,15 @@ export async function validateSubmission(input: AiInput): Promise<AiVerdict> {
           { role: "user", content },
         ],
       }),
+      // Without a timeout a slow upstream pins the Worker until the platform
+      // kills it; degrade to manual review instead. Never auto-approve.
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
 
-    if (!res.ok) return AI_FALLBACK;
+    if (!res.ok) {
+      logEvent("ai_validate_failed", { status: res.status });
+      return AI_FALLBACK;
+    }
     const json = (await res.json()) as {
       choices?: { message?: { content?: string } }[];
     };
@@ -142,7 +158,9 @@ export async function validateSubmission(input: AiInput): Promise<AiVerdict> {
     // Models sometimes wrap JSON in ```; strip fences defensively.
     const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     return coerceVerdict(JSON.parse(cleaned));
-  } catch {
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? "timeout" : "error";
+    logEvent("ai_validate_failed", { reason });
     return AI_FALLBACK;
   }
 }
@@ -159,6 +177,7 @@ export async function prewarmOpenRouter(apiKey?: string, model?: string): Promis
         max_tokens: 1,
         messages: [{ role: "user", content: "ping" }],
       }),
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
   } catch {
     /* ignore */

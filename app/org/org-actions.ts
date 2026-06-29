@@ -3,9 +3,9 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/cf";
-import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
 import { currentMonth } from "@/lib/time";
+import { creditHoursStmt, computeCreditedHours } from "@/lib/ledger";
 import { writeAudit } from "@/lib/audit";
 import { parseJson, type Submission, type TaskTemplate } from "@/lib/types";
 
@@ -26,32 +26,50 @@ export async function approveSubmission(formData: FormData) {
   if (!ctx) redirect("/org/submissions");
   const { user, sub, task, db } = ctx;
 
+  // Fast-path idempotency (C5): an already-approved submission must never be
+  // re-credited. The authoritative guard is the compare-and-set claim below;
+  // this early return just avoids the wasted work on an obvious replay.
+  if (sub.status === "approved") {
+    revalidatePath("/org/submissions");
+    redirect("/org/submissions");
+  }
+
   // Change 4, hard line #1: credited hours are the volunteer's MEASURED ACTIVE
   // engagement (idle-aware), capped at the calibrated cap. The reviewer may only
   // reduce for quality, never credit above measured time. The estimate is never
-  // the source.
-  const measuredSeconds = (sub as unknown as { measured_active_seconds: number }).measured_active_seconds ?? 0;
-  const measured = measuredSeconds / 3600;
-  const ceiling = Math.min(measured, task.max_hours);
-  const requested = Number(formData.get("hours") ?? ceiling);
-  const hours = Math.max(0, Math.min(requested, ceiling));
+  // the source. The clamp math lives in lib/ledger.ts (computeCreditedHours) so
+  // it can be unit-tested in isolation.
+  const rawHours = formData.get("hours");
+  const { credited: hours, measuredHours: measured } = computeCreditedHours({
+    measuredSeconds: sub.measured_active_seconds ?? 0,
+    requestedHours: rawHours == null ? undefined : Number(rawHours),
+    maxHours: task.max_hours,
+  });
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const month = currentMonth();
 
-  // Approved work is published as a free public deliverable (Change 1-3).
+  // Single-flight claim (C5): the irreversible status='approved' flip is
+  // compare-and-set (WHERE status != 'approved'). D1 serializes writes, so of
+  // any number of concurrent / replayed approves exactly ONE flips the row
+  // (changes === 1); every other run matches zero rows and bails BEFORE the
+  // ledger credit. This is the gate that makes the credit single-flight: a
+  // second approve can never reach creditHoursStmt for the same submission.
   const nowTs = Date.now();
-  await db
-    .prepare("UPDATE submissions SET status = 'approved', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ?, hours_credited = ?, published_at = ? WHERE id = ?")
+  const claim = await db
+    .prepare("UPDATE submissions SET status = 'approved', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ?, hours_credited = ?, published_at = ? WHERE id = ? AND status != 'approved'")
     .bind(nowTs, user.id, notes, hours, nowTs, id)
     .run();
+  if (claim.meta.changes !== 1) {
+    // Lost the race (already approved) — do NOT credit again.
+    revalidatePath("/org/submissions");
+    redirect("/org/submissions");
+  }
 
-  await db
-    .prepare(
-      "INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?) " +
-        "ON CONFLICT(user_id, month, certified_org_id) DO UPDATE SET total_hours = total_hours + excluded.total_hours"
-    )
-    .bind(newId("ledger"), sub.user_id, month, hours, task.org_id)
-    .run();
+  // The credit + EMS public-cluster publish ride in one db.batch() (D1 implicit
+  // transaction) so they commit together. Only the claim winner reaches here.
+  const batch: D1PreparedStatement[] = [
+    creditHoursStmt(db, { userId: sub.user_id, hours, month, certifiedOrgId: task.org_id }),
+  ];
 
   // Publish the public-cluster row for EMS rate research. ems_rate_reports
   // is keyed by public_session_ref (carried in user_notes); setting
@@ -59,12 +77,15 @@ export async function approveSubmission(formData: FormData) {
   if (task.category === "ems-rate-research") {
     const ref = parseJson<{ public_session_ref?: string }>(sub.user_notes ?? "", {}).public_session_ref;
     if (ref) {
-      await db
-        .prepare("UPDATE ems_rate_reports SET published_at = ? WHERE public_session_ref = ?")
-        .bind(nowTs, ref)
-        .run();
+      batch.push(
+        db
+          .prepare("UPDATE ems_rate_reports SET published_at = ? WHERE public_session_ref = ?")
+          .bind(nowTs, ref)
+      );
     }
   }
+
+  await db.batch(batch);
 
   // Immutable audit: prove credited never exceeds measured, with the basis.
   await writeAudit({

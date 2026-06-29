@@ -6,6 +6,7 @@ import { getDb, getEnv } from "@/lib/cf";
 import { putFile } from "@/lib/r2";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
+import { creditHoursStmt } from "@/lib/ledger";
 import { writeAudit } from "@/lib/audit";
 import {
   sha256Hex,
@@ -19,6 +20,10 @@ import {
   aiVerifyZooniverseCertificate,
   classifyVerdict,
   writePublicActivityRow,
+  remainingMonthlyMinutes,
+  priorCreditedCumulativeMinutes,
+  creditableDeltaMinutes,
+  externalCertAutoApproveEnabled,
   type ZooniverseAiVerdict,
 } from "@/lib/zooniverse";
 import type { Submission, TaskTemplate } from "@/lib/types";
@@ -52,6 +57,10 @@ export async function submitCertificate(formData: FormData) {
     .bind(sub.task_template_id)
     .first<TaskTemplate>();
   if (!task) redirect(`/app/external/${id}`);
+  // C3: this certificate-upload + auto-approve path is ONLY valid for
+  // external-certificate tasks. An in-app task routed here would auto-credit the
+  // ledger off an unverified file upload, bypassing its measured-time review.
+  if (task.evidence_mode !== "external_certificate") redirect(`/app/external/${id}`);
 
   const file = formData.get("certificate");
   if (!(file instanceof File) || file.size === 0) back(id, "Pick a certificate file to upload.");
@@ -108,7 +117,23 @@ export async function submitCertificate(formData: FormData) {
 
   const certBuf = await file.arrayBuffer();
   const certSha256 = await sha256Hex(certBuf);
-  const duplicate = await isDuplicateCertificate(certSha256, id);
+
+  // C1: a Zooniverse certificate reports CUMULATIVE time across the platform.
+  // The volunteer-typed figure is that running total, NOT this month's new work.
+  // Carry it through as cumulative minutes so the credit path can diff it
+  // against what we've already credited (creditableDeltaMinutes below).
+  const reportedCumulativeMinutes = Math.round(reportedHours * 60);
+
+  // L6: the dedup key is the cert SHA (exact same file) OR — to defeat a
+  // re-EXPORT of the same certificate (a fresh image render with the same
+  // cumulative figure, hence a different SHA) — a prior approved review for
+  // this (user, task) whose recorded cumulative is >= this one, i.e. it would
+  // credit no new minutes. The (user, task, month, project) collision is
+  // already handled by findExistingMonthSubmission above.
+  const shaDuplicate = await isDuplicateCertificate(certSha256, id);
+  const priorCumulative = await priorCreditedCumulativeMinutes(me.id, task.id);
+  const staleReexport = reportedCumulativeMinutes <= priorCumulative && priorCumulative > 0;
+  const duplicate = shaDuplicate || staleReexport;
 
   // Run AI cross-check BEFORE any DB writes or R2 uploads. If the AI reports
   // specific, fixable mismatches, throw the user back to the form with those
@@ -163,6 +188,9 @@ export async function submitCertificate(formData: FormData) {
         project_slug: projectSlug,
         profile_url: profileUrl,
         reported_hours: reportedHours,
+        // C1: cumulative minutes the cert reports; the reviewer/auto path diffs
+        // this against prior credited cumulative to credit only the delta.
+        reported_cumulative_minutes: reportedCumulativeMinutes,
         ai_verdict: aiVerdict,
       })
     )
@@ -178,74 +206,103 @@ export async function submitCertificate(formData: FormData) {
         id,
         "duplicate_certificate",
         "flag",
-        JSON.stringify({ sha256: certSha256 }),
+        JSON.stringify({
+          sha256: certSha256,
+          sha_duplicate: shaDuplicate,
+          // L6: a re-export with no new cumulative time was caught here.
+          stale_reexport: staleReexport,
+          reported_cumulative_minutes: reportedCumulativeMinutes,
+          prior_credited_cumulative_minutes: priorCumulative,
+        }),
         Date.now()
       )
       .run();
   }
 
   const now = Date.now();
-  const canAutoApprove = outcome.kind === "clear" && !duplicate;
+
+  // C1: credit only the NEW work the cert evidences — the delta between its
+  // cumulative figure and what we've already credited for this task. Never the
+  // raw self-reported total. >= 0 clamp means a flat/lower cumulative credits 0.
+  const deltaMinutes = creditableDeltaMinutes(reportedCumulativeMinutes, priorCumulative);
+
+  // C2: the auto-approve path is OFF by default (env-gated) and, when on, must
+  // honor the same monthly cap the reviewer path enforces.
+  const cap = task.monthly_minutes_cap; // null = no artificial cap
+  const remaining =
+    cap != null ? await remainingMonthlyMinutes(me.id, task.id, reportingMonth, cap) : null;
+
+  const canAutoApprove =
+    externalCertAutoApproveEnabled() && outcome.kind === "clear" && !duplicate;
 
   if (canAutoApprove) {
-    const creditedHours = Math.round(reportedHours * 100) / 100;
-    const creditedMinutes = Math.round(reportedHours * 60);
+    // C1 + C2: credited = min(delta-vs-cumulative, remaining-monthly-cap).
+    // Never the raw reported total.
+    const creditedMinutes = remaining != null ? Math.min(deltaMinutes, remaining) : deltaMinutes;
+    const creditedHours = Math.round((creditedMinutes / 60) * 100) / 100;
 
-    // Record the auto-approval in certificate_reviews so the audit story is
-    // identical to the human-reviewed path. The "reviewer" is the user
-    // themselves; the AI did the cross-check.
-    await db
+    // Single-flight claim (C5): the irreversible status='approved' flip is
+    // compare-and-set (WHERE status != 'approved'). Two concurrent submits of
+    // the same certificate (the AI calls above open a race window) would both
+    // reach here; D1 serializes writes so exactly ONE flips the row, and only
+    // that winner credits the ledger. A loser matches zero rows and skips the
+    // credit batch entirely.
+    const claim = await db
       .prepare(
-        `INSERT INTO certificate_reviews
-           (submission_id, reviewer_id, cert_name_matches_user, date_range_present, hours_present,
-            project_scope_match, signature_present, profile_url_matches, screenshot_supports_certificate,
-            duplicate_file_match, decision, reviewer_note, credited_minutes, reviewed_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-         ON CONFLICT(submission_id) DO UPDATE SET decision = excluded.decision, reviewed_at = excluded.reviewed_at`
+        "UPDATE submissions SET status = 'approved', submitted_at = ?, reviewed_at = ?, reviewer_id = ?, hours_credited = ?, user_notes = ?, published_at = ?, ai_verdict_json = ? WHERE id = ? AND status != 'approved'"
       )
-      .bind(
-        id,
-        me.id,
-        aiVerdict.name_match ? "yes" : "unclear",
-        "unclear",
-        aiVerdict.hours_match ? "yes" : "unclear",
-        "unclear",
-        "unclear",
-        aiVerdict.profile_consistent ? "yes" : "unclear",
-        "unclear",
-        0,
-        "approved",
-        `Auto-approved by AI cross-check: ${aiVerdict.reasoning}`,
-        creditedMinutes,
-        now
-      )
+      .bind(now, now, me.id, creditedHours, description, now, JSON.stringify(aiVerdict), id)
       .run();
 
-    await db
-      .prepare(
-        "UPDATE submissions SET status = 'approved', submitted_at = ?, reviewed_at = ?, reviewer_id = ?, hours_credited = ?, user_notes = ?, published_at = ?, ai_verdict_json = ? WHERE id = ?"
-      )
-      .bind(
-        now,
-        now,
-        me.id,
-        creditedHours,
-        description,
-        now,
-        JSON.stringify(aiVerdict),
-        id
-      )
-      .run();
+    if (claim.meta.changes === 1) {
+      // M9: the auto-approval record + the ledger credit commit together in one
+      // db.batch() (D1 implicit transaction) so the approved submission can never
+      // be left uncredited (or vice versa). The status flip already landed as the
+      // single-flight gate; these two ride together behind it.
+      await db.batch([
+        // Record the auto-approval in certificate_reviews so the audit story is
+        // identical to the human-reviewed path. The "reviewer" is the user
+        // themselves; the AI did the cross-check.
+        //
+        // reported_cumulative_minutes (migration 0021) records the cert's
+        // cumulative figure so the NEXT submission's delta (C1) diffs against
+        // it. Referenced via dynamic SQL — works once 0021 is applied.
+        db
+          .prepare(
+            `INSERT INTO certificate_reviews
+               (submission_id, reviewer_id, cert_name_matches_user, date_range_present, hours_present,
+                project_scope_match, signature_present, profile_url_matches, screenshot_supports_certificate,
+                duplicate_file_match, decision, reviewer_note, credited_minutes, reported_cumulative_minutes, reviewed_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+             ON CONFLICT(submission_id) DO UPDATE SET decision = excluded.decision, credited_minutes = excluded.credited_minutes, reported_cumulative_minutes = excluded.reported_cumulative_minutes, reviewed_at = excluded.reviewed_at`
+          )
+          .bind(
+            id,
+            me.id,
+            aiVerdict.name_match ? "yes" : "unclear",
+            "unclear",
+            aiVerdict.hours_match ? "yes" : "unclear",
+            "unclear",
+            "unclear",
+            aiVerdict.profile_consistent ? "yes" : "unclear",
+            "unclear",
+            0,
+            "approved",
+            `Auto-approved by AI cross-check: ${aiVerdict.reasoning}`,
+            creditedMinutes,
+            reportedCumulativeMinutes,
+            now
+          ),
+        creditHoursStmt(db, {
+          userId: me.id,
+          hours: creditedHours,
+          month: reportingMonth,
+          certifiedOrgId: task.org_id,
+        }),
+      ]);
+    }
 
-    await db
-      .prepare(
-        "INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?) " +
-          "ON CONFLICT(user_id, month, certified_org_id) DO UPDATE SET total_hours = total_hours + excluded.total_hours"
-      )
-      .bind(newId("ledger"), me.id, reportingMonth, creditedHours, task.org_id)
-      .run();
-
-    if (sub.public_session_ref) {
+    if (claim.meta.changes === 1 && sub.public_session_ref) {
       await writePublicActivityRow({
         public_session_ref: sub.public_session_ref,
         external_project_id: "",
@@ -258,21 +315,32 @@ export async function submitCertificate(formData: FormData) {
       });
     }
 
-    await writeAudit({
-      actorUserId: me.id,
-      action: "external_certificate_auto_approved",
-      entityType: "submission",
-      entityId: id,
-      detail: {
-        provider: "zooniverse",
-        project_name: projectName,
-        project_slug: projectSlug,
-        reporting_month: reportingMonth,
-        reported_hours: reportedHours,
-        credited_hours: creditedHours,
-        ai_reasoning: aiVerdict.reasoning,
-      },
-    });
+    if (claim.meta.changes === 1) {
+      await writeAudit({
+        actorUserId: me.id,
+        action: "external_certificate_auto_approved",
+        entityType: "submission",
+        entityId: id,
+        detail: {
+          provider: "zooniverse",
+          project_name: projectName,
+          project_slug: projectSlug,
+          reporting_month: reportingMonth,
+          // Full credit derivation for the audit story (C1/C2): self-reported
+          // cumulative, the prior baseline it was diffed against, the delta, the
+          // cap that bounded it, and what was actually credited.
+          reported_hours: reportedHours,
+          reported_cumulative_minutes: reportedCumulativeMinutes,
+          prior_credited_cumulative_minutes: priorCumulative,
+          delta_minutes: deltaMinutes,
+          cap_minutes: cap ?? null,
+          remaining_minutes: remaining,
+          credited_minutes: creditedMinutes,
+          credited_hours: creditedHours,
+          ai_reasoning: aiVerdict.reasoning,
+        },
+      });
+    }
   } else {
     // Informational outcome (or duplicate). Pass a friendly note via the hub
     // page so the volunteer understands why it didn't auto-approve.
@@ -311,6 +379,14 @@ export async function cancelSubmission(formData: FormData) {
   const db = getDb();
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
   if (!sub || sub.user_id !== me.id) redirect("/unauthorized");
+  // C3: this hub route only governs external-certificate tasks. Refuse to act on
+  // a submission whose task isn't external_certificate so an in-app submission
+  // can't be force-rejected through the external endpoint.
+  const task = await db
+    .prepare("SELECT * FROM task_templates WHERE id = ?")
+    .bind(sub.task_template_id)
+    .first<TaskTemplate>();
+  if (!task || task.evidence_mode !== "external_certificate") redirect(`/app/external/${id}`);
 
   const cancellable = new Set([
     "committed",

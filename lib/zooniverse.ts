@@ -9,8 +9,12 @@
  * Direct API (server-side OAuth + Panoptes API) is OUT OF SCOPE for v1 —
  * fenced off behind ZOONIVERSE_DIRECT_API_ENABLED. See docs/prd-zooniverse-verification.md §11.
  */
-import { getDb } from "./cf";
+import { getDb, getEnv } from "./cf";
+import { logEvent } from "./log";
 import type { ExternalProjectCatalog, ZooniversePublicActivity } from "./types";
+
+/** Upstream vision calls can hang on the :free tier; cap every fetch at 20s. */
+const OPENROUTER_TIMEOUT_MS = 20_000;
 
 /** Stable id of the reviewer org that owns Zooniverse task templates. */
 export const ORG_CITIZEN_SCIENCE = "org_citizen_science";
@@ -132,6 +136,80 @@ export async function remainingMonthlyMinutes(
 }
 
 /**
+ * Auto-approve gate (C2/H10). The certificate auto-approve path credits the
+ * hours_ledger off a self-uploaded file with no human in the loop, so it ships
+ * OFF by default and must be turned on EXPLICITLY per-environment via
+ * `EXTERNAL_CERT_AUTO_APPROVE=true`. When off (the default, and the prod
+ * posture), every external-certificate submission goes to the reviewer queue,
+ * which is already cap- and evidence_mode-guarded.
+ *
+ * Fail-closed: if the Cloudflare env can't be read we return false (manual
+ * review), never auto-approve.
+ */
+export function externalCertAutoApproveEnabled(): boolean {
+  try {
+    const v = (getEnv() as unknown as { EXTERNAL_CERT_AUTO_APPROVE?: string })
+      .EXTERNAL_CERT_AUTO_APPROVE;
+    return v === "true" || v === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * C1 (hard legal line): credited minutes must reflect REAL measured/evidenced
+ * work, never the volunteer's self-reported total. A Zooniverse Volunteer
+ * Certificate reports CUMULATIVE minutes across the platform, so crediting the
+ * full reported figure every month would credit the same lifetime hours over
+ * and over. We credit only the DELTA between the certificate's current
+ * cumulative minutes and the cumulative the volunteer has ALREADY been credited
+ * for this task. Clamped at >= 0 so a lower/equal cumulative (re-export, stale
+ * cert) credits nothing.
+ *
+ * Pure + exported so the math can be unit-tested in isolation.
+ */
+export function creditableDeltaMinutes(
+  currentCumulativeMinutes: number,
+  priorCreditedCumulativeMinutes: number
+): number {
+  const current = Number.isFinite(currentCumulativeMinutes) ? currentCumulativeMinutes : 0;
+  const prior = Number.isFinite(priorCreditedCumulativeMinutes)
+    ? priorCreditedCumulativeMinutes
+    : 0;
+  return Math.max(0, current - prior);
+}
+
+/**
+ * Sum of certificate cumulative-minutes figures this volunteer has ALREADY been
+ * credited for, across every prior approved certificate review for this task.
+ * Reads certificate_reviews.reported_cumulative_minutes (added in migration
+ * 0021) via dynamic SQL so the file compiles before the migration is applied;
+ * COALESCE keeps it 0 when the column/rows are absent.
+ *
+ * This is the baseline the current certificate's cumulative is diffed against
+ * (C1). We take the MAX, not the SUM: the figure on each cert is cumulative, so
+ * the prior baseline is the highest cumulative we've ever credited, and the new
+ * delta is current_cumulative - that_max.
+ */
+export async function priorCreditedCumulativeMinutes(
+  userId: string,
+  taskTemplateId: string
+): Promise<number> {
+  const db = getDb();
+  const row = await db
+    .prepare(
+      `SELECT COALESCE(MAX(cr.reported_cumulative_minutes), 0) AS m
+         FROM certificate_reviews cr
+         JOIN submissions s ON s.id = cr.submission_id
+        WHERE s.user_id = ? AND s.task_template_id = ?
+          AND s.status = 'approved' AND cr.decision = 'approved'`
+    )
+    .bind(userId, taskTemplateId)
+    .first<{ m: number }>();
+  return Math.max(0, row?.m ?? 0);
+}
+
+/**
  * Insert a row into the PUBLIC cluster. NO PII fields — only what's safe to
  * publish in the free CSV/JSON dataset. Caller has already approved the
  * submission and clamped credited_minutes to the cap.
@@ -232,13 +310,16 @@ export type AiOutcome =
 /**
  * Classify the AI verdict into one of three outcomes.
  *
- * Goal: maximize auto-approve + actionable; minimize informational. Only true
- * AI failures (network/auth/parse) should go to manual review — everything
- * else gives the volunteer specific feedback to fix and resubmit.
+ * Goal: only ever return `clear` when the model is UNAMBIGUOUSLY confident.
+ * Everything short of that gives the volunteer specific feedback to fix
+ * (actionable) or routes to a human (informational). When in doubt, do NOT
+ * auto-approve.
  *
- * Defensive `auto_approve` recompute: trust the three individual signals over
- * the model's overall verdict, so an over-cautious model can't veto cleanly
- * consistent evidence.
+ * H10 (STRICT-AND): a `clear` verdict requires the model's own `auto_approve`
+ * AND all three granular signals (name, hours, profile) to be true. We do NOT
+ * re-derive approval from the granular flags after the model declined, and we
+ * do NOT override the model's `auto_approve=false` — removing the prior
+ * pass-bias that let an over-eager interpretation veto the model's caution.
  */
 export function classifyVerdict(
   verdict: ZooniverseAiVerdict,
@@ -250,11 +331,11 @@ export function classifyVerdict(
     return { kind: "informational", note: verdict.reasoning };
   }
 
-  // Recompute auto-approve from the three flags. The model is sometimes
-  // conservative and returns auto_approve=false even when all three pass;
-  // trust the granular signals.
+  // STRICT-AND: clear ONLY when the model said auto_approve AND every granular
+  // signal independently passed. If the model said no, it stays no — we never
+  // re-derive a pass from the flags.
   const allMatched = verdict.name_match && verdict.hours_match && verdict.profile_consistent;
-  if (verdict.auto_approve || allMatched) return { kind: "clear" };
+  if (verdict.auto_approve && allMatched) return { kind: "clear" };
 
   // AI ran successfully but at least one check didn't pass. Build the most
   // specific feedback we can from what was extracted.
@@ -317,11 +398,10 @@ const ZOON_AI_SYSTEM_PROMPT =
   "- hours_match: true if the cert hours are within 0.1 of the user-reported hours.\n" +
   "- profile_consistent: true if the username slug in the profile URL plausibly belongs to the cert name. " +
   "Be GENEROUS: Zooniverse usernames are often nicknames, initials, or shorthand — don't require an exact substring match.\n" +
-  "- auto_approve: true when name_match AND hours_match AND profile_consistent are all true.\n" +
+  "- auto_approve: true ONLY when name_match AND hours_match AND profile_consistent are ALL true AND you are confident the certificate is authentic and belongs to this volunteer.\n" +
   "- reasoning: one short sentence explaining the verdict.\n" +
-  "Default to TRUE on the three match flags when the evidence is reasonably consistent. Reserve FALSE for clear mismatches " +
-  "(different person entirely, wildly different hours, obviously unrelated profile). Volunteers will see your decisions and " +
-  "be asked to fix issues — over-rejecting wastes their time.";
+  "Set a match flag to TRUE only when the evidence clearly supports it. If a field is unreadable, missing, ambiguous, or you are unsure, set that flag to FALSE — do NOT guess in the volunteer's favor. " +
+  "These decisions credit government-benefit work hours, so a wrong TRUE is worse than a wrong FALSE: when in doubt, choose FALSE and let a human review.";
 
 interface ZooniverseAiInput {
   userFullName: string;
@@ -399,14 +479,22 @@ export async function aiVerifyZooniverseCertificate(
           { role: "user", content },
         ],
       }),
+      // Without a timeout a slow upstream pins the Worker; fall back to manual
+      // review (ai_succeeded:false) instead. Never auto-approve on timeout.
+      signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
     });
-    if (!res.ok) return ZOON_AI_FALLBACK;
+    if (!res.ok) {
+      logEvent("zooniverse_ai_verify_failed", { status: res.status });
+      return ZOON_AI_FALLBACK;
+    }
     const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     const text = json.choices?.[0]?.message?.content;
     if (!text) return ZOON_AI_FALLBACK;
     const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     return coerceZoonVerdict(JSON.parse(cleaned));
-  } catch {
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? "timeout" : "error";
+    logEvent("zooniverse_ai_verify_failed", { reason });
     return ZOON_AI_FALLBACK;
   }
 }

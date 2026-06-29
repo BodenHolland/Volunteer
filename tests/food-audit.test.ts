@@ -173,11 +173,13 @@ test("All 6 captures required to submit", () => {
     rapid_submission_count_last_hour: 0,
   });
   assert.strictEqual(result.ok, false);
-  assert.match(result.reason ?? "", /6 basket items/i);
+  // Three of the six required items are missing (Rice, Peanut butter, Bananas).
+  assert.match(result.reason ?? "", /required items not yet captured/i);
+  assert.match(result.reason ?? "", /rice/i);
 });
 
 test("Basket template matches handoff spec (6 items, correct categories)", () => {
   assert.strictEqual(USDA_THRIFTY_6.items.length, 6);
   const cats = USDA_THRIFTY_6.items.map((i) => i.category).sort();
-  assert.deepStrictEqual(cats, ["beans", "bread", "dairy", "eggs", "produce", "rice"]);
+  assert.deepStrictEqual(cats, ["bread", "dairy", "eggs", "produce", "protein", "rice"]);
 });

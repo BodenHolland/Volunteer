@@ -14,6 +14,8 @@
 
 import { getDb, getEnv, getFiles } from "./cf";
 import { newId } from "./ids";
+import { creditHoursStmt } from "./ledger";
+import { pendingFlagInsertStmts, routePendingFlags, type PendingFlag } from "./pipeline";
 import { validateAuditPhoto, visionPasses, type VisionResult } from "./audit-vision";
 import { decryptField, encryptJson } from "./crypto";
 import { nominatimGeocode, osrmRoute } from "./places";
@@ -43,11 +45,29 @@ import {
 const TERMINAL_STATUSES = new Set(["verified", "flagged", "rejected"]);
 const PHOTO_GEO_RADIUS_M = 100;
 
-interface PendingFlag {
-  flag_type: string;
-  flag_severity: "block" | "review";
-  flag_reason: string;
-  metadata?: unknown;
+// M4: cap how many vision calls run at once. An audit can carry many in-stock
+// photos and each vision job is an OpenRouter request + R2 read; firing them all
+// via Promise.all fans out unbounded concurrency (rate-limit / OOM / timeout
+// risk on the Worker). Run them through a small worker pool instead.
+const VISION_CONCURRENCY = 4;
+
+/**
+ * Run async task thunks with at most `limit` in flight at a time. Tasks are
+ * pulled from a shared cursor by `limit` workers, so each completion frees a
+ * slot for the next task. Rejections propagate (mirrors Promise.all), but the
+ * vision thunks here already swallow their own failures.
+ */
+async function runWithConcurrency(tasks: Array<() => Promise<void>>, limit: number): Promise<void> {
+  if (tasks.length === 0) return;
+  const max = Math.max(1, Math.min(limit, tasks.length));
+  let cursor = 0;
+  const worker = async (): Promise<void> => {
+    while (cursor < tasks.length) {
+      const i = cursor++;
+      await tasks[i]();
+    }
+  };
+  await Promise.all(Array.from({ length: max }, () => worker()));
 }
 
 export async function processAudit(auditId: string): Promise<void> {
@@ -56,11 +76,17 @@ export async function processAudit(auditId: string): Promise<void> {
   if (!audit) return;
   if (TERMINAL_STATUSES.has(audit.validation_status)) return;
 
-  // Mark as validating (idempotent — only flips submitted → validating)
-  await db
+  // Atomic single-flight claim (C4/C5). processAudit is invoked from BOTH the
+  // submit action (via waitUntil) AND lazily from the status-poll route, so two
+  // runs can race. Gate on the claim's row-count: only the run that actually
+  // flips submitted → validating proceeds; every other run bails BEFORE any
+  // vision call, flag insert, or ledger credit, so the audit can never be
+  // double-credited by a re-run.
+  const claim = await db
     .prepare("UPDATE audits SET validation_status = 'validating' WHERE id = ? AND validation_status = 'submitted'")
     .bind(auditId)
     .run();
+  if (claim.meta.changes !== 1) return;
 
   const ref = audit.public_session_ref;
 
@@ -115,10 +141,12 @@ export async function processAudit(auditId: string): Promise<void> {
 
   const pendingFlags: PendingFlag[] = [];
 
-  // ---- 1. Vision validation (parallel per in-stock photo) ----
-  const visionJobs = captures
+  // ---- 1. Vision validation (bounded-concurrency per in-stock photo, M4) ----
+  // Each entry is a lazy thunk so runWithConcurrency controls when it starts;
+  // building them with `.map(async …)` would start every call immediately.
+  const visionJobs: Array<() => Promise<void>> = captures
     .filter((c) => c.stock_status === "in-stock" && c.photo_id)
-    .map(async (cap) => {
+    .map((cap) => async () => {
       const photo = photoById.get(cap.photo_id!);
       if (!photo) return;
       const item = findItem(cap.basket_item_id);
@@ -245,7 +273,7 @@ export async function processAudit(auditId: string): Promise<void> {
       }
     });
 
-  await Promise.all(visionJobs);
+  await runWithConcurrency(visionJobs, VISION_CONCURRENCY);
 
   // ---- 4. Sampling: tier 0 always gets human review; higher tiers chance-flagged ----
   if (pendingFlags.length === 0 && rollSample(strictness.sampleRate)) {
@@ -256,78 +284,77 @@ export async function processAudit(auditId: string): Promise<void> {
     });
   }
 
-  // ---- Persist flags ----
+  // ---- Persist flags (shared INSERT builder; same rows as before) ----
   const now = Date.now();
-  for (const f of pendingFlags) {
-    await db
-      .prepare(
-        `INSERT INTO audit_validation_flags
-         (id, audit_id, flag_type, flag_severity, flag_reason, flag_metadata_json, created_at, resolution_status)
-         VALUES (?,?,?,?,?,?,?, 'open')`
-      )
-      .bind(
-        newId("flag"),
-        auditId,
-        f.flag_type,
-        f.flag_severity,
-        f.flag_reason,
-        f.metadata ? JSON.stringify(f.metadata) : null,
-        now
-      )
-      .run();
+  for (const stmt of pendingFlagInsertStmts(db, auditId, pendingFlags, now)) {
+    await stmt.run();
   }
 
-  const totalFlags = audit.validation_flag_count + pendingFlags.length;
-  const hasBlocker = pendingFlags.some((f) => f.flag_severity === "block");
-
-  let nextStatus: "verified" | "flagged" | "rejected" = "verified";
+  // Shared block/review → terminal-status routing (lib/pipeline.ts).
+  const { status: nextStatus, totalFlags } = routePendingFlags(
+    pendingFlags,
+    audit.validation_flag_count
+  );
   let credited: number | null = null;
-  if (hasBlocker) {
-    nextStatus = "rejected";
-  } else if (totalFlags > 0) {
-    nextStatus = "flagged";
-  } else {
-    nextStatus = "verified";
+  if (nextStatus === "verified") {
     credited = await computeCreditedHoursForAudit(auditId);
   }
 
-  await db
-    .prepare(
-      `UPDATE audits
-       SET validation_status = ?, validation_flag_count = ?, credited_hours = ?
-       WHERE id = ?`
-    )
-    .bind(nextStatus, totalFlags, credited, auditId)
-    .run();
-
-  // Update parent submission
-  if (nextStatus === "verified") {
-    await db
+  // Terminal side-effects are grouped into one db.batch() so the audit's
+  // validation_status, the parent submission flip, the public-summary publish,
+  // and the ledger credit all commit together or roll back together. The
+  // irreversible status='approved' flip can never land without its credited
+  // hours (D1 runs a batch as an implicit transaction). The single-flight claim
+  // at the top of this function guarantees only one run reaches here.
+  const batch: D1PreparedStatement[] = [
+    db
       .prepare(
-        `UPDATE submissions
-         SET status = 'approved', reviewer_id = NULL, reviewed_at = ?, hours_credited = ?
+        `UPDATE audits
+         SET validation_status = ?, validation_flag_count = ?, credited_hours = ?
          WHERE id = ?`
       )
-      .bind(now, credited, audit.submission_id)
-      .run();
+      .bind(nextStatus, totalFlags, credited, auditId),
+  ];
+
+  if (nextStatus === "verified") {
+    batch.push(
+      db
+        .prepare(
+          `UPDATE submissions
+           SET status = 'approved', reviewer_id = NULL, reviewed_at = ?, hours_credited = ?
+           WHERE id = ?`
+        )
+        .bind(now, credited, audit.submission_id)
+    );
     // Flip the public summary to verified so the public export surfaces this row.
-    await db
-      .prepare("UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?")
-      .bind(now, ref)
-      .run();
-    if (credited) await addCreditedHoursToLedger(audit.user_id, credited);
+    batch.push(
+      db
+        .prepare("UPDATE audit_public_summaries SET verified_at = ? WHERE public_session_ref = ?")
+        .bind(now, ref)
+    );
+    if (credited) {
+      batch.push(creditHoursStmt(db, { userId: audit.user_id, hours: credited, certifiedOrgId: "org_food_access" }));
+    }
+  } else if (nextStatus === "rejected") {
+    batch.push(
+      db
+        .prepare(
+          `UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_notes = ? WHERE id = ?`
+        )
+        .bind(now, pendingFlags.map((f) => f.flag_reason).join(" "), audit.submission_id)
+    );
+  }
+  // 'flagged' stays in pending_review for human spot-review (already set on submit).
+
+  await db.batch(batch);
+
+  // Open Prices contribution is a network side-effect (queued on failure) — kept
+  // out of the atomic batch so a remote outage can't roll back the approval.
+  if (nextStatus === "verified") {
     await contributeAuditToOpenPrices(auditId).catch(() => {
       /* contribution failures are queued, not surfaced */
     });
-  } else if (nextStatus === "rejected") {
-    await db
-      .prepare(
-        `UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_notes = ? WHERE id = ?`
-      )
-      .bind(now, pendingFlags.map((f) => f.flag_reason).join(" "), audit.submission_id)
-      .run();
   }
-  // 'flagged' stays in pending_review for human spot-review (already set on submit).
 
   await recomputeTrust(audit.user_id);
 }
@@ -479,29 +506,35 @@ export async function computeCreditedHoursForAudit(auditId: string): Promise<num
 
 async function getOrInitTrust(userId: string): Promise<TrustRow> {
   const db = getDb();
-  const existing = await db
+  // M5: race-safe init. The old SELECT-then-INSERT could double-insert when two
+  // concurrent pipeline runs / polls hit a brand-new user (volunteer_trust has
+  // user_id as PRIMARY KEY, so the second INSERT would throw). `ON CONFLICT DO
+  // NOTHING` makes the seed idempotent; we then read the canonical row back.
+  const now = Date.now();
+  await db
+    .prepare(
+      `INSERT INTO volunteer_trust
+        (user_id, tier, audits_completed, audits_flagged, audits_rejected, failed_audits_30_day_window, last_recalculated_at)
+       VALUES (?, 0, 0, 0, 0, 0, ?)
+       ON CONFLICT(user_id) DO NOTHING`
+    )
+    .bind(userId, now)
+    .run();
+  const row = await db
     .prepare("SELECT * FROM volunteer_trust WHERE user_id = ?")
     .bind(userId)
     .first<TrustRow>();
-  if (existing) return existing;
-  const row: TrustRow = {
+  if (row) return row;
+  // Defensive fallback (should be unreachable: the upsert above guarantees a row).
+  return {
     user_id: userId,
     tier: 0,
     audits_completed: 0,
     audits_flagged: 0,
     audits_rejected: 0,
     failed_audits_30_day_window: 0,
-    last_recalculated_at: Date.now(),
+    last_recalculated_at: now,
   };
-  await db
-    .prepare(
-      `INSERT INTO volunteer_trust
-        (user_id, tier, audits_completed, audits_flagged, audits_rejected, failed_audits_30_day_window, last_recalculated_at)
-       VALUES (?,?,?,?,?,?,?)`
-    )
-    .bind(row.user_id, row.tier, 0, 0, 0, 0, row.last_recalculated_at)
-    .run();
-  return row;
 }
 
 export async function recomputeTrust(userId: string, nowMs: number = Date.now()): Promise<TrustRow> {
@@ -567,30 +600,6 @@ export async function recomputeTrust(userId: string, nowMs: number = Date.now())
     failed_audits_30_day_window: failed30,
     last_recalculated_at: nowMs,
   };
-}
-
-async function addCreditedHoursToLedger(userId: string, hours: number, certOrg = "org_food_access"): Promise<void> {
-  const db = getDb();
-  const now = Date.now();
-  const d = new Date(now);
-  const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  const existing = await db
-    .prepare(`SELECT id, total_hours FROM hours_ledger WHERE user_id = ? AND month = ? AND certified_org_id = ?`)
-    .bind(userId, ym, certOrg)
-    .first<{ id: string; total_hours: number }>();
-  if (existing) {
-    await db
-      .prepare(`UPDATE hours_ledger SET total_hours = ? WHERE id = ?`)
-      .bind(existing.total_hours + hours, existing.id)
-      .run();
-  } else {
-    await db
-      .prepare(
-        `INSERT INTO hours_ledger (id, user_id, month, total_hours, certified_org_id) VALUES (?,?,?,?,?)`
-      )
-      .bind(newId("ledger"), userId, ym, hours, certOrg)
-      .run();
-  }
 }
 
 // ---- pure helpers ----

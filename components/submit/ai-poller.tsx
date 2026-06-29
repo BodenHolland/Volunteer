@@ -1,18 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
+
+/** States that mean AI review is still running; anything else is terminal. */
+const PENDING_STATUSES = new Set(["ai_reviewing", "submitted"]);
+
+/** Poll cadence: start fast, back off, and give up after a bounded window. */
+const POLL_BASE_MS = 2_000;
+const POLL_MAX_MS = 15_000;
+const POLL_MAX_ATTEMPTS = 40;
 
 /** Polls the status endpoint while the submission is under AI review. */
 export function AiPoller({ submissionId, initialStatus }: { submissionId: string; initialStatus: string }) {
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
+  const attemptsRef = useRef(0);
 
   useEffect(() => {
-    if (status !== "ai_reviewing" && status !== "submitted") return;
+    if (!PENDING_STATUSES.has(status)) return;
     let active = true;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const schedule = () => {
+      // Exponential backoff, capped — avoids hammering a slow/stuck worker.
+      const delay = Math.min(POLL_BASE_MS * 2 ** Math.min(attemptsRef.current, 6), POLL_MAX_MS);
+      timer = setTimeout(tick, delay);
+    };
+
     const tick = async () => {
+      if (!active) return;
+      attemptsRef.current += 1;
       try {
         const res = await fetch(`/api/submissions/${submissionId}/status`, { cache: "no-store" });
         const data = (await res.json()) as { status: string };
@@ -20,20 +39,26 @@ export function AiPoller({ submissionId, initialStatus }: { submissionId: string
         if (data.status !== status) {
           setStatus(data.status);
           router.refresh();
+          // Stop here if we reached a terminal state; effect re-runs and bails.
+          if (!PENDING_STATUSES.has(data.status)) return;
         }
       } catch {
-        /* retry */
+        /* network blip — keep polling within the attempt cap */
       }
+      if (!active) return;
+      // Cap total attempts so a wedged worker can't poll forever.
+      if (attemptsRef.current >= POLL_MAX_ATTEMPTS) return;
+      schedule();
     };
-    const iv = setInterval(tick, 2000);
-    tick();
+
+    schedule();
     return () => {
       active = false;
-      clearInterval(iv);
+      clearTimeout(timer);
     };
   }, [status, submissionId, router]);
 
-  if (status !== "ai_reviewing" && status !== "submitted") return null;
+  if (!PENDING_STATUSES.has(status)) return null;
 
   return (
     <div

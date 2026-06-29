@@ -857,6 +857,26 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
       "Sacramento", "CA", "n/a", null, null, null, null, null, null, null, null, null, now - 130 * DAY)
   );
 
+  // ---- org invitations (H1) ----
+  // The /start org-pick flow no longer trusts client-supplied org_role/org_id;
+  // an org join is only valid against a pending org_invites row addressed to the
+  // user's email (mirrors app/auth-actions.ts). The sample org accounts already
+  // have their roles seeded directly, but without a matching invite they would
+  // be locked out if they ever re-traverse org-pick. Seed an unaccepted invite
+  // for each seeded org member so that path keeps working. `invited_by` is the
+  // platform admin; org_role mirrors each member's seeded role.
+  const inviteIns = db.prepare(
+    "INSERT INTO org_invites (id, org_id, email, org_role, invited_by, created_at, accepted_at) VALUES (?,?,?,?,?,?,?)"
+  );
+  const seedInvites: { id: string; orgId: string; email: string; orgRole: "reviewer" | "org_admin" }[] = [
+    { id: "invite_priya", orgId: ORG_SFCDC, email: "priya.venkatesan@example.com", orgRole: "org_admin" },
+    { id: "invite_daniel", orgId: ORG_FUF, email: "daniel.okafor@example.com", orgRole: "reviewer" },
+    { id: "invite_hana", orgId: ORG_CITIZEN_SCIENCE, email: "hana.ishikawa@example.com", orgRole: "reviewer" },
+  ];
+  for (const inv of seedInvites) {
+    stmts.push(inviteIns.bind(inv.id, inv.orgId, inv.email, inv.orgRole, USER_ADMIN, now - 115 * DAY, null));
+  }
+
   // ---- task templates ----
   const taskIns = db.prepare(
     `INSERT INTO task_templates (id, org_id, created_by_user_id, title, category, short_description,
@@ -907,7 +927,7 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   // project passes the 4-part gate by construction (public-interest research
   // curated by Adler Planetarium with a free public dataset).
   const zoonInstructions =
-    "## What you'll do\nZooniverse hosts dozens of real research projects across biology, climate, astronomy, history, and medicine. Every project produces a public dataset researchers actually use. You pick whichever one looks interesting, classify on your own account, and your hours count toward your colift record.\n\n1. **Open Zooniverse** and either sign in or create a free account.\n2. **Pick a project** — anything that catches your eye. Whales, galaxies, weather diaries, rainforest sounds, whatever.\n3. **Classify**. Do as much or as little as you want in one session.\n4. When you're ready to log hours (typically end-of-month), **generate your Volunteer Certificate** from your Zooniverse profile.\n5. Come back to colift, upload the certificate, tell us which project you worked on, and a reviewer will credit the hours within a few days.\n\n## Why this counts\nEvery Zooniverse project is real public-interest research with a free public output — exactly the kind of work colift is built to recognize. We don't need to pre-approve which project you pick.\n\n## Hours credit\nWe credit the hours your Zooniverse certificate shows. No artificial cap.";
+    "## What you'll do\nZooniverse hosts dozens of real research projects across biology, climate, astronomy, history, and medicine. Every project produces a public dataset researchers actually use. You pick whichever one looks interesting, classify on your own account, and your hours count toward your colift record.\n\n1. **Open Zooniverse** and either sign in or create a free account.\n2. **Pick a project** — anything that catches your eye. Whales, galaxies, weather diaries, rainforest sounds, whatever.\n3. **Classify**. Do as much or as little as you want in one session.\n4. When you're ready to log hours (typically end-of-month), **generate your Volunteer Certificate** from your Zooniverse profile.\n5. Come back to colift, upload the certificate, tell us which project you worked on, and a reviewer will credit the hours within a few days.\n\n## Why this counts\nEvery Zooniverse project is real public-interest research with a free public output — exactly the kind of work colift is built to recognize. We don't need to pre-approve which project you pick.\n\n## Hours credit\nWe credit the NEW time your latest certificate shows since your last credited certificate — your certificate reports a running cumulative total, so each month only the additional hours count. Credit is also capped at a conservative monthly ceiling and confirmed against your evidence before any hours are recorded.";
   const zoonRubric =
     "A complete submission has a legible Zooniverse Volunteer Certificate that names the volunteer, lists the reporting period, and shows the project + hours. Any Zooniverse project qualifies as long as the certificate is authentic and matches the submitting volunteer.";
   const zoonCheck: ChecklistItem[] = [
@@ -930,11 +950,17 @@ export async function seedDatabase(db: D1Database, now: number = Date.now()): Pr
   );
 
   // External provider columns aren't in the base INSERT — set them after.
-  // monthly_minutes_cap = NULL means no artificial cap; we credit what the cert says.
+  //
+  // DECISION (owner): NO hard monthly cap on external-certificate tasks. The
+  // gate is MANUAL REVIEW (EXTERNAL_CERT_AUTO_APPROVE off by default) plus
+  // delta-vs-cumulative crediting + re-export/dup detection, so a cert cannot
+  // credit unbounded or repeated hours. monthly_minutes_cap stays NULL (the
+  // submit path treats NULL as "no cap"). If auto-approve is ever turned on,
+  // add a review THRESHOLD rather than a hard cap.
   stmts.push(
     db.prepare(
-      "UPDATE task_templates SET external_provider = ?, evidence_mode = ?, monthly_minutes_cap = NULL WHERE id = ?"
-    ).bind("zooniverse", "external_certificate", TASK_ZOONIVERSE)
+      "UPDATE task_templates SET external_provider = ?, evidence_mode = ?, monthly_minutes_cap = ? WHERE id = ?"
+    ).bind("zooniverse", "external_certificate", null, TASK_ZOONIVERSE)
   );
 
   // ---- submissions ----

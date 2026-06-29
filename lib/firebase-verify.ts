@@ -10,6 +10,13 @@ import { getEnv } from "./cf";
 const CERT_URL =
   "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
 
+/**
+ * Identity Toolkit sits in the auth hot path, so cap it tight (8s). On timeout
+ * we return null and fall through to the offline x509/JWKS verification path
+ * rather than hanging the login request.
+ */
+const IDENTITY_TOOLKIT_TIMEOUT_MS = 8_000;
+
 // Firebase project IDs are public identifiers (they are embedded in the web
 // client configuration). Keeping this final fallback prevents an OpenNext
 // request-context gap from breaking the server half of authentication.
@@ -65,6 +72,9 @@ async function verifyWithIdentityToolkit(token: string): Promise<FirebaseIdentit
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ idToken: token }),
+      // A hung Identity Toolkit must not stall login; on timeout we return null
+      // and verifyFirebaseToken falls through to the offline JWKS path.
+      signal: AbortSignal.timeout(IDENTITY_TOOLKIT_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as {
@@ -79,7 +89,14 @@ async function verifyWithIdentityToolkit(token: string): Promise<FirebaseIdentit
       phone: user.phoneNumber ?? null,
     };
   } catch (error) {
-    console.warn("[firebase_identity_toolkit_verification_failed]", error instanceof Error ? error.message : String(error));
+    const reason = error instanceof Error && error.name === "TimeoutError" ? "timeout" : "error";
+    // Return null (not throw) so verifyFirebaseToken falls through to the
+    // offline x509/JWKS verification path instead of failing the login.
+    console.warn(
+      "[firebase_identity_toolkit_verification_failed]",
+      reason,
+      error instanceof Error ? error.message : String(error)
+    );
     return null;
   }
 }

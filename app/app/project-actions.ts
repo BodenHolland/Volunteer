@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/cf";
 import { newId } from "@/lib/ids";
 import { getCurrentUser } from "@/lib/session";
+import { getCommittableTask } from "@/lib/queries";
 import { parseJson, type TimeLogSession, type ChecklistProgress, type Submission } from "@/lib/types";
 
 async function loadOwned(submissionId: string): Promise<Submission | null> {
@@ -24,6 +25,14 @@ export async function commitToTask(formData: FormData) {
     .bind(taskId)
     .first<{ id: string; category: string; deliverable_spec_json: string; short_description: string }>();
   if (!task) redirect("/opportunities");
+
+  // TASK-LIFECYCLE GUARD (H11): a task id is attacker-supplied form data. Refuse
+  // to commit unless the task is currently committable — 'active' status, before
+  // its closes_at deadline, and a native (full-pipeline) listing rather than a
+  // directory-only external listing that links out to the org's own signup.
+  // This stops committing to paused/archived/draft/closed/external tasks by
+  // POSTing a stale or guessed task_id. Single authoritative check in queries.ts.
+  if (!(await getCommittableTask(taskId))) redirect("/opportunities");
 
   const db = getDb();
 

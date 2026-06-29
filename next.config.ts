@@ -47,10 +47,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Hide the dev tools indicator so screenshots are clean.
   devIndicators: false,
-  eslint: {
-    // Demo: don't block builds on lint.
-    ignoreDuringBuilds: true,
-  },
   images: {
     // We don't use remote images; org thumbnails are generated inline.
     unoptimized: true,
