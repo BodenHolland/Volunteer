@@ -344,6 +344,12 @@ async function captureItemInner(
     const exifLat = Number.isFinite(exifLatRaw) ? exifLatRaw : null;
     const exifLng = Number.isFinite(exifLngRaw) ? exifLngRaw : null;
     const exifTs = Number.isFinite(exifTsRaw) ? exifTsRaw : null;
+    // Device GPS at capture time — a presence signal that survives photos with no
+    // EXIF location.
+    const devLatRaw = Number(formData.get("device_lat") ?? NaN);
+    const devLngRaw = Number(formData.get("device_lng") ?? NaN);
+    const devLat = Number.isFinite(devLatRaw) ? devLatRaw : null;
+    const devLng = Number.isFinite(devLngRaw) ? devLngRaw : null;
     // PUBLIC photo row (no EXIF, no audit_id) keyed by public_session_ref.
     await getDb()
       .prepare(
@@ -353,14 +359,14 @@ async function captureItemInner(
       )
       .bind(photoId, a.public_session_ref, null, r2Key, sha, now, "pending")
       .run();
-    // PRIVATE EXIF row (camera GPS + capture time) keyed by photo_id.
-    if (exifTs != null || exifLat != null || exifLng != null) {
+    // PRIVATE EXIF row (camera GPS + capture time + device GPS) keyed by photo_id.
+    if (exifTs != null || exifLat != null || exifLng != null || devLat != null || devLng != null) {
       await getDb()
         .prepare(
-          `INSERT INTO audit_photo_exif (photo_id, exif_timestamp, exif_geocode_lat, exif_geocode_lng)
-           VALUES (?,?,?,?)`
+          `INSERT INTO audit_photo_exif (photo_id, exif_timestamp, exif_geocode_lat, exif_geocode_lng, device_geocode_lat, device_geocode_lng)
+           VALUES (?,?,?,?,?,?)`
         )
-        .bind(photoId, exifTs, exifLat, exifLng)
+        .bind(photoId, exifTs, exifLat, exifLng, devLat, devLng)
         .run();
     }
   }

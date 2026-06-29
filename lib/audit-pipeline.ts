@@ -111,21 +111,23 @@ export async function processAudit(auditId: string): Promise<void> {
   // audit_photos export can't accidentally leak camera GPS / capture time.
   // Load it here for the geotag-mismatch fraud check.
   const photoIds = photos.map((p) => p.id);
-  const exifByPhotoId = new Map<string, { exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null }>();
+  const exifByPhotoId = new Map<string, { exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null; device_geocode_lat: number | null; device_geocode_lng: number | null }>();
   if (photoIds.length > 0) {
     const placeholders = photoIds.map(() => "?").join(",");
     const exifRows =
       (
         await db
-          .prepare(`SELECT photo_id, exif_geocode_lat, exif_geocode_lng, exif_timestamp FROM audit_photo_exif WHERE photo_id IN (${placeholders})`)
+          .prepare(`SELECT photo_id, exif_geocode_lat, exif_geocode_lng, exif_timestamp, device_geocode_lat, device_geocode_lng FROM audit_photo_exif WHERE photo_id IN (${placeholders})`)
           .bind(...photoIds)
-          .all<{ photo_id: string; exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null }>()
+          .all<{ photo_id: string; exif_geocode_lat: number | null; exif_geocode_lng: number | null; exif_timestamp: number | null; device_geocode_lat: number | null; device_geocode_lng: number | null }>()
       ).results ?? [];
     for (const r of exifRows) {
       exifByPhotoId.set(r.photo_id, {
         exif_geocode_lat: r.exif_geocode_lat,
         exif_geocode_lng: r.exif_geocode_lng,
         exif_timestamp: r.exif_timestamp,
+        device_geocode_lat: r.device_geocode_lat,
+        device_geocode_lng: r.device_geocode_lng,
       });
     }
   }
@@ -249,24 +251,24 @@ export async function processAudit(auditId: string): Promise<void> {
         }
       }
 
-      // EXIF geocode check — EXIF is in the private audit_photo_exif side-table.
+      // Proof-of-presence — the photo's EXIF GPS or the device's GPS at capture
+      // must place the volunteer at the store. Both live in the private
+      // audit_photo_exif side-table; device GPS covers photos with no EXIF
+      // location. Flag only when a signal exists AND none of them is near.
       const exif = exifByPhotoId.get(photo.id);
-      if (
-        store &&
-        store.geocode_lat != null &&
-        store.geocode_lng != null &&
-        exif?.exif_geocode_lat != null &&
-        exif?.exif_geocode_lng != null
-      ) {
-        const distM = haversineMeters(
+      if (store && store.geocode_lat != null && store.geocode_lng != null && exif) {
+        const distM = nearestPresenceMeters(
           { lat: store.geocode_lat, lng: store.geocode_lng },
-          { lat: exif.exif_geocode_lat, lng: exif.exif_geocode_lng }
+          [
+            { lat: exif.exif_geocode_lat, lng: exif.exif_geocode_lng },
+            { lat: exif.device_geocode_lat, lng: exif.device_geocode_lng },
+          ]
         );
-        if (distM > PHOTO_GEO_RADIUS_M) {
+        if (distM != null && distM > PHOTO_GEO_RADIUS_M) {
           pendingFlags.push({
             flag_type: "geotag-mismatch",
             flag_severity: "review",
-            flag_reason: `${item.display_name}: photo GPS is ${Math.round(distM)}m from the store.`,
+            flag_reason: `${item.display_name}: location is ${Math.round(distM)}m from the store.`,
             metadata: { item_id: cap.basket_item_id, distance_m: Math.round(distM) },
           });
         }
@@ -621,6 +623,26 @@ export function haversineMeters(a: { lat: number; lng: number }, b: { lat: numbe
   const lat2 = toRad(b.lat);
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Smallest distance (meters) from the store to any present location signal —
+ * photo EXIF GPS and/or device GPS captured at photo time. Returns null when no
+ * signal is available (callers treat null as "no evidence", not "near"). Any
+ * signal placing the volunteer near the store clears the proof-of-presence check,
+ * so a photo with no EXIF can still be validated against device GPS.
+ */
+export function nearestPresenceMeters(
+  store: { lat: number; lng: number },
+  signals: ReadonlyArray<{ lat: number | null; lng: number | null }>
+): number | null {
+  let best: number | null = null;
+  for (const s of signals) {
+    if (s.lat == null || s.lng == null) continue;
+    const d = haversineMeters(store, { lat: s.lat, lng: s.lng });
+    if (best == null || d < best) best = d;
+  }
+  return best;
 }
 
 // ---------------------------------------------------------------------------
