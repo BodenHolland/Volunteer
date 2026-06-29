@@ -39,16 +39,6 @@ export async function addressAutocompleteAction(query: string): Promise<AddressS
     });
     return [];
   }
-  // Diagnostic: record query + result count so we can see in audit_log whether
-  // the action is being reached and whether Nominatim is producing hits from
-  // Cloudflare's IP space. Remove once autocomplete is confirmed working.
-  await writeAudit({
-    actorUserId: user.id,
-    action: "address_autocomplete_diag",
-    entityType: "diagnostic",
-    entityId: "addressAutocompleteAction",
-    detail: { query, hits_count: hits.length, first: hits[0]?.address ?? null },
-  });
   return hits.map((h) => {
     // h.address is "house_number street, city state, zip", split apart with a
     // forgiving regex so we can repopulate the form even when Nominatim returns

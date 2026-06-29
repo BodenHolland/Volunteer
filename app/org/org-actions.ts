@@ -116,9 +116,13 @@ export async function requestChanges(formData: FormData) {
   const id = String(formData.get("submission_id") ?? "");
   const ctx = await loadReviewable(id);
   if (!ctx) redirect("/org/submissions");
-  const reason = String(formData.get("reason") ?? "").trim() || "Please review the task requirements and resubmit.";
+  const reason =
+    String(formData.get("reason") ?? "").trim().slice(0, 2000) ||
+    "Please review the task requirements and resubmit.";
+  // Never flip an already-APPROVED (credited) submission back out of approved —
+  // there is no clawback path, so that would orphan credited hours on the CF 888.
   await ctx.db
-    .prepare("UPDATE submissions SET status = 'needs_changes', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ? WHERE id = ?")
+    .prepare("UPDATE submissions SET status = 'needs_changes', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ? WHERE id = ? AND status != 'approved'")
     .bind(Date.now(), ctx.user.id, reason, id)
     .run();
   revalidatePath("/org/submissions");
@@ -129,9 +133,12 @@ export async function rejectSubmission(formData: FormData) {
   const id = String(formData.get("submission_id") ?? "");
   const ctx = await loadReviewable(id);
   if (!ctx) redirect("/org/submissions");
-  const reason = String(formData.get("reason") ?? "").trim() || "This submission doesn't meet the task requirements.";
+  const reason =
+    String(formData.get("reason") ?? "").trim().slice(0, 2000) ||
+    "This submission doesn't meet the task requirements.";
+  // Never flip an already-APPROVED (credited) submission back out of approved.
   await ctx.db
-    .prepare("UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ? WHERE id = ?")
+    .prepare("UPDATE submissions SET status = 'rejected', reviewed_at = ?, reviewer_id = ?, reviewer_notes = ? WHERE id = ? AND status != 'approved'")
     .bind(Date.now(), ctx.user.id, reason, id)
     .run();
   revalidatePath("/org/submissions");

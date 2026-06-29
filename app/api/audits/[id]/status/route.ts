@@ -3,11 +3,17 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getDb } from "@/lib/cf";
 import { requireUser } from "@/lib/session";
 import { processAudit } from "@/lib/audit-pipeline";
+import { rateLimit } from "@/lib/ratelimit";
 
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   const user = await requireUser();
+  // Rate limit: this route re-arms processAudit() (AI vision + Browser Rendering)
+  // in the background, so an unthrottled loop is a cost/DoS vector. Mirror the
+  // submissions status route's per-user limit.
+  const limit = await rateLimit(`audit-status:${user.id}`, 30, 60_000);
+  if (!limit.ok) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   const row = await getDb()
     .prepare("SELECT validation_status, credited_hours, user_id FROM audits WHERE id = ?")
     .bind(id)
