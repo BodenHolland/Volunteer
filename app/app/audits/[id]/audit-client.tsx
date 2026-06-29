@@ -487,7 +487,6 @@ function StoreStep({ auditId, currentStoreId, copy }: { auditId: string; current
     <div className="flex flex-col gap-3">
       <Button
         type="button"
-        variant="secondary"
         className="self-start"
         onClick={useMyLocation}
         disabled={locating}
@@ -868,6 +867,21 @@ function CaptureForm({
           }
         } catch {
           /* no exif, pipeline will skip the geotag check */
+        }
+        // Device GPS at capture time — a proof-of-presence signal that works even
+        // when the photo carries no EXIF location (many phones strip it). Best-
+        // effort: skipped silently if geolocation is unavailable or declined.
+        const pos = await new Promise<GeolocationPosition | null>((resolve) => {
+          if (typeof navigator === "undefined" || !navigator.geolocation) return resolve(null);
+          navigator.geolocation.getCurrentPosition(
+            (p) => resolve(p),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 7000, maximumAge: 60_000 }
+          );
+        });
+        if (pos) {
+          fd.set("device_lat", String(pos.coords.latitude));
+          fd.set("device_lng", String(pos.coords.longitude));
         }
       }
     }
