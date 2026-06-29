@@ -300,21 +300,29 @@ export async function processAudit(auditId: string): Promise<void> {
     credited = await computeCreditedHoursForAudit(auditId);
   }
 
-  // Terminal side-effects are grouped into one db.batch() so the audit's
-  // validation_status, the parent submission flip, the public-summary publish,
-  // and the ledger credit all commit together or roll back together. The
-  // irreversible status='approved' flip can never land without its credited
-  // hours (D1 runs a batch as an implicit transaction). The single-flight claim
-  // at the top of this function guarantees only one run reaches here.
-  const batch: D1PreparedStatement[] = [
-    db
-      .prepare(
-        `UPDATE audits
+  // Terminal flip is a COMPARE-AND-SET on the 'validating' state this run
+  // claimed at the top — never an unconditional write. The admin spot-approve
+  // path (audit-actions.ts) deliberately also claims 'validating' rows (to
+  // rescue a crashed pipeline run), so without this guard BOTH paths would
+  // credit the SAME (user, month, org_food_access) ledger row when an admin
+  // approves an audit the async pipeline is still mid-flight on — doubling the
+  // volunteer's hours on the CF 888. If the CAS matches zero rows, another path
+  // already finalized this audit; bail BEFORE crediting.
+  const flip = await db
+    .prepare(
+      `UPDATE audits
          SET validation_status = ?, validation_flag_count = ?, credited_hours = ?
-         WHERE id = ?`
-      )
-      .bind(nextStatus, totalFlags, credited, auditId),
-  ];
+       WHERE id = ? AND validation_status = 'validating'`
+    )
+    .bind(nextStatus, totalFlags, credited, auditId)
+    .run();
+  if (flip.meta.changes !== 1) return;
+
+  // The dependent terminal writes (parent submission flip, public-summary
+  // publish, ledger credit) ride in one db.batch() (D1 implicit transaction)
+  // behind the winning flip — the CAS-then-batch pattern every other credit
+  // path uses. Only the run that won the flip above reaches the credit.
+  const batch: D1PreparedStatement[] = [];
 
   if (nextStatus === "verified") {
     batch.push(
@@ -346,7 +354,7 @@ export async function processAudit(auditId: string): Promise<void> {
   }
   // 'flagged' stays in pending_review for human spot-review (already set on submit).
 
-  await db.batch(batch);
+  if (batch.length) await db.batch(batch);
 
   // Open Prices contribution is a network side-effect (queued on failure) — kept
   // out of the atomic batch so a remote outage can't roll back the approval.

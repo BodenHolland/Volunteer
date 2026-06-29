@@ -46,6 +46,9 @@ export async function submitCertificate(formData: FormData) {
   const id = String(formData.get("submission_id") ?? "");
   const me = await getCurrentUser();
   if (!me) redirect("/login");
+  // Recipients only (defense-in-depth: a directly-POSTed action must not let an
+  // org_member become a cert owner and later self-credit).
+  if (me.role !== "recipient") redirect("/unauthorized");
   const db = getDb();
   const sub = await db.prepare("SELECT * FROM submissions WHERE id = ?").bind(id).first<Submission>();
   if (!sub || sub.user_id !== me.id) redirect("/unauthorized");
