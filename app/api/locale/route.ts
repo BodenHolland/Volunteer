@@ -7,7 +7,11 @@ export async function GET(req: Request) {
   const requested = url.searchParams.get("to") ?? "en";
   const to = requested in LOCALE_META ? requested : "en";
   const next = url.searchParams.get("next") || "/";
-  const res = NextResponse.redirect(new URL(next.startsWith("/") ? next : "/", req.url));
+  // Only allow same-origin paths. A protocol-relative URL ("//evil.com") also
+  // starts with "/" and would resolve off-site, so reject it explicitly — the
+  // same guard the login flow uses (app/auth-actions.ts).
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const res = NextResponse.redirect(new URL(safeNext, req.url));
   res.cookies.set("locale", to, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   return res;
 }

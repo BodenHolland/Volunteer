@@ -222,13 +222,33 @@ export async function submitWork(formData: FormData) {
   }
 
   // ---- File uploads ----
-  const photos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+  // Bound uploads (DoS / cost / storage): cap the count, per-file size, and allow
+  // only image types. Each file is read fully into Worker memory, so an
+  // unbounded/huge/non-image upload could OOM the Worker — mirror the external-cert
+  // path's size+MIME enforcement. Over-limit or wrong-type files are skipped.
+  const MAX_PHOTOS = 12;
+  const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+  const ALLOWED_PHOTO_MIMES = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/heic",
+    "image/heif",
+  ]);
+  const photos = formData
+    .getAll("photos")
+    .filter((f): f is File => f instanceof File && f.size > 0)
+    .slice(0, MAX_PHOTOS);
   const metaRaw = parseJson<{ lat?: number; lng?: number; captured_at?: number }[]>(
     String(formData.get("photo_meta") ?? "[]"),
     []
   );
   let idx = 0;
   for (const file of photos) {
+    if (file.size > MAX_PHOTO_BYTES || (file.type && !ALLOWED_PHOTO_MIMES.has(file.type))) {
+      idx++; // keep photo_meta alignment for the remaining files
+      continue;
+    }
     const buf = await file.arrayBuffer();
     const hash = await sha256Hex(buf);
     const key = `submissions/${id}/${newId("f")}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;

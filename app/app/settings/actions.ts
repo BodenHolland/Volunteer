@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/cf";
 import { encryptField } from "@/lib/crypto";
+import { deleteFiles } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 import { destroyAllUserSessions } from "@/lib/auth";
 import { writeAudit } from "@/lib/audit";
@@ -68,6 +69,30 @@ export async function deleteAccount(formData: FormData) {
   const now = Date.now();
   const db = getDb();
 
+  // Collect the private-cluster PII DOCUMENTS in R2 to destroy (CF 888 PDFs, the
+  // BenefitsCal screenshot, Zooniverse certificates). Orphaning their DB rows is
+  // NOT enough — the files themselves carry legal name / case number / address /
+  // DOB. Read the keys BEFORE the batch (which deletes cf888_forms rows and
+  // reassigns submissions.user_id); the objects are deleted after the DB commit.
+  const r2Keys: Array<string | null | undefined> = [];
+  const cf888Files = await db
+    .prepare("SELECT r2_key FROM cf888_forms WHERE user_id = ?")
+    .bind(user.id)
+    .all<{ r2_key: string }>();
+  for (const r of cf888Files.results ?? []) r2Keys.push(r.r2_key);
+  const certFiles = await db
+    .prepare(
+      "SELECT sf.r2_key AS r2_key FROM submission_files sf JOIN submissions s ON s.id = sf.submission_id WHERE s.user_id = ? AND sf.kind = 'zooniverse_certificate'"
+    )
+    .bind(user.id)
+    .all<{ r2_key: string }>();
+  for (const r of certFiles.results ?? []) r2Keys.push(r.r2_key);
+  const benefits = await db
+    .prepare("SELECT benefitscal_screenshot_r2_key AS k FROM users WHERE id = ?")
+    .bind(user.id)
+    .first<{ k: string | null }>();
+  if (benefits?.k) r2Keys.push(benefits.k);
+
   // Erasure runs as one atomic batch. The work product (public-cluster rows keyed
   // only by public_session_ref) is intentionally ORPHANED, never deleted — it is a
   // public good and must survive erasure; we only cut the link back to a person.
@@ -97,6 +122,7 @@ export async function deleteAccount(formData: FormData) {
                phone = NULL,
                full_name = NULL,
                firebase_uid = NULL,
+               benefitscal_screenshot_r2_key = NULL,
                email = 'deleted+' || id || '@colift.invalid'
          WHERE id = ?`
       )
@@ -128,13 +154,32 @@ export async function deleteAccount(formData: FormData) {
     db.prepare("DELETE FROM cf888_forms WHERE user_id = ?").bind(user.id),
     // feedback.user_id is nullable (migration 0001); orphan the feedback body.
     db.prepare("UPDATE feedback SET user_id = NULL WHERE user_id = ?").bind(user.id),
+    // Scrub the auth/audit trail: login/signup rows carry email + IP in
+    // detail_json and actor_user_id correlates them all. Reassign the actor to the
+    // sentinel and drop the PII payload (keeps each row's action + timestamp for
+    // security metrics without re-identifying the person).
+    db
+      .prepare(
+        "UPDATE audit_log SET actor_user_id = 'user_deleted', detail_json = NULL WHERE actor_user_id = ?"
+      )
+      .bind(user.id),
   ]);
 
+  // Destroy the PII documents in R2 — outside the DB batch (network side-effect):
+  // a transient R2 error must not roll back the committed DB erasure.
+  try {
+    await deleteFiles(r2Keys);
+  } catch {
+    /* DB erasure already committed; object cleanup can be retried out-of-band */
+  }
+
+  // The deletion record itself must not re-introduce the person's id (the batch
+  // just scrubbed it everywhere) — log it against the sentinel.
   await writeAudit({
-    actorUserId: user.id,
+    actorUserId: "user_deleted",
     action: "account_deleted",
     entityType: "user",
-    entityId: user.id,
+    entityId: "user_deleted",
     detail: {
       soft_delete: true,
       pii_scrubbed: true,

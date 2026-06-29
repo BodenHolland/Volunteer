@@ -14,3 +14,16 @@ export async function putFile(
 export async function getFile(key: string) {
   return getFiles().get(key);
 }
+
+/**
+ * Permanently delete R2 objects. Used by account erasure to destroy private-
+ * cluster PII documents (CF 888 PDFs, BenefitsCal screenshots, provider
+ * certificates) — orphaning their DB rows isn't enough; the documents themselves
+ * carry legal name / case number / address / DOB. The R2 binding accepts an array
+ * of keys; empty/blank keys are filtered out.
+ */
+export async function deleteFiles(keys: Array<string | null | undefined>): Promise<void> {
+  const valid = keys.filter((k): k is string => typeof k === "string" && k.length > 0);
+  if (valid.length === 0) return;
+  await getFiles().delete(valid);
+}
