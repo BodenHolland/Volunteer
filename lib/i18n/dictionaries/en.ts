@@ -26,6 +26,7 @@ export const en = {
     tagline: "Online volunteering that counts toward your SNAP work requirement.",
     deliverables: "Public deliverables",
     privacy: "Privacy",
+    terms: "Terms",
     contact: "Contact",
     help: "Help center",
     snapEbt: "SNAP/EBT",

@@ -35,7 +35,8 @@ export async function SiteFooter() {
             <FooterCol title="Support">
               <FooterLink href="/help">{t.footer.help}</FooterLink>
               <FooterLink href="/contact">{t.footer.contact}</FooterLink>
-              <FooterLink href="/how-it-works#identity">{t.footer.privacy}</FooterLink>
+              <FooterLink href="/help/11-privacy">{t.footer.privacy}</FooterLink>
+              <FooterLink href="/terms">{t.footer.terms}</FooterLink>
             </FooterCol>
           </nav>
         </div>

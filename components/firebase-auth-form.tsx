@@ -9,6 +9,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
+import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,6 +150,13 @@ export function FirebaseAuthForm({ mode, next }: { mode: "login" | "signup"; nex
         <Button type="submit" className="w-full" disabled={busy}>
           {busy ? "Working…" : mode === "signup" ? "Create account" : "Log in"}
         </Button>
+        {mode === "signup" && (
+          <p className="text-center text-xs leading-relaxed text-meta">
+            By creating an account you agree to our{" "}
+            <Link href="/terms" className="text-forest underline">Terms</Link> and{" "}
+            <Link href="/help/11-privacy" className="text-forest underline">Privacy Policy</Link>.
+          </p>
+        )}
       </form>
       <div className="flex items-center gap-3 text-xs text-meta">
         <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
