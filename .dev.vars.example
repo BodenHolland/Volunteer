@@ -33,3 +33,8 @@ FIREBASE_PROJECT_ID=
 # Set DEMO_MODE=true for local dev to enable sample-data seeding, /admin/reset, and
 # onboarding skips. Leave unset in production (no seeding, PII encryption required).
 DEMO_MODE=true
+
+# Cloudflare Web Analytics beacon token (cookieless, no consent banner needed).
+# Get it from: Cloudflare dashboard → Analytics & Logs → Web Analytics → add site.
+# When unset, the beacon script is not rendered — analytics stay off.
+NEXT_PUBLIC_CF_BEACON_TOKEN=

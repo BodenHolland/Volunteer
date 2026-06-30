@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { CloudflareAnalytics } from "./_components/cloudflare-analytics";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
+      <head>
+        <CloudflareAnalytics />
+      </head>
       <body className="min-h-full flex flex-col bg-white text-body">
         {children}
       </body>

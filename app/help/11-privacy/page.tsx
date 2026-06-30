@@ -38,6 +38,11 @@ export default async function Page() {
         <h2>Monitoreo de actividad</h2>
         <p>La plataforma monitorea la participación activa durante una tarea. El temporizador, la detección de inactividad y las señales de desplazamiento/toque existen por una sola razón: certificar el tiempo realmente medido. El monitoreo está ligado a la tarea. Solo corre mientras una sesión de tarea está activa. La Política de Privacidad lo describe en detalle.</p>
 
+        <h2>Cookies y analítica</h2>
+        <p>Usamos solo dos cookies de origen propio: <code>tended_session</code> (te mantiene con sesión iniciada) y <code>locale</code> (recuerda tu idioma). Ninguna se usa para publicidad ni para seguimiento entre sitios.</p>
+        <p>Usamos <strong>Cloudflare Web Analytics</strong>, que es sin cookies y por diseño no identifica a usuarios. Vemos métricas agregadas como vistas de página, país y rendimiento del sitio, sin rastro por persona. Por eso no mostramos un banner de &ldquo;Aceptar / Rechazar cookies&rdquo;: no hay nada que rechazar más allá de las cookies funcionales arriba.</p>
+        <p>Cloudflare, como nuestro proveedor de hosting, también registra automáticamente datos del servidor (conteos de solicitudes, códigos de estado, país) y puede establecer cookies de seguridad estrictamente necesarias para mitigar bots.</p>
+
         <h2>Nota legal</h2>
         <p>Las organizaciones sin fines de lucro de California quedan en gran medida fuera del núcleo de la CCPA/CPRA, pero los deberes de notificación de filtraciones de datos y otros deberes de privacidad siguen vigentes. El programa de privacidad es revisado por asesoría legal.</p>
       </ArticleShell>
@@ -70,6 +75,11 @@ export default async function Page() {
 
       <h2>Activity monitoring</h2>
       <p>The platform monitors active engagement during a task. The timer, idle detection, and scroll/tap signals exist for one reason: to certify actual measured time. The monitoring is task-bound. It runs only while a task session is active. The Privacy Policy describes it in full.</p>
+
+      <h2>Cookies and analytics</h2>
+      <p>We set just two first-party cookies: <code>tended_session</code> (keeps you signed in) and <code>locale</code> (remembers your language). Neither is used for advertising or cross-site tracking.</p>
+      <p>We use <strong>Cloudflare Web Analytics</strong>, which is cookieless and by design does not identify visitors. We see aggregate page views, country, and site performance — no per-person trail. That&apos;s why we don&apos;t show an &ldquo;Accept / Reject cookies&rdquo; banner: there&apos;s nothing to reject beyond the functional cookies above.</p>
+      <p>Cloudflare, as our hosting provider, also automatically records server-side request data (counts, status codes, country) and may set strictly-necessary security cookies for bot mitigation.</p>
 
       <h2>Legal note</h2>
       <p>California nonprofits sit largely outside the CCPA/CPRA&apos;s core, but data-breach and other privacy duties remain. The privacy program is reviewed by counsel.</p>

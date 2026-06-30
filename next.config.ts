@@ -15,14 +15,21 @@ const isDev = process.env.NODE_ENV !== "production";
  */
 // Firebase Auth endpoints the client SDK talks to.
 const FIREBASE_CONNECT = "https://*.googleapis.com https://volunteer-online-bcfa9.firebaseapp.com";
+// Cloudflare Web Analytics — cookieless beacon. Hosts only need allowing
+// when CF_BEACON_TOKEN is set (i.e. when <CloudflareAnalytics/> actually mounts),
+// but listing them unconditionally keeps the CSP stable across deploys and
+// avoids a header-recompute when the token is rotated.
+const CF_ANALYTICS_SCRIPT = "https://static.cloudflareinsights.com";
+const CF_ANALYTICS_CONNECT = "https://cloudflareinsights.com";
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://apis.google.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://apis.google.com ${CF_ANALYTICS_SCRIPT}${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.googleusercontent.com",
   "font-src 'self' data:",
-  // OpenRouter (AI validation) + Firebase Auth + self; ws: for dev HMR.
-  `connect-src 'self' https://openrouter.ai ${FIREBASE_CONNECT}${isDev ? " ws: http://localhost:*" : ""}`,
+  // OpenRouter (AI validation) + Firebase Auth + Cloudflare Web Analytics
+  // beacon POST + self; ws: for dev HMR.
+  `connect-src 'self' https://openrouter.ai ${FIREBASE_CONNECT} ${CF_ANALYTICS_CONNECT}${isDev ? " ws: http://localhost:*" : ""}`,
   // Firebase Google sign-in popup/iframe.
   "frame-src 'self' https://volunteer-online-bcfa9.firebaseapp.com https://accounts.google.com",
   "frame-ancestors 'none'",
