@@ -96,6 +96,11 @@ export default async function RequestAccessPage({
                     Send request <ArrowRight />
                   </Button>
                 </div>
+                <p className="text-xs leading-relaxed text-meta">
+                  By requesting access you agree to our{" "}
+                  <Link href="/terms" className="text-forest underline">Terms</Link> and{" "}
+                  <Link href="/help/11-privacy" className="text-forest underline">Privacy Policy</Link>.
+                </p>
               </form>
             </>
           )}
